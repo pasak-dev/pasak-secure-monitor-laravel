@@ -1,0 +1,34 @@
+{
+    "date": "2026-11-07",
+    "type": "update",
+    "title": {
+        "id": "Inspeksi Bukti Berkas Keamanan, Tanggal Pembaruan Rinci, dan Peniadaan Peringatan Palsu Foto Pengguna",
+        "en": "Security File Evidence Inspection, Detailed Modification Tracking, and User Photo False Alarm Elimination"
+    },
+    "body": {
+        "id": "Penyempurnaan menyeluruh pada panel pemantauan server dengan penambahan jendela inspeksi bukti digital langsung dari dasbor, pelaporan tanggal dan waktu modifikasi berkas secara presisi, perlindungan ganda konfirmasi sebelum tindakan pembersihan, serta peningkatan kecerdasan pendeteksi agar foto profil pengguna tidak lagi salah teridentifikasi sebagai ancaman keamanan.",
+        "en": "Comprehensive enhancements to the server security audit console featuring direct evidence inspection modals from the dashboard, precise modification timestamp tracking, fail-safe dual-layer confirmation dialogs, and intelligent detection tuning ensuring authentic user profile photos are never mistakenly flagged as security threats."
+    },
+    "items": [
+        {
+            "type": "feature",
+            "id": "Jendela Inspeksi Bukti Digital Langsung dari Dasbor: Pengelola sistem kini dapat memeriksa rincian lengkap berkas mencurigakan beserta cuplikan bukti kode atau karakter yang terdeteksi secara langsung melalui dialog interaktif tanpa perlu mengakses terminal server secara manual.",
+            "en": "Direct Digital Evidence Inspection Modal: Administrators can now review comprehensive details of flagged files alongside exact captured code and byte snippets directly within an interactive inspection modal without needing manual server terminal access."
+        },
+        {
+            "type": "feature",
+            "id": "Pelaporan Tanggal dan Waktu Modifikasi Berkas Presisi: Tabel pemantauan berkas kini menyajikan informasi tanggal, jam, menit, hingga detik pembaruan berkas secara akurat lengkap dengan penunjuk waktu relatif untuk memudahkan investigasi riwayat berkas.",
+            "en": "Precise File Modification Timestamps: The suspicious file monitoring table now displays exact date and time down to the second, paired with relative human-friendly time indicators to streamline audit trails."
+        },
+        {
+            "type": "improvement",
+            "id": "Perlindungan Ganda Konfirmasi Pembersihan Berkas: Penambahan pengaman konfirmasi berlapis pada tindakan pembersihan berkas untuk menjamin dialog konfirmasi selalu tampil di peramban pengguna dalam kondisi apa pun guna mencegah terhapusnya berkas secara tidak disengaja.",
+            "en": "Fail-Safe Dual Confirmation for File Removal: Added resilient multi-layer confirmation prompts to ensure alert dialogs consistently present in all browser environments, guarding against unintended file deletion."
+        },
+        {
+            "type": "fix",
+            "id": "Peniadaan Peringatan Palsu pada Foto Profil Pengguna: Penyempurnaan penyaringan data biner citra memastikan kompresi foto asli pengguna yang memuat variasi byte acak tidak lagi keliru ditandai sebagai berkas berbahaya, dengan tetap mempertahankan perlindungan penuh dari penyusupan berkas ganda yang sebenarnya.",
+            "en": "Elimination of False Alarms on User Profile Photos: Refined binary image scanning ensures authentic photo compression containing random byte variations is never erroneously marked as hazardous, while steadfastly preserving total defense against genuine hidden intrusions."
+        }
+    ]
+}
