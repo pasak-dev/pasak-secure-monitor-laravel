@@ -2,6 +2,13 @@
 
 All notable changes to `robyajo/pasak` will be documented in this file.
 
+## [1.6.8] - 2026-11-07
+
+### Fixed
+
+- **Eliminasi False Positive Injeksi PHP Polyglot pada Berkas Media Biner (JPEG/PNG/Media)** — memperketat pola regex deteksi short tag `<?` pada `PasakServerSecurityService` dan `PasakSafeImageFile`. Sebelumnya, pola `<\?\s*\$[a-zA-Z_\x7f-\xff]` mengizinkan sembarang byte tinggi (`\x7f-\xff`) sehingga tabrakan byte biner terkompresi acak seperti `3C 3F 24 56` (`<?$V`) dan `3C 3F 24` diikuti *high-byte* (`<?$?`) pada foto profil pengguna asli keliru dideteksi sebagai injeksi PHP polyglot kritis. Pola kini secara ketat mewajibkan token PHP valid, fungsi eksekusi berbahaya (`eval`, `system`, `passthru`, `exec`, `shell_exec`, `assert`, `popen`, `proc_open`), atau assignment variabel PHP nyata (`$_GET`, `$_POST`, `$cmd = ...`), menghilangkan false positive pada foto pengguna tanpa mengorbankan proteksi terhadap webshell nyata.
+- **Penguatan Pengujian Regresi Media Acak** — menambahkan assertion pada `PolyglotImageTest` untuk memastikan berkas foto biner dengan pola byte `<?$V` dan `<?$?` lolos verifikasi 100% pada pemindai audit server dan aturan validasi upload.
+
 ## [1.6.7] - 2026-10-28
 
 ### Added

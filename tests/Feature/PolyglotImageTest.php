@@ -163,3 +163,30 @@ test('safe image file rule rejects short tag webshells with variables or functio
     ]);
     expect($validator2->fails())->toBeTrue();
 });
+
+test('server scanner accepts jpeg with accidental byte collision resembling short tags like <?$V and <?$?', function () {
+    $img = imagecreatetruecolor(10, 10);
+    ob_start();
+    imagejpeg($img);
+    $jpegData = ob_get_clean();
+    imagedestroy($img);
+
+    $collision1 = $jpegData."\x3c\x3f\x24\x56\x89\xfe\x12"; // "<?$V" followed by high bytes
+    $collision2 = $jpegData."\x3c\x3f\x24\x89\xfe\x12"; // "<?$?" high-byte collision
+
+    $reflection = new ReflectionClass(PasakServerSecurityService::class);
+    $service = $reflection->newInstanceWithoutConstructor();
+    $method = $reflection->getMethod('inspectFileContent');
+
+    foreach ([$collision1, $collision2] as $collision) {
+        $tempPath = tempnam(sys_get_temp_dir(), 'pasak_test_');
+        file_put_contents($tempPath, $collision);
+
+        try {
+            $result = $method->invoke($service, $tempPath, 'face_test.jpg', 'jpg', strlen($collision));
+            expect($result['is_suspicious'])->toBeFalse();
+        } finally {
+            @unlink($tempPath);
+        }
+    }
+});
