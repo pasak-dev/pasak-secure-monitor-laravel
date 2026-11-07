@@ -113,6 +113,7 @@
                     <th>{{ __('File') }}</th>
                     <th>{{ __('Threat') }}</th>
                     <th>{{ __('Reason') }}</th>
+                    <th>{{ __('Modified') }}</th>
                     <th style="text-align: right;">{{ __('Size') }}</th>
                     <th style="text-align: right;">{{ __('Action') }}</th>
                 </tr>
@@ -120,22 +121,60 @@
             <tbody>
                 @forelse (($suspicious ?? []) as $file)
                     <tr>
-                        <td class="sec-font-mono" style="font-size: 12px; font-weight: 600;">{{ $file['path'] ?? '-' }}</td>
+                        <td class="sec-font-mono" style="font-size: 12px; font-weight: 600;">
+                            <a href="javascript:void(0)" class="btn-inspect-file" style="color: var(--sec-primary); text-decoration: none;"
+                                data-path="{{ $file['path'] ?? '' }}"
+                                data-filename="{{ $file['filename'] ?? '' }}"
+                                data-location="{{ $file['location'] ?? '' }}"
+                                data-threat="{{ $file['threat_level'] ?? 'info' }}"
+                                data-category="{{ $file['category'] ?? '' }}"
+                                data-reason="{{ $file['reason'] ?? '' }}"
+                                data-snippet="{{ $file['snippet'] ?? '' }}"
+                                data-size="{{ $file['size'] ?? '' }}"
+                                data-modified="{{ !empty($file['modified_at']) ? \Carbon\Carbon::parse($file['modified_at'])->translatedFormat('d M Y, H:i:s') : '-' }}"
+                                data-modified-human="{{ $file['modified_at_human'] ?? '' }}">
+                                {{ $file['path'] ?? '-' }}
+                            </a>
+                        </td>
                         <td><span class="sec-badge {{ $DV::statusBadgeClass($file['threat_level'] ?? 'info') }}">{{ $file['threat_level'] ?? 'info' }}</span></td>
                         <td style="max-width: 280px; font-size: 12px; color: var(--sec-text-muted);" title="{{ $file['reason'] ?? '' }}">{{ \Illuminate\Support\Str::limit((string) ($file['reason'] ?? ''), 60) }}</td>
+                        <td style="font-size: 12px; white-space: nowrap;">
+                            <div style="font-weight: 600; color: var(--sec-text);" class="sec-font-mono">
+                                {{ !empty($file['modified_at']) ? \Carbon\Carbon::parse($file['modified_at'])->translatedFormat('d M Y, H:i:s') : '-' }}
+                            </div>
+                            <div style="font-size: 11px; color: var(--sec-text-muted);" title="{{ $file['modified_at'] ?? '' }}">
+                                {{ $file['modified_at_human'] ?? (!empty($file['modified_at']) ? \Carbon\Carbon::parse($file['modified_at'])->diffForHumans() : '-') }}
+                            </div>
+                        </td>
                         <td style="text-align: right; font-size: 12px;" class="sec-font-mono">{{ $file['size'] ?? '-' }}</td>
-                        <td style="text-align: right;">
-                            <form method="POST" action="{{ route('pasak.dashboard.server.suspicious-files.destroy') }}" data-sec-confirm="{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}" data-confirm-title="{{ __('Konfirmasi Hapus Berkas') }}" data-confirm-type="danger" data-confirm-btn="{{ __('Ya, Hapus Berkas') }}">
-                                @csrf
-                                @method('DELETE')
-                                <input type="hidden" name="file_path" value="{{ $file['path'] ?? '' }}">
-                                <button type="submit" class="sec-btn sec-btn-ghost sec-btn-sm" title="{{ __('Delete file') }}">🗑️</button>
-                            </form>
+                        <td style="text-align: right; white-space: nowrap;">
+                            <div style="display: inline-flex; align-items: center; gap: 6px;">
+                                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-inspect-file"
+                                    data-path="{{ $file['path'] ?? '' }}"
+                                    data-filename="{{ $file['filename'] ?? '' }}"
+                                    data-location="{{ $file['location'] ?? '' }}"
+                                    data-threat="{{ $file['threat_level'] ?? 'info' }}"
+                                    data-category="{{ $file['category'] ?? '' }}"
+                                    data-reason="{{ $file['reason'] ?? '' }}"
+                                    data-snippet="{{ $file['snippet'] ?? '' }}"
+                                    data-size="{{ $file['size'] ?? '' }}"
+                                    data-modified="{{ !empty($file['modified_at']) ? \Carbon\Carbon::parse($file['modified_at'])->translatedFormat('d M Y, H:i:s') : '-' }}"
+                                    data-modified-human="{{ $file['modified_at_human'] ?? '' }}"
+                                    title="{{ __('Lihat Bukti & Detail') }}">
+                                    🔍 {{ __('Detail') }}
+                                </button>
+                                <form method="POST" action="{{ route('pasak.dashboard.server.suspicious-files.destroy') }}" style="display: inline;" onsubmit="return confirm('{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}');" data-sec-confirm="{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}" data-confirm-title="{{ __('Konfirmasi Hapus Berkas') }}" data-confirm-type="danger" data-confirm-btn="{{ __('Ya, Hapus Berkas') }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="file_path" value="{{ $file['path'] ?? '' }}">
+                                    <button type="submit" class="sec-btn sec-btn-ghost sec-btn-sm" title="{{ __('Delete file') }}">🗑️</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="text-align: center; color: var(--sec-text-muted); padding: 32px;">{{ __('No suspicious files detected.') }}</td>
+                        <td colspan="6" style="text-align: center; color: var(--sec-text-muted); padding: 32px;">{{ __('No suspicious files detected.') }}</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -212,4 +251,123 @@
         @endforeach
     </div>
 </div>
+
+<!-- Modal Detail & Bukti Berkas Mencurigakan -->
+<div class="sec-modal-backdrop" id="suspiciousDetailModal" hidden style="display: none; align-items: center; justify-content: center;">
+    <div class="sec-modal-box" role="dialog" aria-modal="true" style="max-width: 680px; width: 100%; border-radius: var(--sec-radius); background: var(--sec-card); border: 1px solid var(--sec-border); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);">
+        <div class="sec-modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--sec-border-light);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="modalThreatBadge" class="sec-badge sec-badge-critical">critical</span>
+                <h3 class="sec-card-title" style="font-size: 16px; margin: 0;">{{ __('Detail Temuan & Bukti Berkas') }}</h3>
+            </div>
+            <button type="button" class="sec-btn sec-btn-ghost sec-btn-sm" id="closeSuspiciousModalX" style="font-size: 20px; line-height: 1; padding: 4px 8px; cursor: pointer;">&times;</button>
+        </div>
+        <div class="sec-modal-body" style="padding: 20px; max-height: 70vh; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;">
+            <div class="sec-detail-grid">
+                <div class="sec-detail-item">
+                    <div class="sec-detail-label">{{ __('Nama Berkas') }}</div>
+                    <div class="sec-detail-value sec-font-mono" id="modalFileName" style="font-weight: 600;">—</div>
+                </div>
+                <div class="sec-detail-item">
+                    <div class="sec-detail-label">{{ __('Kategori Ancaman') }}</div>
+                    <div class="sec-detail-value" id="modalCategory">—</div>
+                </div>
+                <div class="sec-detail-item">
+                    <div class="sec-detail-label">{{ __('Ukuran Berkas') }}</div>
+                    <div class="sec-detail-value sec-font-mono" id="modalSize">—</div>
+                </div>
+                <div class="sec-detail-item">
+                    <div class="sec-detail-label">{{ __('Waktu Modifikasi') }}</div>
+                    <div class="sec-detail-value sec-font-mono" id="modalModified">—</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="sec-detail-label">{{ __('Jalur Lengkap Berkas') }}</div>
+                <pre class="sec-code-block sec-font-mono" id="modalFilePath" style="margin-top: 6px; padding: 10px 12px; font-size: 12px; background: var(--sec-card-hover); border-radius: var(--sec-radius-sm); border: 1px solid var(--sec-border-light); white-space: pre-wrap; word-break: break-all;"></pre>
+            </div>
+
+            <div>
+                <div class="sec-detail-label">{{ __('Alasan Deteksi Keamanan') }}</div>
+                <div id="modalReason" style="margin-top: 6px; font-size: 13px; color: var(--sec-text); line-height: 1.5; padding: 10px 12px; background: rgba(239, 68, 68, 0.08); border: 1px solid var(--sec-danger-border); border-radius: var(--sec-radius-sm);">—</div>
+            </div>
+
+            <div id="modalSnippetSection">
+                <div class="sec-detail-label" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>🚨 {{ __('Bukti Cuplikan Kode / Byte Berbahaya (Snippet Evidence)') }}</span>
+                </div>
+                <pre class="sec-code-block sec-font-mono" id="modalSnippet" style="margin-top: 6px; padding: 12px; font-size: 12.5px; background: #0f172a; color: #f87171; border-radius: var(--sec-radius-sm); border: 1px solid rgba(239, 68, 68, 0.3); overflow-x: auto; white-space: pre-wrap; word-break: break-all;"></pre>
+            </div>
+        </div>
+        <div class="sec-modal-footer" style="padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--sec-border-light); background: var(--sec-card-hover);">
+            <form id="modalDeleteForm" method="POST" action="{{ route('pasak.dashboard.server.suspicious-files.destroy') }}" onsubmit="return confirm('{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}');" data-sec-confirm="{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}" data-confirm-title="{{ __('Konfirmasi Hapus Berkas') }}" data-confirm-type="danger" data-confirm-btn="{{ __('Ya, Hapus Berkas') }}">
+                @csrf
+                @method('DELETE')
+                <input type="hidden" name="file_path" id="modalDeleteInput" value="">
+                <button type="submit" class="sec-btn sec-btn-danger sec-btn-sm">🗑️ {{ __('Hapus Berkas Ini') }}</button>
+            </form>
+            <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm" id="closeSuspiciousModalBtn">{{ __('Tutup') }}</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById('suspiciousDetailModal');
+        var closeX = document.getElementById('closeSuspiciousModalX');
+        var closeBtn = document.getElementById('closeSuspiciousModalBtn');
+
+        function closeModal() {
+            if (modal) {
+                modal.hidden = true;
+                modal.style.display = 'none';
+            }
+        }
+
+        if (closeX) closeX.addEventListener('click', closeModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) closeModal();
+            });
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        document.querySelectorAll('.btn-inspect-file').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                var d = this.dataset;
+
+                document.getElementById('modalFileName').textContent = d.filename || d.path || '—';
+                document.getElementById('modalCategory').textContent = d.category || 'Berkas Mencurigakan';
+                document.getElementById('modalSize').textContent = d.size || '—';
+                document.getElementById('modalModified').textContent = (d.modified || '—') + (d.modifiedHuman ? ' (' + d.modifiedHuman + ')' : '');
+                document.getElementById('modalFilePath').textContent = d.path || '—';
+                document.getElementById('modalReason').textContent = d.reason || '—';
+                document.getElementById('modalDeleteInput').value = d.path || '';
+
+                var badge = document.getElementById('modalThreatBadge');
+                badge.textContent = d.threat || 'info';
+                badge.className = 'sec-badge ' + (d.threat === 'critical' ? 'sec-badge-critical' : (d.threat === 'high' ? 'sec-badge-high' : 'sec-badge-low'));
+
+                var snippetSection = document.getElementById('modalSnippetSection');
+                var snippetEl = document.getElementById('modalSnippet');
+                if (d.snippet && d.snippet.trim() !== '') {
+                    snippetSection.style.display = 'block';
+                    snippetEl.textContent = d.snippet;
+                } else {
+                    snippetSection.style.display = 'none';
+                }
+
+                if (modal) {
+                    modal.hidden = false;
+                    modal.style.display = 'flex';
+                }
+            });
+        });
+    });
+</script>
+
 @endsection
