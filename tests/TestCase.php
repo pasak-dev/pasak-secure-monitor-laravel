@@ -14,6 +14,20 @@ use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 abstract class TestCase extends OrchestraTestCase
 {
+    protected function setUp(): void
+    {
+        // pasak:install publishes config/pasak.php into the Testbench skeleton.
+        // Left behind, that copy shadows the package config in every later
+        // test (and later runs), so edits to config/pasak.php are ignored.
+        $publishedConfig = dirname(__DIR__).'/vendor/orchestra/testbench-core/laravel/config/pasak.php';
+
+        if (is_file($publishedConfig)) {
+            unlink($publishedConfig);
+        }
+
+        parent::setUp();
+    }
+
     protected function getPackageProviders($app): array
     {
         return [PasakServiceProvider::class];
