@@ -1,2 +1,3 @@
 # Salin berkas ini menjadi .DOCS_SYNC_KEY lalu isi kunci autentikasi Docs API
+# Portal Dokumentasi Publik: https://pasak.is-a.dev/docs/pasak-security-monitor
 DOCS_SYNC_KEY=psk_docs_live_sync_key_9f8e7d:Pasak Suite Docs Sync

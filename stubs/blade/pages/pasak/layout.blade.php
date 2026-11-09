@@ -1578,7 +1578,7 @@
                     </svg>
                     <span data-sec-theme-label>{{ __('Dark mode') }}</span>
                 </button>
-                <a href="https://pasak.is-a.dev"
+                <a href="https://pasak.is-a.dev/docs/pasak-security-monitor"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="sec-sidebar-version"
