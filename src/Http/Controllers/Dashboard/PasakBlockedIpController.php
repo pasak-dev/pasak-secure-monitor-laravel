@@ -117,13 +117,49 @@ class PasakBlockedIpController extends Controller
             abort(404);
         }
 
+        $blockedAt = $block->blocked_at ?? $block->created_at;
+
+        $leadingQuery = PasakLog::query()
+            ->where('ip_address', $block->ip_address);
+
+        if ($blockedAt) {
+            $leadingQuery->where('created_at', '<=', $blockedAt);
+        }
+
+        $logsLeadingToBlock = (clone $leadingQuery)
+            ->orderBy('created_at', 'asc')
+            ->orderBy('id', 'asc')
+            ->limit(150)
+            ->get();
+
+        $logsAfterBlock = collect();
+        if ($blockedAt) {
+            $logsAfterBlock = PasakLog::query()
+                ->where('ip_address', $block->ip_address)
+                ->where('created_at', '>', $blockedAt)
+                ->latest('id')
+                ->limit(50)
+                ->get();
+        }
+
+        $totalLogsCount = PasakLog::query()
+            ->where('ip_address', $block->ip_address)
+            ->count();
+
+        $location = null;
+        try {
+            $location = app(\Internal\Pasak\Services\PasakUserLoginService::class)->resolveLocation($block->ip_address);
+        } catch (\Throwable) {
+        }
+
         return $this->dashboardResponse("pages.pasak.blocked-ip-detail", [
             "block" => $block,
-            "relatedLogs" => PasakLog::query()
-                ->where("ip_address", $block->ip_address)
-                ->latest("id")
-                ->limit(20)
-                ->get(),
+            "location" => $location,
+            "relatedLogs" => $logsLeadingToBlock,
+            "logsLeadingToBlock" => $logsLeadingToBlock,
+            "logsAfterBlock" => $logsAfterBlock,
+            "blockedAt" => $blockedAt,
+            "totalLogsCount" => $totalLogsCount,
             "relatedTickets" => PasakIpUnblockRequest::query()
                 ->where("ip_address", $block->ip_address)
                 ->latest("id")

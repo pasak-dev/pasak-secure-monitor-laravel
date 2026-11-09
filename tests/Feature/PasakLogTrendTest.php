@@ -126,7 +126,7 @@ test(
             "threat_level" => "critical",
             "path" => "/security/unblock-tickets/1/respond",
             "rule_label" => "Suspicious Probe",
-            "was_blocked" => true,
+            "was_blocked" => false,
             "created_at" => now(),
         ]);
 
@@ -152,6 +152,55 @@ test(
         expect($html)->toContain("Catatan Internal");
         expect($html)->toContain("Batal");
         expect($html)->toContain("Blokir Seluruh IP");
+    },
+);
+
+test(
+    "logs dashboard page hides block button for entries that are already blocked",
+    function (): void {
+        publishBladeViewsForLogTrend();
+        registerLogTrendDummyRoutes();
+
+        // 1. IP yang sudah tercatat was_blocked = true
+        PasakLog::query()->create([
+            "ip_address" => "185.220.101.88",
+            "event_type" => "exploit_probe",
+            "threat_level" => "critical",
+            "path" => "/admin",
+            "rule_label" => "Suspicious Probe",
+            "was_blocked" => true,
+            "created_at" => now(),
+        ]);
+
+        // 2. IP yang was_blocked = false tetapi sudah ada di daftar PasakBlockedIp (aktif)
+        PasakLog::query()->create([
+            "ip_address" => "198.51.100.99",
+            "event_type" => "sqli_attempt",
+            "threat_level" => "critical",
+            "path" => "/api",
+            "rule_label" => "SQL Injection",
+            "was_blocked" => false,
+            "created_at" => now(),
+        ]);
+
+        PasakBlockedIp::query()->create([
+            "ip_address" => "198.51.100.99",
+            "block_scope" => "ip",
+            "reason" => "Already quarantined",
+            "is_active" => true,
+            "blocked_at" => now(),
+        ]);
+
+        $controller = app(PasakLogController::class);
+        $request = request()->create("/logs", "GET");
+        $html = $controller->index($request)->render();
+
+        // Pastikan tidak ada tombol blokir untuk IP yang sudah diblokir
+        expect($html)->not()->toContain("openBlockModal({\n                                        ip: '185.220.101.88'");
+        expect($html)->not()->toContain("openBlockModal({\n                                        ip: '198.51.100.99'");
+
+        // Pastikan badge "Diblokir" ditampilkan
+        expect($html)->toContain("Diblokir");
     },
 );
 

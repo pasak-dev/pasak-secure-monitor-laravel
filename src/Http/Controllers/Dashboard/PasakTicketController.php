@@ -93,15 +93,51 @@ class PasakTicketController extends Controller
             abort(404);
         }
 
+        $ticket->loadMissing(['blockedIp', 'resolver']);
+
+        $blockedAt = null;
+        if ($ticket->blockedIp) {
+            $blockedAt = $ticket->blockedIp->blocked_at ?? $ticket->blockedIp->created_at;
+        }
+
+        // Ambil semua aktivitas IP dari awal sampai saat diblokir (secara kronologis)
+        $leadingQuery = PasakLog::query()
+            ->where('ip_address', $ticket->ip_address);
+
+        if ($blockedAt) {
+            $leadingQuery->where('created_at', '<=', $blockedAt);
+        }
+
+        $logsLeadingToBlock = (clone $leadingQuery)
+            ->orderBy('created_at', 'asc')
+            ->orderBy('id', 'asc')
+            ->limit(150)
+            ->get();
+
+        // Aktivitas setelah blokir diterapkan (misal percobaan akses berulang saat status 403)
+        $logsAfterBlock = collect();
+        if ($blockedAt) {
+            $logsAfterBlock = PasakLog::query()
+                ->where('ip_address', $ticket->ip_address)
+                ->where('created_at', '>', $blockedAt)
+                ->latest('id')
+                ->limit(50)
+                ->get();
+        }
+
+        $totalLogsCount = PasakLog::query()
+            ->where('ip_address', $ticket->ip_address)
+            ->count();
+
         return $this->dashboardResponse(
             'pages.pasak.ticket-detail',
             [
-                'ticket' => $ticket->loadMissing(['blockedIp', 'resolver']),
-                'relatedLogs' => PasakLog::query()
-                    ->where('ip_address', $ticket->ip_address)
-                    ->latest('id')
-                    ->limit(10)
-                    ->get(),
+                'ticket' => $ticket,
+                'relatedLogs' => $logsLeadingToBlock,
+                'logsLeadingToBlock' => $logsLeadingToBlock,
+                'logsAfterBlock' => $logsAfterBlock,
+                'blockedAt' => $blockedAt,
+                'totalLogsCount' => $totalLogsCount,
                 'urls' => [
                     'index' => route('pasak.dashboard.tickets'),
                     'show' => route('pasak.dashboard.tickets.show', ['id' => '__ID__']),

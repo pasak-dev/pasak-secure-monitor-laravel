@@ -257,4 +257,64 @@ return [
 
         File::deleteDirectory($tempDir);
     }
+    public function test_upgrade_notifies_user_to_run_php_artisan_migrate_when_new_migration_exists(): void
+    {
+        Http::fake([
+            'https://repo.packagist.org/p2/robyajo/pasak.json' => Http::response([
+                'packages' => [
+                    'robyajo/pasak' => [
+                        ['version' => 'v2.0.8'],
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        $dummyMigration = database_path('migrations/2026_11_10_999999_test_dummy_migration.php');
+        File::ensureDirectoryExists(dirname($dummyMigration));
+        File::put($dummyMigration, "<?php use Illuminate\\Database\\Migrations\\Migration; return new class extends Migration {};");
+
+        try {
+            $this->artisan('pasak:upgrade', [
+                '--force' => true,
+                '--no-composer' => true,
+                '--no-migrate' => true,
+            ])
+                ->expectsOutputToContain('php artisan migrate')
+                ->assertExitCode(0);
+        } finally {
+            if (File::exists($dummyMigration)) {
+                File::delete($dummyMigration);
+            }
+        }
+    }
+    public function test_upgrade_notifies_user_to_run_php_artisan_migrate_after_migrations_applied(): void
+    {
+        Http::fake([
+            'https://repo.packagist.org/p2/robyajo/pasak.json' => Http::response([
+                'packages' => [
+                    'robyajo/pasak' => [
+                        ['version' => 'v2.0.8'],
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        $dummyMigration = database_path('migrations/2026_11_10_999998_test_applied_migration.php');
+        File::ensureDirectoryExists(dirname($dummyMigration));
+        File::put($dummyMigration, "<?php use Illuminate\\Database\\Migrations\\Migration; return new class extends Migration { public function up(): void {} public function down(): void {} };");
+
+        try {
+            $this->artisan('pasak:upgrade', [
+                '--force' => true,
+                '--no-composer' => true,
+            ])
+                ->expectsOutputToContain('PEMBERITAHUAN MIGRASI DATABASE')
+                ->expectsOutputToContain('php artisan migrate')
+                ->assertExitCode(0);
+        } finally {
+            if (File::exists($dummyMigration)) {
+                File::delete($dummyMigration);
+            }
+        }
+    }
 }

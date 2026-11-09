@@ -131,6 +131,10 @@ Route::prefix($prefix)
                 PasakServerSecurityApiController::class,
                 "verifySuspiciousFile",
             ])->name("server.suspicious-files.verify");
+            Route::post("server/optimize-clear", [
+                PasakServerSecurityApiController::class,
+                "optimizeClear",
+            ])->name("server.optimize-clear");
             Route::delete("lockouts/{id}", [
                 PasakServerSecurityApiController::class,
                 "releaseLockout",

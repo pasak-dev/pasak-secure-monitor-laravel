@@ -33,12 +33,12 @@
                 <span class="threat-clock-tz">WIB / UTC</span>
             </div>
             <div class="threat-hud-stat is-danger">
-                <span class="threat-hud-stat-label">{{ __('Attacks (Today)') }}</span>
-                <span class="threat-hud-stat-val" data-map-attacks>{{ number_format($s['logs_today'] ?? 0) }}</span>
+                <span class="threat-hud-stat-label">{{ ($s['logs_today'] ?? 0) > 0 ? __('Attacks (Today)') : __('Total Attacks') }}</span>
+                <span class="threat-hud-stat-val" data-map-attacks>{{ number_format(($s['logs_today'] ?? 0) > 0 ? $s['logs_today'] : ($s['total_logs'] ?? count($payloadData['recent_logs'] ?? []))) }}</span>
             </div>
             <div class="threat-hud-stat is-critical">
                 <span class="threat-hud-stat-label">{{ __('Critical') }}</span>
-                <span class="threat-hud-stat-val">{{ number_format($s['critical_today'] ?? 0) }}</span>
+                <span class="threat-hud-stat-val">{{ number_format(($s['critical_today'] ?? 0) > 0 ? $s['critical_today'] : ($s['total_critical'] ?? 0)) }}</span>
             </div>
             <div class="threat-hud-stat is-warning">
                 <span class="threat-hud-stat-label">{{ __('Quarantined') }}</span>
@@ -46,7 +46,7 @@
             </div>
             <div class="threat-hud-stat is-cyan">
                 <span class="threat-hud-stat-label">{{ __('Unique IPs') }}</span>
-                <span class="threat-hud-stat-val">{{ number_format($s['unique_ips_today'] ?? count($payloadData['origins'] ?? [])) }}</span>
+                <span class="threat-hud-stat-val">{{ number_format(($s['unique_ips_today'] ?? 0) > 0 ? $s['unique_ips_today'] : count($payloadData['origins'] ?? [])) }}</span>
             </div>
         </div>
     </div>
@@ -77,14 +77,29 @@
                 <div class="threat-ctrl-group">
                     <button type="button" class="threat-ctrl-btn" data-map-action="zoom-in" title="{{ __('Zoom In (+)') }}">➕</button>
                     <button type="button" class="threat-ctrl-btn" data-map-action="zoom-out" title="{{ __('Zoom Out (-)') }}">➖</button>
-                    <button type="button" class="threat-ctrl-btn" data-map-action="reset" title="{{ __('Reset Pandangan ke Node Target') }}">🎯</button>
-                    <button type="button" class="threat-ctrl-btn active" data-map-action="toggle-rotate" title="{{ __('Rotasi Otomatis Globe') }}">🔄 <span class="threat-btn-txt">Spin</span></button>
+                    <button type="button" class="threat-ctrl-btn" data-map-action="reset" title="{{ __('Pusatkan Pandangan ke Indonesia') }}">🎯 <span class="threat-btn-txt">{{ __('Pusat ID') }}</span></button>
+                    <button type="button" class="threat-ctrl-btn active" data-map-action="toggle-rotate" title="{{ __('Jeda / Putar Animasi Rotasi Globe') }}">🔄 <span class="threat-btn-txt" data-rotate-label>{{ __('Spin: ON') }}</span></button>
+                    <button type="button" class="threat-ctrl-btn active" data-map-action="toggle-stream" title="{{ __('Jeda / Lanjutkan Aliran Animasi Serangan Radar') }}">⚡ <span class="threat-btn-txt" data-stream-label>{{ __('Radar: LIVE') }}</span></button>
+                </div>
+
+                {{-- Instant Refresh Radar Telemetry --}}
+                <div class="threat-ctrl-group">
+                    <button type="button" class="threat-ctrl-btn" data-threat-force-refresh title="{{ __('Refresh Data Radar Seketika') }}">
+                        <span class="threat-refresh-icon">🔄</span> <span class="threat-btn-txt">{{ __('Refresh') }}</span>
+                    </button>
                 </div>
 
                 {{-- Sound FX Toggle (Synthetic Cyber Radar Ping) --}}
                 <div class="threat-ctrl-group">
                     <button type="button" class="threat-ctrl-btn" data-map-sound title="{{ __('Audio Radar Pings') }}">
                         <span data-sound-icon>🔇</span> <span class="threat-btn-txt" data-sound-label>Mute</span>
+                    </button>
+                </div>
+
+                {{-- Panel Telemetri Sidebar Toggle --}}
+                <div class="threat-ctrl-group">
+                    <button type="button" class="threat-ctrl-btn active" data-map-action="toggle-sidebar" title="{{ __('Sembunyikan / Tampilkan Panel Telemetri') }}">
+                        <span class="threat-sidebar-icon">📊</span> <span class="threat-btn-txt">{{ __('Panel') }}</span>
                     </button>
                 </div>
 
@@ -110,12 +125,7 @@
                 <button type="button" class="threat-filter-pill is-low" data-filter-level="low">● {{ __('LOW') }}</button>
             </div>
 
-            {{-- Target Crosshair Locator Label --}}
-            <div class="threat-target-crosshair" data-target-crosshair style="display: none;">
-                <div class="threat-crosshair-ring"></div>
-                <div class="threat-crosshair-dot"></div>
-                <div class="threat-crosshair-tag">{{ $target['name'] }}</div>
-            </div>
+
 
             {{-- Offline / Fallback Notice (Non-blocking tactical toast) --}}
             <div class="threat-map-offline" data-map-offline hidden>
@@ -189,6 +199,118 @@
             </div>
         </aside>
     </div>
+    {{-- Modal Dialog: Blokir Alamat IP (Tactical Dark SOC Style) --}}
+    <div class="sec-modal-backdrop" id="blockIpModal" hidden style="display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); z-index: 2147483647; padding: 16px;">
+        <div class="sec-modal-box" role="dialog" aria-modal="true" aria-labelledby="blockModalTitle" style="max-width: 520px; width: 100%; border-radius: 12px; background: #0b1329; border: 1px solid rgba(6, 182, 212, 0.4); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 25px rgba(6, 182, 212, 0.2); overflow: hidden; color: #e2e8f0;">
+            {{-- Header Modal --}}
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px 0 24px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 20px; line-height: 1;">🚫</span>
+                    <h3 id="blockModalTitle" style="font-size: 18px; font-weight: 700; color: #f8fafc; margin: 0;">
+                        {{ __("Blokir Alamat IP") }}
+                    </h3>
+                </div>
+                <button type="button" onclick="closeBlockModal()" aria-label="Close" style="border: none; background: transparent; font-size: 18px; color: #94a3b8; cursor: pointer; padding: 4px; line-height: 1; border-radius: 6px;">
+                    ✕
+                </button>
+            </div>
+
+            <p style="padding: 6px 24px 0 24px; margin: 0 0 16px 0; font-size: 13px; color: #94a3b8; line-height: 1.5;">
+                {{ __("Semua permintaan dari IP ini akan ditolak (HTTP 403) sampai blokir dibuka atau kedaluwarsa.") }}
+            </p>
+
+            {{-- Form Blokir IP --}}
+            <form method="POST" action="{{ \Illuminate\Support\Facades\Route::has('pasak.dashboard.blocked-ips.store') ? route('pasak.dashboard.blocked-ips.store') : '#' }}" style="padding: 0 24px 20px 24px;">
+                @csrf
+                <input type="hidden" id="blockModalScope" name="block_scope" value="ip">
+                <input type="hidden" id="blockModalDeviceId" name="device_id" value="">
+                <input type="hidden" id="blockModalLocalIp" name="local_ip" value="">
+
+                {{-- Alamat IP --}}
+                <div style="margin-bottom: 14px;">
+                    <label class="sec-label" for="blockModalIp" style="font-weight: 600; font-size: 13px; color: #f1f5f9; margin-bottom: 6px; display: block;">
+                        {{ __("Alamat IP") }}
+                    </label>
+                    <input type="text" id="blockModalIp" name="ip_address" required class="sec-input" style="width: 100%; font-family: var(--sec-font-mono, monospace); font-size: 13.5px; padding: 9px 12px; border-radius: 8px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.3); color: #fff;" placeholder="203.0.113.50">
+                </div>
+
+                {{-- Cakupan Pemblokiran --}}
+                <div style="margin-bottom: 14px;">
+                    <label class="sec-label" style="font-weight: 600; font-size: 13px; color: #f1f5f9; margin-bottom: 6px; display: block;">
+                        {{ __("Cakupan Pemblokiran") }}
+                    </label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        {{-- Card 1: Hanya Perangkat --}}
+                        <div id="scopeCardDevice" onclick="selectBlockScope('device')" style="cursor: pointer; border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 12px; background: rgba(15, 23, 42, 0.6); transition: all 0.2s ease;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>
+                                <span style="font-size: 13px; font-weight: 700; color: #38bdf8;">{{ __("Hanya Perangkat") }}</span>
+                            </div>
+                            <div style="font-size: 11px; color: #94a3b8; line-height: 1.4;">
+                                {{ __("Aman untuk Wi-Fi / NAT. Pengguna lain di IP yang sama tidak terblokir.") }}
+                            </div>
+                        </div>
+
+                        {{-- Card 2: Seluruh IP Router --}}
+                        <div id="scopeCardIp" onclick="selectBlockScope('ip')" style="cursor: pointer; border: 2px solid #ef4444; border-radius: 10px; padding: 12px; background: rgba(239, 68, 68, 0.12); transition: all 0.2s ease;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="12" cy="5" r="3"></circle><circle cx="6" cy="19" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M12 8v4m0 0l-6 4m6-4l6 4"></path></svg>
+                                <span style="font-size: 13px; font-weight: 700; color: #ef4444;">{{ __("Seluruh IP Router") }}</span>
+                            </div>
+                            <div style="font-size: 11px; color: #94a3b8; line-height: 1.4;">
+                                {{ __("Memblokir semua perangkat dari alamat IP publik ini.") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Durasi Blokir --}}
+                <div style="margin-bottom: 14px;">
+                    <label class="sec-label" for="blockModalDuration" style="font-weight: 600; font-size: 13px; color: #f1f5f9; margin-bottom: 6px; display: block;">
+                        {{ __("Durasi Blokir") }}
+                    </label>
+                    <select id="blockModalDuration" name="duration_hours" class="sec-select" style="width: 100%; padding: 9px 12px; font-size: 13.5px; border-radius: 8px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.3); color: #fff;">
+                        <option value="1">{{ __("1 Jam") }}</option>
+                        <option value="6">{{ __("6 Jam") }}</option>
+                        <option value="12">{{ __("12 Jam") }}</option>
+                        <option value="24" selected>{{ __("24 Jam") }}</option>
+                        <option value="72">{{ __("3 Hari (72 Jam)") }}</option>
+                        <option value="168">{{ __("7 Hari (1 Minggu)") }}</option>
+                        <option value="720">{{ __("30 Hari (1 Bulan)") }}</option>
+                        <option value="0">{{ __("Permanen") }}</option>
+                    </select>
+                </div>
+
+                {{-- Alasan --}}
+                <div style="margin-bottom: 14px;">
+                    <label class="sec-label" for="blockModalReason" style="font-weight: 600; font-size: 13px; color: #f1f5f9; margin-bottom: 6px; display: block;">
+                        {{ __("Alasan") }}
+                    </label>
+                    <input type="text" id="blockModalReason" name="reason" class="sec-input" style="width: 100%; padding: 9px 12px; font-size: 13.5px; border-radius: 8px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.3); color: #fff;" placeholder="{{ __("Alasan pemblokiran...") }}">
+                </div>
+
+                {{-- Catatan Internal --}}
+                <div style="margin-bottom: 18px;">
+                    <label class="sec-label" for="blockModalNotes" style="font-weight: 600; font-size: 13px; color: #f1f5f9; margin-bottom: 6px; display: block;">
+                        {{ __("Catatan Internal") }}
+                    </label>
+                    <textarea id="blockModalNotes" name="notes" rows="2" class="sec-input" style="width: 100%; padding: 9px 12px; font-size: 13px; border-radius: 8px; resize: vertical; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.3); color: #fff;" placeholder="{{ __("Opsional, misalnya nomor tiket atau hasil verifikasi.") }}"></textarea>
+                </div>
+
+                {{-- Footer Tombol --}}
+                <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    <button type="button" class="threat-ctrl-btn" onclick="closeBlockModal()" style="border-radius: 8px; padding: 8px 18px; font-size: 13px;">
+                        {{ __("Batal") }}
+                    </button>
+                    <button type="submit" id="blockModalSubmitBtn" style="border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.25); color: #fca5a5; border-radius: 8px; font-size: 13px; font-weight: 700; padding: 8px 18px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                        <span style="font-size: 14px;">🚫</span>
+                        <span id="blockModalSubmitLabel">{{ __("Blokir Seluruh IP") }}</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
 
 {{-- ThreatsEye Tactical CSS Styling --}}
@@ -346,9 +468,14 @@
     .threat-map-wrap {
         display: flex;
         flex-direction: row;
-        height: 640px;
+        height: calc(100vh - 200px);
+        min-height: 640px;
         background: #020617;
         position: relative;
+    }
+
+    .threat-map-side.is-hidden {
+        display: none !important;
     }
 
     .threat-map-canvas-holder {
@@ -841,41 +968,241 @@
     .threat-rank-bar-fill.is-red { background: linear-gradient(90deg, #f97316, #ef4444); }
     .threat-rank-bar-fill.is-yellow { background: linear-gradient(90deg, #eab308, #f59e0b); }
 
-    /* 4. Fullscreen Wallboard Mode */
+    /* 4. Fullscreen Wallboard Mode (Separate rules for zero vendor-prefix drop) */
     .threat-map-card.is-fullscreen {
-        position: fixed;
-        inset: 0;
-        z-index: 2147483000;
-        width: 100vw;
-        height: 100vh;
-        margin: 0;
-        border-radius: 0;
-        border: none;
-        display: flex;
-        flex-direction: column;
+        position: fixed !important;
+        inset: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        z-index: 2147483647 !important;
+        width: 100% !important;
+        height: 100% !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: none !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        border: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-sizing: border-box !important;
+        background: #020714 !important;
     }
+    .threat-map-card:fullscreen {
+        position: fixed !important;
+        inset: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        z-index: 2147483647 !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        border: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-sizing: border-box !important;
+        background: #020714 !important;
+    }
+    .threat-map-card:-webkit-full-screen {
+        position: fixed !important;
+        inset: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        z-index: 2147483647 !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        border: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-sizing: border-box !important;
+        background: #020714 !important;
+    }
+    .threat-map-card:-moz-full-screen {
+        position: fixed !important;
+        inset: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        z-index: 2147483647 !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        border: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-sizing: border-box !important;
+        background: #020714 !important;
+    }
+
+    .threat-map-card.is-fullscreen .threat-hud-bar,
+    .threat-map-card:fullscreen .threat-hud-bar,
+    .threat-map-card:-webkit-full-screen .threat-hud-bar,
+    .threat-map-card:-moz-full-screen .threat-hud-bar {
+        flex-shrink: 0 !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+    }
+
     .threat-map-card.is-fullscreen .threat-map-wrap {
-        flex: 1;
-        height: auto;
+        flex: 1 1 0% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        display: flex !important;
+        flex-direction: row !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
     }
+    .threat-map-card:fullscreen .threat-map-wrap {
+        flex: 1 1 0% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        display: flex !important;
+        flex-direction: row !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+    .threat-map-card:-webkit-full-screen .threat-map-wrap {
+        flex: 1 1 0% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        display: flex !important;
+        flex-direction: row !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+    .threat-map-card:-moz-full-screen .threat-map-wrap {
+        flex: 1 1 0% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        display: flex !important;
+        flex-direction: row !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .threat-map-card.is-fullscreen .threat-map-canvas-holder {
+        height: 100% !important;
+        width: 100% !important;
+        flex: 1 1 0% !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .threat-map-card:fullscreen .threat-map-canvas-holder {
+        height: 100% !important;
+        width: 100% !important;
+        flex: 1 1 0% !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .threat-map-card:-webkit-full-screen .threat-map-canvas-holder {
+        height: 100% !important;
+        width: 100% !important;
+        flex: 1 1 0% !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .threat-map-card:-moz-full-screen .threat-map-canvas-holder {
+        height: 100% !important;
+        width: 100% !important;
+        flex: 1 1 0% !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     .threat-map-card.is-fullscreen .threat-map-side {
-        width: 420px;
+        width: 400px !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        margin: 0 !important;
     }
+    .threat-map-card:fullscreen .threat-map-side {
+        width: 400px !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        margin: 0 !important;
+    }
+    .threat-map-card:-webkit-full-screen .threat-map-side {
+        width: 400px !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        margin: 0 !important;
+    }
+    .threat-map-card:-moz-full-screen .threat-map-side {
+        width: 400px !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        margin: 0 !important;
+    }
+
+    html.pasak-threat-fs,
     body.pasak-threat-fs {
         overflow: hidden !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    body.pasak-threat-fs .sec-header,
+    body.pasak-threat-fs .sec-sidebar,
+    body.pasak-threat-fs .sec-nav-list,
+    body.pasak-threat-fs .sec-container > *:not(.sec-main) {
+        display: none !important;
+    }
+    body.pasak-threat-fs .sec-root,
+    body.pasak-threat-fs .sec-container,
+    body.pasak-threat-fs .sec-main {
+        max-width: 100vw !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
     /* 5. Responsive Breakpoints */
     @media (max-width: 1024px) {
-        .threat-map-wrap {
+        .threat-map-card:not(.is-fullscreen) .threat-map-wrap {
             flex-direction: column;
             height: auto;
         }
-        .threat-map-canvas-holder {
-            height: 440px;
-            min-height: 440px;
+        .threat-map-card:not(.is-fullscreen) .threat-map-canvas-holder {
+            height: 460px;
+            min-height: 460px;
         }
-        .threat-map-side {
+        .threat-map-card:not(.is-fullscreen) .threat-map-side {
             width: 100%;
             height: 380px;
             border-left: none;
@@ -930,11 +1257,18 @@
     var currentProjType = 'orthographic';
     var autoRotate = true;
     var soundEnabled = false;
+    var streamActive = true;
+    var originsPool = [];
+    var livePriorityQueue = [];
 
     // Web Audio API for synthetic high-tech radar impact blips
     var audioCtx = null;
+    var lastBlipTime = 0;
     function playRadarBlip(level) {
         if (!soundEnabled) return;
+        var nowMs = Date.now();
+        if (nowMs - lastBlipTime < 60) return; // Throttle to prevent audio clipping during attack bursts
+        lastBlipTime = nowMs;
         try {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -989,6 +1323,9 @@
 
     // Render an incident into the live telemetry feed
     function addLog(entry, location) {
+        var emptyMsg = SCROLL ? SCROLL.querySelector('.threat-empty-msg') : null;
+        if (emptyMsg) emptyMsg.remove();
+
         totalLoggedIncidents++;
         if (STREAM_COUNT) STREAM_COUNT.textContent = totalLoggedIncidents + ' events';
 
@@ -1020,6 +1357,10 @@
             ? '<span class="threat-entry-status is-blocked">● BLOCKED (403)</span>'
             : '<span class="threat-entry-status is-logged">● DETECTED</span>';
 
+        var blockBtnHtml = isBlocked
+            ? ''
+            : '<button type="button" class="threat-ctrl-btn" style="padding:2px 6px; font-size:10px;" onclick="openBlockModal && openBlockModal({ip:\'' + esc(entry.ip) + '\', reason:\'' + esc(entry.desc || entry.event) + '\'})">🚫 {{ __("Block IP") }}</button>';
+
         el.innerHTML =
             '<div class="threat-entry-head">' +
                 '<span class="threat-entry-time">[' + esc(timeStr) + ']</span>' +
@@ -1034,7 +1375,7 @@
                 '<div class="threat-entry-path">&gt; ' + esc((entry.method || 'GET') + ' ' + (entry.path || '/')) + '</div>' +
                 '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">' +
                     statusBadge +
-                    '<button type="button" class="threat-ctrl-btn" style="padding:2px 6px; font-size:10px;" onclick="openBlockModal && openBlockModal({ip:\'' + esc(entry.ip) + '\', reason:\'' + esc(entry.desc || entry.event) + '\'})">🚫 {{ __("Block IP") }}</button>' +
+                    blockBtnHtml +
                 '</div>' +
             '</div>';
 
@@ -1108,22 +1449,65 @@
     // Seed data dari payload awal
     (MAP.origins || []).forEach(function (origin) {
         originsIndex[origin.ip] = origin;
-        if (origin.country) {
-            countryStats[origin.country] = (countryStats[origin.country] || 0) + (origin.hits || 1);
+        originsPool.push(origin);
+    });
+
+    if (MAP.locations) {
+        Object.keys(MAP.locations).forEach(function (ip) {
+            if (!originsIndex[ip]) {
+                var loc = MAP.locations[ip];
+                originsIndex[ip] = {
+                    ip: ip,
+                    lat: loc.lat,
+                    lon: loc.lon,
+                    place: loc.place,
+                    country: loc.country,
+                    hits: 1,
+                    samples: []
+                };
+                originsPool.push(originsIndex[ip]);
+            }
+        });
+    }
+
+    var initialLogs = [];
+    if (MAP.recent_logs && Array.isArray(MAP.recent_logs) && MAP.recent_logs.length > 0) {
+        // Muat seluruh riwayat log serangan riil dari database (sama persis dengan Security Logs)
+        initialLogs = MAP.recent_logs.slice().reverse();
+    } else {
+        (MAP.origins || []).forEach(function (origin) {
+            (origin.samples || []).forEach(function (entry) {
+                initialLogs.push(entry);
+            });
+        });
+        initialLogs.sort(function (a, b) {
+            return (a.id || 0) - (b.id || 0);
+        });
+    }
+
+    var playbackQueue = [];
+    initialLogs.forEach(function (entry) {
+        if (typeof entry.id === 'number' && entry.id > lastId) {
+            lastId = entry.id;
         }
-        origin.samples.forEach(function (entry, index) {
-            if (typeof entry.id === 'number' && entry.id > lastId) {
-                lastId = entry.id;
-            }
-            if (index < 4) {
-                pendingLogs.push({ level: entry.level, origin: origin.ip, entry: entry });
-            }
+        var origin = originsIndex[entry.ip] || {
+            ip: entry.ip,
+            lat: (MAP.locations && MAP.locations[entry.ip]) ? MAP.locations[entry.ip].lat : (MAP.target ? MAP.target.lat : 0),
+            lon: (MAP.locations && MAP.locations[entry.ip]) ? MAP.locations[entry.ip].lon : (MAP.target ? MAP.target.lon : 0),
+            place: (MAP.locations && MAP.locations[entry.ip]) ? MAP.locations[entry.ip].place : 'Unknown',
+            country: (MAP.locations && MAP.locations[entry.ip]) ? MAP.locations[entry.ip].country : 'Unknown',
+            samples: [entry]
+        };
+        playbackQueue.push({
+            origin: origin,
+            entry: entry,
+            isPlayback: true
         });
     });
 
-    pendingLogs.forEach(function (item) {
-        addLog(item.entry, originsIndex[item.origin]);
-    });
+    if (playbackQueue.length === 0 && SCROLL) {
+        SCROLL.innerHTML = '<div class="threat-empty-msg" style="text-align: center; color: #64748b; font-size: 12px; padding: 32px;">{{ __("Belum ada log serangan terdeteksi.") }}</div>';
+    }
 
     // Sidebar tab buttons switching
     card.querySelectorAll('[data-tab-target]').forEach(function (btn) {
@@ -1175,14 +1559,150 @@
         });
     }
 
-    // Schedule initial animated arcs when globe is ready
-    function scheduleInitialArcs() {
-        if (!isGlobeReady || pendingLogs.length === 0) return;
-        var shot = pendingLogs.shift();
-        if (shot && originsIndex[shot.origin]) {
-            window.__threatMapFire(MAP, originsIndex[shot.origin], shot.entry);
+    // Global realistic tactical nodes for 24/7 continuous radar visualization
+    var TACTICAL_GLOBAL_NODES = [
+        { ip: '185.220.101.5', lat: 52.5200, lon: 13.4050, country: 'Germany', place: 'Berlin' },
+        { ip: '198.51.100.24', lat: 37.7749, lon: -122.4194, country: 'United States', place: 'San Francisco' },
+        { ip: '103.253.144.10', lat: 1.3521, lon: 103.8198, country: 'Singapore', place: 'Singapore' },
+        { ip: '194.26.29.112', lat: 55.7558, lon: 37.6173, country: 'Russia', place: 'Moscow' },
+        { ip: '139.162.122.88', lat: 35.6762, lon: 139.6503, country: 'Japan', place: 'Tokyo' },
+        { ip: '177.54.144.20', lat: -23.5505, lon: -46.6333, country: 'Brazil', place: 'Sao Paulo' },
+        { ip: '51.89.155.42', lat: 51.5074, lon: -0.1278, country: 'United Kingdom', place: 'London' },
+        { ip: '139.99.130.60', lat: -33.8688, lon: 151.2093, country: 'Australia', place: 'Sydney' },
+        { ip: '114.119.130.12', lat: 39.9042, lon: 116.4074, country: 'China', place: 'Beijing' },
+        { ip: '102.165.30.90', lat: -26.2041, lon: 28.0473, country: 'South Africa', place: 'Johannesburg' },
+        { ip: '182.253.18.99', lat: -6.2088, lon: 106.8456, country: 'Indonesia', place: 'Jakarta' },
+        { ip: '202.158.33.15', lat: -7.2575, lon: 112.7521, country: 'Indonesia', place: 'Surabaya' },
+        { ip: '103.10.66.45', lat: 3.5952, lon: 98.6722, country: 'Indonesia', place: 'Medan' }
+    ];
+
+    var TACTICAL_ATTACK_SIGNATURES = [
+        { event: 'sql_injection', desc: 'SQL Injection in Query Params', level: 'critical', path: '/api/v1/query?id=1%20OR%201=1', blocked: false, method: 'POST' },
+        { event: 'path_traversal', desc: 'Directory Traversal Attempt', level: 'high', path: '/public/../../etc/passwd', blocked: false, method: 'GET' },
+        { event: 'wp_xmlrpc_brute', desc: 'WordPress XML-RPC Brute Force', level: 'medium', path: '/xmlrpc.php', blocked: false, method: 'POST' },
+        { event: 'webshell_probe', desc: 'Webshell Probe Attempt', level: 'critical', path: '/shell.php', blocked: false, method: 'GET' },
+        { event: 'xss_payload', desc: 'Cross-Site Scripting Injection', level: 'high', path: '/search?keyword=%3Cscript%3Ealert(1)%3C%2Fscript%3E', blocked: false, method: 'GET' },
+        { event: 'env_file_leak', desc: 'Environment File Probe (.env)', level: 'critical', path: '/.env', blocked: false, method: 'GET' },
+        { event: 'crawler_bot', desc: 'Malicious Vulnerability Scanner', level: 'low', path: '/robots.txt', blocked: false, method: 'GET' },
+        { event: 'login_throttle', desc: 'Auth Rate Limit Exceeded', level: 'high', path: '/login', blocked: false, method: 'POST' }
+    ];
+
+    // Aliran Animasi Serangan Radar Kontinu — Menampilkan data serangan riil satu per satu
+    function scheduleContinuousStream() {
+        if (!isGlobeReady) {
+            setTimeout(scheduleContinuousStream, 200);
+            return;
         }
-        setTimeout(scheduleInitialArcs, 400 + Math.random() * 800);
+
+        if (streamActive && typeof window.__threatMapFire === 'function') {
+            var nextShot = null;
+            var isLiveEvent = false;
+            var isPlaybackEvent = false;
+
+            if (livePriorityQueue.length > 0) {
+                // Serangan riil baru yang masuk secara real-time via polling API
+                nextShot = livePriorityQueue.shift();
+                isLiveEvent = true;
+            } else if (playbackQueue.length > 0) {
+                // Alirkan data serangan riil database satu per satu ke radar & sidebar
+                nextShot = playbackQueue.shift();
+                isPlaybackEvent = true;
+            } else {
+                // Setelah seluruh data serangan riil selesai dialirkan ke sidebar,
+                // radar visual tetap melakukan scanning perimeter di canvas antar origin riil yang ada
+                var pool = (originsPool.length > 0) ? originsPool : (MAP.origins && MAP.origins.length > 0 ? MAP.origins : TACTICAL_GLOBAL_NODES);
+                if (pool && pool.length > 0) {
+                    var randOrigin = pool[Math.floor(Math.random() * pool.length)];
+                    var randEntry = null;
+                    if (randOrigin.samples && randOrigin.samples.length > 0) {
+                        randEntry = randOrigin.samples[Math.floor(Math.random() * randOrigin.samples.length)];
+                    }
+                    if (!randEntry && MAP.recent_logs && MAP.recent_logs.length > 0) {
+                        randEntry = MAP.recent_logs[Math.floor(Math.random() * MAP.recent_logs.length)];
+                    }
+                    if (!randEntry) {
+                        randEntry = {
+                            id: 'ambient-' + Date.now(),
+                            ip: randOrigin.ip,
+                            event: 'radar_ping',
+                            desc: 'Perimeter Radar Scan',
+                            level: 'low',
+                            path: '/',
+                            blocked: false,
+                            method: 'PING',
+                            time: new Date().toISOString()
+                        };
+                    }
+                    nextShot = {
+                        origin: randOrigin,
+                        entry: randEntry,
+                        isAmbient: true
+                    };
+                }
+            }
+
+            if (nextShot && nextShot.origin) {
+                // Tembakkan animasi arc di kanvas radar
+                window.__threatMapFire(MAP, nextShot.origin, nextShot.entry);
+
+                // HANYA masukkan ke log sidebar jika ini data serangan nyata (livePriorityQueue atau playback database)!
+                // JANGAN masukkan data ambient ke sidebar agar feed tetap 100% konsisten dengan logs.blade.php
+                if (isLiveEvent || isPlaybackEvent) {
+                    addLog(nextShot.entry, nextShot.origin);
+                }
+            }
+        }
+
+        // Interval tempo: jika live event 300ms, jika streaming riwayat 450-700ms, jika ambient idle 1800-3000ms
+        var delay = 800;
+        if (livePriorityQueue.length > 0) {
+            delay = 300;
+        } else if (playbackQueue.length > 0) {
+            delay = 450 + Math.random() * 250;
+        } else {
+            delay = 1800 + Math.random() * 1200;
+        }
+        setTimeout(scheduleContinuousStream, delay);
+    }
+
+    function processIncomingFeed(data) {
+        if (!data) return;
+        if (typeof data.last_id === 'number' && data.last_id > lastId) {
+            lastId = data.last_id;
+        }
+        var attacksEl = card.querySelector('[data-map-attacks]');
+        if (attacksEl && data.stats) {
+            var countVal = (data.stats.logs_today && data.stats.logs_today > 0)
+                ? data.stats.logs_today
+                : (data.stats.total_logs || attacksEl.innerText);
+            attacksEl.innerText = Number(countVal || 0).toLocaleString('id-ID');
+        }
+        if (data.logs && Array.isArray(data.logs)) {
+            data.logs.forEach(function (entry) {
+                var loc = (data.locations && data.locations[entry.ip]) ? data.locations[entry.ip] : null;
+                var originObj = (loc && loc.lat !== null) ? {
+                    ip: entry.ip,
+                    lat: loc.lat,
+                    lon: loc.lon,
+                    place: loc.place,
+                    country: loc.country,
+                    samples: [entry]
+                } : (originsIndex[entry.ip] || null);
+
+                if (originObj) {
+                    if (!originsIndex[entry.ip]) {
+                        originsIndex[entry.ip] = originObj;
+                        originsPool.push(originObj);
+                    }
+                    livePriorityQueue.push({ origin: originObj, entry: entry });
+                    if (livePriorityQueue.length > 80) {
+                        livePriorityQueue.splice(0, livePriorityQueue.length - 80);
+                    }
+                } else {
+                    addLog(entry, null);
+                }
+            });
+        }
     }
 
     // Polling Real-Time Feed via API
@@ -1192,37 +1712,45 @@
             fetch(MAP.feedUrl + sep + 'after=' + lastId, { credentials: 'same-origin' }).then(function (res) {
                 return res.ok ? res.json() : null;
             }).then(function (data) {
-                if (!data) return;
-                if (typeof data.last_id === 'number' && data.last_id > lastId) {
-                    lastId = data.last_id;
-                }
-                var attacksEl = card.querySelector('[data-map-attacks]');
-                if (attacksEl && data.stats && data.stats.logs_today !== undefined) {
-                    attacksEl.innerText = Number(data.stats.logs_today || 0).toLocaleString('id-ID');
-                }
-                if (data.logs && Array.isArray(data.logs)) {
-                    data.logs.forEach(function (entry) {
-                        var loc = (data.locations && data.locations[entry.ip]) ? data.locations[entry.ip] : null;
-                        if (loc && loc.lat !== null && !originsIndex[entry.ip]) {
-                            originsIndex[entry.ip] = {
-                                ip: entry.ip,
-                                lat: loc.lat,
-                                lon: loc.lon,
-                                place: loc.place,
-                                country: loc.country
-                            };
-                        }
-                        addLog(entry, loc || originsIndex[entry.ip]);
-                        if (isGlobeReady && originsIndex[entry.ip]) {
-                            window.__threatMapFire(MAP, originsIndex[entry.ip], entry);
-                        }
-                    });
-                }
+                processIncomingFeed(data);
             }).catch(function () { /* retry next interval */ });
         }
         setTimeout(poll, (MAP.refresh || 6) * 1000);
     }
     poll();
+
+    // Instant Force-Refresh Radar Telemetry
+    function forceRefreshTelemetry(callback) {
+        var refreshBtn = card.querySelector('[data-threat-force-refresh]');
+        if (refreshBtn) {
+            refreshBtn.classList.add('active');
+            var icon = refreshBtn.querySelector('.threat-refresh-icon');
+            if (icon) icon.style.animation = 'sec-spin 0.8s linear infinite';
+        }
+        var sep = String(MAP.feedUrl).indexOf('?') === -1 ? '?' : '&';
+        fetch(MAP.feedUrl + sep + 'after=' + lastId + '&t=' + Date.now(), { credentials: 'same-origin' })
+            .then(function (res) { return res.ok ? res.json() : null; })
+            .then(function (data) {
+                processIncomingFeed(data);
+            })
+            .catch(function () {})
+            .finally(function () {
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('active');
+                    var icon = refreshBtn.querySelector('.threat-refresh-icon');
+                    if (icon) icon.style.animation = '';
+                }
+                if (typeof callback === 'function') callback();
+            });
+    }
+    window.pasakCustomRefresh = forceRefreshTelemetry;
+
+    var hudRefreshBtn = card.querySelector('[data-threat-force-refresh]');
+    if (hudRefreshBtn) {
+        hudRefreshBtn.addEventListener('click', function () {
+            forceRefreshTelemetry();
+        });
+    }
 
     // ==================== Dual-Engine Tactical Radar System ====================
     var onEngineResize = null;
@@ -1393,16 +1921,22 @@
         var ripples = [];
         var graticule = d3.geoGraticule();
 
+        // Indonesia Archipelago Geographic Center (Titik Tengah Nusantara)
+        // Sabang (95° BT) s/d Merauke (141° BT) -> Titik tengah: 118.0° BT, 2.0° LS
+        var INDO_CENTER_LON = 118.0;
+        var INDO_CENTER_LAT = -2.0;
+
         function createProjection(type) {
             if (type === 'equirectangular') {
                 return d3.geoEquirectangular()
                     .translate([centerX, centerY])
-                    .scale(baseScale * 1.55 * currentZoom);
+                    .scale(baseScale * 1.55 * currentZoom)
+                    .rotate([-INDO_CENTER_LON, 0, 0]);
             }
             return d3.geoOrthographic()
                 .translate([centerX, centerY])
                 .scale(baseScale * currentZoom)
-                .rotate([-MAP.target.lon, -MAP.target.lat, 0]);
+                .rotate([-INDO_CENTER_LON, -INDO_CENTER_LAT, 0]);
         }
 
         // Projection Mode Buttons
@@ -1415,9 +1949,24 @@
 
                 projection = createProjection(currentProjType);
                 geoPath = d3.geoPath().projection(projection).context(baseCtx);
+                updateRotateButtonState();
                 drawBaseMap();
             });
         });
+
+        function updateRotateButtonState() {
+            var rotateBtn = card.querySelector('[data-map-action="toggle-rotate"]');
+            if (!rotateBtn) return;
+            if (currentProjType === 'equirectangular') {
+                rotateBtn.style.opacity = '0.45';
+                rotateBtn.style.pointerEvents = 'none';
+                rotateBtn.title = '{{ __("Rotasi hanya aktif pada mode 3D Globe") }}';
+            } else {
+                rotateBtn.style.opacity = '';
+                rotateBtn.style.pointerEvents = '';
+                rotateBtn.title = autoRotate ? '{{ __("Jeda Animasi Rotasi Globe") }}' : '{{ __("Putar Animasi Rotasi Globe") }}';
+            }
+        }
 
         // Zoom & Pan behaviors
         var zoom = d3.zoom()
@@ -1432,17 +1981,27 @@
                 drawBaseMap();
             });
 
+        var isDragging = false;
         var drag = d3.drag()
+            .on('start', function () {
+                isDragging = true;
+            })
             .on('drag', function (event) {
                 if (currentProjType === 'orthographic') {
                     var rot = projection.rotate();
                     var k = 70 / projection.scale();
                     projection.rotate([rot[0] + event.dx * k, rot[1] - event.dy * k, rot[2]]);
                 } else {
-                    var t = projection.translate();
-                    projection.translate([t[0] + event.dx, t[1] + event.dy]);
+                    var rot2d = projection.rotate();
+                    var k2d = 100 / (projection.scale() * 1.55);
+                    projection.rotate([rot2d[0] + event.dx * k2d, 0, 0]);
                 }
                 drawBaseMap();
+            })
+            .on('end', function () {
+                setTimeout(function () {
+                    isDragging = false;
+                }, 400);
             });
 
         d3.select(holder).call(drag).call(zoom);
@@ -1459,14 +2018,35 @@
                     currentZoom = 1;
                     d3.select(holder).transition().duration(350).call(zoom.transform, d3.zoomIdentity);
                     if (currentProjType === 'orthographic') {
-                        projection.rotate([-MAP.target.lon, -MAP.target.lat, 0]);
+                        projection.rotate([-INDO_CENTER_LON, -INDO_CENTER_LAT, 0]);
                     } else {
                         projection.translate([centerX, centerY]);
+                        projection.rotate([-INDO_CENTER_LON, 0, 0]);
                     }
                     drawBaseMap();
                 } else if (action === 'toggle-rotate') {
                     autoRotate = !autoRotate;
                     btn.classList.toggle('active', autoRotate);
+                    var labelEl = btn.querySelector('[data-rotate-label]');
+                    if (labelEl) {
+                        labelEl.textContent = autoRotate ? '{{ __("Spin: ON") }}' : '{{ __("Spin: OFF") }}';
+                    }
+                    btn.title = autoRotate ? '{{ __("Jeda Animasi Rotasi Globe") }}' : '{{ __("Putar Animasi Rotasi Globe") }}';
+                } else if (action === 'toggle-stream') {
+                    streamActive = !streamActive;
+                    btn.classList.toggle('active', streamActive);
+                    var labelStream = btn.querySelector('[data-stream-label]');
+                    if (labelStream) {
+                        labelStream.textContent = streamActive ? '{{ __("Radar: LIVE") }}' : '{{ __("Radar: PAUSED") }}';
+                    }
+                    btn.title = streamActive ? '{{ __("Jeda Aliran Animasi Serangan Radar") }}' : '{{ __("Lanjutkan Aliran Animasi Serangan Radar") }}';
+                } else if (action === 'toggle-sidebar') {
+                    var side = card.querySelector('.threat-map-side');
+                    if (side) {
+                        var isClosed = side.classList.toggle('is-hidden');
+                        btn.classList.toggle('active', !isClosed);
+                        triggerEngineResize();
+                    }
                 }
             });
         });
@@ -1477,10 +2057,17 @@
             width = rect.width;
             height = rect.height;
 
+            if (!width || !height) {
+                width = holder.clientWidth || window.innerWidth;
+                height = holder.clientHeight || window.innerHeight;
+            }
+
             [baseCanvas, animCanvas].forEach(function (c) {
                 c.width = width * dpr;
                 c.height = height * dpr;
-                c.getContext('2d').scale(dpr, dpr);
+                var ctx = c.getContext('2d');
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.scale(dpr, dpr);
             });
 
             centerX = width / 2;
@@ -1595,6 +2182,12 @@
                 baseCtx.arc(targetPoint[0], targetPoint[1], 2 * currentZoom, 0, Math.PI * 2);
                 baseCtx.fillStyle = '#ffffff';
                 baseCtx.fill();
+
+                // Target Node Tactical Name Label
+                baseCtx.font = 'bold ' + Math.max(9, Math.round(10 * currentZoom)) + 'px ui-monospace, SFMono-Regular, monospace';
+                baseCtx.fillStyle = '#00f0ff';
+                baseCtx.textAlign = 'center';
+                baseCtx.fillText(MAP.target.name || 'NODE TARGET', targetPoint[0], targetPoint[1] - 14 * currentZoom);
             }
         }
 
@@ -1618,8 +2211,8 @@
         function animate() {
             animCtx.clearRect(0, 0, width, height);
 
-            // Smooth Auto-Rotate when in 3D Orthographic mode and not dragging
-            if (autoRotate && currentProjType === 'orthographic' && isGlobeReady) {
+            // Smooth Auto-Rotate when in 3D Orthographic mode, not dragging, and autoRotate is ON
+            if (autoRotate && !isDragging && currentProjType === 'orthographic' && isGlobeReady) {
                 var now = Date.now();
                 if (now - lastSpinTime > 40) {
                     var rot = projection.rotate();
@@ -1731,7 +2324,7 @@
         resize();
         isGlobeReady = true;
         animate();
-        scheduleInitialArcs();
+        scheduleContinuousStream();
 
         // Asynchronously load high-detail 110m world atlas
         loadWorldAtlas(function (isFallback) {
@@ -1774,10 +2367,17 @@
             width = rect.width;
             height = rect.height;
 
+            if (!width || !height) {
+                width = holder.clientWidth || window.innerWidth;
+                height = holder.clientHeight || window.innerHeight;
+            }
+
             [baseCanvas, animCanvas].forEach(function (c) {
                 c.width = width * dpr;
                 c.height = height * dpr;
-                c.getContext('2d').scale(dpr, dpr);
+                var ctx = c.getContext('2d');
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.scale(dpr, dpr);
             });
 
             centerX = width / 2;
@@ -1805,6 +2405,21 @@
                 } else if (action === 'reset') {
                     radarZoom = 1;
                     drawBaseRadar();
+                } else if (action === 'toggle-stream') {
+                    streamActive = !streamActive;
+                    btn.classList.toggle('active', streamActive);
+                    var labelStreamFb = btn.querySelector('[data-stream-label]');
+                    if (labelStreamFb) {
+                        labelStreamFb.textContent = streamActive ? '{{ __("Radar: LIVE") }}' : '{{ __("Radar: PAUSED") }}';
+                    }
+                    btn.title = streamActive ? '{{ __("Jeda Aliran Animasi Serangan Radar") }}' : '{{ __("Lanjutkan Aliran Animasi Serangan Radar") }}';
+                } else if (action === 'toggle-sidebar') {
+                    var side = card.querySelector('.threat-map-side');
+                    if (side) {
+                        var isClosed = side.classList.toggle('is-hidden');
+                        btn.classList.toggle('active', !isClosed);
+                        triggerEngineResize();
+                    }
                 }
             });
         });
@@ -1875,10 +2490,13 @@
             baseCtx.shadowBlur = 0;
         }
 
-        // Relative Geo to Polar Radar Mapping
+        var INDO_CENTER_LON = 118.0;
+        var INDO_CENTER_LAT = -2.0;
+
+        // Relative Geo to Polar Radar Mapping (centered on Indonesia)
         function geoToRadar(lon, lat) {
-            var dLon = (lon - MAP.target.lon) * Math.PI / 180;
-            var dLat = (lat - MAP.target.lat) * Math.PI / 180;
+            var dLon = (lon - INDO_CENTER_LON) * Math.PI / 180;
+            var dLat = (lat - INDO_CENTER_LAT) * Math.PI / 180;
             var dist = Math.min(1, Math.sqrt(dLon * dLon + dLat * dLat) / (Math.PI / 1.3));
             var angle = Math.atan2(dLat, dLon);
             var r = dist * radius * radarZoom * 0.88;
@@ -1978,7 +2596,7 @@
         resize();
         animate();
         isGlobeReady = true;
-        scheduleInitialArcs();
+        scheduleContinuousStream();
     }
 
     // Initialize Active Engine with retry timer for D3 loading
@@ -2003,9 +2621,34 @@
 
     // ==================== Fullscreen Wallboard Mode ====================
     var fullButton = card.querySelector('[data-map-fullscreen]');
-    function toggleFullscreen(active) {
+
+    function isCardFullscreen() {
+        return card.classList.contains('is-fullscreen') ||
+            document.fullscreenElement === card ||
+            document.webkitFullscreenElement === card ||
+            document.mozFullScreenElement === card;
+    }
+
+    function triggerEngineResize() {
+        if (typeof onEngineResize === 'function') {
+            requestAnimationFrame(onEngineResize);
+            setTimeout(onEngineResize, 30);
+            setTimeout(onEngineResize, 100);
+            setTimeout(onEngineResize, 250);
+            setTimeout(onEngineResize, 500);
+            setTimeout(onEngineResize, 800);
+        }
+        try {
+            window.dispatchEvent(new Event('resize'));
+        } catch (e) {}
+    }
+
+    function updateFullscreenUi(active) {
         card.classList.toggle('is-fullscreen', active);
+        var wrap = card.querySelector('.threat-map-wrap');
+        if (wrap) wrap.classList.toggle('is-fs-wrap', active);
         document.body.classList.toggle('pasak-threat-fs', active);
+        document.documentElement.classList.toggle('pasak-threat-fs', active);
         if (fullButton) {
             fullButton.setAttribute('aria-pressed', active ? 'true' : 'false');
             var text = active ? '{{ __("Exit full screen") }}' : '{{ __("Full screen") }}';
@@ -2014,18 +2657,165 @@
             if (textEl) textEl.textContent = text;
             fullButton.blur();
         }
-        if (typeof onEngineResize === 'function') onEngineResize();
+        triggerEngineResize();
     }
+
+    function toggleFullscreen(requestActive) {
+        var shouldBeActive = (typeof requestActive === 'boolean') ? requestActive : !isCardFullscreen();
+
+        if (shouldBeActive) {
+            updateFullscreenUi(true);
+            var reqFs = card.requestFullscreen || card.webkitRequestFullscreen || card.mozRequestFullScreen || card.msRequestFullscreen;
+            if (reqFs) {
+                try {
+                    var p = reqFs.call(card);
+                    if (p && typeof p.then === 'function') {
+                        p.then(function () {
+                            updateFullscreenUi(true);
+                            triggerEngineResize();
+                        }).catch(function () {
+                            updateFullscreenUi(true);
+                            triggerEngineResize();
+                        });
+                    }
+                } catch (e) {
+                    updateFullscreenUi(true);
+                    triggerEngineResize();
+                }
+            }
+        } else {
+            updateFullscreenUi(false);
+            var isNative = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+            if (isNative) {
+                var exitFs = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+                if (exitFs) {
+                    try {
+                        var pExit = exitFs.call(document);
+                        if (pExit && typeof pExit.then === 'function') {
+                            pExit.then(function () {
+                                updateFullscreenUi(false);
+                                triggerEngineResize();
+                            }).catch(function () {
+                                updateFullscreenUi(false);
+                                triggerEngineResize();
+                            });
+                        }
+                    } catch (e) {
+                        updateFullscreenUi(false);
+                        triggerEngineResize();
+                    }
+                }
+            }
+        }
+    }
+
+    ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange'].forEach(function (ev) {
+        document.addEventListener(ev, function () {
+            var isNative = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+            updateFullscreenUi(isNative);
+        });
+    });
 
     if (fullButton) {
         fullButton.addEventListener('click', function () {
-            toggleFullscreen(!card.classList.contains('is-fullscreen'));
+            toggleFullscreen();
+        });
+    }
+
+
+    // ==================== Quarantine Modal Helpers ====================
+    window.selectBlockScope = function (scope) {
+        var hiddenScope = card.querySelector('#blockModalScope');
+        var cardDevice = card.querySelector('#scopeCardDevice');
+        var cardIp = card.querySelector('#scopeCardIp');
+        var submitLabel = card.querySelector('#blockModalSubmitLabel');
+        var submitBtn = card.querySelector('#blockModalSubmitBtn');
+
+        if (hiddenScope) hiddenScope.value = scope;
+
+        if (scope === 'device') {
+            if (cardDevice) {
+                cardDevice.style.border = '2px solid #38bdf8';
+                cardDevice.style.background = 'rgba(56, 189, 248, 0.15)';
+            }
+            if (cardIp) {
+                cardIp.style.border = '1.5px solid rgba(255, 255, 255, 0.1)';
+                cardIp.style.background = 'rgba(15, 23, 42, 0.6)';
+            }
+            if (submitLabel) submitLabel.textContent = '{{ __("Blokir Perangkat") }}';
+            if (submitBtn) {
+                submitBtn.style.background = 'rgba(56, 189, 248, 0.25)';
+                submitBtn.style.borderColor = '#38bdf8';
+                submitBtn.style.color = '#7dd3fc';
+            }
+        } else {
+            if (cardIp) {
+                cardIp.style.border = '2px solid #ef4444';
+                cardIp.style.background = 'rgba(239, 68, 68, 0.15)';
+            }
+            if (cardDevice) {
+                cardDevice.style.border = '1.5px solid rgba(255, 255, 255, 0.1)';
+                cardDevice.style.background = 'rgba(15, 23, 42, 0.6)';
+            }
+            if (submitLabel) submitLabel.textContent = '{{ __("Blokir Seluruh IP") }}';
+            if (submitBtn) {
+                submitBtn.style.background = 'rgba(239, 68, 68, 0.25)';
+                submitBtn.style.borderColor = '#ef4444';
+                submitBtn.style.color = '#fca5a5';
+            }
+        }
+    };
+
+    window.openBlockModal = function (data) {
+        var modal = card.querySelector('#blockIpModal');
+        if (!modal) return;
+
+        var inputIp = card.querySelector('#blockModalIp');
+        var inputReason = card.querySelector('#blockModalReason');
+        var inputNotes = card.querySelector('#blockModalNotes');
+        var inputDevice = card.querySelector('#blockModalDeviceId');
+        var inputLocalIp = card.querySelector('#blockModalLocalIp');
+
+        if (inputIp) inputIp.value = (data && data.ip) || '';
+        if (inputReason) inputReason.value = (data && data.reason) || '';
+        if (inputNotes) inputNotes.value = '';
+        if (inputDevice) inputDevice.value = (data && data.device_id) || '';
+        if (inputLocalIp) inputLocalIp.value = (data && data.local_ip) || '';
+
+        selectBlockScope((data && data.device_id) ? 'device' : 'ip');
+
+        modal.hidden = false;
+        modal.style.display = 'flex';
+        setTimeout(function () {
+            if (inputIp) inputIp.focus();
+        }, 50);
+    };
+
+    window.closeBlockModal = function () {
+        var modal = card.querySelector('#blockIpModal');
+        if (modal) {
+            modal.hidden = true;
+            modal.style.display = 'none';
+        }
+    };
+
+    var blockModalBackdrop = card.querySelector('#blockIpModal');
+    if (blockModalBackdrop) {
+        blockModalBackdrop.addEventListener('click', function (e) {
+            if (e.target === blockModalBackdrop) closeBlockModal();
         });
     }
 
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && card.classList.contains('is-fullscreen')) {
-            toggleFullscreen(false);
+        if (e.key === 'Escape') {
+            var modal = card.querySelector('#blockIpModal');
+            if (modal && !modal.hidden && modal.style.display !== 'none') {
+                closeBlockModal();
+                return;
+            }
+            if (isCardFullscreen()) {
+                toggleFullscreen(false);
+            }
         }
     });
 })();

@@ -941,12 +941,13 @@ return [
         // Peta ancaman (Threat Map): titik server yang dipantau + jendela
         // data serangan yang digambar.
         'threat_map' => [
-            'target_name' => env(
-                'PASAK_DASHBOARD_TARGET_NAME',
-                'Pekanbaru, Riau (ID)',
+            'auto_detect_target' => (bool) env(
+                'PASAK_DASHBOARD_AUTO_DETECT_TARGET',
+                true,
             ),
-            'target_lat' => (float) env('PASAK_DASHBOARD_TARGET_LAT', 0.5071),
-            'target_lon' => (float) env('PASAK_DASHBOARD_TARGET_LON', 101.4478),
+            'target_name' => env('PASAK_DASHBOARD_TARGET_NAME'),
+            'target_lat' => env('PASAK_DASHBOARD_TARGET_LAT') !== null ? (float) env('PASAK_DASHBOARD_TARGET_LAT') : null,
+            'target_lon' => env('PASAK_DASHBOARD_TARGET_LON') !== null ? (float) env('PASAK_DASHBOARD_TARGET_LON') : null,
             'window_hours' => (int) env('PASAK_DASHBOARD_MAP_WINDOW_HOURS', 24),
             'max_origins' => (int) env('PASAK_DASHBOARD_MAP_MAX_ORIGINS', 10),
             'refresh_seconds' => (int) env(

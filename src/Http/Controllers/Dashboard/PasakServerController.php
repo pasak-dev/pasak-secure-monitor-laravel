@@ -3,8 +3,10 @@
 namespace Internal\Pasak\Http\Controllers\Dashboard;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Routing\Controller;
 use Internal\Pasak\Models\PasakLoginAttempt;
 use Internal\Pasak\Services\PasakServerSecurityService;
@@ -33,6 +35,8 @@ class PasakServerController extends Controller
             "baseline" => $server->baselineSummary(),
             "integrity" => $server->integrityReport(),
             "suspicious" => $server->suspiciousFiles($force),
+            "verified" => $server->verifiedFilesList(),
+            "deleted" => $server->deletedFilesList(),
             "lockouts" => $server->activeLockouts(),
             "urls" => [
                 "index" => route("pasak.dashboard.server"),
@@ -52,6 +56,9 @@ class PasakServerController extends Controller
                 "suspiciousVerify" => route(
                     "pasak.dashboard.server.suspicious-files.verify",
                 ),
+                "suspiciousUnverify" => \Illuminate\Support\Facades\Route::has("pasak.dashboard.server.suspicious-files.unverify")
+                    ? route("pasak.dashboard.server.suspicious-files.unverify")
+                    : "#",
                 "lockoutDestroy" => route("pasak.dashboard.lockouts.destroy", [
                     "id" => "__ID__",
                 ]),
@@ -150,6 +157,23 @@ class PasakServerController extends Controller
         ]);
     }
 
+    public function unverifySuspiciousFile(
+        Request $request,
+        PasakServerSecurityService $server,
+    ): RedirectResponse {
+        $validated = $request->validate([
+            "file_path" => ["required", "string"],
+        ]);
+
+        $result = $server->unverifySuspiciousFile($validated["file_path"]);
+
+        return back()->with("toast", [
+            "type" => $result["success"] ?? false ? "success" : "error",
+            "message" =>
+                $result["message"] ?? __("Gagal membatalkan verifikasi berkas."),
+        ]);
+    }
+
     public function releaseLockout(
         int|string $id,
         PasakServerSecurityService $server,
@@ -163,6 +187,39 @@ class PasakServerController extends Controller
         return back()->with("toast", [
             "type" => "success",
             "message" => __("Lockout released."),
+        ]);
+    }
+
+    /**
+     * Bersihkan seluruh cache sistem dan optimasi Laravel (optimize:clear).
+     */
+    public function optimizeClear(Request $request): JsonResponse|RedirectResponse
+    {
+        try {
+            Artisan::call('optimize:clear');
+            $output = trim(Artisan::output());
+        } catch (\Throwable $e) {
+            $output = $e->getMessage();
+        }
+
+        $message = __('Cache aplikasi, tampilan (views), routes, dan konfigurasi berhasil dibersihkan.');
+
+        if ($request->expectsJson() || $request->ajax()) {
+            session()->flash('toast', [
+                'type' => 'success',
+                'message' => $message,
+            ]);
+
+            return response()->json([
+                'ok' => true,
+                'message' => $message,
+                'output' => $output,
+            ]);
+        }
+
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => $message,
         ]);
     }
 }

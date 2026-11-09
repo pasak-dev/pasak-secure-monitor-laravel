@@ -180,7 +180,7 @@
                                     <span>🛡️</span>
                                     <span>{{ __('Verifikasi') }}</span>
                                 </button>
-                                <form method="POST" action="{{ route('pasak.dashboard.server.suspicious-files.destroy') }}" style="display: inline;" onsubmit="return confirm('{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}');" data-sec-confirm="{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}" data-confirm-title="{{ __('Konfirmasi Hapus Berkas') }}" data-confirm-type="danger" data-confirm-btn="{{ __('Ya, Hapus Berkas') }}">
+                                <form method="POST" action="{{ route('pasak.dashboard.server.suspicious-files.destroy') }}" style="display: inline;" data-sec-confirm="{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}" data-confirm-title="{{ __('Konfirmasi Hapus Berkas') }}" data-confirm-type="danger" data-confirm-btn="{{ __('Ya, Hapus Berkas') }}">
                                     @csrf
                                     @method('DELETE')
                                     <input type="hidden" name="file_path" value="{{ $file['path'] ?? '' }}">
@@ -192,6 +192,123 @@
                 @empty
                     <tr>
                         <td colspan="6" style="text-align: center; color: var(--sec-text-muted); padding: 32px;">{{ __('No suspicious files detected.') }}</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{-- Tabel 2: Berkas Terverifikasi Aman oleh Admin --}}
+<div class="sec-card sec-card-flush">
+    <div class="sec-card-header">
+        <div>
+            <h3 class="sec-card-title" style="display: flex; align-items: center; gap: 8px;">
+                <span>🛡️</span>
+                <span>{{ __('Berkas Terverifikasi Aman oleh Admin') }}</span>
+                <span class="sec-badge sec-badge-success" style="font-size: 11px;">{{ count($verified ?? []) }}</span>
+            </h3>
+            <p class="sec-card-subtitle">{{ __('Berkas yang telah ditinjau dan ditandai aman (false positive) oleh administrator, serta dikecualikan dari pemindaian audit.') }}</p>
+        </div>
+    </div>
+    <div class="sec-table-wrap">
+        <table class="sec-table">
+            <thead>
+                <tr>
+                    <th>{{ __('Berkas') }}</th>
+                    <th>{{ __('SHA-256 Hash') }}</th>
+                    <th>{{ __('Ukuran') }}</th>
+                    <th>{{ __('Waktu Verifikasi') }}</th>
+                    <th>{{ __('Catatan Verifikasi') }}</th>
+                    <th style="text-align: right;">{{ __('Aksi') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse (($verified ?? []) as $vFile)
+                    <tr>
+                        <td class="sec-font-mono" style="font-size: 12px; font-weight: 600;">
+                            <span title="{{ $vFile['file'] ?? '-' }}">{{ $vFile['file'] ?? '-' }}</span>
+                        </td>
+                        <td class="sec-font-mono" style="font-size: 11px; color: var(--sec-text-muted); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $vFile['hash'] ?? '-' }}">
+                            {{ $vFile['hash'] ?? '-' }}
+                        </td>
+                        <td class="sec-font-mono" style="font-size: 12px;">{{ $vFile['size_human'] ?? '-' }}</td>
+                        <td style="font-size: 12px; white-space: nowrap;">
+                            <div style="font-weight: 600; color: var(--sec-text);" class="sec-font-mono">{{ $vFile['verified_at'] ?? '-' }}</div>
+                            <div style="font-size: 11px; color: var(--sec-text-muted);">{{ $vFile['verified_at_human'] ?? '' }}</div>
+                        </td>
+                        <td style="font-size: 12px; color: var(--sec-text-muted); max-width: 260px;">
+                            {{ $vFile['notes'] ?? '-' }}
+                        </td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            <form method="POST" action="{{ $urls['suspiciousUnverify'] ?? (\Route::has('pasak.dashboard.server.suspicious-files.unverify') ? route('pasak.dashboard.server.suspicious-files.unverify') : '#') }}" style="display: inline;" data-sec-confirm="{{ __('Batalkan verifikasi aman berkas ini? Berkas akan kembali diperiksa pada audit berikutnya.') }}" data-confirm-title="{{ __('Konfirmasi Pembatalan Verifikasi') }}" data-confirm-type="warning" data-confirm-btn="{{ __('Ya, Batalkan Verifikasi') }}">
+                                @csrf
+                                <input type="hidden" name="file_path" value="{{ $vFile['file'] ?? '' }}">
+                                <button type="submit" class="sec-btn sec-btn-secondary sec-btn-sm" style="font-size: 11.5px; padding: 4px 10px;" title="{{ __('Batalkan status aman berkas ini') }}">
+                                    <span>↩️</span>
+                                    <span>{{ __('Batal Verifikasi') }}</span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--sec-text-muted); padding: 32px;">{{ __('Belum ada berkas yang diverifikasi aman oleh admin.') }}</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{-- Tabel 3: Riwayat Berkas Dihapus oleh Admin --}}
+<div class="sec-card sec-card-flush">
+    <div class="sec-card-header">
+        <div>
+            <h3 class="sec-card-title" style="display: flex; align-items: center; gap: 8px;">
+                <span>🗑️</span>
+                <span>{{ __('Riwayat Berkas Dihapus oleh Admin') }}</span>
+                <span class="sec-badge sec-badge-critical" style="font-size: 11px;">{{ count($deleted ?? []) }}</span>
+            </h3>
+            <p class="sec-card-subtitle">{{ __('Jejak audit berkas webshell atau berkas berbahaya yang telah dihapus secara permanen dari server oleh administrator.') }}</p>
+        </div>
+    </div>
+    <div class="sec-table-wrap">
+        <table class="sec-table">
+            <thead>
+                <tr>
+                    <th>{{ __('Berkas') }}</th>
+                    <th>{{ __('SHA-256 Hash') }}</th>
+                    <th>{{ __('Ukuran Terakhir') }}</th>
+                    <th>{{ __('Waktu Penghapusan') }}</th>
+                    <th>{{ __('Keterangan') }}</th>
+                    <th style="text-align: right;">{{ __('Status') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse (($deleted ?? []) as $dFile)
+                    <tr>
+                        <td class="sec-font-mono" style="font-size: 12px; font-weight: 600; color: var(--sec-danger);">
+                            <span title="{{ $dFile['file'] ?? '-' }}">{{ $dFile['file'] ?? '-' }}</span>
+                        </td>
+                        <td class="sec-font-mono" style="font-size: 11px; color: var(--sec-text-muted); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $dFile['hash'] ?? '-' }}">
+                            {{ $dFile['hash'] ?? '-' }}
+                        </td>
+                        <td class="sec-font-mono" style="font-size: 12px;">{{ $dFile['size_human'] ?? '-' }}</td>
+                        <td style="font-size: 12px; white-space: nowrap;">
+                            <div style="font-weight: 600; color: var(--sec-text);" class="sec-font-mono">{{ $dFile['deleted_at'] ?? '-' }}</div>
+                            <div style="font-size: 11px; color: var(--sec-text-muted);">{{ $dFile['deleted_at_human'] ?? '' }}</div>
+                        </td>
+                        <td style="font-size: 12px; color: var(--sec-text-muted); max-width: 260px;">
+                            {{ $dFile['reason'] ?? __('Dihapus permanen oleh admin') }}
+                        </td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            <span class="sec-badge sec-badge-critical">{{ __('Dihapus Permanen') }}</span>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--sec-text-muted); padding: 32px;">{{ __('Belum ada riwayat berkas yang dihapus oleh admin.') }}</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -317,7 +434,7 @@
             </div>
         </div>
         <div class="sec-modal-footer" style="padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--sec-border-light); background: var(--sec-card-hover); gap: 10px; flex-wrap: wrap;">
-            <form id="modalDeleteForm" method="POST" action="{{ route('pasak.dashboard.server.suspicious-files.destroy') }}" onsubmit="return confirm('{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}');" data-sec-confirm="{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}" data-confirm-title="{{ __('Konfirmasi Hapus Berkas') }}" data-confirm-type="danger" data-confirm-btn="{{ __('Ya, Hapus Berkas') }}">
+            <form id="modalDeleteForm" method="POST" action="{{ route('pasak.dashboard.server.suspicious-files.destroy') }}" data-sec-confirm="{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}" data-confirm-title="{{ __('Konfirmasi Hapus Berkas') }}" data-confirm-type="danger" data-confirm-btn="{{ __('Ya, Hapus Berkas') }}">
                 @csrf
                 @method('DELETE')
                 <input type="hidden" name="file_path" id="modalDeleteInput" value="">

@@ -95,7 +95,7 @@ class PasakInjectAnnouncementBanner
 <div id="psk-announce-bar" style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;background:linear-gradient(90deg,#1d4ed8,#2563eb);color:#fff;font:500 13px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:8px 44px 8px 16px;position:relative;z-index:9990;">
 <span>🛡️ Dilindungi <strong>Pasak (Bulwark)</strong> — monitoring keamanan aktif</span>
 <button type="button" data-psk-announce-info style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:6px;padding:2px 10px;font:600 12px/1.6 inherit;cursor:pointer;">Info</button>
-<a href="https://security-dev.pekanbaru.go.id/" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline;font-size:12px;">Dokumentasi</a>
+<a href="https://pasak.is-a.dev/docs/pasak-security-monitor" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline;font-size:12px;">Dokumentasi</a>
 <button type="button" data-psk-announce-dismiss aria-label="Tutup" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:#fff;font-size:16px;cursor:pointer;line-height:1;">✕</button>
 </div>
 HTML;
@@ -113,7 +113,7 @@ HTML;
 <div style="padding:20px;display:flex;flex-direction:column;gap:10px;color:#475569;">
 <div>🛡️ Bawaan instalasi adalah <strong>monitoring saja</strong>: ancaman dideteksi dan dicatat tanpa blokir otomatis.</div>
 <div>⚙️ Admin dapat mengaktifkan karantina otomatis di halaman Settings atau via API.</div>
-<div>📖 Panduan lengkap: <a href="https://security-dev.pekanbaru.go.id/" target="_blank" rel="noopener" style="color:#2563eb;">security-dev.pekanbaru.go.id</a></div>
+<div>📖 Panduan lengkap: <a href="https://pasak.is-a.dev/docs/pasak-security-monitor" target="_blank" rel="noopener" style="color:#2563eb;">security-dev.pekanbaru.go.id</a></div>
 </div>
 <div style="padding:14px 20px;border-top:1px solid #e2e8f0;background:#f8fafc;display:flex;justify-content:flex-end;">
 <button type="button" data-psk-announce-close style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:8px 18px;font:600 14px/1.4 inherit;cursor:pointer;">Mengerti</button>

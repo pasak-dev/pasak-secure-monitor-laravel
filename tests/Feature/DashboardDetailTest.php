@@ -73,6 +73,8 @@ test('log detail renders evidence, context, and dark mode toggle', function () {
         ->and($html)->toContain(htmlspecialchars("' OR '1'='1", ENT_QUOTES))
         ->and($html)->toContain('EvilBot/1.0')
         ->and($html)->toContain('Back to logs')
+        ->and($html)->toContain('Negara Penyerang')
+        ->and($html)->toContain('Provinsi / Wilayah')
         ->and($html)->toContain('data-sec-theme-toggle')
         ->and($html)->toContain('pasak-theme');
 });
@@ -106,6 +108,8 @@ test('blocked ip detail renders reason, related logs, and actions', function () 
     expect($html)->toContain('Brute force login')
         ->and($html)->toContain('Repeated attempts')
         ->and($html)->toContain('Triggering logs')
+        ->and($html)->toContain('Negara Penyerang')
+        ->and($html)->toContain('Provinsi / Wilayah')
         ->and($html)->toContain('Disable block');
 });
 

@@ -35,7 +35,7 @@ class PasakService
     /**
      * Versi paket Pasak (Bulwark).
      */
-    public const VERSION = '1.7.2';
+    public const VERSION = '1.7.3';
 
     /**
      * Rentang waktu yang didukung grafik tren serangan.
@@ -1885,6 +1885,7 @@ class PasakService
 
         return [
             'total_logs' => PasakLog::query()->count(),
+            'total_critical' => PasakLog::query()->where('threat_level', 'critical')->count(),
             'logs_today' => PasakLog::query()->where('created_at', '>=', $startOfDay)->count(),
             'critical_today' => PasakLog::query()
                 ->where('created_at', '>=', $startOfDay)

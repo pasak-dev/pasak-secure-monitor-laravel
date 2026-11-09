@@ -249,6 +249,7 @@ test(
                 "server.suspicious-files.destroy",
                 "server.suspicious-files.download",
                 "server.suspicious-files.verify",
+                "server.suspicious-files.unverify",
                 "lockouts.destroy",
                 "sessions",
                 "user-sessions.destroy",
@@ -303,3 +304,31 @@ test(
         }
     },
 );
+
+test('admin can trigger optimize-clear via dashboard and api', function () {
+    config()->set('pasak.dashboard.enabled', true);
+    config()->set('pasak.dashboard.driver', 'blade');
+
+    // Register blade dashboard routes if not already present
+    if (! \Illuminate\Support\Facades\Route::has('pasak.dashboard.optimize-clear')) {
+        require __DIR__ . '/../../routes/pasak-dashboard-blade.php';
+        \Illuminate\Support\Facades\Route::getRoutes()->refreshNameLookups();
+    }
+
+    $admin = TestUser::create([
+        'name' => 'Admin Clear',
+        'email' => 'admin-clear@example.com',
+        'password' => bcrypt('password'),
+        'role' => 'admin',
+    ]);
+
+    // Dashboard JSON request
+    $dashResponse = $this->actingAs($admin)->postJson(route('pasak.dashboard.optimize-clear'));
+    $dashResponse->assertOk()
+        ->assertJson(['ok' => true]);
+
+    // API JSON request
+    $apiResponse = $this->actingAs($admin)->postJson('/api/pasak/server/optimize-clear');
+    $apiResponse->assertOk()
+        ->assertJson(['ok' => true]);
+});

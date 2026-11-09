@@ -5,6 +5,7 @@ namespace Internal\Pasak\Http\Controllers\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Artisan;
 use Internal\Pasak\Models\PasakLoginAttempt;
 use Internal\Pasak\Services\PasakLoginThrottleService;
 use Internal\Pasak\Services\PasakServerSecurityService;
@@ -136,6 +137,25 @@ class PasakServerSecurityApiController extends Controller
         return response()->json([
             "success" => true,
             "message" => "Lockout untuk {$email} ({$ip}) berhasil dibuka.",
+        ]);
+    }
+
+    /**
+     * Bersihkan seluruh cache sistem dan optimasi Laravel (optimize:clear).
+     */
+    public function optimizeClear(Request $request): JsonResponse
+    {
+        try {
+            Artisan::call('optimize:clear');
+            $output = trim(Artisan::output());
+        } catch (\Throwable $e) {
+            $output = $e->getMessage();
+        }
+
+        return response()->json([
+            'ok' => true,
+            'message' => __('Cache aplikasi, tampilan (views), routes, dan konfigurasi berhasil dibersihkan.'),
+            'output' => $output,
         ]);
     }
 }

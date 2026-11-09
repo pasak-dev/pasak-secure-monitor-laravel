@@ -170,6 +170,80 @@ test('threat map payload honors configured window and target overrides', functio
         ->and($payload['origins'][0]['weight'])->toBe(2);
 });
 
+test('threat map payload passes recent security logs and origins to threat map', function () {
+    Http::fake();
+
+    PasakLog::create([
+        'ip_address' => '203.0.113.50',
+        'event_type' => 'sqli_detected',
+        'threat_level' => 'critical',
+        'method' => 'POST',
+        'path' => '/login',
+        'rule_label' => 'SQL Injection in Auth',
+        'was_blocked' => true,
+    ]);
+
+    PasakLog::create([
+        'ip_address' => '203.0.113.60',
+        'event_type' => 'xss_detected',
+        'threat_level' => 'high',
+        'method' => 'GET',
+        'path' => '/search',
+        'rule_label' => 'Cross-Site Scripting Attempt',
+        'was_blocked' => false,
+    ]);
+
+    $this->app['view']->share('errors', new ViewErrorBag);
+
+    $response = app(PasakThreatMapController::class)->index(
+        Request::create('/__pasak_test_threat'),
+        app(PasakService::class)
+    );
+
+    $payload = $response->getData()['payload'];
+
+    expect($payload['recent_logs'])->toHaveCount(2)
+        ->and($payload['recent_logs'][0]['ip'])->toBe('203.0.113.60')
+        ->and($payload['recent_logs'][0]['desc'])->toBe('Cross-Site Scripting Attempt')
+        ->and($payload['recent_logs'][1]['ip'])->toBe('203.0.113.50')
+        ->and($payload['recent_logs'][1]['desc'])->toBe('SQL Injection in Auth')
+        ->and($payload['origins'])->toHaveCount(2);
+});
+
+test('threat map auto detects server location when manual config is not provided', function () {
+    Illuminate\Support\Facades\Cache::forget('pasak:threat_map_server_target');
+
+    config()->set('pasak.dashboard.threat_map.target_name', null);
+    config()->set('pasak.dashboard.threat_map.target_lat', null);
+    config()->set('pasak.dashboard.threat_map.target_lon', null);
+    config()->set('pasak.dashboard.threat_map.auto_detect_target', true);
+
+    Http::fake([
+        'http://ip-api.com/*' => Http::response([
+            'status' => 'success',
+            'city' => 'Jakarta',
+            'regionName' => 'DKI Jakarta',
+            'country' => 'Indonesia',
+            'countryCode' => 'ID',
+            'lat' => -6.2088,
+            'lon' => 106.8456,
+        ], 200),
+    ]);
+
+    $this->app['view']->share('errors', new ViewErrorBag);
+
+    $response = app(PasakThreatMapController::class)->index(
+        Request::create('/__pasak_test_threat'),
+        app(PasakService::class)
+    );
+
+    $payload = $response->getData()['payload'];
+
+    expect($payload['target']['name'])->toBe('Jakarta, DKI Jakarta (ID)')
+        ->and($payload['target']['lat'])->toBe(-6.2088)
+        ->and($payload['target']['lon'])->toBe(106.8456);
+});
+
 test('upgrade warns when published dashboard layout lacks the threat map menu', function () {
     Http::fake([
         'https://repo.packagist.org/p2/robyajo/pasak.json' => Http::response([

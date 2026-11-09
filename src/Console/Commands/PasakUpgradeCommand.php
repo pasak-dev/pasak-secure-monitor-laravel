@@ -148,16 +148,31 @@ class PasakUpgradeCommand extends Command
 
         // 2. Publish & Run Migrations
         $this->comment('2/6. Menyinkronkan dan menerapkan migrasi database...');
+        $existingMigrationFiles = File::isDirectory(database_path('migrations'))
+            ? File::files(database_path('migrations'))
+            : [];
+        $existingMigrationNames = array_map(fn ($f) => $f->getFilename(), $existingMigrationFiles);
+
         $this->call('vendor:publish', [
             '--tag' => 'pasak-migrations',
             '--force' => true,
         ]);
+
+        $afterMigrationFiles = File::isDirectory(database_path('migrations'))
+            ? File::files(database_path('migrations'))
+            : [];
+        $afterMigrationNames = array_map(fn ($f) => $f->getFilename(), $afterMigrationFiles);
+
+        $newlyPublishedCount = count(array_diff($afterMigrationNames, $existingMigrationNames));
+        $pendingCountBefore = $this->detectPendingMigrations();
+        $hasNewMigrations = $pendingCountBefore > 0 || $newlyPublishedCount > 0;
+        $totalNewMigrations = max($pendingCountBefore, $newlyPublishedCount);
+
         if (! $this->option('no-migrate')) {
-            $pendingCount = $this->detectPendingMigrations();
-            if ($pendingCount > 0) {
-                $this->warn("  ⚠ Terdeteksi {$pendingCount} migrasi database baru yang perlu diterapkan.");
+            if ($pendingCountBefore > 0) {
+                $this->warn("  ⚠ Terdeteksi {$pendingCountBefore} migrasi database baru yang perlu diterapkan.");
                 $this->call('migrate', ['--force' => true]);
-                $this->info("  ✓ {$pendingCount} migrasi database baru berhasil diterapkan ke database.");
+                $this->info("  ✓ {$pendingCountBefore} migrasi database baru berhasil diterapkan ke database.");
             } else {
                 $this->call('migrate', ['--force' => true]);
                 $this->info('  ✓ Skema database mutakhir (tidak ada migrasi baru yang tertunda).');
@@ -319,6 +334,29 @@ class PasakUpgradeCommand extends Command
             "  🎉 Pasak berhasil diperbarui dan disinkronkan (v{$refreshedVersion})!",
         );
         $this->newLine();
+
+        $remainingPending = $this->detectPendingMigrations();
+        if ($remainingPending > 0) {
+            $this->warn('  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            $this->warn("  🔔 PERHATIAN: Terdapat {$remainingPending} migrasi database baru yang belum dijalankan!");
+            $this->line('  Harap segera jalankan perintah migrasi berikut untuk memperbarui database:');
+            $this->newLine();
+            $this->line('    <options=bold;fg=yellow>php artisan migrate</>');
+            $this->line('    <comment>(atau <info>php artisan migrate --force</info> pada server production)</comment>');
+            $this->warn('  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            $this->newLine();
+        } elseif ($hasNewMigrations) {
+            $countLabel = $totalNewMigrations > 0 ? " ({$totalNewMigrations} migrasi baru)" : '';
+            $this->line('  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            $this->line("  <options=bold;fg=cyan>🔔 PEMBERITAHUAN MIGRASI DATABASE{$countLabel}:</>");
+            $this->line('  Pembaruan versi ini menyertakan migrasi struktur tabel database.');
+            $this->line('  Pastikan Anda atau tim menjalankan migrasi di seluruh server / lingkungan:');
+            $this->newLine();
+            $this->line('    <options=bold;fg=yellow>php artisan migrate</>');
+            $this->line('    <comment>(atau <info>php artisan migrate --force</info> pada server production)</comment>');
+            $this->line('  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            $this->newLine();
+        }
 
         return 0;
     }
@@ -924,12 +962,12 @@ MARKDOWN;
         try {
             /** @var \Illuminate\Database\Migrations\Migrator $migrator */
             $migrator = app('migrator');
-            if (! $migrator->repositoryExists()) {
-                return 0;
-            }
-
             $paths = array_unique(array_merge($migrator->paths(), [database_path('migrations')]));
             $files = $migrator->getMigrationFiles($paths);
+
+            if (! $migrator->repositoryExists()) {
+                return count($files);
+            }
             $ran = $migrator->getRepository()->getRan();
             $pending = array_diff(array_keys($files), $ran);
 

@@ -68,6 +68,8 @@ Route::prefix($prefix)->middleware($middleware)->name('pasak.')->group(function 
         Route::delete('server/suspicious-files', [PasakServerSecurityApiController::class, 'destroySuspiciousFile'])->name('server.suspicious-files.destroy');
         Route::get('server/suspicious-files/download', [PasakServerSecurityApiController::class, 'downloadSuspiciousFile'])->name('server.suspicious-files.download');
         Route::post('server/suspicious-files/verify', [PasakServerSecurityApiController::class, 'verifySuspiciousFile'])->name('server.suspicious-files.verify');
+        Route::post('server/suspicious-files/unverify', [PasakServerSecurityApiController::class, 'unverifySuspiciousFile'])->name('server.suspicious-files.unverify');
+        Route::post('server/optimize-clear', [PasakServerSecurityApiController::class, 'optimizeClear'])->name('server.optimize-clear');
         Route::delete('lockouts/{id}', [PasakServerSecurityApiController::class, 'releaseLockout'])->name('lockouts.destroy');
 
         // User Sessions & Trusted IPs

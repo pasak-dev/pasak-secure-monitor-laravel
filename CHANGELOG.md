@@ -2,6 +2,34 @@
 
 All notable changes to `robyajo/pasak` will be documented in this file.
 
+## [1.7.3] - 2026-11-10
+
+### Added
+
+- **Pembersihan Cache & Optimasi Sistem Sekali Klik (`php artisan optimize:clear`) via Tombol Refresh Header** (`stubs/blade/pages/pasak/layout.blade.php`, `PasakServerController.php`, `PasakServerSecurityApiController.php`):
+  - Tombol Refresh di sudut kanan atas header dashboard kini memicu endpoint `POST {pasakSlug}/optimize-clear` dan API `POST api/pasak/server/optimize-clear`.
+  - Secara otomatis mengeksekusi `Artisan::call('optimize:clear')` yang membersihkan seluruh cache aplikasi, compiled views, konfigurasi, rute, dan event cache.
+  - Dilengkapi animasi putar halus (*spinning icon*), pengiriman pesan aman via session flash, serta penayangan notifikasi floating toast hijau (*5 detik*) saat halaman termuat ulang dalam kondisi segar.
+
+- **Branding Resmi Pasak Adaptif pada Header & Sidebar Dashboard** (`stubs/blade/pages/pasak/layout.blade.php`):
+  - Menghadirkan logo resmi horizontal **PASAK** pada sisi kiri header (`.sec-header-brand`) lengkap dengan pemisah vertikal elegan dan tautan cepat ke Ringkasan Dashboard.
+  - Varian logo dwitema adaptif otomatis: varian warna navy untuk Mode Terang (*Light Mode*) dan varian warna putih tajam (*crisp white*) untuk Mode Gelap (*Dark Mode*).
+  - Menggantikan ikon perisai generik lama pada footer sidebar versi dengan ikon resmi Pasak (*squircle biru P berlatar jaringan node dan pasak oranye*) beresolusi tinggi (Retina-ready) tanpa dependensi aset eksternal.
+
+- **Lencana Informasi & Fitur Salin Cepat Alamat IP Pengakses di Header** (`stubs/blade/pages/pasak/layout.blade.php`):
+  - Menambahkan informasi alamat IP publik/lokal yang sedang mengakses dashboard secara langsung di samping tombol Refresh (`.sec-client-ip-badge`).
+  - Dilengkapi indikator status aktif (*live green beacon*), label teks responsif, serta fitur interaktif satu klik (*click-to-copy*) ke clipboard dengan feedback notifikasi toast.
+
+### Fixed
+
+- **Pencegahan Alert Dialog Ganda pada Hapus Berkas Server Audit** (`stubs/blade/pages/pasak/server.blade.php`):
+  - Menghilangkan konflik konfirmasi ganda bawaan peramban (`onsubmit="return confirm(...)"`) sehingga aksi hapus berkas mencurigakan konsisten hanya memicu 1 modal konfirmasi alert-dialog terpadu Pasak.
+- **Perbaikan Kebocoran Teks Skrip pada Visualisasi Threat Map** (`stubs/blade/pages/pasak/threat-map.blade.php`):
+  - Mengubah payload simulasi XSS menjadi format URL-encoded (`%3Cscript%3Ealert(1)%3C%2Fscript%3E`) guna mencegah penutupan prematur blok `<script>` oleh parser HTML browser yang sebelumnya menyebabkan teks kode tumpah ke bagian bawah layar.
+- **Pencegahan Toast Duplikat & Konsistensi Aliran Radar Serangan**:
+  - Menambahkan *deduplication guard* pada sistem notifikasi toast untuk memblokir penayangan pesan identik secara simultan.
+  - Mengalirkan data serangan database satu per satu (*playback queue*) secara real-time pada Threat Map sehingga statistik radar 100% konsisten dengan log riil tanpa menghasilkan *phantom counters*.
+
 ## [1.7.2] - 2026-11-09
 
 ### Added

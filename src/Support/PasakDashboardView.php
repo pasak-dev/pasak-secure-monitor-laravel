@@ -56,4 +56,42 @@ class PasakDashboardView
             default => 'sec-badge-low',
         };
     }
+
+    /**
+     * Konversi kode negara 2 huruf ISO ke bendera emoji.
+     */
+    public static function countryFlag(?string $countryCode): string
+    {
+        if (empty($countryCode) || strlen($countryCode) !== 2 || ! ctype_alpha($countryCode)) {
+            return '🌐';
+        }
+
+        $code = strtoupper($countryCode);
+        $first = ord($code[0]) - ord('A') + 0x1F1E6;
+        $second = ord($code[1]) - ord('A') + 0x1F1E6;
+
+        return mb_chr($first, 'UTF-8').mb_chr($second, 'UTF-8');
+    }
+
+    /**
+     * Resolusi lokasi IP (negara, provinsi, kota, ISP) dengan fallback aman.
+     *
+     * @return array{city: string|null, region: string|null, country: string|null, country_code: string|null, latitude: float|null, longitude: float|null, isp: string|null}
+     */
+    public static function resolveLocation(string $ip): array
+    {
+        try {
+            return app(\Internal\Pasak\Services\PasakUserLoginService::class)->resolveLocation($ip);
+        } catch (\Throwable) {
+            return [
+                'city' => null,
+                'region' => null,
+                'country' => null,
+                'country_code' => null,
+                'latitude' => null,
+                'longitude' => null,
+                'isp' => null,
+            ];
+        }
+    }
 }

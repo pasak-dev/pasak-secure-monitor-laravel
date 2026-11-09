@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
 use Internal\Pasak\Models\PasakBlockedIp;
 use Internal\Pasak\Models\PasakLog;
 use Internal\Pasak\Services\PasakService;
+use Internal\Pasak\Services\PasakUserLoginService;
 
 /**
  * Security log management page for the Blade monitoring dashboard.
@@ -96,8 +97,30 @@ class PasakLogController extends Controller
             ];
         }
 
+        $logs = $query->paginate($perPage)->withQueryString();
+
+        $ipLocations = [];
+        $activeBlockedIps = [];
+        try {
+            $loginService = app(PasakUserLoginService::class);
+            $uniqueIps = $logs->pluck('ip_address')->unique()->filter()->all();
+            foreach ($uniqueIps as $ip) {
+                $ipLocations[$ip] = $loginService->resolveLocation($ip);
+            }
+            if (!empty($uniqueIps)) {
+                $activeBlockedIps = PasakBlockedIp::query()
+                    ->active()
+                    ->whereIn('ip_address', $uniqueIps)
+                    ->pluck('id', 'ip_address')
+                    ->all();
+            }
+        } catch (\Throwable) {
+        }
+
         return $this->dashboardResponse("pages.pasak.logs", [
-            "logs" => $query->paginate($perPage)->withQueryString(),
+            "logs" => $logs,
+            "ipLocations" => $ipLocations,
+            "activeBlockedIps" => $activeBlockedIps,
             "levels" => PasakLog::LEVELS,
             "trend" => $trend,
             "trendRange" => $trendRange,
@@ -148,8 +171,15 @@ class PasakLogController extends Controller
             abort(404);
         }
 
+        $location = null;
+        try {
+            $location = app(PasakUserLoginService::class)->resolveLocation($log->ip_address);
+        } catch (\Throwable) {
+        }
+
         return $this->dashboardResponse("pages.pasak.log-detail", [
             "log" => $log,
+            "location" => $location,
             "relatedLogs" => PasakLog::query()
                 ->where("ip_address", $log->ip_address)
                 ->whereKeyNot($log->getKey())

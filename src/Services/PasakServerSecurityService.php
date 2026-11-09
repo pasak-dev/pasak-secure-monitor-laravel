@@ -40,6 +40,9 @@ class PasakServerSecurityService
     /** Lokasi berkas terverifikasi aman oleh admin (relatif terhadap storage_path()). */
     public const VERIFIED_FILES_PATH = 'app/security/verified_files.json';
 
+    /** Lokasi riwayat berkas mencurigakan yang dihapus oleh admin (relatif terhadap storage_path()). */
+    public const DELETED_FILES_PATH = 'app/security/deleted_files.json';
+
     /** Kunci cache heartbeat scheduler (diisi oleh routes/console.php). */
     public const HEARTBEAT_KEY = 'pasak:schedule-heartbeat';
 
@@ -1671,6 +1674,14 @@ class PasakServerSecurityService
             'action_taken' => 'file_deleted',
         ]);
 
+        $this->recordDeletedFile(
+            $relativeToApp,
+            $filename,
+            $hash,
+            $size,
+            $userId
+        );
+
         $this->forget();
 
         return [
@@ -1682,6 +1693,156 @@ class PasakServerSecurityService
     /**
      * Jalur penyimpanan berkas terverifikasi aman.
      */
+    /**
+     * Jalur penyimpanan riwayat berkas mencurigakan yang dihapus.
+     */
+    public function deletedFilesPath(): string
+    {
+        return storage_path(self::DELETED_FILES_PATH);
+    }
+
+    /**
+     * Mengambil daftar riwayat berkas yang telah dihapus oleh admin.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function deletedFiles(): array
+    {
+        $path = $this->deletedFilesPath();
+        if (! File::isFile($path)) {
+            return [];
+        }
+
+        try {
+            $data = json_decode((string) File::get($path), true);
+            return is_array($data) ? $data : [];
+        } catch (Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * Mencatat berkas mencurigakan yang dihapus ke dalam riwayat audit.
+     */
+    public function recordDeletedFile(
+        string $relativeToApp,
+        string $filename,
+        string $hash,
+        int $size,
+        ?int $userId = null,
+        ?string $reason = null
+    ): void {
+        $path = $this->deletedFilesPath();
+        $dir = dirname($path);
+        if (! File::isDirectory($dir)) {
+            File::makeDirectory($dir, 0755, true);
+        }
+
+        $deleted = $this->deletedFiles();
+        $deleted[$relativeToApp] = [
+            'file' => $relativeToApp,
+            'filename' => $filename,
+            'hash' => $hash,
+            'size' => $size,
+            'size_human' => $this->humanBytes((float) $size),
+            'deleted_at' => now()->toIso8601String(),
+            'deleted_by' => $userId,
+            'reason' => $reason ?: 'Dihapus permanen oleh admin dari dashboard Server Audit',
+        ];
+
+        File::put($path, json_encode($deleted, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    }
+
+    /**
+     * Mengambil daftar berkas terverifikasi yang diformat untuk tampilan dashboard.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function verifiedFilesList(): array
+    {
+        $verified = $this->verifiedFiles();
+        $list = [];
+
+        foreach ($verified as $file => $meta) {
+            $verifiedAt = ! empty($meta['verified_at']) ? Carbon::parse($meta['verified_at']) : null;
+            $list[] = [
+                'file' => $file,
+                'filename' => $meta['filename'] ?? basename($file),
+                'hash' => $meta['hash'] ?? '-',
+                'size' => $meta['size'] ?? 0,
+                'size_human' => isset($meta['size']) ? $this->humanBytes((float) $meta['size']) : '-',
+                'verified_at' => $verifiedAt ? $verifiedAt->translatedFormat('d M Y, H:i:s') : '-',
+                'verified_at_human' => $verifiedAt ? $verifiedAt->diffForHumans() : '-',
+                'verified_by' => $meta['verified_by'] ?? null,
+                'notes' => $meta['notes'] ?? 'Diverifikasi aman oleh admin',
+            ];
+        }
+
+        usort($list, fn ($a, $b) => strcmp($b['verified_at'], $a['verified_at']));
+
+        return $list;
+    }
+
+    /**
+     * Mengambil daftar berkas yang telah dihapus yang diformat untuk tampilan dashboard.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function deletedFilesList(): array
+    {
+        $deleted = $this->deletedFiles();
+        $list = [];
+
+        foreach ($deleted as $file => $meta) {
+            $deletedAt = ! empty($meta['deleted_at']) ? Carbon::parse($meta['deleted_at']) : null;
+            $list[] = [
+                'file' => $file,
+                'filename' => $meta['filename'] ?? basename($file),
+                'hash' => $meta['hash'] ?? '-',
+                'size' => $meta['size'] ?? 0,
+                'size_human' => $meta['size_human'] ?? (isset($meta['size']) ? $this->humanBytes((float) $meta['size']) : '-'),
+                'deleted_at' => $deletedAt ? $deletedAt->translatedFormat('d M Y, H:i:s') : '-',
+                'deleted_at_human' => $deletedAt ? $deletedAt->diffForHumans() : '-',
+                'deleted_by' => $meta['deleted_by'] ?? null,
+                'reason' => $meta['reason'] ?? 'Dihapus oleh admin',
+            ];
+        }
+
+        usort($list, fn ($a, $b) => strcmp($b['deleted_at'], $a['deleted_at']));
+
+        return $list;
+    }
+
+    /**
+     * Membatalkan verifikasi aman berkas agar kembali dipindai pada audit mendatang.
+     *
+     * @return array{success: bool, message: string}
+     */
+    public function unverifySuspiciousFile(string $relativePath): array
+    {
+        $relative = str_replace(['\\', "\0"], ['/', ''], trim($relativePath));
+        $relative = ltrim($relative, '/');
+
+        $path = $this->verifiedFilesPath();
+        $verified = $this->verifiedFiles();
+
+        if (! isset($verified[$relative])) {
+            return [
+                'success' => false,
+                'message' => 'Berkas tidak ditemukan dalam daftar berkas terverifikasi aman.',
+            ];
+        }
+
+        unset($verified[$relative]);
+        File::put($path, json_encode($verified, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        $this->forget();
+
+        return [
+            'success' => true,
+            'message' => "Verifikasi berkas '{$relative}' telah dibatalkan. Berkas akan kembali dipindai pada audit berikutnya.",
+        ];
+    }
+
     public function verifiedFilesPath(): string
     {
         return storage_path(self::VERIFIED_FILES_PATH);

@@ -1,11 +1,21 @@
 @extends('pages.pasak.layout', ['heading' => __('Log entry #:id', ['id' => $log->id]), 'subheading' => $log->event_type])
 
 @section('content')
-@php($DV = \Internal\Pasak\Support\DashboardView::class)
+@php
+    $DV = \Internal\Pasak\Support\DashboardView::class;
+@endphp
 
 <a href="{{ $urls['index'] }}" class="sec-back-link">← {{ __('Back to logs') }}</a>
 
 <div class="sec-card">
+    @php
+        $loc = $location ?? $DV::resolveLocation($log->ip_address);
+        $countryName = $loc['country'] ?? null;
+        $countryCode = $loc['country_code'] ?? null;
+        $regionName = $loc['region'] ?? null;
+        $cityName = $loc['city'] ?? null;
+        $locDetail = implode(', ', array_filter([$cityName, $regionName]));
+    @endphp
     <div class="sec-detail-grid">
         <div class="sec-detail-item">
             <div class="sec-detail-label">{{ __('Time') }}</div>
@@ -15,6 +25,32 @@
             <div class="sec-detail-label">{{ __('IP address') }}</div>
             <div class="sec-detail-value sec-font-mono" style="font-weight: 600;">{{ $log->ip_address }}</div>
         </div>
+        <div class="sec-detail-item">
+            <div class="sec-detail-label">{{ __('Negara Penyerang') }}</div>
+            <div class="sec-detail-value" style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 18px; line-height: 1;">{{ $DV::countryFlag($countryCode) }}</span>
+                <span style="font-weight: 600;">{{ $countryName ?? __('Tidak diketahui') }}</span>
+                @if ($countryCode)
+                    <span class="sec-badge sec-badge-low" style="font-size: 11px;">{{ strtoupper($countryCode) }}</span>
+                @endif
+            </div>
+        </div>
+        <div class="sec-detail-item">
+            <div class="sec-detail-label">{{ __('Provinsi / Wilayah') }}</div>
+            <div class="sec-detail-value">{{ ! empty($locDetail) ? $locDetail : '—' }}</div>
+        </div>
+        @if (! empty($loc['isp']))
+            <div class="sec-detail-item">
+                <div class="sec-detail-label">{{ __('ISP / Jaringan') }}</div>
+                <div class="sec-detail-value">{{ $loc['isp'] }}</div>
+            </div>
+        @endif
+        @if (! empty($loc['latitude']) && ! empty($loc['longitude']))
+            <div class="sec-detail-item">
+                <div class="sec-detail-label">{{ __('Koordinat Geo') }}</div>
+                <div class="sec-detail-value sec-font-mono" style="font-size: 12px;">{{ number_format((float) $loc['latitude'], 4) }}°, {{ number_format((float) $loc['longitude'], 4) }}°</div>
+            </div>
+        @endif
         <div class="sec-detail-item">
             <div class="sec-detail-label">{{ __('Threat level') }}</div>
             <div class="sec-detail-value"><span class="sec-badge {{ $DV::levelClass($log->threat_level) }}">{{ $DV::levelLabel($log->threat_level) }}</span></div>

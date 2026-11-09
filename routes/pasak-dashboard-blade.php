@@ -125,6 +125,14 @@ $registerPasakDashboard = function () {
         PasakServerController::class,
         "verifySuspiciousFile",
     ])->name("server.suspicious-files.verify");
+    Route::post("server/suspicious-files/unverify", [
+        PasakServerController::class,
+        "unverifySuspiciousFile",
+    ])->name("server.suspicious-files.unverify");
+    Route::post("optimize-clear", [
+        PasakServerController::class,
+        "optimizeClear",
+    ])->name("optimize-clear");
     Route::delete("lockouts/{id}", [
         PasakServerController::class,
         "releaseLockout",

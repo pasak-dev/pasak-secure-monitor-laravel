@@ -273,6 +273,7 @@
                 <tr>
                     <th>{{ __('Time') }}</th>
                     <th>{{ __('IP address') }}</th>
+                    <th>{{ __('Asal / Lokasi') }}</th>
                     <th>{{ __('Event') }}</th>
                     <th>{{ __('Level') }}</th>
                     <th>{{ __('Path') }}</th>
@@ -282,34 +283,82 @@
             </thead>
             <tbody>
                 @forelse ($logs as $log)
+                    @php
+                        $loc = $ipLocations[$log->ip_address] ?? $DV::resolveLocation($log->ip_address);
+                        $flag = $DV::countryFlag($loc['country_code'] ?? null);
+                        $countryName = $loc['country'] ?? null;
+                        $regionName = $loc['region'] ?? null;
+                        $cityName = $loc['city'] ?? null;
+                        $locDetail = implode(", ", array_filter([$cityName, $regionName]));
+                        $activeBlockedList = $activeBlockedIps ?? [];
+                        $isBlocked = (bool) $log->was_blocked || ! empty($activeBlockedList[$log->ip_address]);
+                        $blockedRecordId = $activeBlockedList[$log->ip_address] ?? null;
+                    @endphp
                     <tr>
                         <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;">{{ $log->created_at }}</td>
                         <td class="sec-font-mono" style="font-weight: 600;">
                             <div style="display: inline-flex; align-items: center; gap: 6px;">
                                 <span>{{ $log->ip_address }}</span>
-                                <button type="button" class="sec-btn sec-btn-ghost sec-btn-sm" style="padding: 2px 4px; font-size: 11px; line-height: 1;" title="{{ __('Blokir IP ini') }}" onclick="openBlockModal({
-                                    ip: '{{ $log->ip_address }}',
-                                    device_id: '{{ $log->device_id ?? '' }}',
-                                    local_ip: '{{ $log->local_ip ?? '' }}',
-                                    reason: '{{ addslashes($log->event_type . ($log->path ? ' pada ' . $log->path : '')) }}'
-                                })">🚫</button>
+                                @if (! $isBlocked)
+                                    <button type="button" class="sec-btn sec-btn-ghost sec-btn-sm" style="padding: 2px 4px; font-size: 11px; line-height: 1;" title="{{ __('Blokir IP ini') }}" onclick="openBlockModal({
+                                        ip: '{{ $log->ip_address }}',
+                                        device_id: '{{ $log->device_id ?? "" }}',
+                                        local_ip: '{{ $log->local_ip ?? "" }}',
+                                        reason: '{{ addslashes($log->event_type . ($log->path ? " pada " . $log->path : "")) }}'
+                                    })">🚫</button>
+                                @endif
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px;">
+                                <span style="font-size: 17px; line-height: 1;" title="{{ $countryName ?? __('Tidak diketahui') }}">{{ $flag }}</span>
+                                <div style="display: flex; flex-direction: column; min-width: 0; line-height: 1.25;">
+                                    <span style="font-weight: 600; color: var(--sec-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="{{ $countryName ?? "-" }}">
+                                        {{ $countryName ?? "-" }}
+                                    </span>
+                                    @if (! empty($locDetail))
+                                        <span style="font-size: 11px; color: var(--sec-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="{{ $locDetail }}">
+                                            {{ $locDetail }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                         </td>
                         <td>{{ $log->event_type }}</td>
                         <td><span class="sec-badge {{ $DV::levelClass($log->threat_level) }}">{{ $DV::levelLabel($log->threat_level) }}</span></td>
                         <td class="sec-font-mono" style="font-size: 12px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $log->path }}">{{ $log->path }}</td>
-                        <td>{{ $log->was_blocked ? __('Yes') : __('No') }}</td>
+                        <td>
+                            @if ($isBlocked)
+                                <span class="sec-badge sec-badge-critical" style="font-size: 11px;">{{ __('Yes') }}</span>
+                            @else
+                                <span class="sec-badge sec-badge-low" style="font-size: 11px;">{{ __('No') }}</span>
+                            @endif
+                        </td>
                         <td style="text-align: right; white-space: nowrap;">
                             <a href="{{ route('pasak.dashboard.logs.show', $log->id) }}" class="sec-btn sec-btn-ghost sec-btn-sm">{{ __('Detail') }}</a>
-                            <button type="button" class="sec-btn sec-btn-danger sec-btn-sm" style="display: inline-flex; align-items: center; gap: 4px;" onclick="openBlockModal({
-                                ip: '{{ $log->ip_address }}',
-                                device_id: '{{ $log->device_id ?? '' }}',
-                                local_ip: '{{ $log->local_ip ?? '' }}',
-                                reason: '{{ addslashes($log->event_type . ($log->path ? ' pada ' . $log->path : '')) }}'
-                            })">
-                                <span>🚫</span>
-                                <span>{{ __('Blokir') }}</span>
-                            </button>
+                            @if (! $isBlocked)
+                                <button type="button" class="sec-btn sec-btn-danger sec-btn-sm" style="display: inline-flex; align-items: center; gap: 4px;" onclick="openBlockModal({
+                                    ip: '{{ $log->ip_address }}',
+                                    device_id: '{{ $log->device_id ?? "" }}',
+                                    local_ip: '{{ $log->local_ip ?? "" }}',
+                                    reason: '{{ addslashes($log->event_type . ($log->path ? " pada " . $log->path : "")) }}'
+                                })">
+                                    <span>🚫</span>
+                                    <span>{{ __('Blokir') }}</span>
+                                </button>
+                            @else
+                                @if ($blockedRecordId)
+                                    <a href="{{ route('pasak.dashboard.blocked-ips.show', $blockedRecordId) }}" class="sec-badge sec-badge-critical" style="text-decoration: none; display: inline-flex; align-items: center; gap: 3px; font-size: 11px; padding: 4px 8px; vertical-align: middle;" title="{{ __('IP ini sudah diblokir. Klik untuk melihat detail pemblokiran.') }}">
+                                        <span>🛡️</span>
+                                        <span>{{ __('Diblokir') }}</span>
+                                    </a>
+                                @else
+                                    <span class="sec-badge sec-badge-critical" style="display: inline-flex; align-items: center; gap: 3px; font-size: 11px; padding: 4px 8px; vertical-align: middle;" title="{{ __('Aktivitas ancaman ini sudah diblokir oleh sistem.') }}">
+                                        <span>🛡️</span>
+                                        <span>{{ __('Diblokir') }}</span>
+                                    </span>
+                                @endif
+                            @endif
                             <form method="POST" action="{{ route('pasak.dashboard.logs.destroy', $log->id) }}" style="display: inline;" data-sec-confirm="{{ __('Hapus entri log ancaman ini secara permanen?') }}" data-confirm-title="{{ __('Konfirmasi Hapus Log') }}" data-confirm-type="danger" data-confirm-btn="{{ __('Ya, Hapus') }}">
                                 @csrf
                                 @method('DELETE')
@@ -319,7 +368,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" style="text-align: center; color: var(--sec-text-muted); padding: 32px;">{{ __('No logs found.') }}</td>
+                        <td colspan="8" style="text-align: center; color: var(--sec-text-muted); padding: 32px;">{{ __('No logs found.') }}</td>
                     </tr>
                 @endforelse
             </tbody>
