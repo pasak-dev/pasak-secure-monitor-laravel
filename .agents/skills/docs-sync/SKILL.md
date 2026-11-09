@@ -1,16 +1,17 @@
 ---
 name: docs-sync
-description: "ACTIVATE setiap kali selesai mengerjakan perubahan kode, perbaikan bug, atau penambahan fitur di repositori Pasak Suite (pasak, pasak-sentinel, atau dashboard). Kelola dokumentasi teknis produk via CRUD API /api/v1/docs di Pasak Cloud: baca, tambah, perbarui (update), dan hapus dokumen markdown/mdx secara otomatis agar dokumentasi publik selalu akurat dan sinkron."
+description: "ACTIVATE setiap kali selesai mengerjakan perubahan kode, perbaikan bug, atau penambahan fitur di repositori Pasak Suite (pasak, pasak-sentinel, dashboard, pasak-api). Kelola dokumentasi teknis produk via CRUD API /api/v1/docs di Pasak API (Neon Serverless PostgreSQL): baca, tambah, perbarui (update), dan hapus dokumen markdown/mdx secara otomatis agar dokumentasi publik di pasak.is-a.dev/docs selalu akurat dan sinkron."
 ---
 
-# Docs Sync — Otomasi Pembaruan Dokumentasi Teknis Pasak Suite
+# Docs Sync — Otomasi Pembaruan Dokumentasi Teknis Pasak Suite (Neon PostgreSQL)
 
-Aturan dan panduan alur kerja bagi AI Agent untuk memperbarui atau menambahkan dokumentasi teknis produk secara langsung ke portal dokumentasi publik (`https://pasak.is-a.dev/docs`) melalui API CRUD dokumentasi (`https://pasak.is-a.dev/api/v1/docs`).
+Aturan dan panduan alur kerja bagi AI Agent untuk memperbarui atau menambahkan dokumentasi teknis produk secara langsung ke database **Neon PostgreSQL** melalui REST API CRUD di **Pasak Cloud API** (`https://pasak-api.vercel.app/api/v1/docs`). Dokumentasi yang disimpan di database langsung ditampilkan di portal web publik (`https://pasak.is-a.dev/docs`).
 
 ## Konfigurasi Lingkungan (Wajib Ada)
 
-- **API Endpoint**: `https://pasak.is-a.dev/api/v1/docs` (atau `http://localhost:3000/api/v1/docs` saat pengembangan lokal).
-- **Kunci Akses**: Header `X-Docs-Key` — dibaca dari berkas `.DOCS_SYNC_KEY` di folder skill ini (`DOCS_SYNC_KEY=<kunci>:<nama_app>`).
+- **API Endpoint**: `https://pasak-api.vercel.app/api/v1/docs` (atau `http://localhost:3000/api/v1/docs` saat pengembangan lokal `pasak-api`).
+- **Kunci Akses**: Header `X-Docs-Key` — dibaca dari berkas `.DOCS_SYNC_KEY` di folder skill ini (`DOCS_SYNC_KEY=psk_docs_live_sync_key_9f8e7d:...`).
+- **Database Backend**: Neon Serverless PostgreSQL (`docs` table di branch `production`).
 - **Target Produk**:
   - `pasak-security-monitor`: Dokumentasi paket Laravel WAF (`content/pasak-security-monitor/docs/`).
   - `pasak-sentinel`: Dokumentasi daemon Linux Go & kernel nftables (`content/pasak-sentinel/docs/`).
@@ -20,49 +21,56 @@ Aturan dan panduan alur kerja bagi AI Agent untuk memperbarui atau menambahkan d
 
 ## 1. Cek Daftar Dokumen yang Tersedia
 
-Sebelum mengubah atau menambah dokumen, periksa dulu daftar dokumen yang ada untuk produk terkait:
+Sebelum mengubah atau menambah dokumen, periksa dulu daftar dokumen yang tersimpan di Neon PostgreSQL:
 
 ```bash
 # Ringkasan seluruh produk
-curl -s "https://pasak.is-a.dev/api/v1/docs"
+curl -s "https://pasak-api.vercel.app/api/v1/docs"
 
 # Daftar dokumen spesifik produk:
-curl -s "https://pasak.is-a.dev/api/v1/docs?product=pasak-security-monitor"
-curl -s "https://pasak.is-a.dev/api/v1/docs?product=pasak-sentinel"
-curl -s "https://pasak.is-a.dev/api/v1/docs?product=core"
+curl -s "https://pasak-api.vercel.app/api/v1/docs?product=pasak-security-monitor"
+curl -s "https://pasak-api.vercel.app/api/v1/docs?product=pasak-sentinel"
+curl -s "https://pasak-api.vercel.app/api/v1/docs?product=core"
 ```
 
-Respons akan mengembalikan daftar `docs`: `slug`, `filePath`, `title`, `sizeBytes`, dan `updatedAt`.
+Respons mengembalikan daftar `docs`: `id`, `product`, `slug`, `title`, `description`, `category`, `order`, dan `updatedAt`.
 
 ---
 
 ## 2. Baca Isi Dokumen yang Ingin Diperbarui
 
-Untuk membaca konten lengkap beserta frontmatter:
+Untuk membaca konten lengkap dokumen dari Neon DB:
 
 ```bash
-curl -s "https://pasak.is-a.dev/api/v1/docs?product=<PRODUK>&slug=<SLUG>" \
-  -H "X-Docs-Key: <KEY>"
+curl -s "https://pasak-api.vercel.app/api/v1/docs/<PRODUK>/<SLUG>"
+# atau
+curl -s "https://pasak-api.vercel.app/api/v1/docs?product=<PRODUK>&slug=<SLUG>"
 ```
 
 Contoh:
+
 ```bash
-curl -s "https://pasak.is-a.dev/api/v1/docs?product=pasak-sentinel&slug=01-architecture"
+curl -s "https://pasak-api.vercel.app/api/v1/docs/pasak-security-monitor/getting-started/installation"
 ```
 
 Respons:
+
 ```json
 {
   "ok": true,
-  "product": "pasak-sentinel",
-  "filePath": "01-architecture.md",
-  "slug": "01-architecture",
-  "title": "Arsitektur & Desain Runtime Daemon",
-  "description": "...",
-  "category": "Host & Kernel Defense",
-  "frontmatter": { "title": "...", "description": "...", "order": "1" },
-  "body": "# Chapter 01: ...",
-  "rawContent": "---\ntitle: ...\n---\n..."
+  "doc": {
+    "id": "...",
+    "product": "pasak-security-monitor",
+    "slug": "getting-started/installation",
+    "filePath": "getting-started/installation.md",
+    "title": "Panduan Instalasi & Migrasi",
+    "description": "...",
+    "category": "Modul Keamanan",
+    "content": "# Panduan Instalasi...",
+    "rawContent": "---\ntitle: ...\n---\n...",
+    "frontmatter": { "title": "...", "description": "...", "order": "2" },
+    "updatedAt": "2026-11-09T..."
+  }
 }
 ```
 
@@ -70,16 +78,17 @@ Respons:
 
 ## 3. Tambah atau Perbarui Dokumen (CREATE / UPDATE - UPSERT)
 
-Gunakan metode **`POST /api/v1/docs`** untuk membuat dokumen baru atau merevisi dokumen yang sudah ada.
+Gunakan metode **`POST /api/v1/docs`** untuk membuat dokumen baru atau merevisi dokumen di database Neon PostgreSQL.
 
 ### Format Standar (Metadata + Konten Markdown)
 
 ```bash
-curl -X POST "https://pasak.is-a.dev/api/v1/docs" \
+curl -X POST "https://pasak-api.vercel.app/api/v1/docs" \
   -H "Content-Type: application/json" \
-  -H "X-Docs-Key: <KEY>" \
+  -H "X-Docs-Key: psk_docs_live_sync_key_9f8e7d" \
   -d '{
     "product": "pasak-security-monitor",
+    "slug": "security-modules/custom-tripwire",
     "filePath": "security-modules/custom-tripwire.md",
     "title": "Tripwire & Honeypot Detection",
     "description": "Mekanisme jebakan URL virtual untuk menangkap bot pemindai celah otomatis.",
@@ -94,17 +103,18 @@ curl -X POST "https://pasak.is-a.dev/api/v1/docs" \
 Jika Anda sudah memiliki berkas Markdown utuh:
 
 ```bash
-curl -X POST "https://pasak.is-a.dev/api/v1/docs" \
+curl -X POST "https://pasak-api.vercel.app/api/v1/docs" \
   -H "Content-Type: application/json" \
-  -H "X-Docs-Key: <KEY>" \
+  -H "X-Docs-Key: psk_docs_live_sync_key_9f8e7d" \
   -d "{
-    \"product\": \"pasak-sentinel\",
-    \"filePath\": \"08-ebpf-probes.md\",
+    \"product\": \"pasak-security-monitor\",
+    \"slug\": \"integration-guides/laravel-filament\",
     \"rawContent\": $(jq -Rs . < /path/ke/berkas.md)
   }"
 ```
 
 Respons berhasil:
+
 - Dokumen baru dibuat: `HTTP 201 Created` (`"action": "created"`)
 - Dokumen lama diperbarui: `HTTP 200 OK` (`"action": "updated"`)
 
@@ -112,20 +122,21 @@ Respons berhasil:
 
 ## 4. Hapus Dokumen yang Sudah Usang (DELETE)
 
-Jika ada modul atau fitur yang dihapus dari kode, hapus dokumen terkait agar dokumentasi tidak menyesatkan pengguna:
+Jika ada modul atau fitur yang dihapus, hapus dokumen terkait dari database Neon PostgreSQL:
 
 ```bash
-curl -X DELETE "https://pasak.is-a.dev/api/v1/docs?product=<PRODUK>&filePath=<FILE_PATH>" \
-  -H "X-Docs-Key: <KEY>"
+curl -X DELETE "https://pasak-api.vercel.app/api/v1/docs?product=<PRODUK>&slug=<SLUG>" \
+  -H "X-Docs-Key: psk_docs_live_sync_key_9f8e7d"
 ```
 
 Contoh:
+
 ```bash
-curl -X DELETE "https://pasak.is-a.dev/api/v1/docs?product=pasak-sentinel&slug=deprecated-module" \
-  -H "X-Docs-Key: <KEY>"
+curl -X DELETE "https://pasak-api.vercel.app/api/v1/docs?product=pasak-security-monitor&slug=deprecated-module" \
+  -H "X-Docs-Key: psk_docs_live_sync_key_9f8e7d"
 ```
 
-Respons: `{"ok": true, "action": "deleted", "product": "...", "filePath": "..."}`.
+Respons: `{"ok": true, "action": "deleted", "message": "Document removed from Neon PostgreSQL database"}`.
 
 ---
 
@@ -135,9 +146,9 @@ Setelah membuat, mengubah, atau menghapus dokumen:
 
 1. Periksa endpoint API:
    ```bash
-   curl -s "https://pasak.is-a.dev/api/v1/docs?product=<PRODUK>&slug=<SLUG>"
+   curl -s "https://pasak-api.vercel.app/api/v1/docs/<PRODUK>/<SLUG>"
    ```
-2. Pastikan respons berstatus `200 OK` dan konten sesuai dengan revisi kode terbaru.
+2. Pastikan respons berstatus `200 OK` dan data tersimpan di Neon PostgreSQL.
 3. Kunjungi URL halaman web publik:
    - `https://pasak.is-a.dev/docs/<SLUG>`
 
@@ -145,8 +156,8 @@ Setelah membuat, mengubah, atau menghapus dokumen:
 
 ## Standar Penulisan Dokumentasi (Wajib Dipatuhi AI)
 
-1. **Bahasa Indonesia Baku & Jelas**: Utamakan penjelasan yang ramah pengembang (*developer-friendly*), teknis, dan presisi.
-2. **Frontmatter Lengkap**: Setiap berkas `.md` wajib memiliki:
+1. **Bahasa Indonesia Baku & Jelas**: Utamakan penjelasan yang ramah pengembang (_developer-friendly_), teknis, dan presisi.
+2. **Frontmatter Lengkap**: Setiap dokumen wajib memiliki:
    - `title`: Judul bab yang jelas dan tidak bertele-tele.
    - `description`: Ringkasan 1-2 kalimat fokus pada manfaat modul.
    - `category`: Kategori yang konsisten sesuai manifes modul.
