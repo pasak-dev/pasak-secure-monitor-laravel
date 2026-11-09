@@ -168,26 +168,40 @@ php artisan pasak:purge-injected-data [options]
 - `--marker=*`: Marker teks spesifik yang dicari (dapat diulang, default: canary pentest umum).
 - `--model=*`: Membatasi pencarian pada model Eloquent tertentu.
 
-## 7. `pasak:upgrade`
+---
 
-Memperbarui paket via Composer lalu menyinkronkan migrasi, rute kustom, dan tampilan dashboard **tanpa menimpa kustomisasi host** (sinkronisasi paksa mencadangkan dulu ke `*.backup-*`).
+## 7. `pasak:upgrade` (Alias: `pasak:upgrae`)
+
+Memperbarui paket ke versi terbaru secara menyeluruh. Opsi `--force` menjalankan seluruh proses secara otomatis tanpa perlu menambahkan parameter `--sync-views` lagi.
 
 ```bash
+# Upgrade otomatis penuh (disarankan):
+php artisan pasak:upgrade --force
+
+# Alias resmi (bila typo):
+php artisan pasak:upgrae --force
+
+# Varian opsional:
 php artisan pasak:upgrade --check
 php artisan pasak:upgrade --force --no-composer --no-migrate
+php artisan pasak:upgrade --force --clean-backups
 ```
 
 ### Opsi:
 
-- `--check`: Hanya memeriksa versi terbaru tanpa mengubah apa pun.
-- `--force`: Jalankan penuh meskipun sudah versi terbaru.
+- `--check`: Hanya memeriksa ketersediaan versi terbaru tanpa mengubah berkas apa pun.
+- `--force`: Jalankan pembaruan menyeluruh otomatis: cek versi, composer update, deteksi & jalankan migrasi baru, sisipkan konfigurasi baru ke `config/pasak.php`, sinkronkan Blade views & rute, bersihkan berkas usang, dan clear cache.
 - `--no-composer`: Lewati `composer update` (sinkronisasi aset lokal saja).
-- `--no-migrate`: Lewati `php artisan migrate`.
-- `--sync-routes` / `--sync-views`: Timpa berkas rute/tampilan setelah mencadangkan.
+- `--no-migrate`: Lewati eksekusi `php artisan migrate`.
+- `--no-backup`: Timpa langsung berkas tampilan/rute tanpa membuat arsip cadangan `*.backup-*`.
+- `--clean-backups`: Pangkas dan bersihkan seluruh arsip cadangan lama (`*.backup-*`).
+- `--sync-routes` / `--sync-views`: Sinkronkan rute atau tampilan Blade secara spesifik.
+
+---
 
 ## 8. `pasak:uninstall`
 
-Mencopot seluruh jejak paket dari aplikasi host tanpa merusaknya: menghapus 7 tabel Pasak (+ record migrasinya), rute publikasi, middleware, trait User, variabel `PASAK_*`, mengembalikan `.htaccess` dari cadangan, menghapus berkas publikasi, dan menjalankan `composer remove`.
+Mencopot seluruh jejak paket dari aplikasi host tanpa merusaknya: menghapus 8 tabel Pasak (+ record migrasinya), rute publikasi, middleware, trait User, variabel `PASAK_*`, mengembalikan `.htaccess` dari cadangan, menghapus berkas publikasi, dan menjalankan `composer remove`.
 
 ```bash
 php artisan pasak:uninstall --force
@@ -198,6 +212,8 @@ php artisan pasak:uninstall --force
 - `--force`: Jalankan tanpa konfirmasi interaktif.
 - `--keep-tables`: Pertahankan tabel database.
 - `--keep-env`: Pertahankan variabel `.env`.
+
+---
 
 ## 9. `pasak:secret`
 
@@ -216,11 +232,13 @@ php artisan config:clear
 - `--show`: Tampilkan nilai secret aktif di keluaran terminal.
 - `--path=`: Berkas env tujuan selain `.env` (mis. `.env.production`).
 
+---
+
 ## 10. `pasak:deploy`
 
 Perintah satu langkah untuk otomasi deployment di server VPS / produksi atau dalam pipeline CI/CD.
 
-Perintah ini dirancang agar **aman dijalankan berulang kali (idempotent)** dan **hanya berfokus pada tabel khusus paket Pasak** (`pasak_*`), sehingga tidak akan menduplikasi data (*no double data*) dan sama sekali tidak menyentuh tabel pengguna (`users`) atau data aplikasi utama Anda.
+Perintah ini dirancang agar **aman dijalankan berulang kali (idempotent)** dan **hanya berfokus pada tabel khusus paket Pasak** (`pasak_*`), sehingga tidak akan menduplikasi data (_no double data_) dan sama sekali tidak menyentuh tabel pengguna (`users`) atau data aplikasi utama Anda.
 
 ```bash
 php artisan pasak:deploy [options]
@@ -243,22 +261,39 @@ php artisan pasak:deploy [options]
 
 - _(tanpa opsi)_: Deployment standar aman (cek secret, migrasi pasak, seeder bawaan tanpa duplikasi data, dan bersihkan cache).
 - `--reset-settings`: Menyetel ulang seluruh pengaturan di tabel `pasak_settings` kembali ke nilai bawaan pabrik tanpa menghapus riwayat log atau blokir.
-- `--reset-tables`: Mengosongkan (*truncate/delete*) seluruh tabel khusus paket Pasak untuk memulai status bersih di VPS, **tetap membiarkan tabel host seperti `users` 100% aman**.
+- `--reset-tables`: Mengosongkan (_truncate/delete_) seluruh tabel khusus paket Pasak untuk memulai status bersih di VPS, **tetap membiarkan tabel host seperti `users` 100% aman**.
 - `--force-secret`: Memaksa membuat ulang nilai `PASAK_DASHBOARD_SECRET` di berkas `.env`.
 - `--no-migrate`: Melewati eksekusi migrasi database (misalnya jika migrasi dijalankan terpisah di alur CI/CD).
 - `--no-cache-clear`: Melewati pembersihan cache framework.
 - `--force`: Menjalankan proses tanpa meminta konfirmasi interaktif (wajib untuk script otomatis / CI/CD).
 - `--env-path=`: Menentukan lokasi berkas `.env` khusus (default: `.env`).
 
-### Contoh Penggunaan di VPS:
+---
+
+## 11. `pasak:sentinel`
+
+Perintah utilitas diagnostik untuk menguji dan memantau konektivitas socket Unix domain ke daemon host Linux **Pasak Sentinel** (`pasak-sentinel`), serta menguji instruksi delegasi pemblokiran IP ke kernel firewall (`nftables` / `iptables`).
 
 ```bash
-# 1. Jalankan rutin setiap deploy ulang di VPS
-php artisan pasak:deploy --force
+php artisan pasak:sentinel [options]
+```
 
-# 2. Setel ulang pengaturan WAF ke bawaan jika ada anomali konfigurasi
-php artisan pasak:deploy --reset-settings --force
+### Opsi:
 
-# 3. Mulai ulang tabel Pasak dari nol di staging tanpa merusak data user host
-php artisan pasak:deploy --reset-tables --force
+- `--ping`: Mengirim probe ping ke socket daemon (`/run/pasak/agent.sock` atau `/tmp/pasak/agent.sock`) untuk memastikan koneksi IPC aktif (< 0.2ms).
+- `--status`: Menampilkan ringkasan status daemon Sentinel, waktu aktif (uptime), versi daemon, dan jumlah aturan firewall kernel yang sedang aktif.
+- `--block=IP`: Menguji instruksi pemblokiran alamat IP langsung ke kernel firewall host melalui daemon Sentinel.
+- `--unblock=IP`: Menguji pencabutan blokir alamat IP dari kernel firewall host melalui daemon Sentinel.
+
+### Contoh:
+
+```bash
+# Uji koneksi IPC ke daemon Sentinel
+php artisan pasak:sentinel --ping
+
+# Cek status runtime Sentinel & firewall kernel
+php artisan pasak:sentinel --status
+
+# Uji blokir langsung ke nftables/iptables
+php artisan pasak:sentinel --block=198.51.100.99
 ```
