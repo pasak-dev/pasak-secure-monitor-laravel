@@ -25,6 +25,8 @@ class PasakUpgradeCommand extends Command
                             {--force : Paksa jalankan pembaruan dan sinkronisasi meskipun sudah di versi terbaru}
                             {--no-composer : Lewati pembaruan package via Composer (hanya sinkronkan aset lokal)}
                             {--no-migrate : Lewati eksekusi migrasi database}
+                            {--no-backup : Lewati pencadangan berkas host sebelum ditimpa}
+                            {--clean-backups : Hapus semua berkas cadangan (*.backup-*) lama di routes, views, dan config}
                             {--sync-routes : Paksa sinkronkan ulang berkas routes/pasak.php dan routes/pasak-api.php}
                             {--sync-views : Paksa sinkronkan ulang berkas tampilan dashboard Blade}';
 
@@ -766,6 +768,10 @@ class PasakUpgradeCommand extends Command
      */
     protected function backupHostFiles(array $paths): void
     {
+        if ((bool) $this->option('no-backup')) {
+            return;
+        }
+
         foreach ($paths as $path) {
             if (! File::exists($path)) {
                 continue;
@@ -992,6 +998,22 @@ MARKDOWN;
             }
         }
 
+        // Bersihkan tampilan di views/pages/pasak yang tidak lagi digunakan versi baru paket
+        $stubViewsDir = __DIR__.'/../../../stubs/blade/pages/pasak';
+        $hostViewsDir = resource_path('views/pages/pasak');
+        if (File::isDirectory($stubViewsDir) && File::isDirectory($hostViewsDir)) {
+            $stubFiles = array_map('basename', File::files($stubViewsDir));
+            foreach (File::files($hostViewsDir) as $hostFile) {
+                $base = $hostFile->getFilename();
+                if (! in_array($base, $stubFiles, true) && ! str_contains($base, 'backup')) {
+                    File::delete($hostFile->getPathname());
+                    $rel = $this->relativeHostPath($hostFile->getPathname());
+                    $this->info("  ✓ Tampilan usang tidak lagi digunakan dibersihkan: {$rel}");
+                    $deletedCount++;
+                }
+            }
+        }
+
         // Pangkas cadangan berlebih (.backup-*) agar tidak menumpuk di disk
         $this->pruneExcessiveBackups();
 
@@ -1001,15 +1023,20 @@ MARKDOWN;
     }
 
     /**
-     * Pangkas berkas/direktori cadangan .backup-* lama, menyisakan 2 cadangan terbaru.
+     * Pangkas berkas/direktori cadangan .backup-* lama.
+     * Jika --clean-backups aktif, hapus semua cadangan.
+     * Jika tidak, sisakan maksimal 1 cadangan terbaru.
      */
     protected function pruneExcessiveBackups(): void
     {
         $searchDirs = [
             resource_path('views/pages'),
+            resource_path('views/errors'),
             base_path('routes'),
             config_path(),
         ];
+
+        $deleteAll = (bool) $this->option('clean-backups');
 
         foreach ($searchDirs as $dir) {
             if (! File::isDirectory($dir)) {
@@ -1017,24 +1044,52 @@ MARKDOWN;
             }
 
             $items = glob($dir . DIRECTORY_SEPARATOR . '*backup-*');
-            if (! is_array($items) || count($items) <= 2) {
+            if (! is_array($items) || count($items) === 0) {
                 continue;
             }
 
-            usort($items, fn($a, $b) => filemtime($b) <=> filemtime($a));
-
-            $toDelete = array_slice($items, 2);
-            foreach ($toDelete as $item) {
-                try {
-                    if (is_dir($item)) {
-                        File::deleteDirectory($item);
-                    } else {
-                        File::delete($item);
+            if ($deleteAll) {
+                foreach ($items as $item) {
+                    try {
+                        if (is_dir($item)) {
+                            File::deleteDirectory($item);
+                        } else {
+                            File::delete($item);
+                        }
+                        $rel = $this->relativeHostPath($item);
+                        $this->line("  ℹ Cadangan lama '{$rel}' dibersihkan.");
+                    } catch (Throwable) {
+                        // Abaikan bila tidak dapat dihapus
                     }
-                    $rel = $this->relativeHostPath($item);
-                    $this->line("  ℹ Cadangan lama '{$rel}' dibersihkan.");
-                } catch (Throwable) {
-                    // Abaikan bila tidak dapat dihapus
+                }
+                continue;
+            }
+
+            // Kelompokkan per berkas target agar tiap berkas tetap memiliki 1 cadangan terbaru
+            $grouped = [];
+            foreach ($items as $item) {
+                $base = preg_replace('/\.backup-.*$/', '', $item);
+                $grouped[$base][] = $item;
+            }
+
+            foreach ($grouped as $group) {
+                if (count($group) <= 1) {
+                    continue;
+                }
+                usort($group, fn($a, $b) => filemtime($b) <=> filemtime($a));
+                $toDelete = array_slice($group, 1);
+                foreach ($toDelete as $item) {
+                    try {
+                        if (is_dir($item)) {
+                            File::deleteDirectory($item);
+                        } else {
+                            File::delete($item);
+                        }
+                        $rel = $this->relativeHostPath($item);
+                        $this->line("  ℹ Cadangan lama '{$rel}' dibersihkan.");
+                    } catch (Throwable) {
+                        // Abaikan bila tidak dapat dihapus
+                    }
                 }
             }
         }

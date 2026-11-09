@@ -6,8 +6,7 @@
 # PHP paket selalu live. Yang perlu disinkronkan hanyalah aset ter-publish:
 # migrasi, rute, view dashboard Blade, dan cache framework. Itu yang dikerjakan
 # perintah `pasak:upgrade` di bawah (dengan --no-composer karena tidak ada yang
-# perlu diunduh dari packagist). Kustomisasi host dicadangkan otomatis
-# (*.backup-*) sebelum ditimpa.
+# perlu diunduh dari packagist).
 #
 # Cara pakai:
 #   ./update-package.sh                    # sinkron penuh + migrasi + clear cache
@@ -24,12 +23,17 @@ echo "== [1/2] Sinkron aset via pasak:upgrade =="
 php artisan pasak:upgrade \
     --force \
     --no-composer \
+    --clean-backups \
+    --no-backup \
     --sync-views \
     --sync-routes \
     --no-interaction \
     "$@"
 
+# Bersihkan sisa berkas/direktori cadangan lama jika ada
+find routes resources/views -name "*backup-*" -exec rm -rf {} + 2>/dev/null || true
+
 echo "== [2/2] Membersihkan cache framework =="
 php artisan optimize:clear
 
-echo "OK: aset tersinkron dari paket."
+echo "OK: aset tersinkron dari paket (berkas lama digantikan sepenuhnya dengan yang baru)."

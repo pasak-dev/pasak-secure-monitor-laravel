@@ -516,19 +516,23 @@
         bottom: 24px;
         left: 50%;
         transform: translateX(-50%);
-        z-index: 12;
+        z-index: 30;
         display: flex;
         align-items: center;
         gap: 14px;
         color: #e2e8f0;
-        background: rgba(15, 23, 42, 0.94);
-        border: 1px solid rgba(6, 182, 212, 0.35);
+        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(6, 182, 212, 0.4);
         border-radius: 8px;
         backdrop-filter: blur(8px);
         padding: 10px 16px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
         max-width: 90%;
+        pointer-events: auto;
         animation: threatFadeIn 0.3s ease;
+    }
+    .threat-map-offline[hidden] {
+        display: none !important;
     }
     .threat-offline-box {
         display: flex;
@@ -549,19 +553,24 @@
         line-height: 1.4;
     }
     .threat-offline-close {
-        background: none;
-        border: none;
-        color: #64748b;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #94a3b8;
         cursor: pointer;
-        font-size: 14px;
+        font-size: 16px;
+        font-weight: bold;
         line-height: 1;
-        padding: 4px 6px;
-        border-radius: 4px;
-        transition: color 0.15s, background 0.15s;
+        padding: 6px 10px;
+        border-radius: 6px;
+        pointer-events: auto;
+        position: relative;
+        z-index: 31;
+        transition: color 0.15s, background 0.15s, border-color 0.15s;
     }
     .threat-offline-close:hover {
         color: #fff;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(239, 68, 68, 0.2);
+        border-color: rgba(239, 68, 68, 0.5);
     }
 
     /* 3. Tactical Sidebar (ThreatsEye Intelligence) */
@@ -1222,9 +1231,18 @@
     var offlineNotice = card.querySelector('[data-map-offline]');
     var offlineClose = card.querySelector('[data-offline-dismiss]');
     if (offlineClose && offlineNotice) {
-        offlineClose.addEventListener('click', function () {
+        var dismissOffline = function (e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
             offlineNotice.hidden = true;
-        });
+            offlineNotice.setAttribute('hidden', '');
+            offlineNotice.style.display = 'none';
+        };
+        offlineClose.addEventListener('click', dismissOffline);
+        offlineClose.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+        offlineClose.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
     }
 
     // Embedded lightweight GeoJSON continents geometry fallback (100% offline resilience)
@@ -1720,6 +1738,12 @@
             drawBaseMap();
             if (isFallback && offlineNotice) {
                 offlineNotice.hidden = false;
+                offlineNotice.removeAttribute('hidden');
+                offlineNotice.style.display = 'flex';
+            } else if (offlineNotice) {
+                offlineNotice.hidden = true;
+                offlineNotice.setAttribute('hidden', '');
+                offlineNotice.style.display = 'none';
             }
         });
     }
@@ -1738,7 +1762,11 @@
         var ripples = [];
 
         // Show offline notice pill
-        if (offlineNotice) offlineNotice.hidden = false;
+        if (offlineNotice) {
+            offlineNotice.hidden = false;
+            offlineNotice.removeAttribute('hidden');
+            offlineNotice.style.display = 'flex';
+        }
 
         function resize() {
             var rect = holder.getBoundingClientRect();
