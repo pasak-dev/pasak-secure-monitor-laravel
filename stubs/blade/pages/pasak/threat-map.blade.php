@@ -117,13 +117,16 @@
                 <div class="threat-crosshair-tag">{{ $target['name'] }}</div>
             </div>
 
-            {{-- Offline / Fallback Notice --}}
+            {{-- Offline / Fallback Notice (Non-blocking tactical toast) --}}
             <div class="threat-map-offline" data-map-offline hidden>
                 <div class="threat-offline-box">
-                    <div style="font-size: 32px; margin-bottom: 8px;">🛰️</div>
-                    <strong>{{ __('Peta Intelijen Berjalan dalam Mode Minimal') }}</strong>
-                    <p>{{ __('Pustaka D3/TopoJSON sedang dimuat atau tidak tersedia offline. Data serangan tetap dipantau secara real-time pada panel telemetri.') }}</p>
+                    <span style="font-size: 20px;">🛰️</span>
+                    <div>
+                        <strong>{{ __('Mode Radar Mandiri (Offline Resilient)') }}</strong>
+                        <p>{{ __('Visualisasi radar lokal aktif dengan kontur benua mandiri. Telemetri serangan dan mitigasi WAF tetap berjalan real-time.') }}</p>
+                    </div>
                 </div>
+                <button type="button" class="threat-offline-close" data-offline-dismiss title="{{ __('Tutup') }}">✕</button>
             </div>
         </div>
 
@@ -507,30 +510,59 @@
     .threat-filter-pill.is-low { color: #34d399; }
     .threat-filter-pill.is-low.active { background: #10b981; color: #fff; border-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
 
-    /* Offline Notice */
+    /* Offline Notice (Non-blocking tactical toast) */
     .threat-map-offline {
         position: absolute;
-        inset: 0;
-        z-index: 10;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 12;
         display: flex;
         align-items: center;
-        justify-content: center;
-        text-align: center;
-        color: #cbd5e1;
-        background: rgba(2, 6, 23, 0.9);
-        backdrop-filter: blur(6px);
-        padding: 20px;
+        gap: 14px;
+        color: #e2e8f0;
+        background: rgba(15, 23, 42, 0.94);
+        border: 1px solid rgba(6, 182, 212, 0.35);
+        border-radius: 8px;
+        backdrop-filter: blur(8px);
+        padding: 10px 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+        max-width: 90%;
+        animation: threatFadeIn 0.3s ease;
     }
     .threat-offline-box {
-        max-width: 420px;
-        background: rgba(15, 23, 42, 0.8);
-        border: 1px solid rgba(6, 182, 212, 0.3);
-        border-radius: 12px;
-        padding: 24px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-align: left;
     }
-    .threat-offline-box strong { color: #f8fafc; font-size: 15px; display: block; margin-bottom: 6px; }
-    .threat-offline-box p { color: #94a3b8; font-size: 13px; margin: 0; line-height: 1.5; }
+    .threat-offline-box strong {
+        color: #06b6d4;
+        font-size: 12px;
+        display: block;
+        margin-bottom: 2px;
+    }
+    .threat-offline-box p {
+        color: #94a3b8;
+        font-size: 11px;
+        margin: 0;
+        line-height: 1.4;
+    }
+    .threat-offline-close {
+        background: none;
+        border: none;
+        color: #64748b;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        padding: 4px 6px;
+        border-radius: 4px;
+        transition: color 0.15s, background 0.15s;
+    }
+    .threat-offline-close:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+    }
 
     /* 3. Tactical Sidebar (ThreatsEye Intelligence) */
     .threat-map-side {
@@ -850,9 +882,29 @@
     }
 </style>
 
-{{-- D3.js and TopoJSON CDNs --}}
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="https://unpkg.com/topojson-client@3"></script>
+{{-- D3.js and TopoJSON CDNs with multi-CDN fallbacks --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+    if (typeof d3 === 'undefined') {
+        document.write('<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"><\/script>');
+    }
+</script>
+<script>
+    if (typeof d3 === 'undefined') {
+        document.write('<script src="https://d3js.org/d3.v7.min.js"><\/script>');
+    }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+    if (typeof topojson === 'undefined') {
+        document.write('<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"><\/script>');
+    }
+</script>
+<script>
+    if (typeof topojson === 'undefined') {
+        document.write('<script src="https://unpkg.com/topojson-client@3"><\/script>');
+    }
+</script>
 
 {{-- ThreatsEye Tactical Radar Engine Script --}}
 <script>
@@ -1183,381 +1235,748 @@
     }
     poll();
 
-    // ==================== D3.js & TopoJSON Canvas Engine ====================
-    if (typeof d3 === 'undefined' || typeof topojson === 'undefined') {
-        var offlineNotice = card.querySelector('[data-map-offline]');
-        if (offlineNotice) offlineNotice.hidden = false;
-        return;
+    // ==================== Dual-Engine Tactical Radar System ====================
+    var onEngineResize = null;
+
+    // Dismiss offline toast
+    var offlineNotice = card.querySelector('[data-map-offline]');
+    var offlineClose = card.querySelector('[data-offline-dismiss]');
+    if (offlineClose && offlineNotice) {
+        offlineClose.addEventListener('click', function () {
+            offlineNotice.hidden = true;
+        });
     }
 
-    var holder = card.querySelector('.threat-map-canvas-holder');
-    var baseCanvas = card.querySelector('[data-map-base]');
-    var animCanvas = card.querySelector('[data-map-anim]');
-    var baseCtx = baseCanvas.getContext('2d');
-    var animCtx = animCanvas.getContext('2d');
+    // Embedded lightweight GeoJSON continents geometry fallback (100% offline resilience)
+    var FALLBACK_WORLD_GEOJSON = {
+        type: 'FeatureCollection',
+        features: [
+            {
+                type: 'Feature',
+                properties: { name: 'North America' },
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[
+                        [-168, 65], [-160, 70], [-125, 72], [-85, 76], [-75, 72], [-60, 60],
+                        [-65, 45], [-75, 35], [-80, 25], [-90, 20], [-105, 20], [-120, 32],
+                        [-125, 40], [-130, 50], [-140, 58], [-160, 58], [-168, 65]
+                    ]]
+                }
+            },
+            {
+                type: 'Feature',
+                properties: { name: 'South America' },
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[
+                        [-80, 8], [-60, 10], [-50, 0], [-35, -5], [-38, -15], [-50, -30],
+                        [-60, -40], [-68, -55], [-75, -50], [-72, -35], [-80, -5], [-80, 8]
+                    ]]
+                }
+            },
+            {
+                type: 'Feature',
+                properties: { name: 'Eurasia' },
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[
+                        [-10, 36], [0, 42], [10, 44], [30, 46], [40, 40], [50, 42], [60, 38],
+                        [70, 25], [80, 15], [90, 22], [100, 10], [105, 20], [120, 22], [122, 32],
+                        [130, 40], [140, 48], [170, 65], [180, 68], [140, 72], [90, 74], [40, 70],
+                        [20, 70], [5, 62], [-5, 52], [-10, 36]
+                    ]]
+                }
+            },
+            {
+                type: 'Feature',
+                properties: { name: 'Africa' },
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[
+                        [-17, 15], [-5, 36], [10, 37], [25, 32], [32, 31], [43, 12], [51, 12],
+                        [40, -10], [32, -28], [28, -34], [18, -34], [12, -15], [5, 5], [-15, 10], [-17, 15]
+                    ]]
+                }
+            },
+            {
+                type: 'Feature',
+                properties: { name: 'Australia' },
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[
+                        [114, -22], [124, -15], [135, -12], [142, -11], [146, -20], [153, -28],
+                        [150, -37], [140, -38], [130, -32], [116, -35], [114, -22]
+                    ]]
+                }
+            },
+            {
+                type: 'Feature',
+                properties: { name: 'Southeast Asia & Indonesia' },
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[
+                        [95, 5], [105, 5], [115, 7], [118, -4], [125, 2], [130, -3],
+                        [140, -3], [140, -8], [120, -10], [106, -7], [96, 3], [95, 5]
+                    ]]
+                }
+            },
+            {
+                type: 'Feature',
+                properties: { name: 'Antarctica' },
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[
+                        [-180, -65], [-120, -68], [-60, -65], [0, -68], [60, -65], [120, -68], [180, -65], [180, -88], [-180, -88], [-180, -65]
+                    ]]
+                }
+            }
+        ]
+    };
 
-    var width, height, projection, geoPath;
-    var centerX, centerY;
-    var worldData = null;
-    var baseScale = 1;
-    var currentZoom = 1;
-    var activeAttacks = [];
-    var ripples = [];
-    var graticule = d3.geoGraticule();
+    function loadWorldAtlas(onReady) {
+        var jsdelivrUrl = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
+        var unpkgUrl = 'https://unpkg.com/world-atlas@2/countries-110m.json';
 
-    // Create projections based on selected type
-    function createProjection(type) {
-        if (type === 'equirectangular') {
-            return d3.geoEquirectangular()
-                .translate([centerX, centerY])
-                .scale(baseScale * 1.55 * currentZoom);
+        function fetchWithTimeout(url, ms) {
+            return new Promise(function (resolve, reject) {
+                var timer = setTimeout(function () { reject(new Error('timeout')); }, ms);
+                fetch(url).then(function (res) {
+                    clearTimeout(timer);
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                }).then(resolve).catch(function (err) {
+                    clearTimeout(timer);
+                    reject(err);
+                });
+            });
         }
-        return d3.geoOrthographic()
-            .translate([centerX, centerY])
-            .scale(baseScale * currentZoom)
-            .rotate([-MAP.target.lon, -MAP.target.lat, 0]);
+
+        fetchWithTimeout(jsdelivrUrl, 3500)
+            .then(function (data) {
+                if (typeof topojson !== 'undefined' && data.objects && data.objects.countries) {
+                    worldData = topojson.feature(data, data.objects.countries);
+                } else {
+                    worldData = data;
+                }
+                onReady(false);
+            })
+            .catch(function () {
+                fetchWithTimeout(unpkgUrl, 3500)
+                    .then(function (data2) {
+                        if (typeof topojson !== 'undefined' && data2.objects && data2.objects.countries) {
+                            worldData = topojson.feature(data2, data2.objects.countries);
+                        } else {
+                            worldData = data2;
+                        }
+                        onReady(false);
+                    })
+                    .catch(function () {
+                        worldData = FALLBACK_WORLD_GEOJSON;
+                        onReady(true);
+                    });
+            });
     }
 
-    // Projection Mode Buttons
-    card.querySelectorAll('[data-map-proj]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var mode = btn.getAttribute('data-map-proj');
-            currentProjType = mode;
-            card.querySelectorAll('[data-map-proj]').forEach(function (b) { b.classList.remove('active'); });
-            btn.classList.add('active');
+    // Engine 1: D3.js 3D Globe & 2D Tactical Vector Engine
+    function initD3GlobeEngine() {
+        var holder = card.querySelector('.threat-map-canvas-holder');
+        var baseCanvas = card.querySelector('[data-map-base]');
+        var animCanvas = card.querySelector('[data-map-anim]');
+        var baseCtx = baseCanvas.getContext('2d');
+        var animCtx = animCanvas.getContext('2d');
+
+        var width, height, projection, geoPath;
+        var centerX, centerY;
+        var baseScale = 1;
+        var currentZoom = 1;
+        var activeAttacks = [];
+        var ripples = [];
+        var graticule = d3.geoGraticule();
+
+        function createProjection(type) {
+            if (type === 'equirectangular') {
+                return d3.geoEquirectangular()
+                    .translate([centerX, centerY])
+                    .scale(baseScale * 1.55 * currentZoom);
+            }
+            return d3.geoOrthographic()
+                .translate([centerX, centerY])
+                .scale(baseScale * currentZoom)
+                .rotate([-MAP.target.lon, -MAP.target.lat, 0]);
+        }
+
+        // Projection Mode Buttons
+        card.querySelectorAll('[data-map-proj]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var mode = btn.getAttribute('data-map-proj');
+                currentProjType = mode;
+                card.querySelectorAll('[data-map-proj]').forEach(function (b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+
+                projection = createProjection(currentProjType);
+                geoPath = d3.geoPath().projection(projection).context(baseCtx);
+                drawBaseMap();
+            });
+        });
+
+        // Zoom & Pan behaviors
+        var zoom = d3.zoom()
+            .scaleExtent([0.6, 6])
+            .on('zoom', function (event) {
+                currentZoom = event.transform.k;
+                if (currentProjType === 'equirectangular') {
+                    projection.scale(baseScale * 1.55 * currentZoom);
+                } else {
+                    projection.scale(baseScale * currentZoom);
+                }
+                drawBaseMap();
+            });
+
+        var drag = d3.drag()
+            .on('drag', function (event) {
+                if (currentProjType === 'orthographic') {
+                    var rot = projection.rotate();
+                    var k = 70 / projection.scale();
+                    projection.rotate([rot[0] + event.dx * k, rot[1] - event.dy * k, rot[2]]);
+                } else {
+                    var t = projection.translate();
+                    projection.translate([t[0] + event.dx, t[1] + event.dy]);
+                }
+                drawBaseMap();
+            });
+
+        d3.select(holder).call(drag).call(zoom);
+
+        // Zoom and Action Controls
+        card.querySelectorAll('[data-map-action]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var action = btn.getAttribute('data-map-action');
+                if (action === 'zoom-in') {
+                    d3.select(holder).transition().duration(250).call(zoom.scaleBy, 1.3);
+                } else if (action === 'zoom-out') {
+                    d3.select(holder).transition().duration(250).call(zoom.scaleBy, 0.75);
+                } else if (action === 'reset') {
+                    currentZoom = 1;
+                    d3.select(holder).transition().duration(350).call(zoom.transform, d3.zoomIdentity);
+                    if (currentProjType === 'orthographic') {
+                        projection.rotate([-MAP.target.lon, -MAP.target.lat, 0]);
+                    } else {
+                        projection.translate([centerX, centerY]);
+                    }
+                    drawBaseMap();
+                } else if (action === 'toggle-rotate') {
+                    autoRotate = !autoRotate;
+                    btn.classList.toggle('active', autoRotate);
+                }
+            });
+        });
+
+        function resize() {
+            var rect = holder.getBoundingClientRect();
+            var dpr = window.devicePixelRatio || 1;
+            width = rect.width;
+            height = rect.height;
+
+            [baseCanvas, animCanvas].forEach(function (c) {
+                c.width = width * dpr;
+                c.height = height * dpr;
+                c.getContext('2d').scale(dpr, dpr);
+            });
+
+            centerX = width / 2;
+            centerY = height / 2;
+            baseScale = Math.min(width, height) / 2.3;
 
             projection = createProjection(currentProjType);
             geoPath = d3.geoPath().projection(projection).context(baseCtx);
-            drawBaseMap();
-        });
-    });
 
-    // Zoom & Pan behaviors
-    var zoom = d3.zoom()
-        .scaleExtent([0.6, 6])
-        .on('zoom', function (event) {
-            currentZoom = event.transform.k;
+            if (worldData) drawBaseMap();
+        }
+
+        window.addEventListener('resize', resize);
+        if (typeof ResizeObserver === 'function') {
+            new ResizeObserver(resize).observe(holder);
+        }
+        onEngineResize = resize;
+
+        function isVisible(coords) {
+            if (currentProjType === 'equirectangular') return true;
+            var rot = projection.rotate();
+            var centerLon = -rot[0];
+            var centerLat = -rot[1];
+            return d3.geoDistance(coords, [centerLon, centerLat]) < Math.PI / 2;
+        }
+
+        function getElevatedPoint(geoCoords, progress) {
+            var pt = projection(geoCoords);
+            if (!pt) return null;
             if (currentProjType === 'equirectangular') {
-                projection.scale(baseScale * 1.55 * currentZoom);
-            } else {
-                projection.scale(baseScale * currentZoom);
+                var arcElevation = Math.sin(progress * Math.PI) * 45 * currentZoom;
+                return [pt[0], pt[1] - arcElevation];
             }
-            drawBaseMap();
-        });
+            var dx = pt[0] - centerX;
+            var dy = pt[1] - centerY;
+            var distFromCenter = Math.sqrt(dx * dx + dy * dy);
+            var globeRadius = projection.scale();
+            var altitude = Math.sin(progress * Math.PI) * (globeRadius * 0.22);
+            var factor = distFromCenter > 0 ? (distFromCenter + altitude) / distFromCenter : 1;
+            return [centerX + dx * factor, centerY + dy * factor];
+        }
 
-    var drag = d3.drag()
-        .on('drag', function (event) {
+        function drawBaseMap() {
+            baseCtx.clearRect(0, 0, width, height);
+
+            // 3D Globe Sphere Background
             if (currentProjType === 'orthographic') {
-                var rot = projection.rotate();
-                var k = 70 / projection.scale();
-                projection.rotate([rot[0] + event.dx * k, rot[1] - event.dy * k, rot[2]]);
-            } else {
-                var t = projection.translate();
-                projection.translate([t[0] + event.dx, t[1] + event.dy]);
+                baseCtx.beginPath();
+                baseCtx.arc(centerX, centerY, projection.scale(), 0, Math.PI * 2);
+                var oceanGrad = baseCtx.createRadialGradient(centerX - projection.scale() * 0.3, centerY - projection.scale() * 0.3, 10, centerX, centerY, projection.scale());
+                oceanGrad.addColorStop(0, '#041530');
+                oceanGrad.addColorStop(1, '#010816');
+                baseCtx.fillStyle = oceanGrad;
+                baseCtx.fill();
             }
-            drawBaseMap();
-        });
 
-    d3.select(holder).call(drag).call(zoom);
+            // Graticule Lines
+            baseCtx.beginPath();
+            geoPath(graticule());
+            baseCtx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
+            baseCtx.lineWidth = 0.5;
+            baseCtx.stroke();
 
-    // Zoom and Action Controls
-    card.querySelectorAll('[data-map-action]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var action = btn.getAttribute('data-map-action');
-            if (action === 'zoom-in') {
-                d3.select(holder).transition().duration(250).call(zoom.scaleBy, 1.3);
-            } else if (action === 'zoom-out') {
-                d3.select(holder).transition().duration(250).call(zoom.scaleBy, 0.75);
-            } else if (action === 'reset') {
-                currentZoom = 1;
-                d3.select(holder).transition().duration(350).call(zoom.transform, d3.zoomIdentity);
-                if (currentProjType === 'orthographic') {
-                    projection.rotate([-MAP.target.lon, -MAP.target.lat, 0]);
-                } else {
-                    projection.translate([centerX, centerY]);
+            // World Countries Fill & Outlines
+            if (worldData) {
+                baseCtx.beginPath();
+                geoPath(worldData);
+                baseCtx.fillStyle = '#0a1d3d';
+                baseCtx.fill();
+
+                baseCtx.strokeStyle = '#06b6d4';
+                baseCtx.lineWidth = 0.8;
+                baseCtx.shadowColor = 'rgba(6, 182, 212, 0.5)';
+                baseCtx.shadowBlur = 4;
+                baseCtx.lineJoin = 'round';
+                baseCtx.stroke();
+                baseCtx.shadowBlur = 0;
+            }
+
+            // 3D Globe Outer Atmosphere Rim Glow
+            if (currentProjType === 'orthographic') {
+                baseCtx.beginPath();
+                baseCtx.arc(centerX, centerY, projection.scale(), 0, Math.PI * 2);
+                baseCtx.strokeStyle = 'rgba(0, 240, 255, 0.5)';
+                baseCtx.lineWidth = 1.2;
+                baseCtx.shadowColor = 'rgba(0, 240, 255, 0.6)';
+                baseCtx.shadowBlur = 24;
+                baseCtx.stroke();
+                baseCtx.shadowBlur = 0;
+            }
+
+            // Target Server Node Marker (Pekanbaru / configured target)
+            var targetPoint = projection([MAP.target.lon, MAP.target.lat]);
+            if (targetPoint && isVisible([MAP.target.lon, MAP.target.lat])) {
+                // Concentric Radar Rings
+                baseCtx.beginPath();
+                baseCtx.arc(targetPoint[0], targetPoint[1], 12 * currentZoom, 0, Math.PI * 2);
+                baseCtx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
+                baseCtx.lineWidth = 1;
+                baseCtx.stroke();
+
+                baseCtx.beginPath();
+                baseCtx.arc(targetPoint[0], targetPoint[1], 6 * currentZoom, 0, Math.PI * 2);
+                baseCtx.fillStyle = '#00f0ff';
+                baseCtx.shadowColor = '#00f0ff';
+                baseCtx.shadowBlur = 15;
+                baseCtx.fill();
+                baseCtx.shadowBlur = 0;
+
+                // Target Crosshair Center
+                baseCtx.beginPath();
+                baseCtx.arc(targetPoint[0], targetPoint[1], 2 * currentZoom, 0, Math.PI * 2);
+                baseCtx.fillStyle = '#ffffff';
+                baseCtx.fill();
+            }
+        }
+
+        // Fire an animated attack trajectory
+        window.__threatMapFire = function (map, origin, entry) {
+            if (!origin || typeof origin.lat !== 'number' || typeof origin.lon !== 'number') return;
+            var lvl = levelOf(entry);
+            var jitter = 2;
+            activeAttacks.push({
+                sourceCoords: [origin.lon + (Math.random() - 0.5) * jitter, origin.lat + (Math.random() - 0.5) * jitter],
+                targetCoords: [map.target.lon, map.target.lat],
+                progress: 0,
+                speed: 0.006 + Math.random() * 0.005,
+                color: COLORS[lvl] || '#ef4444',
+                level: lvl
+            });
+        };
+
+        // Animation Loop (Particle Arcs + Ripple Shockwaves)
+        var lastSpinTime = Date.now();
+        function animate() {
+            animCtx.clearRect(0, 0, width, height);
+
+            // Smooth Auto-Rotate when in 3D Orthographic mode and not dragging
+            if (autoRotate && currentProjType === 'orthographic' && isGlobeReady) {
+                var now = Date.now();
+                if (now - lastSpinTime > 40) {
+                    var rot = projection.rotate();
+                    projection.rotate([rot[0] + 0.15, rot[1], rot[2]]);
+                    drawBaseMap();
+                    lastSpinTime = now;
                 }
-                drawBaseMap();
-            } else if (action === 'toggle-rotate') {
-                autoRotate = !autoRotate;
-                btn.classList.toggle('active', autoRotate);
+            }
+
+            // Draw Shockwave Ripples at Server Target
+            for (var r = ripples.length - 1; r >= 0; r--) {
+                var rip = ripples[r];
+                rip.radius += rip.speed;
+                rip.alpha -= rip.fade;
+                if (rip.alpha <= 0) {
+                    ripples.splice(r, 1);
+                    continue;
+                }
+                var tPt = projection([MAP.target.lon, MAP.target.lat]);
+                if (tPt && isVisible([MAP.target.lon, MAP.target.lat])) {
+                    animCtx.beginPath();
+                    animCtx.arc(tPt[0], tPt[1], rip.radius, 0, Math.PI * 2);
+                    animCtx.strokeStyle = 'rgba(' + rip.rgb + ', ' + rip.alpha + ')';
+                    animCtx.lineWidth = 1.8;
+                    animCtx.stroke();
+                }
+            }
+
+            // Draw Animated Cyber Attack Arcs
+            for (var i = activeAttacks.length - 1; i >= 0; i--) {
+                var atk = activeAttacks[i];
+                atk.progress += atk.speed;
+
+                if (atk.progress >= 1) {
+                    // Detonation ripple at server node
+                    var rgbMap = {
+                        '#ef4444': '239, 68, 68',
+                        '#f97316': '249, 115, 22',
+                        '#eab308': '234, 179, 8',
+                        '#10b981': '16, 185, 129'
+                    };
+                    ripples.push({
+                        radius: 5 * currentZoom,
+                        speed: 1.8 * currentZoom,
+                        alpha: 1,
+                        fade: 0.04,
+                        rgb: rgbMap[atk.color] || '239, 68, 68'
+                    });
+                    playRadarBlip(atk.level);
+                    activeAttacks.splice(i, 1);
+                    continue;
+                }
+
+                var interpolator = d3.geoInterpolate(atk.sourceCoords, atk.targetCoords);
+                var currentGeo = interpolator(atk.progress);
+
+                // Draw glowing comet head
+                if (isVisible(currentGeo)) {
+                    var head = getElevatedPoint(currentGeo, atk.progress);
+                    if (head) {
+                        animCtx.beginPath();
+                        animCtx.arc(head[0], head[1], 3.5 * currentZoom, 0, Math.PI * 2);
+                        animCtx.fillStyle = '#ffffff';
+                        animCtx.shadowColor = atk.color;
+                        animCtx.shadowBlur = 10;
+                        animCtx.fill();
+                        animCtx.shadowBlur = 0;
+                    }
+                }
+
+                // Draw arched laser beam trail
+                var trailSegments = 24;
+                var trailLength = 0.16;
+                for (var j = 0; j < trailSegments; j++) {
+                    var t1 = atk.progress - (j / trailSegments) * trailLength;
+                    var t2 = atk.progress - ((j + 1) / trailSegments) * trailLength;
+                    if (t1 <= 0) break;
+                    t2 = Math.max(0, t2);
+
+                    var g1 = interpolator(t1);
+                    var g2 = interpolator(t2);
+                    if (!isVisible(g1) && !isVisible(g2)) continue;
+
+                    var p1 = getElevatedPoint(g1, t1);
+                    var p2 = getElevatedPoint(g2, t2);
+                    if (!p1 || !p2) continue;
+
+                    animCtx.beginPath();
+                    animCtx.moveTo(p1[0], p1[1]);
+                    animCtx.lineTo(p2[0], p2[1]);
+                    animCtx.strokeStyle = atk.color;
+                    animCtx.lineWidth = Math.max(0.6, 4.0 - j * 0.16) * currentZoom;
+                    animCtx.globalAlpha = Math.max(0, 1 - j / trailSegments);
+
+                    if (j === 0) {
+                        animCtx.shadowBlur = 12;
+                        animCtx.shadowColor = atk.color;
+                    } else {
+                        animCtx.shadowBlur = 0;
+                    }
+                    animCtx.stroke();
+                    animCtx.globalAlpha = 1;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        resize();
+        animate();
+
+        // Load Atlas (jsdelivr -> unpkg -> embedded continents)
+        loadWorldAtlas(function (isFallback) {
+            drawBaseMap();
+            isGlobeReady = true;
+            scheduleInitialArcs();
+            if (isFallback && offlineNotice) {
+                offlineNotice.hidden = false;
             }
         });
-    });
+    }
 
-    function resize() {
-        var rect = holder.getBoundingClientRect();
-        width = rect.width;
-        height = rect.height;
-        var dpr = window.devicePixelRatio || 1;
+    // Engine 2: Native Canvas 2D Cyber Radar Engine (Offline Standalone Mode)
+    function initFallbackRadarEngine() {
+        var holder = card.querySelector('.threat-map-canvas-holder');
+        var baseCanvas = card.querySelector('[data-map-base]');
+        var animCanvas = card.querySelector('[data-map-anim]');
+        var baseCtx = baseCanvas.getContext('2d');
+        var animCtx = animCanvas.getContext('2d');
+        var width, height, centerX, centerY, radius;
+        var radarZoom = 1;
+        var sweepAngle = 0;
+        var activeAttacks = [];
+        var ripples = [];
 
-        [baseCanvas, animCanvas].forEach(function (c) {
-            c.width = width * dpr;
-            c.height = height * dpr;
-            c.getContext('2d').scale(dpr, dpr);
+        // Show offline notice pill
+        if (offlineNotice) offlineNotice.hidden = false;
+
+        function resize() {
+            var rect = holder.getBoundingClientRect();
+            var dpr = window.devicePixelRatio || 1;
+            width = rect.width;
+            height = rect.height;
+
+            [baseCanvas, animCanvas].forEach(function (c) {
+                c.width = width * dpr;
+                c.height = height * dpr;
+                c.getContext('2d').scale(dpr, dpr);
+            });
+
+            centerX = width / 2;
+            centerY = height / 2;
+            radius = Math.min(width, height) * 0.44;
+            drawBaseRadar();
+        }
+
+        window.addEventListener('resize', resize);
+        if (typeof ResizeObserver === 'function') {
+            new ResizeObserver(resize).observe(holder);
+        }
+        onEngineResize = resize;
+
+        // Action Controls for Fallback Radar
+        card.querySelectorAll('[data-map-action]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var action = btn.getAttribute('data-map-action');
+                if (action === 'zoom-in') {
+                    radarZoom = Math.min(2.5, radarZoom * 1.25);
+                    drawBaseRadar();
+                } else if (action === 'zoom-out') {
+                    radarZoom = Math.max(0.6, radarZoom * 0.8);
+                    drawBaseRadar();
+                } else if (action === 'reset') {
+                    radarZoom = 1;
+                    drawBaseRadar();
+                }
+            });
         });
 
-        centerX = width / 2;
-        centerY = height / 2;
-        baseScale = Math.min(width, height) / 2.3;
+        function drawBaseRadar() {
+            baseCtx.clearRect(0, 0, width, height);
 
-        projection = createProjection(currentProjType);
-        geoPath = d3.geoPath().projection(projection).context(baseCtx);
-
-        if (worldData) drawBaseMap();
-    }
-
-    window.addEventListener('resize', resize);
-    if (typeof ResizeObserver === 'function') {
-        new ResizeObserver(resize).observe(holder);
-    }
-
-    function isVisible(coords) {
-        if (currentProjType === 'equirectangular') return true;
-        var rot = projection.rotate();
-        var centerLon = -rot[0];
-        var centerLat = -rot[1];
-        return d3.geoDistance(coords, [centerLon, centerLat]) < Math.PI / 2;
-    }
-
-    function getElevatedPoint(geoCoords, progress) {
-        var pt = projection(geoCoords);
-        if (!pt) return null;
-        if (currentProjType === 'equirectangular') {
-            var arcElevation = Math.sin(progress * Math.PI) * 45 * currentZoom;
-            return [pt[0], pt[1] - arcElevation];
-        }
-        var dx = pt[0] - centerX;
-        var dy = pt[1] - centerY;
-        var dist = Math.hypot(dx, dy);
-        var elevation = Math.sin(progress * Math.PI) * 65 * currentZoom;
-        var scaleF = dist === 0 ? 1 : (dist + elevation) / dist;
-        return [centerX + dx * scaleF, centerY + dy * scaleF];
-    }
-
-    // Render Tactical Base Map with Cyber Glow
-    function drawBaseMap() {
-        baseCtx.clearRect(0, 0, width, height);
-
-        // 3D Globe Sphere Background
-        if (currentProjType === 'orthographic') {
+            // Radar background gradient
+            var bgGrad = baseCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius * radarZoom);
+            bgGrad.addColorStop(0, '#041738');
+            bgGrad.addColorStop(0.8, '#020b1c');
+            bgGrad.addColorStop(1, '#01050e');
+            baseCtx.fillStyle = bgGrad;
             baseCtx.beginPath();
-            baseCtx.arc(centerX, centerY, projection.scale(), 0, Math.PI * 2);
-            var oceanGrad = baseCtx.createRadialGradient(centerX - projection.scale() * 0.3, centerY - projection.scale() * 0.3, 10, centerX, centerY, projection.scale());
-            oceanGrad.addColorStop(0, '#041530');
-            oceanGrad.addColorStop(1, '#010816');
-            baseCtx.fillStyle = oceanGrad;
-            baseCtx.fill();
-        }
-
-        // Graticule Lines
-        baseCtx.beginPath();
-        geoPath(graticule());
-        baseCtx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
-        baseCtx.lineWidth = 0.5;
-        baseCtx.stroke();
-
-        // World Countries Fill & Outlines
-        if (worldData) {
-            baseCtx.beginPath();
-            geoPath(worldData);
-            baseCtx.fillStyle = '#0a1d3d';
+            baseCtx.arc(centerX, centerY, radius * radarZoom, 0, Math.PI * 2);
             baseCtx.fill();
 
-            baseCtx.strokeStyle = '#06b6d4';
-            baseCtx.lineWidth = 0.8;
-            baseCtx.shadowColor = 'rgba(6, 182, 212, 0.5)';
-            baseCtx.shadowBlur = 4;
-            baseCtx.lineJoin = 'round';
-            baseCtx.stroke();
-            baseCtx.shadowBlur = 0;
-        }
+            // Range rings
+            var rings = [0.25, 0.5, 0.75, 1.0];
+            rings.forEach(function (pct) {
+                var r = radius * radarZoom * pct;
+                baseCtx.beginPath();
+                baseCtx.arc(centerX, centerY, r, 0, Math.PI * 2);
+                baseCtx.strokeStyle = 'rgba(6, 182, 212, ' + (pct === 1.0 ? '0.45' : '0.15') + ')';
+                baseCtx.lineWidth = pct === 1.0 ? 1.5 : 0.8;
+                if (pct < 1.0) baseCtx.setLineDash([4, 4]);
+                baseCtx.stroke();
+                baseCtx.setLineDash([]);
+            });
 
-        // 3D Globe Outer Atmosphere Rim Glow
-        if (currentProjType === 'orthographic') {
+            // Crosshair Axes (N-S, E-W)
             baseCtx.beginPath();
-            baseCtx.arc(centerX, centerY, projection.scale(), 0, Math.PI * 2);
-            baseCtx.strokeStyle = 'rgba(0, 240, 255, 0.5)';
-            baseCtx.lineWidth = 1.2;
-            baseCtx.shadowColor = 'rgba(0, 240, 255, 0.6)';
-            baseCtx.shadowBlur = 24;
-            baseCtx.stroke();
-            baseCtx.shadowBlur = 0;
-        }
-
-        // Target Server Node Marker (Pekanbaru / configured target)
-        var targetPoint = projection([MAP.target.lon, MAP.target.lat]);
-        if (targetPoint && isVisible([MAP.target.lon, MAP.target.lat])) {
-            // Concentric Radar Rings
-            baseCtx.beginPath();
-            baseCtx.arc(targetPoint[0], targetPoint[1], 12 * currentZoom, 0, Math.PI * 2);
-            baseCtx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
+            baseCtx.moveTo(centerX - radius * radarZoom, centerY);
+            baseCtx.lineTo(centerX + radius * radarZoom, centerY);
+            baseCtx.moveTo(centerX, centerY - radius * radarZoom);
+            baseCtx.lineTo(centerX, centerY + radius * radarZoom);
+            baseCtx.strokeStyle = 'rgba(6, 182, 212, 0.25)';
             baseCtx.lineWidth = 1;
             baseCtx.stroke();
 
+            // Diagonal Crosshairs
+            var diag = radius * radarZoom * 0.7071;
             baseCtx.beginPath();
-            baseCtx.arc(targetPoint[0], targetPoint[1], 6 * currentZoom, 0, Math.PI * 2);
+            baseCtx.moveTo(centerX - diag, centerY - diag);
+            baseCtx.lineTo(centerX + diag, centerY + diag);
+            baseCtx.moveTo(centerX - diag, centerY + diag);
+            baseCtx.lineTo(centerX + diag, centerY - diag);
+            baseCtx.strokeStyle = 'rgba(6, 182, 212, 0.1)';
+            baseCtx.lineWidth = 0.6;
+            baseCtx.stroke();
+
+            // Cardinal labels
+            baseCtx.font = '10px monospace';
+            baseCtx.fillStyle = '#06b6d4';
+            baseCtx.textAlign = 'center';
+            baseCtx.fillText('N', centerX, centerY - radius * radarZoom + 14);
+            baseCtx.fillText('S', centerX, centerY + radius * radarZoom - 6);
+            baseCtx.fillText('E', centerX + radius * radarZoom - 12, centerY + 3);
+            baseCtx.fillText('W', centerX - radius * radarZoom + 12, centerY + 3);
+
+            // Target Node Marker Center
+            baseCtx.beginPath();
+            baseCtx.arc(centerX, centerY, 5, 0, Math.PI * 2);
             baseCtx.fillStyle = '#00f0ff';
             baseCtx.shadowColor = '#00f0ff';
-            baseCtx.shadowBlur = 15;
+            baseCtx.shadowBlur = 12;
             baseCtx.fill();
             baseCtx.shadowBlur = 0;
-
-            // Target Crosshair Center
-            baseCtx.beginPath();
-            baseCtx.arc(targetPoint[0], targetPoint[1], 2 * currentZoom, 0, Math.PI * 2);
-            baseCtx.fillStyle = '#ffffff';
-            baseCtx.fill();
-        }
-    }
-
-    // Load GeoJSON World Atlas
-    d3.json('https://unpkg.com/world-atlas@2/countries-110m.json').then(function (data) {
-        worldData = topojson.feature(data, data.objects.countries);
-        drawBaseMap();
-        isGlobeReady = true;
-        scheduleInitialArcs();
-    }).catch(function () {
-        var offlineNotice = card.querySelector('[data-map-offline]');
-        if (offlineNotice) offlineNotice.hidden = false;
-    });
-
-    // Fire an animated attack trajectory
-    window.__threatMapFire = function (map, origin, entry) {
-        if (!origin || typeof origin.lat !== 'number' || typeof origin.lon !== 'number') return;
-        var lvl = levelOf(entry);
-        var jitter = 2;
-        activeAttacks.push({
-            sourceCoords: [origin.lon + (Math.random() - 0.5) * jitter, origin.lat + (Math.random() - 0.5) * jitter],
-            targetCoords: [map.target.lon, map.target.lat],
-            progress: 0,
-            speed: 0.006 + Math.random() * 0.005,
-            color: COLORS[lvl] || '#ef4444',
-            level: lvl
-        });
-    };
-
-    // Animation Loop (Particle Arcs + Ripple Shockwaves)
-    var lastSpinTime = Date.now();
-    function animate() {
-        animCtx.clearRect(0, 0, width, height);
-
-        // Smooth Auto-Rotate when in 3D Orthographic mode and not dragging
-        if (autoRotate && currentProjType === 'orthographic' && isGlobeReady) {
-            var now = Date.now();
-            if (now - lastSpinTime > 40) {
-                var rot = projection.rotate();
-                projection.rotate([rot[0] + 0.15, rot[1], rot[2]]);
-                drawBaseMap();
-                lastSpinTime = now;
-            }
         }
 
-        // Draw Shockwave Ripples at Server Target
-        for (var r = ripples.length - 1; r >= 0; r--) {
-            var rip = ripples[r];
-            rip.radius += rip.speed;
-            rip.alpha -= rip.fade;
-            if (rip.alpha <= 0) {
-                ripples.splice(r, 1);
-                continue;
-            }
-            var tPt = projection([MAP.target.lon, MAP.target.lat]);
-            if (tPt && isVisible([MAP.target.lon, MAP.target.lat])) {
-                animCtx.beginPath();
-                animCtx.arc(tPt[0], tPt[1], rip.radius, 0, Math.PI * 2);
-                animCtx.strokeStyle = 'rgba(' + rip.rgb + ', ' + rip.alpha + ')';
-                animCtx.lineWidth = 2 * currentZoom;
-                animCtx.stroke();
-            }
+        // Relative Geo to Polar Radar Mapping
+        function geoToRadar(lon, lat) {
+            var dLon = (lon - MAP.target.lon) * Math.PI / 180;
+            var dLat = (lat - MAP.target.lat) * Math.PI / 180;
+            var dist = Math.min(1, Math.sqrt(dLon * dLon + dLat * dLat) / (Math.PI / 1.3));
+            var angle = Math.atan2(dLat, dLon);
+            var r = dist * radius * radarZoom * 0.88;
+            return [centerX + r * Math.cos(angle), centerY - r * Math.sin(angle)];
         }
 
-        // Draw Animated Attack Arcs & Particle Comets
-        for (var i = activeAttacks.length - 1; i >= 0; i--) {
-            var atk = activeAttacks[i];
-            atk.progress += atk.speed;
+        window.__threatMapFire = function (map, origin, entry) {
+            if (!origin || typeof origin.lat !== 'number' || typeof origin.lon !== 'number') return;
+            var pt = geoToRadar(origin.lon, origin.lat);
+            var lvl = levelOf(entry);
+            activeAttacks.push({
+                startX: pt[0],
+                startY: pt[1],
+                targetX: centerX,
+                targetY: centerY,
+                progress: 0,
+                speed: 0.008 + Math.random() * 0.006,
+                color: COLORS[lvl] || '#ef4444',
+                level: lvl
+            });
+        };
 
-            // Attack hits target node
-            if (atk.progress >= 1) {
-                var rgbMap = {
-                    '#ef4444': '239, 68, 68',
-                    '#f97316': '249, 115, 22',
-                    '#eab308': '234, 179, 8',
-                    '#10b981': '16, 185, 129'
-                };
-                ripples.push({
-                    radius: 3,
-                    speed: 1.8 * currentZoom,
-                    alpha: 1,
-                    fade: 0.04,
-                    rgb: rgbMap[atk.color] || '239, 68, 68'
-                });
-                playRadarBlip(atk.level);
-                activeAttacks.splice(i, 1);
-                continue;
-            }
+        function animate() {
+            animCtx.clearRect(0, 0, width, height);
 
-            var interpolator = d3.geoInterpolate(atk.sourceCoords, atk.targetCoords);
-            var currentGeo = interpolator(atk.progress);
+            sweepAngle = (sweepAngle + 0.02) % (Math.PI * 2);
 
-            // Draw glowing comet head
-            if (isVisible(currentGeo)) {
-                var head = getElevatedPoint(currentGeo, atk.progress);
-                if (head) {
-                    animCtx.beginPath();
-                    animCtx.arc(head[0], head[1], 3.5 * currentZoom, 0, Math.PI * 2);
-                    animCtx.fillStyle = '#ffffff';
-                    animCtx.shadowColor = atk.color;
-                    animCtx.shadowBlur = 16;
-                    animCtx.fill();
+            // Radar sweep sector
+            var sweepGrad = animCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius * radarZoom);
+            sweepGrad.addColorStop(0, 'rgba(6, 182, 212, 0.25)');
+            sweepGrad.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
+            animCtx.beginPath();
+            animCtx.moveTo(centerX, centerY);
+            animCtx.arc(centerX, centerY, radius * radarZoom, sweepAngle - 0.28, sweepAngle);
+            animCtx.closePath();
+            animCtx.fillStyle = sweepGrad;
+            animCtx.fill();
 
-                    animCtx.beginPath();
-                    animCtx.arc(head[0], head[1], 5 * currentZoom, 0, Math.PI * 2);
-                    animCtx.strokeStyle = atk.color;
-                    animCtx.lineWidth = 1.5;
-                    animCtx.stroke();
-                    animCtx.shadowBlur = 0;
+            // Active attack beams
+            for (var i = activeAttacks.length - 1; i >= 0; i--) {
+                var atk = activeAttacks[i];
+                atk.progress += atk.speed;
+
+                if (atk.progress >= 1) {
+                    ripples.push({
+                        x: centerX,
+                        y: centerY,
+                        r: 4,
+                        alpha: 1,
+                        color: atk.color
+                    });
+                    playRadarBlip(atk.level);
+                    activeAttacks.splice(i, 1);
+                    continue;
                 }
-            }
 
-            // Draw multi-segment tapering tail
-            var trailSegments = 22;
-            for (var j = 0; j < trailSegments; j++) {
-                var t1 = atk.progress - j * 0.005;
-                var t2 = atk.progress - (j + 1) * 0.005;
-                if (t1 < 0) continue;
-                if (t2 < 0) t2 = 0;
-
-                var g1 = interpolator(t1);
-                var g2 = interpolator(t2);
-                if (!isVisible(g1) && !isVisible(g2)) continue;
-
-                var p1 = getElevatedPoint(g1, t1);
-                var p2 = getElevatedPoint(g2, t2);
-                if (!p1 || !p2) continue;
+                var curX = atk.startX + (atk.targetX - atk.startX) * atk.progress;
+                var curY = atk.startY + (atk.targetY - atk.startY) * atk.progress;
 
                 animCtx.beginPath();
-                animCtx.moveTo(p1[0], p1[1]);
-                animCtx.lineTo(p2[0], p2[1]);
+                animCtx.moveTo(atk.startX, atk.startY);
+                animCtx.lineTo(curX, curY);
                 animCtx.strokeStyle = atk.color;
-                animCtx.lineWidth = Math.max(0.6, 4.0 - j * 0.16) * currentZoom;
-                animCtx.globalAlpha = Math.max(0, 1 - j / trailSegments);
+                animCtx.lineWidth = 2;
+                animCtx.stroke();
 
-                if (j === 0) {
-                    animCtx.shadowBlur = 12;
-                    animCtx.shadowColor = atk.color;
-                } else {
-                    animCtx.shadowBlur = 0;
+                animCtx.beginPath();
+                animCtx.arc(curX, curY, 3.5, 0, Math.PI * 2);
+                animCtx.fillStyle = '#ffffff';
+                animCtx.shadowColor = atk.color;
+                animCtx.shadowBlur = 10;
+                animCtx.fill();
+                animCtx.shadowBlur = 0;
+            }
+
+            // Shockwave ripples
+            for (var j = ripples.length - 1; j >= 0; j--) {
+                var rip = ripples[j];
+                rip.r += 1.4;
+                rip.alpha -= 0.035;
+                if (rip.alpha <= 0) {
+                    ripples.splice(j, 1);
+                    continue;
                 }
+                animCtx.beginPath();
+                animCtx.arc(rip.x, rip.y, rip.r, 0, Math.PI * 2);
+                animCtx.strokeStyle = rip.color;
+                animCtx.globalAlpha = rip.alpha;
+                animCtx.lineWidth = 2;
                 animCtx.stroke();
                 animCtx.globalAlpha = 1;
             }
+
+            requestAnimationFrame(animate);
         }
 
-        requestAnimationFrame(animate);
+        resize();
+        animate();
+        isGlobeReady = true;
+        scheduleInitialArcs();
     }
 
-    resize();
-    animate();
+    // Initialize Active Engine
+    if (typeof d3 !== 'undefined') {
+        initD3GlobeEngine();
+    } else {
+        initFallbackRadarEngine();
+    }
 
     // ==================== Fullscreen Wallboard Mode ====================
     var fullButton = card.querySelector('[data-map-fullscreen]');
