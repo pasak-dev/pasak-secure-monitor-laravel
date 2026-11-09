@@ -6,12 +6,18 @@ All notable changes to `robyajo/pasak` will be documented in this file.
 
 ### Added
 
+- **Peta Intelijen Siber Interaktif & Dual-Engine Fallback pada Threat Map** (`stubs/blade/pages/pasak/threat-map.blade.php`):
+  - Visualisasi intelijen serangan siber real-time dengan HUD status taktis (ThreatsEye SOC Style), koordinat node yang dilindungi, dan status firewall WAF (Blocking / Monitoring).
+  - Pilihan proyeksi peta fleksibel: **3D Globe** (rotasi interaktif) dan **2D Tactical Flat Map** (Mercator / Equirectangular).
+  - **Dual-Engine & Offline Resilience**: Mendukung failover multi-CDN (`jsdelivr` & `cdnjs`), data benua offline bawaan (`FALLBACK_WORLD_GEOJSON`), dan engine **Radar Cyber 2D Mandiri (Pure Canvas Standalone Engine)** yang berjalan 100% tanpa dependensi eksternal bila CDN diblokir atau offline.
+  - Perbaikan styling modal toast offline (`.threat-map-offline[hidden] { display: none !important; }`) sehingga mudah ditutup tanpa menghalangi visualisasi radar.
+
 - **Pembaruan Menyeluruh & Pembersihan Berkas Usang via `php artisan pasak:upgrade --force` (dan Alias `pasak:upgrae`)**:
   - Menambahkan alias resmi `pasak:upgrae` pada perintah konsol sehingga salah ketik tetap berjalan mulus.
   - Opsi `--force` kini memperbarui dan menyinkronkan seluruh aset dari instalasi lama ke standar versi terbaru:
     - **Deteksi & Laporan Migrasi Database**: Menampilkan deteksi jumlah migrasi baru yang belum diterapkan (`⚠ Terdeteksi X migrasi database baru...`) dan laporan status pembaruan struktur database yang informatif.
     - **Pembaruan Konfigurasi (`config/pasak.php`)**: Otomatis menyisipkan konfigurasi baru yang hilang (`sentinel` IPC socket daemon, `threat_map` globe visualizer, URL rotasi dinamis, dan migrasi nama tabel ke prefix `pasak_`) tanpa menimpa nilai kustomisasi pengguna.
-    - **Sinkronisasi Tampilan (`resources/views/pages/pasak`) & Rute**: Secara otomatis menyinkronkan tampilan Blade dashboard dan rute ke versi terbaru, dengan pencadangan otomatis berkas lama ke direktori `.backup-*`.
+    - **Sinkronisasi Tampilan (`resources/views/pages/pasak`) & Rute**: Secara otomatis menyinkronkan tampilan Blade dashboard dan rute ke versi terbaru, dengan opsi `--clean-backups` dan `--no-backup`.
     - **Pembersihan Berkas & Direktori Usang**: Otomatis mendeteksi dan menghapus berkas serta direktori peninggalan versi lama yang sudah tidak digunakan (`routes/security.php`, `routes/security-api.php`, `config/security.php`, `resources/views/pages/security`, `resources/js/pages/security`, `resources/js/components/security`, `web-docs/`, `finis.sh`, `install-dash.sh`), serta memangkas arsip cadangan berlebih (`.backup-*`) dengan mempertahankan 2 cadangan paling mutakhir.
 
 - **Aksi Unduh Berkas & Modal Konfirmasi Verifikasi Berkas Aman pada Server Audit** (`stubs/blade/pages/pasak/server.blade.php`, `PasakServerSecurityService.php`, `PasakServerController.php`):
@@ -58,9 +64,3 @@ All notable changes to `robyajo/pasak` will be documented in this file.
 ### Fixed
 
 - **Perlindungan Ganda Konfirmasi Penghapusan Berkas (Native Fallback)** — menambahkan `onsubmit="return confirm(...)"` pada form penghapusan berkas mencurigakan untuk menjamin dialog konfirmasi peringatan selalu muncul di peramban pengguna bahkan jika JavaScript kustom terhambat atau file view di VPS belum disinkronkan.
-
-## [1.6.8] - 2026-11-07
-
-### Fixed
-
-- **Eliminasi False Positive Injeksi PHP Polyglot pada Berkas Media Biner (JPEG/PNG/Media)** — memperketat pola regex deteksi short tag `<?` pada `PasakServerSecurityService` dan `PasakSafeImageFile`. Sebelumnya, pola `<\\?\\s*\\$[a-zA-Z_\\x7f-\\xff]` mengizinkan sembarang byte tinggi (`\\x7f-\\xff`) sehingga tabrakan byte biner terkompresi acak seperti `3C 3F 24 56` (`<?$V`) dan `3C 3F 24` diikuti _high-byte_ (`<?$?`) pada foto profil pengguna asli keliru dideteksi sebagai injeksi PHP polyglot kritis. Pola kini secara ketat mewajibkan token PHP valid, fungsi eksekusi berbahaya (`eval`, `system`, `passthru`, `exec`, `shell_exec`, `assert`, `popen`, `proc_open`), atau assignment variabel PHP nyata (`$_GET`, `$_POST`, `$cmd = ...`), menghilangkan false positive pada foto pengguna tanpa mengorbankan proteksi terhadap webshell nyata.
