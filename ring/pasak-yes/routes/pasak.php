@@ -49,6 +49,8 @@ $registerPasakDashboard = function () {
     Route::post('server/baseline', [\Internal\Pasak\Http\Controllers\Dashboard\PasakServerController::class, 'createBaseline'])->name('server.baseline');
     Route::delete('server/baseline', [\Internal\Pasak\Http\Controllers\Dashboard\PasakServerController::class, 'deleteBaseline'])->name('server.baseline.destroy');
     Route::delete('server/suspicious-files', [\Internal\Pasak\Http\Controllers\Dashboard\PasakServerController::class, 'deleteSuspiciousFile'])->name('server.suspicious-files.destroy');
+    Route::get('server/suspicious-files/download', [\Internal\Pasak\Http\Controllers\Dashboard\PasakServerController::class, 'downloadSuspiciousFile'])->name('server.suspicious-files.download');
+    Route::post('server/suspicious-files/verify', [\Internal\Pasak\Http\Controllers\Dashboard\PasakServerController::class, 'verifySuspiciousFile'])->name('server.suspicious-files.verify');
     Route::delete('lockouts/{id}', [\Internal\Pasak\Http\Controllers\Dashboard\PasakServerController::class, 'releaseLockout'])->whereNumber('id')->name('lockouts.destroy');
     Route::get('sessions', [\Internal\Pasak\Http\Controllers\Dashboard\PasakSessionController::class, 'index'])->name('sessions');
     Route::delete('user-sessions/{id}', [\Internal\Pasak\Http\Controllers\Dashboard\PasakSessionController::class, 'destroyLogin'])->whereNumber('id')->name('user-sessions.destroy');

@@ -8,6 +8,7 @@ use Illuminate\Routing\Controller;
 use Internal\Pasak\Models\PasakLoginAttempt;
 use Internal\Pasak\Services\PasakLoginThrottleService;
 use Internal\Pasak\Services\PasakServerSecurityService;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PasakServerSecurityApiController extends Controller
 {
@@ -18,12 +19,15 @@ class PasakServerSecurityApiController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $force = filter_var($request->input('refresh', false), FILTER_VALIDATE_BOOLEAN);
+        $force = filter_var(
+            $request->input("refresh", false),
+            FILTER_VALIDATE_BOOLEAN,
+        );
         $report = $this->serverService->scan($force);
 
         return response()->json([
-            'success' => true,
-            'data' => $report,
+            "success" => true,
+            "data" => $report,
         ]);
     }
 
@@ -32,9 +36,9 @@ class PasakServerSecurityApiController extends Controller
         $baseline = $this->serverService->createBaseline();
 
         return response()->json([
-            'success' => true,
-            'message' => 'Baseline integritas berkas berhasil dibuat.',
-            'data' => $baseline,
+            "success" => true,
+            "message" => "Baseline integritas berkas berhasil dibuat.",
+            "data" => $baseline,
         ]);
     }
 
@@ -43,31 +47,86 @@ class PasakServerSecurityApiController extends Controller
         $deleted = $this->serverService->deleteBaseline();
 
         return response()->json([
-            'success' => $deleted,
-            'message' => $deleted ? 'Baseline integritas berkas berhasil dihapus.' : 'Gagal menghapus baseline.',
+            "success" => $deleted,
+            "message" => $deleted
+                ? "Baseline integritas berkas berhasil dihapus."
+                : "Gagal menghapus baseline.",
         ]);
     }
 
     public function destroySuspiciousFile(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'file_path' => ['required', 'string'],
+            "file_path" => ["required", "string"],
         ]);
 
-        $result = $this->serverService->deleteSuspiciousFile($validated['file_path']);
+        $result = $this->serverService->deleteSuspiciousFile(
+            $validated["file_path"],
+        );
 
-        return response()->json($result, $result['success'] ? 200 : 422);
+        return response()->json($result, $result["success"] ? 200 : 422);
     }
 
-    public function releaseLockout(Request $request, int|string $id): JsonResponse
+    public function downloadSuspiciousFile(
+        Request $request,
+    ): BinaryFileResponse|JsonResponse {
+        $filePath = (string) $request->input("file_path", "");
+        $fileInfo = $this->serverService->getSuspiciousFileForDownload(
+            $filePath,
+        );
+
+        if (!$fileInfo) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" =>
+                        "Berkas tidak ditemukan atau jalur tidak valid.",
+                ],
+                404,
+            );
+        }
+
+        return response()->download(
+            $fileInfo["absolute_path"],
+            $fileInfo["filename"],
+            [
+                "Content-Type" => "application/octet-stream",
+                "X-Content-Type-Options" => "nosniff",
+            ],
+        );
+    }
+
+    public function verifySuspiciousFile(Request $request): JsonResponse
     {
+        $validated = $request->validate([
+            "file_path" => ["required", "string"],
+            "notes" => ["nullable", "string", "max:500"],
+        ]);
+
+        $result = $this->serverService->verifySuspiciousFile(
+            $validated["file_path"],
+            auth()->id(),
+            $validated["notes"] ?? null,
+            $request->ip(),
+        );
+
+        return response()->json($result, $result["success"] ? 200 : 422);
+    }
+
+    public function releaseLockout(
+        Request $request,
+        int|string $id,
+    ): JsonResponse {
         $attempt = PasakLoginAttempt::query()->find($id);
 
-        if (! $attempt) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Data lockout tidak ditemukan.',
-            ], 404);
+        if (!$attempt) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "Data lockout tidak ditemukan.",
+                ],
+                404,
+            );
         }
 
         $email = $attempt->email;
@@ -75,8 +134,8 @@ class PasakServerSecurityApiController extends Controller
         $attempt->delete();
 
         return response()->json([
-            'success' => true,
-            'message' => "Lockout untuk {$email} ({$ip}) berhasil dibuka.",
+            "success" => true,
+            "message" => "Lockout untuk {$email} ({$ip}) berhasil dibuka.",
         ]);
     }
 }

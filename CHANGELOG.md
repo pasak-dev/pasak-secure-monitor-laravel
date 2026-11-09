@@ -6,6 +6,10 @@ All notable changes to `robyajo/pasak` will be documented in this file.
 
 ### Added
 
+- **Aksi Unduh Berkas & Modal Konfirmasi Verifikasi Berkas Aman pada Server Audit** (`stubs/blade/pages/pasak/server.blade.php`, `PasakServerSecurityService.php`, `PasakServerController.php`):
+  - Menambahkan tombol unduh aman (`⬇️ Unduh`) pada tabel berkas mencurigakan & modal detail inspeksi yang memungkinkan admin mengunduh berkas berbahaya/mencurigakan secara aman dengan header `application/octet-stream` dan `X-Content-Type-Options: nosniff` untuk analisis offline.
+  - Menambahkan aksi `🛡️ Verifikasi` dan modal konfirmasi `🛡️ Verifikasi Berkas Aman` yang memungkinkan admin menandai false positive sebagai berkas aman/terverifikasi disertai catatan investigasi opsional.
+  - Berkas terverifikasi dicatat secara permanen di storage (`app/security/verified_files.json`) lengkap dengan hash SHA-256, ukuran, identitas verifikator, dan waktu verifikasi, serta otomatis dikecualikan dari pemindaian mencurigakan masa depan selama hash berkas tidak dimanipulasi.
 - **Tombol Aksi Cepat & Modal Dialog Karantina IP Interaktif pada Log Keamanan** (`stubs/blade/pages/pasak/logs.blade.php`, `PasakBlockedIpController.php`):
   - Menambahkan tombol aksi cepat `🚫` di sebelah alamat IP dan tombol `🚫 Blokir` pada setiap baris riwayat log keamanan.
   - Menghadirkan modal dialog karantina terpadu `🚫 Blokir Alamat IP` yang memungkinkan admin memblokir penyerang secara instan langsung dari halaman log.

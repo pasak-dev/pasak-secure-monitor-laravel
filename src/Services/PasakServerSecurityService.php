@@ -37,6 +37,9 @@ class PasakServerSecurityService
     /** Lokasi baseline hash (relatif terhadap storage_path()). */
     public const BASELINE_PATH = 'app/security/baseline.json';
 
+    /** Lokasi berkas terverifikasi aman oleh admin (relatif terhadap storage_path()). */
+    public const VERIFIED_FILES_PATH = 'app/security/verified_files.json';
+
     /** Kunci cache heartbeat scheduler (diisi oleh routes/console.php). */
     public const HEARTBEAT_KEY = 'pasak:schedule-heartbeat';
 
@@ -1677,12 +1680,186 @@ class PasakServerSecurityService
     }
 
     /**
+     * Jalur penyimpanan berkas terverifikasi aman.
+     */
+    public function verifiedFilesPath(): string
+    {
+        return storage_path(self::VERIFIED_FILES_PATH);
+    }
+
+    /**
+     * Mengambil daftar berkas yang telah diverifikasi aman oleh admin.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function verifiedFiles(): array
+    {
+        $path = $this->verifiedFilesPath();
+        if (! File::isFile($path)) {
+            return [];
+        }
+
+        try {
+            $data = json_decode((string) File::get($path), true);
+
+            return is_array($data) ? $data : [];
+        } catch (Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * Memverifikasi berkas mencurigakan sebagai berkas aman/sah dan mengecualikannya dari pemindaian masa depan.
+     *
+     * @return array{success: bool, message: string}
+     */
+    public function verifySuspiciousFile(
+        string $relativePath,
+        ?int $userId = null,
+        ?string $notes = null,
+        ?string $ip = null,
+    ): array {
+        $relative = str_replace(['\\', "\0"], ['/', ''], trim($relativePath));
+        $relative = ltrim($relative, '/');
+
+        if (
+            $relative === '' ||
+            str_contains($relative, '..') ||
+            preg_match('/^[a-zA-Z]:/', $relative)
+        ) {
+            return [
+                'success' => false,
+                'message' => 'Jalur berkas tidak valid atau memuat path traversal.',
+            ];
+        }
+
+        $absolute = base_path($relative);
+        $real = realpath($absolute);
+
+        if ($real === false || ! File::isFile($real)) {
+            return [
+                'success' => false,
+                'message' => 'Berkas tidak ditemukan pada server.',
+            ];
+        }
+
+        $normalizedReal = str_replace('\\', '/', $real);
+        $normalizedBase = str_replace('\\', '/', base_path());
+
+        if (! str_starts_with($normalizedReal, $normalizedBase)) {
+            return [
+                'success' => false,
+                'message' => 'Jalur berkas berada di luar direktori aplikasi.',
+            ];
+        }
+
+        $relativeToApp = ltrim(
+            substr($normalizedReal, strlen($normalizedBase)),
+            '/',
+        );
+
+        $size = (int) File::size($real);
+        $hash = hash_file('sha256', $real) ?: 'unknown';
+        $filename = basename($real);
+
+        $path = $this->verifiedFilesPath();
+        $dir = dirname($path);
+        if (! File::isDirectory($dir)) {
+            File::makeDirectory($dir, 0755, true);
+        }
+
+        $verified = $this->verifiedFiles();
+        $verified[$relativeToApp] = [
+            'file' => $relativeToApp,
+            'filename' => $filename,
+            'hash' => $hash,
+            'size' => $size,
+            'verified_at' => now()->toIso8601String(),
+            'verified_by' => $userId,
+            'notes' => $notes ?: 'Diverifikasi aman oleh admin',
+        ];
+
+        File::put($path, json_encode($verified, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+        $this->security->log([
+            'ip_address' => $ip ?? '127.0.0.1',
+            'user_id' => $userId,
+            'event_type' => 'suspicious_file_verified_safe',
+            'threat_level' => 'low',
+            'method' => 'POST',
+            'path' => '/security/server/suspicious-files/verify',
+            'rule_label' => 'Berkas mencurigakan diverifikasi aman oleh admin',
+            'evidence' => "Admin memverifikasi berkas '{$relativeToApp}' (SHA-256: {$hash}, Ukuran: {$this->humanBytes((float) $size)}) sebagai aman. Catatan: ".($notes ?: 'Tanpa catatan'),
+            'action_taken' => 'file_verified_safe',
+        ]);
+
+        $this->forget();
+
+        return [
+            'success' => true,
+            'message' => "Berkas '{$filename}' berhasil diverifikasi aman dan dikecualikan dari pemindaian.",
+        ];
+    }
+
+    /**
+     * Mempersiapkan berkas mencurigakan untuk diunduh secara aman oleh admin.
+     *
+     * @return array{absolute_path: string, filename: string, size: int}|null
+     */
+    public function getSuspiciousFileForDownload(string $relativePath): ?array
+    {
+        $relative = str_replace(['\\', "\0"], ['/', ''], trim($relativePath));
+        $relative = ltrim($relative, '/');
+
+        if (
+            $relative === '' ||
+            str_contains($relative, '..') ||
+            preg_match('/^[a-zA-Z]:/', $relative)
+        ) {
+            return null;
+        }
+
+        $absolute = base_path($relative);
+        $real = realpath($absolute);
+
+        if ($real === false || ! File::isFile($real)) {
+            return null;
+        }
+
+        $normalizedReal = str_replace('\\', '/', $real);
+        $normalizedBase = str_replace('\\', '/', base_path());
+
+        if (! str_starts_with($normalizedReal, $normalizedBase)) {
+            return null;
+        }
+
+        return [
+            'absolute_path' => $real,
+            'filename' => basename($real),
+            'size' => (int) File::size($real),
+        ];
+    }
+
+    /**
      * Memeriksa apakah suatu berkas dikecualikan dari pemindaian berkas mencurigakan / webshell.
      */
     public function isExcludedFromSuspiciousScan(string $relative): bool
     {
         $normalized = str_replace('\\', '/', trim($relative));
         $normalized = ltrim($normalized, '/');
+
+        // Periksa apakah berkas telah diverifikasi aman oleh admin dan hash belum berubah
+        $verified = $this->verifiedFiles();
+        if (isset($verified[$normalized])) {
+            $entry = $verified[$normalized];
+            $absolute = base_path($normalized);
+            if (File::isFile($absolute)) {
+                $currentHash = hash_file('sha256', $absolute);
+                if ($currentHash !== false && $currentHash === ($entry['hash'] ?? '')) {
+                    return true;
+                }
+            }
+        }
 
         $configured = (array) config(
             'security.server_scan.suspicious_files_exclude',

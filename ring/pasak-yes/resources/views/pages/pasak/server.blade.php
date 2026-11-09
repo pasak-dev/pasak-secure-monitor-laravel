@@ -131,6 +131,7 @@
                                 data-reason="{{ $file['reason'] ?? '' }}"
                                 data-snippet="{{ $file['snippet'] ?? '' }}"
                                 data-size="{{ $file['size'] ?? '' }}"
+                                data-download-url="{{ route('pasak.dashboard.server.suspicious-files.download', ['file_path' => $file['path'] ?? '']) }}"
                                 data-modified="{{ !empty($file['modified_at']) ? \Carbon\Carbon::parse($file['modified_at'])->translatedFormat('d M Y, H:i:s') : '-' }}"
                                 data-modified-human="{{ $file['modified_at_human'] ?? '' }}">
                                 {{ $file['path'] ?? '-' }}
@@ -158,10 +159,26 @@
                                     data-reason="{{ $file['reason'] ?? '' }}"
                                     data-snippet="{{ $file['snippet'] ?? '' }}"
                                     data-size="{{ $file['size'] ?? '' }}"
+                                    data-download-url="{{ route('pasak.dashboard.server.suspicious-files.download', ['file_path' => $file['path'] ?? '']) }}"
                                     data-modified="{{ !empty($file['modified_at']) ? \Carbon\Carbon::parse($file['modified_at'])->translatedFormat('d M Y, H:i:s') : '-' }}"
                                     data-modified-human="{{ $file['modified_at_human'] ?? '' }}"
                                     title="{{ __('Lihat Bukti & Detail') }}">
                                     🔍 {{ __('Detail') }}
+                                </button>
+                                <a href="{{ route('pasak.dashboard.server.suspicious-files.download', ['file_path' => $file['path'] ?? '']) }}"
+                                    class="sec-btn sec-btn-secondary sec-btn-sm"
+                                    title="{{ __('Unduh berkas untuk analisis offline') }}"
+                                    style="display: inline-flex; align-items: center; gap: 4px; text-decoration: none;">
+                                    <span>⬇️</span>
+                                    <span>{{ __('Unduh') }}</span>
+                                </a>
+                                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-verify-file"
+                                    data-path="{{ $file['path'] ?? '' }}"
+                                    data-filename="{{ $file['filename'] ?? '' }}"
+                                    title="{{ __('Tandai Aman & Verifikasi') }}"
+                                    style="display: inline-flex; align-items: center; gap: 4px; color: #16a34a; border-color: rgba(34, 197, 94, 0.4); background: rgba(34, 197, 94, 0.05);">
+                                    <span>🛡️</span>
+                                    <span>{{ __('Verifikasi') }}</span>
                                 </button>
                                 <form method="POST" action="{{ route('pasak.dashboard.server.suspicious-files.destroy') }}" style="display: inline;" onsubmit="return confirm('{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}');" data-sec-confirm="{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}" data-confirm-title="{{ __('Konfirmasi Hapus Berkas') }}" data-confirm-type="danger" data-confirm-btn="{{ __('Ya, Hapus Berkas') }}">
                                     @csrf
@@ -253,8 +270,8 @@
 </div>
 
 <!-- Modal Detail & Bukti Berkas Mencurigakan -->
-<div class="sec-modal-backdrop" id="suspiciousDetailModal" hidden style="display: none; align-items: center; justify-content: center;">
-    <div class="sec-modal-box" role="dialog" aria-modal="true" style="max-width: 680px; width: 100%; border-radius: var(--sec-radius); background: var(--sec-card); border: 1px solid var(--sec-border); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);">
+<div class="sec-modal-backdrop" id="suspiciousDetailModal" hidden style="display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 99999; padding: 16px;">
+    <div class="sec-modal-box" role="dialog" aria-modal="true" style="max-width: 680px; width: 100%; border-radius: 12px; background: var(--sec-card); border: 1px solid var(--sec-border); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); overflow: hidden;">
         <div class="sec-modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--sec-border-light);">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span id="modalThreatBadge" class="sec-badge sec-badge-critical">critical</span>
@@ -299,23 +316,108 @@
                 <pre class="sec-code-block sec-font-mono" id="modalSnippet" style="margin-top: 6px; padding: 12px; font-size: 12.5px; background: #0f172a; color: #f87171; border-radius: var(--sec-radius-sm); border: 1px solid rgba(239, 68, 68, 0.3); overflow-x: auto; white-space: pre-wrap; word-break: break-all;"></pre>
             </div>
         </div>
-        <div class="sec-modal-footer" style="padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--sec-border-light); background: var(--sec-card-hover);">
+        <div class="sec-modal-footer" style="padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--sec-border-light); background: var(--sec-card-hover); gap: 10px; flex-wrap: wrap;">
             <form id="modalDeleteForm" method="POST" action="{{ route('pasak.dashboard.server.suspicious-files.destroy') }}" onsubmit="return confirm('{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}');" data-sec-confirm="{{ __('PERINGATAN: Berkas mencurigakan ini akan dihapus secara permanen dari server. Lanjutkan?') }}" data-confirm-title="{{ __('Konfirmasi Hapus Berkas') }}" data-confirm-type="danger" data-confirm-btn="{{ __('Ya, Hapus Berkas') }}">
                 @csrf
                 @method('DELETE')
                 <input type="hidden" name="file_path" id="modalDeleteInput" value="">
                 <button type="submit" class="sec-btn sec-btn-danger sec-btn-sm">🗑️ {{ __('Hapus Berkas Ini') }}</button>
             </form>
-            <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm" id="closeSuspiciousModalBtn">{{ __('Tutup') }}</button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <a id="modalDownloadBtn" href="#" class="sec-btn sec-btn-secondary sec-btn-sm" style="display: inline-flex; align-items: center; gap: 4px; text-decoration: none;">
+                    <span>⬇️</span>
+                    <span>{{ __('Unduh Berkas') }}</span>
+                </a>
+                <button type="button" id="modalVerifyBtn" class="sec-btn sec-btn-sm" style="background: rgba(34, 197, 94, 0.12); color: #16a34a; border: 1px solid #86efac; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; cursor: pointer;">
+                    <span>🛡️</span>
+                    <span>{{ __('Tandai Aman & Verifikasi') }}</span>
+                </button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm" id="closeSuspiciousModalBtn">{{ __('Tutup') }}</button>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Modal Alert: Konfirmasi Verifikasi Berkas Aman -->
+<div class="sec-modal-backdrop" id="verifySafeModal" hidden style="display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 99999; padding: 16px;">
+    <div class="sec-modal-box" role="dialog" aria-modal="true" aria-labelledby="verifyModalTitle" style="max-width: 520px; width: 100%; border-radius: 12px; background: var(--sec-card); border: 1px solid var(--sec-border); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2); overflow: hidden;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px 0 24px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px; line-height: 1;">🛡️</span>
+                <h3 id="verifyModalTitle" style="font-size: 18px; font-weight: 700; color: var(--sec-text); margin: 0;">
+                    {{ __('Verifikasi Berkas Aman') }}
+                </h3>
+            </div>
+            <button type="button" onclick="closeVerifyModal()" aria-label="Close" style="border: none; background: transparent; font-size: 18px; color: var(--sec-text-muted); cursor: pointer; padding: 4px; line-height: 1; border-radius: 6px;">
+                ✕
+            </button>
+        </div>
+
+        <p style="padding: 6px 24px 0 24px; margin: 0 0 16px 0; font-size: 13px; color: var(--sec-text-muted); line-height: 1.5;">
+            {{ __('Apakah Anda yakin berkas ini aman dan bebas dari webshell/ancaman? Berkas akan dicatat dalam daftar integritas terverifikasi oleh admin dan dikecualikan dari pemindaian mencurigakan berikutnya.') }}
+        </p>
+
+        <form method="POST" action="{{ route('pasak.dashboard.server.suspicious-files.verify') }}" style="padding: 0 24px 20px 24px;">
+            @csrf
+            <input type="hidden" id="verifyModalFilePath" name="file_path" value="">
+
+            <div style="margin-bottom: 14px;">
+                <label class="sec-label" style="font-weight: 600; font-size: 13px; color: var(--sec-text); margin-bottom: 6px; display: block;">
+                    {{ __('Jalur Berkas') }}
+                </label>
+                <div id="verifyModalDisplayPath" class="sec-font-mono" style="padding: 9px 12px; background: var(--sec-card-hover); border: 1px solid var(--sec-border); border-radius: 8px; font-size: 12.5px; word-break: break-all; color: var(--sec-text);">—</div>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <label class="sec-label" for="verifyModalNotes" style="font-weight: 600; font-size: 13px; color: var(--sec-text); margin-bottom: 6px; display: block;">
+                    {{ __('Catatan Verifikasi (Opsional)') }}
+                </label>
+                <textarea id="verifyModalNotes" name="notes" rows="2" class="sec-input" style="width: 100%; padding: 9px 12px; font-size: 13px; border-radius: 8px; resize: vertical;" placeholder="{{ __('Contoh: Terverifikasi false positive, modul resmi tim developer, dll.') }}"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid var(--sec-border-light);">
+                <button type="button" class="sec-btn sec-btn-secondary" onclick="closeVerifyModal()" style="border-radius: 8px; padding: 8px 18px; font-size: 13.5px;">
+                    {{ __('Batal') }}
+                </button>
+                <button type="submit" style="border: 1px solid #86efac; background: #dcfce7; color: #15803d; border-radius: 8px; font-size: 13.5px; font-weight: 600; padding: 8px 18px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                    <span>🛡️</span>
+                    <span>{{ __('Ya, Tandai Aman & Terverifikasi') }}</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+    function openVerifyModal(path) {
+        var modal = document.getElementById('verifySafeModal');
+        if (!modal) return;
+
+        var inputPath = document.getElementById('verifyModalFilePath');
+        var displayPath = document.getElementById('verifyModalDisplayPath');
+        var inputNotes = document.getElementById('verifyModalNotes');
+
+        if (inputPath) inputPath.value = path || '';
+        if (displayPath) displayPath.textContent = path || '—';
+        if (inputNotes) inputNotes.value = '';
+
+        modal.hidden = false;
+        modal.style.display = 'flex';
+    }
+
+    function closeVerifyModal() {
+        var modal = document.getElementById('verifySafeModal');
+        if (modal) {
+            modal.hidden = true;
+            modal.style.display = 'none';
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         var modal = document.getElementById('suspiciousDetailModal');
         var closeX = document.getElementById('closeSuspiciousModalX');
         var closeBtn = document.getElementById('closeSuspiciousModalBtn');
+        var currentInspectedPath = '';
 
         function closeModal() {
             if (modal) {
@@ -331,14 +433,45 @@
                 if (e.target === modal) closeModal();
             });
         }
+
+        var verifyModalBackdrop = document.getElementById('verifySafeModal');
+        if (verifyModalBackdrop) {
+            verifyModalBackdrop.addEventListener('click', function(e) {
+                if (e.target === verifyModalBackdrop) closeVerifyModal();
+            });
+        }
+
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeModal();
+            if (e.key === 'Escape') {
+                closeModal();
+                closeVerifyModal();
+            }
         });
+
+        // Trigger buka modal verifikasi dari tombol baris tabel
+        document.querySelectorAll('.btn-verify-file').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                var path = this.dataset.path || '';
+                openVerifyModal(path);
+            });
+        });
+
+        // Trigger buka modal verifikasi dari dalam modal detail temuan
+        var modalVerifyBtn = document.getElementById('modalVerifyBtn');
+        if (modalVerifyBtn) {
+            modalVerifyBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                closeModal();
+                openVerifyModal(currentInspectedPath);
+            });
+        }
 
         document.querySelectorAll('.btn-inspect-file').forEach(function(el) {
             el.addEventListener('click', function(e) {
                 e.preventDefault();
                 var d = this.dataset;
+                currentInspectedPath = d.path || '';
 
                 document.getElementById('modalFileName').textContent = d.filename || d.path || '—';
                 document.getElementById('modalCategory').textContent = d.category || 'Berkas Mencurigakan';
@@ -347,6 +480,11 @@
                 document.getElementById('modalFilePath').textContent = d.path || '—';
                 document.getElementById('modalReason').textContent = d.reason || '—';
                 document.getElementById('modalDeleteInput').value = d.path || '';
+
+                var downloadBtn = document.getElementById('modalDownloadBtn');
+                if (downloadBtn) {
+                    downloadBtn.href = d.downloadUrl || '#';
+                }
 
                 var badge = document.getElementById('modalThreatBadge');
                 badge.textContent = d.threat || 'info';
