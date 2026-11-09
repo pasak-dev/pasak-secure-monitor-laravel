@@ -2,14 +2,21 @@
 
 All notable changes to `robyajo/pasak` will be documented in this file.
 
+## [1.7.2] - 2026-11-09
+
+### Added
+
+- **Chart Visual Tren Serangan (Line Chart) pada Halaman Security Logs** (`stubs/blade/pages/pasak/logs.blade.php`, `PasakLogController.php`):
+  - Menambahkan kartu visualisasi grafik garis (_line chart_) interaktif berbasis vektor SVG murni (zero-dependency) pada halaman audit log keamanan.
+  - Mendukung pergantian rentang waktu dinamis dengan tombol filter **Minggu** (7 hari), **Bulan** (30 hari), dan **Tahun** (12 bulan) dengan tetap mempertahankan filter pencarian, event, level keparahan, rentang tanggal, dan jumlah paginasi tabel.
+  - Dilengkapi ringkasan telemetri eksekutif (total ancaman pada periode, tanggal & volume serangan puncak, rata-rata harian/bulanan), titik data interaktif (_nodes_) dengan tooltip rincian keparahan (Critical, High, Medium, Low), garis grid horizontal berlabel sumbu Y, serta gradien area visual (_smooth area fill_).
+
 ## [1.7.1] - 2026-11-09
 
 ### Removed
 
 - **Pembersihan Direktori Dokumentasi Standalone Lama (`web-docs/` & `finis.sh`)**:
-  - Menghapus folder `web-docs/` (Astro Starlight) seutuhnya (~462 MB) dan berkas pembungkus `finis.sh`.
-  - Seluruh 29 modul dokumentasi teknis `pasak-security-monitor` telah dialihkan permanen ke **Pasak Cloud SOC** (`https://pasak.is-a.dev/docs`) bertenaga **Neon Serverless PostgreSQL Database**.
-  - Membersihkan referensi `web-docs` dan `finis.sh` dari `composer.json`, `.gitattributes`, `push.sh`, dan `AGENTS.md`.
+  - Menghapus folder `web-docs/` (Astro Starlight) seutuhnya (~462 MB) dan berkas pembungkus `finis.sh`.\n - Seluruh 29 modul dokumentasi teknis `pasak-security-monitor` telah dialihkan permanen ke **Pasak Cloud SOC** (`https://pasak.is-a.dev/docs`) bertenaga **Neon Serverless PostgreSQL Database**.\n - Membersihkan referensi `web-docs` dan `finis.sh` dari `composer.json`, `.gitattributes`, `push.sh`, dan `AGENTS.md`.\n
 
 ## [1.7.0] - 2026-11-09
 
@@ -30,10 +37,10 @@ All notable changes to `robyajo/pasak` will be documented in this file.
 
 ### Fixed
 
-- **Perlindungan Ganda Konfirmasi Penghapusan Berkas (Native Fallback)** — menambahkan `onsubmit="return confirm(...)"` pada form penghapusan berkas mencurigakan untuk menjamin dialog konfirmasi peringatan selalu muncul di peramban pengguna bahkan jika JavaScript kustom terhambat atau file view di VPS belum disinkronkan.
+- **Perlindungan Ganda Konfirmasi Penghapusan Berkas (Native Fallback)** — menambahkan `onsubmit=\"return confirm(...)\"` pada form penghapusan berkas mencurigakan untuk menjamin dialog konfirmasi peringatan selalu muncul di peramban pengguna bahkan jika JavaScript kustom terhambat atau file view di VPS belum disinkronkan.
 
 ## [1.6.8] - 2026-11-07
 
 ### Fixed
 
-- **Eliminasi False Positive Injeksi PHP Polyglot pada Berkas Media Biner (JPEG/PNG/Media)** — memperketat pola regex deteksi short tag `<?` pada `PasakServerSecurityService` dan `PasakSafeImageFile`. Sebelumnya, pola `<\?\s*\$[a-zA-Z_\x7f-\xff]` mengizinkan sembarang byte tinggi (`\x7f-\xff`) sehingga tabrakan byte biner terkompresi acak seperti `3C 3F 24 56` (`<?$V`) dan `3C 3F 24` diikuti _high-byte_ (`<?$?`) pada foto profil pengguna asli keliru dideteksi sebagai injeksi PHP polyglot kritis. Pola kini secara ketat mewajibkan token PHP valid, fungsi eksekusi berbahaya (`eval`, `system`, `passthru`, `exec`, `shell_exec`, `assert`, `popen`, `proc_open`), atau assignment variabel PHP nyata (`$_GET`, `$_POST`, `$cmd = ...`), menghilangkan false positive pada foto pengguna tanpa mengorbankan proteksi terhadap webshell nyata.
+- **Eliminasi False Positive Injeksi PHP Polyglot pada Berkas Media Biner (JPEG/PNG/Media)** — memperketat pola regex deteksi short tag `<?` pada `PasakServerSecurityService` dan `PasakSafeImageFile`. Sebelumnya, pola `<\\?\\s*\\$[a-zA-Z_\\x7f-\\xff]` mengizinkan sembarang byte tinggi (`\\x7f-\\xff`) sehingga tabrakan byte biner terkompresi acak seperti `3C 3F 24 56` (`<?$V`) dan `3C 3F 24` diikuti _high-byte_ (`<?$?`) pada foto profil pengguna asli keliru dideteksi sebagai injeksi PHP polyglot kritis. Pola kini secara ketat mewajibkan token PHP valid, fungsi eksekusi berbahaya (`eval`, `system`, `passthru`, `exec`, `shell_exec`, `assert`, `popen`, `proc_open`), atau assignment variabel PHP nyata (`$_GET`, `$_POST`, `$cmd = ...`), menghilangkan false positive pada foto pengguna tanpa mengorbankan proteksi terhadap webshell nyata.
