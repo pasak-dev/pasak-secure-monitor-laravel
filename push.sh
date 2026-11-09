@@ -98,44 +98,39 @@ bump_version() {
 # BREAKING CHANGE / "feat!:" diperlakukan sebagai minor.
 detect_bump_type() {
     local range="$1"
-    local log
+    local log_subjects
+    log_subjects=$(git log --format='%s' "$range" 2>/dev/null || true)
 
-    if [ -n "$range" ] && git rev-parse "$range" >/dev/null 2>&1; then
-        log=$(git log "$range" --pretty=format:'%s%n%b' 2>/dev/null || true)
+    # Cek apakah ada perubahan belum di-commit yang bernilai fitur baru
+    local status_short
+    status_short=$(git status --short 2>/dev/null || true)
+
+    if printf '%s\n' "$log_subjects" | grep -qE '^(feat|feat\(.*\)|BREAKING CHANGE|.*!:)'; then
+        echo "minor"
+    elif printf '%s\n' "$status_short" | grep -qE '^[AM].*(Feature|Capability|Provider)'; then
+        echo "minor"
     else
-        log=$(git log --pretty=format:'%s%n%b' 2>/dev/null || true)
+        echo "patch"
     fi
-
-    if printf '%s' "$log" | grep -qE 'BREAKING[ _-]?CHANGE|[[:alnum:]]+(\([^)]+\))?!:'; then
-        echo "minor"
-        return
-    fi
-
-    if printf '%s' "$log" | grep -qE '^feat(\([^)]+\))?!?:'; then
-        echo "minor"
-        return
-    fi
-
-    echo "patch"
 }
 
-# Hitung & tampilkan versi sekarang vs versi yang direkomendasikan.
+# Laporkan versi saat ini dan rekomendasi versi baru.
 report_versions() {
     local ahead uncommitted log_range
 
     CURRENT_TAG=$(get_current_tag)
     if [ -n "$CURRENT_TAG" ]; then
         CURRENT_VERSION="${CURRENT_TAG#v}"
+        log_range="${CURRENT_TAG}..HEAD"
     else
         CURRENT_VERSION="0.0.0"
+        log_range="HEAD"
     fi
 
     if [ -n "$CURRENT_TAG" ]; then
-        ahead=$(git rev-list --count "${CURRENT_TAG}..HEAD" 2>/dev/null || echo 0)
-        log_range="${CURRENT_TAG}..HEAD"
+        ahead=$(git rev-list "${CURRENT_TAG}..HEAD" --count 2>/dev/null || echo 0)
     else
-        ahead=$(git rev-list --count HEAD 2>/dev/null || echo 0)
-        log_range=""
+        ahead=$(git rev-list HEAD --count 2>/dev/null || echo 0)
     fi
     uncommitted=$(git status --porcelain | wc -l | tr -d ' ')
 
@@ -182,9 +177,8 @@ show_help() {
     echo -e "                        Tanpa opsi ini, versi rekomendasi dipakai otomatis"
     echo -e "                        sehingga setiap push selalu menaikkan versi"
     echo -e "  --no-tag              Lewatkan pembuatan tag rilis"
-echo -e "  --no-verify           Lewatkan gerbang kualitas pre-push (Pest/PHPStan)"
-echo -e "                        Hanya untuk keadaan darurat; CI tetap berjalan"
-    echo -e "  --no-docs-build       Lewatkan build dokumentasi web (finis.sh)"
+    echo -e "  --no-verify           Lewatkan gerbang kualitas pre-push (Pest/PHPStan)"
+    echo -e "                        Hanya untuk keadaan darurat; CI tetap berjalan"
     echo -e "  -b, --branch <name>   Nama branch target (default: branch aktif)"
     echo -e "  -r, --remote <name>   Nama remote git (default: origin)"
     echo -e "  -h, --help            Tampilkan bantuan ini"
@@ -194,7 +188,7 @@ echo -e "                        Hanya untuk keadaan darurat; CI tetap berjalan"
     echo -e "  ./push.sh -m \"docs: update installation guide\""
     echo -e "  ./push.sh -m \"release: launch v1.0.0\" -t \"v1.0.0\""
     echo -e "  ./push.sh -m \"fix: patch bug\" --no-tag"
-echo -e "  ./push.sh -m \"fix: darurat\" --no-verify --no-tag"
+    echo -e "  ./push.sh -m \"fix: darurat\" --no-verify --no-tag"
     echo ""
     echo -e "${BOLD}CATATAN:${NC}"
     echo -e "  Pengecekan versi (sekarang vs rekomendasi) SELALU dijalankan."
@@ -206,7 +200,6 @@ COMMIT_MSG=""
 TAG_NAME=""
 NO_TAG=0
 NO_VERIFY=0
-NO_DOCS_BUILD=0
 REMOTE_NAME="origin"
 TARGET_BRANCH=""
 
@@ -226,10 +219,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --no-verify)
             NO_VERIFY=1
-            shift
-            ;;
-        --no-docs-build)
-            NO_DOCS_BUILD=1
             shift
             ;;
         -b|--branch)
@@ -254,18 +243,15 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Pastikan berada di dalam repositori git
-if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
-    print_error "Direktori saat ini bukan repositori Git!"
-    exit 1
-fi
-
 print_header
 
-# Deteksi branch saat ini jika tidak dispesifikasikan
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+# Dapatkan nama branch aktif jika tidak diberikan
 if [ -z "$TARGET_BRANCH" ]; then
-    TARGET_BRANCH="$CURRENT_BRANCH"
+    TARGET_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if [ "$TARGET_BRANCH" = "HEAD" ]; then
+        print_error "Detached HEAD state. Tentukan branch dengan -b <branch>."
+        exit 1
+    fi
 fi
 
 print_info "Remote target : ${BOLD}${REMOTE_NAME}${NC}"
@@ -286,17 +272,6 @@ if command -v php >/dev/null 2>&1 && [ -f "documents/generate.php" ]; then
         || print_warning "Gagal regenerasi documents/index.html; dilanjutkan tanpa itu."
 else
     print_warning "PHP / documents/generate.php tidak tersedia; portal docs dilewati."
-fi
-if [ "$NO_DOCS_BUILD" -eq 1 ]; then
-    print_info "Melewatkan build dokumentasi web (--no-docs-build)."
-elif [ -f "web-docs/finis.sh" ]; then
-    # --no-pull: hindari git pull (baru saja akan push); --no-deploy: hanya build dist/.
-    print_info "Menjalankan build dokumentasi web (web-docs/finis.sh --no-pull --no-deploy)..."
-    bash web-docs/finis.sh --no-pull --no-deploy > /dev/null 2>&1 \
-        && print_success "Build dokumentasi web selesai." \
-        || print_warning "Build dokumentasi web gagal; push tetap dilanjutkan."
-else
-    print_warning "web-docs/finis.sh tidak ditemukan; build docs web dilewati."
 fi
 echo ""
 

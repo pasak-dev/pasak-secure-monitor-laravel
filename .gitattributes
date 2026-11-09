@@ -8,9 +8,7 @@ DOCS/           export-ignore
 documents/      export-ignore
 .github/        export-ignore
 push.sh        export-ignore
-finis.sh       export-ignore
 paparan/        export-ignore
-web-docs/       export-ignore
 ring/           export-ignore
 laravel-test/   export-ignore
 app-waf/        export-ignore

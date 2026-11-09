@@ -1,9 +1,0 @@
-# =====================================================================
-# Robots.txt — Pasak Official Documentation
-# =====================================================================
-
-User-agent: *
-Allow: /
-
-# Directives for search engine optimization
-Sitemap: https://pasak.is-a.dev/sitemap-index.xml
