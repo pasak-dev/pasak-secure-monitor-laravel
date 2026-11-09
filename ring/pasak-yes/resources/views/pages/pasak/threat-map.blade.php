@@ -882,29 +882,9 @@
     }
 </style>
 
-{{-- D3.js and TopoJSON CDNs with multi-CDN fallbacks --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-<script>
-    if (typeof d3 === 'undefined') {
-        document.write('<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"><\/script>');
-    }
-</script>
-<script>
-    if (typeof d3 === 'undefined') {
-        document.write('<script src="https://d3js.org/d3.v7.min.js"><\/script>');
-    }
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
-<script>
-    if (typeof topojson === 'undefined') {
-        document.write('<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"><\/script>');
-    }
-</script>
-<script>
-    if (typeof topojson === 'undefined') {
-        document.write('<script src="https://unpkg.com/topojson-client@3"><\/script>');
-    }
-</script>
+{{-- D3.js and TopoJSON CDNs with resilient failover --}}
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js';"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js';"></script>
 
 {{-- ThreatsEye Tactical Radar Engine Script --}}
 <script>
@@ -1117,7 +1097,7 @@
     }
 
     // Seed data dari payload awal
-    MAP.origins.forEach(function (origin) {
+    (MAP.origins || []).forEach(function (origin) {
         originsIndex[origin.ip] = origin;
         if (origin.country) {
             countryStats[origin.country] = (countryStats[origin.country] || 0) + (origin.hits || 1);
@@ -1332,6 +1312,8 @@
             }
         ]
     };
+
+    var worldData = FALLBACK_WORLD_GEOJSON;
 
     function loadWorldAtlas(onReady) {
         var jsdelivrUrl = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
@@ -1729,13 +1711,13 @@
         }
 
         resize();
+        isGlobeReady = true;
         animate();
+        scheduleInitialArcs();
 
-        // Load Atlas (jsdelivr -> unpkg -> embedded continents)
+        // Asynchronously load high-detail 110m world atlas
         loadWorldAtlas(function (isFallback) {
             drawBaseMap();
-            isGlobeReady = true;
-            scheduleInitialArcs();
             if (isFallback && offlineNotice) {
                 offlineNotice.hidden = false;
             }
@@ -1971,12 +1953,25 @@
         scheduleInitialArcs();
     }
 
-    // Initialize Active Engine
-    if (typeof d3 !== 'undefined') {
-        initD3GlobeEngine();
-    } else {
-        initFallbackRadarEngine();
+    // Initialize Active Engine with retry timer for D3 loading
+    function bootEngine() {
+        if (typeof d3 !== 'undefined' && typeof d3.geoOrthographic === 'function') {
+            initD3GlobeEngine();
+        } else {
+            var retries = 0;
+            var timer = setInterval(function () {
+                retries++;
+                if (typeof d3 !== 'undefined' && typeof d3.geoOrthographic === 'function') {
+                    clearInterval(timer);
+                    initD3GlobeEngine();
+                } else if (retries >= 25) { // 2.5s fallback
+                    clearInterval(timer);
+                    initFallbackRadarEngine();
+                }
+            }, 100);
+        }
     }
+    bootEngine();
 
     // ==================== Fullscreen Wallboard Mode ====================
     var fullButton = card.querySelector('[data-map-fullscreen]');
@@ -1991,7 +1986,7 @@
             if (textEl) textEl.textContent = text;
             fullButton.blur();
         }
-        resize();
+        if (typeof onEngineResize === 'function') onEngineResize();
     }
 
     if (fullButton) {
