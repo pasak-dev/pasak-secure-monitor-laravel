@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Internal\Pasak\Console\Commands\PasakBaselineCommand;
 use Internal\Pasak\Console\Commands\PasakDeployCommand;
+use Internal\Pasak\Console\Commands\PasakSentinelCommand;
+use Internal\Pasak\Services\PasakSentinelBridge;
 use Internal\Pasak\Console\Commands\PasakInstallCommand;
 use Internal\Pasak\Console\Commands\PasakPruneSecurityLogsCommand;
 use Internal\Pasak\Console\Commands\PasakPurgeInjectedDataCommand;
@@ -76,6 +78,10 @@ class PasakServiceProvider extends ServiceProvider
 
         $this->app->singleton(PasakService::class, function ($app) {
             return new PasakService;
+        });
+
+        $this->app->singleton(PasakSentinelBridge::class, function ($app) {
+            return new PasakSentinelBridge();
         });
 
         $this->app->singleton(PasakLoginThrottleService::class, function (
@@ -310,6 +316,7 @@ class PasakServiceProvider extends ServiceProvider
             PasakPurgeInjectedDataCommand::class,
             PasakSecretCommand::class,
             PasakDeployCommand::class,
+            PasakSentinelCommand::class,
         ]);
     }
 

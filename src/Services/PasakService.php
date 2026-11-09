@@ -832,6 +832,17 @@ class PasakService
             'block_scope' => $scope,
         ]);
 
+        if ($block->is_active) {
+            try {
+                app(PasakSentinelBridge::class)->blockIp(
+                    $ip,
+                    $reason,
+                    $durationHours ? $durationHours * 60 : 1440
+                );
+            } catch (Throwable) {
+            }
+        }
+
         return (bool) $block->is_active;
     }
 
@@ -843,6 +854,13 @@ class PasakService
         $block->forceFill([
             'is_active' => false,
         ])->save();
+
+        if ($block->ip_address) {
+            try {
+                app(PasakSentinelBridge::class)->unblockIp($block->ip_address);
+            } catch (Throwable) {
+            }
+        }
 
         $this->blockCache = [];
     }
@@ -880,6 +898,13 @@ class PasakService
 
             foreach ($blocks as $block) {
                 $block->forceFill(['is_active' => false])->save();
+            }
+
+            if ($ip) {
+                try {
+                    app(PasakSentinelBridge::class)->unblockIp($ip);
+                } catch (Throwable) {
+                }
             }
 
             return true;

@@ -1042,4 +1042,20 @@ return [
             env('SECURITY_VERSION_CHECK_CACHE_TTL', 3600),
         ),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pasak Sentinel Host Daemon IPC Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Konfigurasi komunikasi Unix Domain Socket antara aplikasi Laravel dan
+    | daemon Pasak Sentinel (Go host daemon). Memungkinkan delegasi pemblokiran
+    | IP ke kernel firewall Linux (nftables/iptables) secara instan (< 0.2ms).
+    |
+    */
+    'sentinel' => [
+        'enabled' => (bool) env('PASAK_SENTINEL_ENABLED', true),
+        'socket' => env('PASAK_SENTINEL_SOCKET', '/run/pasak/agent.sock'),
+        'timeout' => (float) env('PASAK_SENTINEL_TIMEOUT', 0.5),
+    ],
 ];
