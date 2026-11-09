@@ -284,17 +284,36 @@
                 @forelse ($logs as $log)
                     <tr>
                         <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;">{{ $log->created_at }}</td>
-                        <td class="sec-font-mono" style="font-weight: 600;">{{ $log->ip_address }}</td>
+                        <td class="sec-font-mono" style="font-weight: 600;">
+                            <div style="display: inline-flex; align-items: center; gap: 6px;">
+                                <span>{{ $log->ip_address }}</span>
+                                <button type="button" class="sec-btn sec-btn-ghost sec-btn-sm" style="padding: 2px 4px; font-size: 11px; line-height: 1;" title="{{ __('Blokir IP ini') }}" onclick="openBlockModal({
+                                    ip: '{{ $log->ip_address }}',
+                                    device_id: '{{ $log->device_id ?? '' }}',
+                                    local_ip: '{{ $log->local_ip ?? '' }}',
+                                    reason: '{{ addslashes($log->event_type . ($log->path ? ' pada ' . $log->path : '')) }}'
+                                })">🚫</button>
+                            </div>
+                        </td>
                         <td>{{ $log->event_type }}</td>
                         <td><span class="sec-badge {{ $DV::levelClass($log->threat_level) }}">{{ $DV::levelLabel($log->threat_level) }}</span></td>
                         <td class="sec-font-mono" style="font-size: 12px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $log->path }}">{{ $log->path }}</td>
                         <td>{{ $log->was_blocked ? __('Yes') : __('No') }}</td>
                         <td style="text-align: right; white-space: nowrap;">
                             <a href="{{ route('pasak.dashboard.logs.show', $log->id) }}" class="sec-btn sec-btn-ghost sec-btn-sm">{{ __('Detail') }}</a>
+                            <button type="button" class="sec-btn sec-btn-danger sec-btn-sm" style="display: inline-flex; align-items: center; gap: 4px;" onclick="openBlockModal({
+                                ip: '{{ $log->ip_address }}',
+                                device_id: '{{ $log->device_id ?? '' }}',
+                                local_ip: '{{ $log->local_ip ?? '' }}',
+                                reason: '{{ addslashes($log->event_type . ($log->path ? ' pada ' . $log->path : '')) }}'
+                            })">
+                                <span>🚫</span>
+                                <span>{{ __('Blokir') }}</span>
+                            </button>
                             <form method="POST" action="{{ route('pasak.dashboard.logs.destroy', $log->id) }}" style="display: inline;" data-sec-confirm="{{ __('Hapus entri log ancaman ini secara permanen?') }}" data-confirm-title="{{ __('Konfirmasi Hapus Log') }}" data-confirm-type="danger" data-confirm-btn="{{ __('Ya, Hapus') }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="sec-btn sec-btn-ghost sec-btn-sm">🗑️</button>
+                                <button type="submit" class="sec-btn sec-btn-ghost sec-btn-sm" title="{{ __('Hapus log') }}">🗑️</button>
                             </form>
                         </td>
                     </tr>
@@ -321,4 +340,204 @@
         </div>
     </div>
 </div>
+
+{{-- Modal Dialog: Blokir Alamat IP --}}
+<div class="sec-modal-backdrop" id="blockIpModal" hidden style="display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 99999; padding: 16px;">
+    <div class="sec-modal-box" role="dialog" aria-modal="true" aria-labelledby="blockModalTitle" style="max-width: 520px; width: 100%; border-radius: 12px; background: var(--sec-card); border: 1px solid var(--sec-border); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2); overflow: hidden;">
+        {{-- Header Modal --}}
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px 0 24px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px; line-height: 1;">🚫</span>
+                <h3 id="blockModalTitle" style="font-size: 18px; font-weight: 700; color: var(--sec-text); margin: 0;">
+                    {{ __('Blokir Alamat IP') }}
+                </h3>
+            </div>
+            <button type="button" onclick="closeBlockModal()" aria-label="Close" style="border: none; background: transparent; font-size: 18px; color: var(--sec-text-muted); cursor: pointer; padding: 4px; line-height: 1; border-radius: 6px;">
+                ✕
+            </button>
+        </div>
+
+        <p style="padding: 6px 24px 0 24px; margin: 0 0 16px 0; font-size: 13px; color: var(--sec-text-muted); line-height: 1.5;">
+            {{ __('Semua permintaan dari IP ini akan ditolak (HTTP 403) sampai blokir dibuka atau kedaluwarsa.') }}
+        </p>
+
+        {{-- Form Blokir IP --}}
+        <form method="POST" action="{{ route('pasak.dashboard.blocked-ips.store') }}" style="padding: 0 24px 20px 24px;">
+            @csrf
+            <input type="hidden" id="blockModalScope" name="block_scope" value="ip">
+            <input type="hidden" id="blockModalDeviceId" name="device_id" value="">
+            <input type="hidden" id="blockModalLocalIp" name="local_ip" value="">
+
+            {{-- Alamat IP --}}
+            <div style="margin-bottom: 14px;">
+                <label class="sec-label" for="blockModalIp" style="font-weight: 600; font-size: 13px; color: var(--sec-text); margin-bottom: 6px; display: block;">
+                    {{ __('Alamat IP') }}
+                </label>
+                <input type="text" id="blockModalIp" name="ip_address" required class="sec-input" style="width: 100%; font-family: var(--sec-font-mono); font-size: 13.5px; padding: 9px 12px; border-radius: 8px;" placeholder="203.0.113.50">
+            </div>
+
+            {{-- Cakupan Pemblokiran --}}
+            <div style="margin-bottom: 14px;">
+                <label class="sec-label" style="font-weight: 600; font-size: 13px; color: var(--sec-text); margin-bottom: 6px; display: block;">
+                    {{ __('Cakupan Pemblokiran') }}
+                </label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    {{-- Card 1: Hanya Perangkat --}}
+                    <div id="scopeCardDevice" onclick="selectBlockScope('device')" style="cursor: pointer; border: 1.5px solid var(--sec-border); border-radius: 10px; padding: 12px; background: var(--sec-card); transition: all 0.2s ease;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>
+                            <span style="font-size: 13px; font-weight: 700; color: #2563eb;">{{ __('Hanya Perangkat') }}</span>
+                        </div>
+                        <div style="font-size: 11px; color: var(--sec-text-muted); line-height: 1.4;">
+                            {{ __('Aman untuk Wi-Fi / NAT. Pengguna lain di IP yang sama tidak terblokir.') }}
+                        </div>
+                    </div>
+
+                    {{-- Card 2: Seluruh IP Router --}}
+                    <div id="scopeCardIp" onclick="selectBlockScope('ip')" style="cursor: pointer; border: 2px solid #ef4444; border-radius: 10px; padding: 12px; background: rgba(239, 68, 68, 0.05); transition: all 0.2s ease;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="12" cy="5" r="3"></circle><circle cx="6" cy="19" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M12 8v4m0 0l-6 4m6-4l6 4"></path></svg>
+                            <span style="font-size: 13px; font-weight: 700; color: #dc2626;">{{ __('Seluruh IP Router') }}</span>
+                        </div>
+                        <div style="font-size: 11px; color: var(--sec-text-muted); line-height: 1.4;">
+                            {{ __('Memblokir semua perangkat dari alamat IP publik ini.') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Durasi Blokir --}}
+            <div style="margin-bottom: 14px;">
+                <label class="sec-label" for="blockModalDuration" style="font-weight: 600; font-size: 13px; color: var(--sec-text); margin-bottom: 6px; display: block;">
+                    {{ __('Durasi Blokir') }}
+                </label>
+                <select id="blockModalDuration" name="duration_hours" class="sec-select" style="width: 100%; padding: 9px 12px; font-size: 13.5px; border-radius: 8px;">
+                    <option value="1">{{ __('1 Jam') }}</option>
+                    <option value="6">{{ __('6 Jam') }}</option>
+                    <option value="12">{{ __('12 Jam') }}</option>
+                    <option value="24" selected>{{ __('24 Jam') }}</option>
+                    <option value="72">{{ __('3 Hari (72 Jam)') }}</option>
+                    <option value="168">{{ __('7 Hari (1 Minggu)') }}</option>
+                    <option value="720">{{ __('30 Hari (1 Bulan)') }}</option>
+                    <option value="0">{{ __('Permanen') }}</option>
+                </select>
+            </div>
+
+            {{-- Alasan --}}
+            <div style="margin-bottom: 14px;">
+                <label class="sec-label" for="blockModalReason" style="font-weight: 600; font-size: 13px; color: var(--sec-text); margin-bottom: 6px; display: block;">
+                    {{ __('Alasan') }}
+                </label>
+                <input type="text" id="blockModalReason" name="reason" class="sec-input" style="width: 100%; padding: 9px 12px; font-size: 13.5px; border-radius: 8px;" placeholder="{{ __('Alasan pemblokiran...') }}">
+            </div>
+
+            {{-- Catatan Internal --}}
+            <div style="margin-bottom: 18px;">
+                <label class="sec-label" for="blockModalNotes" style="font-weight: 600; font-size: 13px; color: var(--sec-text); margin-bottom: 6px; display: block;">
+                    {{ __('Catatan Internal') }}
+                </label>
+                <textarea id="blockModalNotes" name="notes" rows="2" class="sec-input" style="width: 100%; padding: 9px 12px; font-size: 13px; border-radius: 8px; resize: vertical;" placeholder="{{ __('Opsional, misalnya nomor tiket atau hasil verifikasi.') }}"></textarea>
+            </div>
+
+            {{-- Footer Tombol --}}
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid var(--sec-border-light);">
+                <button type="button" class="sec-btn sec-btn-secondary" onclick="closeBlockModal()" style="border-radius: 8px; padding: 8px 18px; font-size: 13.5px;">
+                    {{ __('Batal') }}
+                </button>
+                <button type="submit" id="blockModalSubmitBtn" style="border: 1px solid #fca5a5; background: #fee2e2; color: #dc2626; border-radius: 8px; font-size: 13.5px; font-weight: 600; padding: 8px 18px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                    <span style="font-size: 14px;">🚫</span>
+                    <span id="blockModalSubmitLabel">{{ __('Blokir Seluruh IP') }}</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function selectBlockScope(scope) {
+        var hiddenScope = document.getElementById('blockModalScope');
+        var cardDevice = document.getElementById('scopeCardDevice');
+        var cardIp = document.getElementById('scopeCardIp');
+        var submitLabel = document.getElementById('blockModalSubmitLabel');
+        var submitBtn = document.getElementById('blockModalSubmitBtn');
+
+        if (hiddenScope) hiddenScope.value = scope;
+
+        if (scope === 'device') {
+            if (cardDevice) {
+                cardDevice.style.border = '2px solid #2563eb';
+                cardDevice.style.background = 'rgba(37, 99, 235, 0.08)';
+            }
+            if (cardIp) {
+                cardIp.style.border = '1.5px solid var(--sec-border)';
+                cardIp.style.background = 'var(--sec-card)';
+            }
+            if (submitLabel) submitLabel.textContent = '{{ __('Blokir Perangkat') }}';
+            if (submitBtn) {
+                submitBtn.style.background = '#dbeafe';
+                submitBtn.style.borderColor = '#93c5fd';
+                submitBtn.style.color = '#1d4ed8';
+            }
+        } else {
+            if (cardIp) {
+                cardIp.style.border = '2px solid #ef4444';
+                cardIp.style.background = 'rgba(239, 68, 68, 0.05)';
+            }
+            if (cardDevice) {
+                cardDevice.style.border = '1.5px solid var(--sec-border)';
+                cardDevice.style.background = 'var(--sec-card)';
+            }
+            if (submitLabel) submitLabel.textContent = '{{ __('Blokir Seluruh IP') }}';
+            if (submitBtn) {
+                submitBtn.style.background = '#fee2e2';
+                submitBtn.style.borderColor = '#fca5a5';
+                submitBtn.style.color = '#dc2626';
+            }
+        }
+    }
+
+    function openBlockModal(data) {
+        var modal = document.getElementById('blockIpModal');
+        if (!modal) return;
+
+        var inputIp = document.getElementById('blockModalIp');
+        var inputReason = document.getElementById('blockModalReason');
+        var inputNotes = document.getElementById('blockModalNotes');
+        var inputDevice = document.getElementById('blockModalDeviceId');
+        var inputLocalIp = document.getElementById('blockModalLocalIp');
+
+        if (inputIp) inputIp.value = data.ip || '';
+        if (inputReason) inputReason.value = data.reason || '';
+        if (inputNotes) inputNotes.value = '';
+        if (inputDevice) inputDevice.value = data.device_id || '';
+        if (inputLocalIp) inputLocalIp.value = data.local_ip || '';
+
+        // Default ke Seluruh IP Router kecuali terdeteksi ID perangkat
+        selectBlockScope(data.device_id ? 'device' : 'ip');
+
+        modal.hidden = false;
+        modal.style.display = 'flex';
+    }
+
+    function closeBlockModal() {
+        var modal = document.getElementById('blockIpModal');
+        if (modal) {
+            modal.hidden = true;
+            modal.style.display = 'none';
+        }
+    }
+
+    // Tutup saat klik di luar kotak modal
+    var blockModalBackdrop = document.getElementById('blockIpModal');
+    if (blockModalBackdrop) {
+        blockModalBackdrop.addEventListener('click', function(e) {
+            if (e.target === blockModalBackdrop) closeBlockModal();
+        });
+    }
+
+    // Tutup saat menekan tombol Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeBlockModal();
+    });
+</script>
 @endsection

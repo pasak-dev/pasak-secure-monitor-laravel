@@ -6,6 +6,12 @@ All notable changes to `robyajo/pasak` will be documented in this file.
 
 ### Added
 
+- **Tombol Aksi Cepat & Modal Dialog Karantina IP Interaktif pada Log Keamanan** (`stubs/blade/pages/pasak/logs.blade.php`, `PasakBlockedIpController.php`):
+  - Menambahkan tombol aksi cepat `🚫` di sebelah alamat IP dan tombol `🚫 Blokir` pada setiap baris riwayat log keamanan.
+  - Menghadirkan modal dialog karantina terpadu `🚫 Blokir Alamat IP` yang memungkinkan admin memblokir penyerang secara instan langsung dari halaman log.
+  - Mendukung pemilihan cakupan pemblokiran berbasis kartu responsif: **Hanya Perangkat** (`device` - isolasi fingerprint peramban tanpa mengorbankan pengguna lain di jaringan NAT/Wi-Fi yang sama) dan **Seluruh IP Router** (`ip` - blokir penuh seluruh lalu lintas dari IP publik tersebut).
+  - Pilihan durasi fleksibel (1 jam, 6 jam, 12 jam, 24 jam, 3 hari, 7 hari, 30 hari, atau Permanen) dengan auto-fill alasan ancaman dan catatan investigasi internal opsional.
+  - Terintegrasi langsung dengan `PasakSentinelBridge` untuk langsung meneruskan pemblokiran router IP ke kernel firewall Linux (`nftables`/`iptables`).
 - **Chart Visual Tren Serangan (Line Chart) pada Halaman Security Logs** (`stubs/blade/pages/pasak/logs.blade.php`, `PasakLogController.php`):
   - Menambahkan kartu visualisasi grafik garis (_line chart_) interaktif berbasis vektor SVG murni (zero-dependency) pada halaman audit log keamanan.
   - Mendukung pergantian rentang waktu dinamis dengan tombol filter **Minggu** (7 hari), **Bulan** (30 hari), dan **Tahun** (12 bulan) dengan tetap mempertahankan filter pencarian, event, level keparahan, rentang tanggal, dan jumlah paginasi tabel.
@@ -16,7 +22,9 @@ All notable changes to `robyajo/pasak` will be documented in this file.
 ### Removed
 
 - **Pembersihan Direktori Dokumentasi Standalone Lama (`web-docs/` & `finis.sh`)**:
-  - Menghapus folder `web-docs/` (Astro Starlight) seutuhnya (~462 MB) dan berkas pembungkus `finis.sh`.\n - Seluruh 29 modul dokumentasi teknis `pasak-security-monitor` telah dialihkan permanen ke **Pasak Cloud SOC** (`https://pasak.is-a.dev/docs`) bertenaga **Neon Serverless PostgreSQL Database**.\n - Membersihkan referensi `web-docs` dan `finis.sh` dari `composer.json`, `.gitattributes`, `push.sh`, dan `AGENTS.md`.\n
+  - Menghapus folder `web-docs/` (Astro Starlight) seutuhnya (~462 MB) dan berkas pembungkus `finis.sh`.
+  - Seluruh 29 modul dokumentasi teknis `pasak-security-monitor` telah dialihkan permanen ke **Pasak Cloud SOC** (`https://pasak.is-a.dev/docs`) bertenaga **Neon Serverless PostgreSQL Database**.
+  - Membersihkan referensi `web-docs` dan `finis.sh` dari `composer.json`, `.gitattributes`, `push.sh`, dan `AGENTS.md`.
 
 ## [1.7.0] - 2026-11-09
 
@@ -37,7 +45,7 @@ All notable changes to `robyajo/pasak` will be documented in this file.
 
 ### Fixed
 
-- **Perlindungan Ganda Konfirmasi Penghapusan Berkas (Native Fallback)** — menambahkan `onsubmit=\"return confirm(...)\"` pada form penghapusan berkas mencurigakan untuk menjamin dialog konfirmasi peringatan selalu muncul di peramban pengguna bahkan jika JavaScript kustom terhambat atau file view di VPS belum disinkronkan.
+- **Perlindungan Ganda Konfirmasi Penghapusan Berkas (Native Fallback)** — menambahkan `onsubmit="return confirm(...)"` pada form penghapusan berkas mencurigakan untuk menjamin dialog konfirmasi peringatan selalu muncul di peramban pengguna bahkan jika JavaScript kustom terhambat atau file view di VPS belum disinkronkan.
 
 ## [1.6.8] - 2026-11-07
 
