@@ -1674,8 +1674,7 @@
         <script>
             (function() {
                 try {
-                    var key = 'pasak-announce-{{ str_replace('.
-                    ', ' - ', \Internal\Pasak\Services\PasakService::VERSION) }}';
+                    var key = 'pasak-announce-{{ str_replace('.', '-', \Internal\Pasak\Services\PasakService::VERSION) }}';
                     if (window.localStorage && localStorage.getItem(key)) return;
                     var el = document.getElementById('pasakAnnounce');
                     if (!el) return;
@@ -1697,15 +1696,9 @@
         (function() {
             var key = 'pasak-theme';
             var labels = {
-                dark: {
-                    !!json_encode(__('Dark')) !!
-                },
-                light: {
-                    !!json_encode(__('Light')) !!
-                },
-                auto: {
-                    !!json_encode(__('Auto')) !!
-                }
+                dark: {!! json_encode(__('Dark')) !!},
+                light: {!! json_encode(__('Light')) !!},
+                auto: {!! json_encode(__('Auto')) !!}
             };
 
             function stored() {
@@ -1805,21 +1798,11 @@
                 };
 
                 var defaultTitles = {
-                    success: {
-                        !!json_encode(__('Berhasil')) !!
-                    },
-                    error: {
-                        !!json_encode(__('Gagal')) !!
-                    },
-                    danger: {
-                        !!json_encode(__('Gagal')) !!
-                    },
-                    warning: {
-                        !!json_encode(__('Peringatan')) !!
-                    },
-                    info: {
-                        !!json_encode(__('Informasi')) !!
-                    }
+                    success: {!! json_encode(__('Berhasil')) !!},
+                    error: {!! json_encode(__('Gagal')) !!},
+                    danger: {!! json_encode(__('Gagal')) !!},
+                    warning: {!! json_encode(__('Peringatan')) !!},
+                    info: {!! json_encode(__('Informasi')) !!}
                 };
 
                 var displayTitle = title || defaultTitles[type] || '';
@@ -1830,9 +1813,7 @@
                     (displayTitle ? '<div class="sec-toast-title">' + displayTitle + '</div>' : '') +
                     '<div class="sec-toast-message">' + message + '</div>' +
                     '</div>' +
-                    '<button type="button" class="sec-toast-close" aria-label="' + {
-                        !!json_encode(__('Tutup')) !!
-                    } + '">&times;</button>';
+                    '<button type="button" class="sec-toast-close" aria-label="' + {!! json_encode(__('Tutup')) !!} + '">&times;</button>';
 
                 stack.appendChild(toast);
 
@@ -1873,15 +1854,9 @@
             var cancelBtn = document.getElementById('pasakConfirmCancel');
 
             function showConfirm(options, onConfirm) {
-                titleEl.textContent = options.title || {
-                    !!json_encode(__('Konfirmasi Tindakan')) !!
-                };
-                msgEl.textContent = options.message || {
-                    !!json_encode(__('Apakah Anda yakin ingin melanjutkan tindakan ini?')) !!
-                };
-                okBtn.textContent = options.btnText || {
-                    !!json_encode(__('Ya, Lanjutkan')) !!
-                };
+                titleEl.textContent = options.title || {!! json_encode(__('Konfirmasi Tindakan')) !!};
+                msgEl.textContent = options.message || {!! json_encode(__('Apakah Anda yakin ingin melanjutkan tindakan ini?')) !!};
+                okBtn.textContent = options.btnText || {!! json_encode(__('Ya, Lanjutkan')) !!};
 
                 var type = options.type || 'primary';
                 okBtn.className = 'sec-btn ' + (type === 'danger' ? 'sec-btn-danger' : (type === 'warning' ? 'sec-btn-danger' : 'sec-btn-primary'));
@@ -1968,38 +1943,20 @@
                     var btnLabel = submitBtn ? submitBtn.textContent.trim().toLowerCase() : '';
 
                     if (isDelete) {
-                        confirmMsg = {
-                            !!json_encode(__('Apakah Anda yakin ingin menghapus data ini secara permanen?')) !!
-                        };
-                        title = title || {
-                            !!json_encode(__('Konfirmasi Hapus')) !!
-                        };
+                        confirmMsg = {!! json_encode(__('Apakah Anda yakin ingin menghapus data ini secara permanen?')) !!};
+                        title = title || {!! json_encode(__('Konfirmasi Hapus')) !!};
                         type = type || 'danger';
-                        btnText = btnText || {
-                            !!json_encode(__('Ya, Hapus')) !!
-                        };
+                        btnText = btnText || {!! json_encode(__('Ya, Hapus')) !!};
                     } else if (isPatch || btnLabel.indexOf('disable') !== -1 || btnLabel.indexOf('enable') !== -1 || btnLabel.indexOf('nonaktifkan') !== -1 || btnLabel.indexOf('aktifkan') !== -1) {
-                        confirmMsg = {
-                            !!json_encode(__('Apakah Anda yakin ingin mengubah status data ini?')) !!
-                        };
-                        title = title || {
-                            !!json_encode(__('Konfirmasi Pengubahan Status')) !!
-                        };
+                        confirmMsg = {!! json_encode(__('Apakah Anda yakin ingin mengubah status data ini?')) !!};
+                        title = title || {!! json_encode(__('Konfirmasi Pengubahan Status')) !!};
                         type = type || 'warning';
-                        btnText = btnText || {
-                            !!json_encode(__('Ya, Ubah Status')) !!
-                        };
+                        btnText = btnText || {!! json_encode(__('Ya, Ubah Status')) !!};
                     } else if (form.id === 'pasak-settings-form') {
-                        confirmMsg = {
-                            !!json_encode(__('Simpan seluruh perubahan konfigurasi WAF ke database?')) !!
-                        };
-                        title = title || {
-                            !!json_encode(__('Konfirmasi Simpan Pengaturan')) !!
-                        };
+                        confirmMsg = {!! json_encode(__('Simpan seluruh perubahan konfigurasi WAF ke database?')) !!};
+                        title = title || {!! json_encode(__('Konfirmasi Simpan Pengaturan')) !!};
                         type = type || 'primary';
-                        btnText = btnText || {
-                            !!json_encode(__('Ya, Simpan')) !!
-                        };
+                        btnText = btnText || {!! json_encode(__('Ya, Simpan')) !!};
                     } else {
                         return;
                     }
@@ -2008,14 +1965,10 @@
                 e.preventDefault();
 
                 showConfirm({
-                    title: title || {
-                        !!json_encode(__('Konfirmasi Tindakan')) !!
-                    },
+                    title: title || {!! json_encode(__('Konfirmasi Tindakan')) !!},
                     message: confirmMsg,
                     type: type || 'primary',
-                    btnText: btnText || {
-                        !!json_encode(__('Ya, Lanjutkan')) !!
-                    }
+                    btnText: btnText || {!! json_encode(__('Ya, Lanjutkan')) !!}
                 }, function() {
                     form.dataset.pasakConfirmed = 'true';
                     if (submitBtn && submitBtn.name) {
