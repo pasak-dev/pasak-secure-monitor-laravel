@@ -193,10 +193,10 @@ class PasakUpgradeCommand extends Command
         $this->migrateLegacyEnvAndConfig();
         $hasWebRoutes = File::exists(base_path('routes/pasak.php'));
         $hasApiRoutes = File::exists(base_path('routes/pasak-api.php'));
-        $syncRoutes = (bool) $this->option('sync-routes') || ($force && ($hasWebRoutes || $hasApiRoutes));
+        $syncRoutes = (bool) $this->option('sync-routes') || $force;
 
-        if ($hasWebRoutes || $hasApiRoutes || $this->option('sync-routes')) {
-            if ($syncRoutes && ($hasWebRoutes || $hasApiRoutes)) {
+        if ($hasWebRoutes || $hasApiRoutes || $syncRoutes) {
+            if ($hasWebRoutes || $hasApiRoutes) {
                 $this->backupHostFiles([
                     base_path('routes/pasak.php'),
                     base_path('routes/pasak-api.php'),
@@ -229,10 +229,10 @@ class PasakUpgradeCommand extends Command
         // 4. Synchronize dashboard views
         $this->comment('4/6. Menyinkronkan tampilan dashboard monitoring...');
         $hasBladeViews = File::isDirectory(resource_path('views/pages/pasak'));
-        $syncViews = (bool) $this->option('sync-views') || ($force && $hasBladeViews);
+        $syncViews = (bool) $this->option('sync-views') || $force;
 
-        if ($hasBladeViews || $this->option('sync-views')) {
-            if ($syncViews && $hasBladeViews) {
+        if ($hasBladeViews || $syncViews) {
+            if ($hasBladeViews) {
                 $this->backupHostFiles([resource_path('views/pages/pasak')]);
             }
             $this->call('vendor:publish', [
@@ -268,10 +268,10 @@ class PasakUpgradeCommand extends Command
         }
 
         $hasBlockedView = File::exists(resource_path('views/errors/blocked.blade.php'));
-        $syncBlocked = (bool) $this->option('sync-views') || ($force && $hasBlockedView);
+        $syncBlocked = (bool) $this->option('sync-views') || $force;
 
-        if ($hasBlockedView || $this->option('sync-views')) {
-            if ($syncBlocked && $hasBlockedView) {
+        if ($hasBlockedView || $syncBlocked) {
+            if ($hasBlockedView) {
                 $this->backupHostFiles([resource_path('views/errors/blocked.blade.php')]);
             }
             $this->call('vendor:publish', [
