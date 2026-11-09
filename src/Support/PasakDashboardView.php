@@ -2,6 +2,8 @@
 
 namespace Internal\Pasak\Support;
 
+use Internal\Pasak\Services\PasakUserLoginService;
+
 /**
  * Helper presentasi bersama untuk dashboard Blade murni (tanpa Livewire).
  */
@@ -81,7 +83,7 @@ class PasakDashboardView
     public static function resolveLocation(string $ip): array
     {
         try {
-            return app(\Internal\Pasak\Services\PasakUserLoginService::class)->resolveLocation($ip);
+            return app(PasakUserLoginService::class)->resolveLocation($ip);
         } catch (\Throwable) {
             return [
                 'city' => null,

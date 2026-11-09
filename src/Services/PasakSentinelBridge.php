@@ -18,13 +18,15 @@ use Throwable;
 class PasakSentinelBridge
 {
     protected string $socketPath;
+
     protected bool $enabled;
+
     protected float $timeoutSeconds;
 
     public function __construct(?string $socketPath = null, ?bool $enabled = null, float $timeoutSeconds = 0.5)
     {
-        $this->socketPath = $socketPath ?? (string) config('pasak.sentinel.socket', env('PASAK_SENTINEL_SOCKET', '/run/pasak/agent.sock'));
-        $this->enabled = $enabled ?? (bool) config('pasak.sentinel.enabled', env('PASAK_SENTINEL_ENABLED', true));
+        $this->socketPath = $socketPath ?? (string) config('pasak.sentinel.socket', '/run/pasak/agent.sock');
+        $this->enabled = $enabled ?? (bool) config('pasak.sentinel.enabled', true);
         $this->timeoutSeconds = $timeoutSeconds;
 
         // Fallback to /tmp/pasak/agent.sock if primary socket does not exist but /tmp does (common in macOS / local dev)
@@ -120,7 +122,7 @@ class PasakSentinelBridge
             $errno = 0;
             $errstr = '';
             $fp = @stream_socket_client(
-                'unix://' . $this->socketPath,
+                'unix://'.$this->socketPath,
                 $errno,
                 $errstr,
                 $this->timeoutSeconds
@@ -132,7 +134,7 @@ class PasakSentinelBridge
 
             stream_set_timeout($fp, (int) $this->timeoutSeconds, (int) (($this->timeoutSeconds - (int) $this->timeoutSeconds) * 1000000));
 
-            $encoded = json_encode($payload, JSON_UNESCAPED_SLASHES) . "\n";
+            $encoded = json_encode($payload, JSON_UNESCAPED_SLASHES)."\n";
             @fwrite($fp, $encoded);
 
             $raw = @fgets($fp);

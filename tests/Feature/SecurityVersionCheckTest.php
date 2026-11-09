@@ -199,6 +199,7 @@ class SecurityVersionCheckTest extends TestCase
             ->expectsOutputToContain('berhasil diperbarui dan disinkronkan')
             ->assertExitCode(0);
     }
+
     public function test_upgrade_command_alias_upgrae_works(): void
     {
         Http::fake([
@@ -257,6 +258,7 @@ return [
 
         File::deleteDirectory($tempDir);
     }
+
     public function test_upgrade_notifies_user_to_run_php_artisan_migrate_when_new_migration_exists(): void
     {
         Http::fake([
@@ -271,7 +273,7 @@ return [
 
         $dummyMigration = database_path('migrations/2026_11_10_999999_test_dummy_migration.php');
         File::ensureDirectoryExists(dirname($dummyMigration));
-        File::put($dummyMigration, "<?php use Illuminate\\Database\\Migrations\\Migration; return new class extends Migration {};");
+        File::put($dummyMigration, '<?php use Illuminate\\Database\\Migrations\\Migration; return new class extends Migration {};');
 
         try {
             $this->artisan('pasak:upgrade', [
@@ -287,6 +289,7 @@ return [
             }
         }
     }
+
     public function test_upgrade_notifies_user_to_run_php_artisan_migrate_after_migrations_applied(): void
     {
         Http::fake([
@@ -301,7 +304,7 @@ return [
 
         $dummyMigration = database_path('migrations/2026_11_10_999998_test_applied_migration.php');
         File::ensureDirectoryExists(dirname($dummyMigration));
-        File::put($dummyMigration, "<?php use Illuminate\\Database\\Migrations\\Migration; return new class extends Migration { public function up(): void {} public function down(): void {} };");
+        File::put($dummyMigration, '<?php use Illuminate\\Database\\Migrations\\Migration; return new class extends Migration { public function up(): void {} public function down(): void {} };');
 
         try {
             $this->artisan('pasak:upgrade', [

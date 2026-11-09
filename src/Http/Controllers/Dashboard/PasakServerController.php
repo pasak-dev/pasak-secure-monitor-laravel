@@ -6,8 +6,9 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Route;
 use Internal\Pasak\Models\PasakLoginAttempt;
 use Internal\Pasak\Services\PasakServerSecurityService;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -23,44 +24,44 @@ class PasakServerController extends Controller
         Request $request,
         PasakServerSecurityService $server,
     ): View {
-        $force = $request->boolean("refresh");
+        $force = $request->boolean('refresh');
 
         if ($force) {
             $server->forget();
         }
 
-        return $this->dashboardResponse("pages.pasak.server", [
-            "report" => $server->scan($force),
-            "environment" => $server->environmentInfo(),
-            "baseline" => $server->baselineSummary(),
-            "integrity" => $server->integrityReport(),
-            "suspicious" => $server->suspiciousFiles($force),
-            "verified" => $server->verifiedFilesList(),
-            "deleted" => $server->deletedFilesList(),
-            "lockouts" => $server->activeLockouts(),
-            "urls" => [
-                "index" => route("pasak.dashboard.server"),
-                "refresh" => route("pasak.dashboard.server", [
-                    "refresh" => 1,
+        return $this->dashboardResponse('pages.pasak.server', [
+            'report' => $server->scan($force),
+            'environment' => $server->environmentInfo(),
+            'baseline' => $server->baselineSummary(),
+            'integrity' => $server->integrityReport(),
+            'suspicious' => $server->suspiciousFiles($force),
+            'verified' => $server->verifiedFilesList(),
+            'deleted' => $server->deletedFilesList(),
+            'lockouts' => $server->activeLockouts(),
+            'urls' => [
+                'index' => route('pasak.dashboard.server'),
+                'refresh' => route('pasak.dashboard.server', [
+                    'refresh' => 1,
                 ]),
-                "baseline" => route("pasak.dashboard.server.baseline"),
-                "baselineDestroy" => route(
-                    "pasak.dashboard.server.baseline.destroy",
+                'baseline' => route('pasak.dashboard.server.baseline'),
+                'baselineDestroy' => route(
+                    'pasak.dashboard.server.baseline.destroy',
                 ),
-                "suspiciousDestroy" => route(
-                    "pasak.dashboard.server.suspicious-files.destroy",
+                'suspiciousDestroy' => route(
+                    'pasak.dashboard.server.suspicious-files.destroy',
                 ),
-                "suspiciousDownload" => route(
-                    "pasak.dashboard.server.suspicious-files.download",
+                'suspiciousDownload' => route(
+                    'pasak.dashboard.server.suspicious-files.download',
                 ),
-                "suspiciousVerify" => route(
-                    "pasak.dashboard.server.suspicious-files.verify",
+                'suspiciousVerify' => route(
+                    'pasak.dashboard.server.suspicious-files.verify',
                 ),
-                "suspiciousUnverify" => \Illuminate\Support\Facades\Route::has("pasak.dashboard.server.suspicious-files.unverify")
-                    ? route("pasak.dashboard.server.suspicious-files.unverify")
-                    : "#",
-                "lockoutDestroy" => route("pasak.dashboard.lockouts.destroy", [
-                    "id" => "__ID__",
+                'suspiciousUnverify' => Route::has('pasak.dashboard.server.suspicious-files.unverify')
+                    ? route('pasak.dashboard.server.suspicious-files.unverify')
+                    : '#',
+                'lockoutDestroy' => route('pasak.dashboard.lockouts.destroy', [
+                    'id' => '__ID__',
                 ]),
             ],
         ]);
@@ -71,9 +72,9 @@ class PasakServerController extends Controller
     ): RedirectResponse {
         $server->createBaseline(auth()->id());
 
-        return back()->with("toast", [
-            "type" => "success",
-            "message" => __("Integrity baseline created."),
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => __('Integrity baseline created.'),
         ]);
     }
 
@@ -82,9 +83,9 @@ class PasakServerController extends Controller
     ): RedirectResponse {
         $server->deleteBaseline();
 
-        return back()->with("toast", [
-            "type" => "success",
-            "message" => __("Integrity baseline deleted."),
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => __('Integrity baseline deleted.'),
         ]);
     }
 
@@ -93,18 +94,18 @@ class PasakServerController extends Controller
         PasakServerSecurityService $server,
     ): RedirectResponse {
         $validated = $request->validate([
-            "file_path" => ["required", "string"],
+            'file_path' => ['required', 'string'],
         ]);
 
         $result = $server->deleteSuspiciousFile(
-            $validated["file_path"],
+            $validated['file_path'],
             auth()->id(),
             $request->ip(),
         );
 
-        return back()->with("toast", [
-            "type" => $result["success"] ?? false ? "success" : "error",
-            "message" => $result["message"] ?? __("Unable to delete the file."),
+        return back()->with('toast', [
+            'type' => $result['success'] ?? false ? 'success' : 'error',
+            'message' => $result['message'] ?? __('Unable to delete the file.'),
         ]);
     }
 
@@ -112,24 +113,24 @@ class PasakServerController extends Controller
         Request $request,
         PasakServerSecurityService $server,
     ): BinaryFileResponse|RedirectResponse {
-        $filePath = (string) $request->query("file_path", "");
+        $filePath = (string) $request->query('file_path', '');
         $fileInfo = $server->getSuspiciousFileForDownload($filePath);
 
-        if (!$fileInfo) {
-            return back()->with("toast", [
-                "type" => "error",
-                "message" => __(
-                    "Berkas tidak ditemukan atau jalur tidak valid.",
+        if (! $fileInfo) {
+            return back()->with('toast', [
+                'type' => 'error',
+                'message' => __(
+                    'Berkas tidak ditemukan atau jalur tidak valid.',
                 ),
             ]);
         }
 
         return response()->download(
-            $fileInfo["absolute_path"],
-            $fileInfo["filename"],
+            $fileInfo['absolute_path'],
+            $fileInfo['filename'],
             [
-                "Content-Type" => "application/octet-stream",
-                "X-Content-Type-Options" => "nosniff",
+                'Content-Type' => 'application/octet-stream',
+                'X-Content-Type-Options' => 'nosniff',
             ],
         );
     }
@@ -139,21 +140,20 @@ class PasakServerController extends Controller
         PasakServerSecurityService $server,
     ): RedirectResponse {
         $validated = $request->validate([
-            "file_path" => ["required", "string"],
-            "notes" => ["nullable", "string", "max:500"],
+            'file_path' => ['required', 'string'],
+            'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
         $result = $server->verifySuspiciousFile(
-            $validated["file_path"],
+            $validated['file_path'],
             auth()->id(),
-            $validated["notes"] ?? null,
+            $validated['notes'] ?? null,
             $request->ip(),
         );
 
-        return back()->with("toast", [
-            "type" => $result["success"] ?? false ? "success" : "error",
-            "message" =>
-                $result["message"] ?? __("Gagal memverifikasi berkas."),
+        return back()->with('toast', [
+            'type' => $result['success'] ?? false ? 'success' : 'error',
+            'message' => $result['message'] ?? __('Gagal memverifikasi berkas.'),
         ]);
     }
 
@@ -162,15 +162,14 @@ class PasakServerController extends Controller
         PasakServerSecurityService $server,
     ): RedirectResponse {
         $validated = $request->validate([
-            "file_path" => ["required", "string"],
+            'file_path' => ['required', 'string'],
         ]);
 
-        $result = $server->unverifySuspiciousFile($validated["file_path"]);
+        $result = $server->unverifySuspiciousFile($validated['file_path']);
 
-        return back()->with("toast", [
-            "type" => $result["success"] ?? false ? "success" : "error",
-            "message" =>
-                $result["message"] ?? __("Gagal membatalkan verifikasi berkas."),
+        return back()->with('toast', [
+            'type' => $result['success'] ?? false ? 'success' : 'error',
+            'message' => $result['message'] ?? __('Gagal membatalkan verifikasi berkas.'),
         ]);
     }
 
@@ -184,9 +183,9 @@ class PasakServerController extends Controller
             $server->releaseLockout($attempt);
         }
 
-        return back()->with("toast", [
-            "type" => "success",
-            "message" => __("Lockout released."),
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => __('Lockout released.'),
         ]);
     }
 

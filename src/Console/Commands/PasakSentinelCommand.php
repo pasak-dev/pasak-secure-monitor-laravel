@@ -29,7 +29,7 @@ class PasakSentinelCommand extends Command
     public function handle(PasakSentinelBridge $bridge): int
     {
         $this->info('[Pasak Sentinel IPC Diagnostics]');
-        $this->line('Socket target: ' . $bridge->getSocketPath());
+        $this->line('Socket target: '.$bridge->getSocketPath());
 
         if ($ipToBlock = $this->option('block')) {
             $reason = (string) ($this->option('reason') ?: 'MANUAL_ARTISAN_PROBE');
@@ -38,10 +38,12 @@ class PasakSentinelCommand extends Command
 
             if ($success) {
                 $this->info("✔ Success: IP {$ipToBlock} dropped in kernel firewall via Sentinel.");
+
                 return self::SUCCESS;
             }
 
             $this->error("✖ Error: Failed to drop IP {$ipToBlock} over Sentinel IPC socket.");
+
             return self::FAILURE;
         }
 
@@ -51,10 +53,12 @@ class PasakSentinelCommand extends Command
 
             if ($success) {
                 $this->info("✔ Success: IP {$ipToUnblock} unblocked in kernel firewall.");
+
                 return self::SUCCESS;
             }
 
             $this->error("✖ Error: Failed to unblock IP {$ipToUnblock} over Sentinel IPC socket.");
+
             return self::FAILURE;
         }
 
@@ -62,10 +66,12 @@ class PasakSentinelCommand extends Command
             $this->info('Pinging Sentinel daemon...');
             if ($bridge->ping()) {
                 $this->info('✔ PONG received: Sentinel daemon is active and responsive.');
+
                 return self::SUCCESS;
             }
 
             $this->error('✖ PING failed: Sentinel daemon did not respond.');
+
             return self::FAILURE;
         }
 
@@ -83,11 +89,13 @@ class PasakSentinelCommand extends Command
                     ['Active Drops Sample', implode(', ', (array) ($status['blocked_ips'] ?? []))],
                 ]
             );
+
             return self::SUCCESS;
         }
 
         $this->warn('⚠ Sentinel daemon is OFFLINE or socket is not created.');
         $this->line('Ensure `pasak-sentinel` daemon is running on the host system.');
+
         return self::FAILURE;
     }
 }

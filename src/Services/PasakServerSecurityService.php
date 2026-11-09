@@ -1715,6 +1715,7 @@ class PasakServerSecurityService
 
         try {
             $data = json_decode((string) File::get($path), true);
+
             return is_array($data) ? $data : [];
         } catch (Throwable) {
             return [];

@@ -153,8 +153,8 @@ test('upgrade migrates legacy env values and warns on mismatched driver', functi
     File::put($edgeDir.'/.env', "APP_NAME=Demo\nSECURITY_AUTO_BLOCK_SCOPE=ip\nSECURITY_DASHBOARD_DRIVER=livewire\n");
     File::makeDirectory($edgeDir.'/public', 0755, true, true);
 
-    \Illuminate\Support\Facades\Http::fake([
-        'https://repo.packagist.org/p2/robyajo/pasak.json' => \Illuminate\Support\Facades\Http::response([
+    Http::fake([
+        'https://repo.packagist.org/p2/robyajo/pasak.json' => Http::response([
             'packages' => ['robyajo/pasak' => [['version' => 'v99.9.9']]],
         ], 200),
     ]);
@@ -170,8 +170,8 @@ test('upgrade migrates legacy env values and warns on mismatched driver', functi
 });
 
 test('upgrade warns when published views lack the latest features', function () use (&$edgeDir) {
-    \Illuminate\Support\Facades\Http::fake([
-        'https://repo.packagist.org/p2/robyajo/pasak.json' => \Illuminate\Support\Facades\Http::response([
+    Http::fake([
+        'https://repo.packagist.org/p2/robyajo/pasak.json' => Http::response([
             'packages' => ['robyajo/pasak' => [['version' => 'v99.9.9']]],
         ], 200),
     ]);
@@ -200,8 +200,8 @@ test('upgrade migrates legacy security-named host files to pasak names', functio
     // Simulasi host era lama murni: target baru belum ada.
     File::deleteDirectory($edgeDir.'/resources/views/pages/pasak');
 
-    \Illuminate\Support\Facades\Http::fake([
-        'https://repo.packagist.org/p2/robyajo/pasak.json' => \Illuminate\Support\Facades\Http::response([
+    Http::fake([
+        'https://repo.packagist.org/p2/robyajo/pasak.json' => Http::response([
             'packages' => ['robyajo/pasak' => [['version' => 'v99.9.9']]],
         ], 200),
     ]);
@@ -223,8 +223,8 @@ test('upgrade migrates legacy security-named host files to pasak names', functio
 });
 
 test('upgrade preserves customized host routes by default', function () {
-    \Illuminate\Support\Facades\Http::fake([
-        'https://repo.packagist.org/p2/robyajo/pasak.json' => \Illuminate\Support\Facades\Http::response([
+    Http::fake([
+        'https://repo.packagist.org/p2/robyajo/pasak.json' => Http::response([
             'packages' => ['robyajo/pasak' => [['version' => 'v99.9.9']]],
         ], 200),
     ]);
@@ -272,8 +272,8 @@ test('upgrade without local route files succeeds using internal routes', functio
     @unlink(base_path('routes/pasak.php'));
     @unlink(base_path('routes/pasak-api.php'));
 
-    \Illuminate\Support\Facades\Http::fake([
-        'https://repo.packagist.org/p2/robyajo/pasak.json' => \Illuminate\Support\Facades\Http::response([
+    Http::fake([
+        'https://repo.packagist.org/p2/robyajo/pasak.json' => Http::response([
             'packages' => ['robyajo/pasak' => [['version' => 'v99.9.9']]],
         ], 200),
     ]);
@@ -286,8 +286,8 @@ test('upgrade without local route files succeeds using internal routes', functio
 });
 
 test('upgrade preserves customized blocked view unless sync-views is given', function () {
-    \Illuminate\Support\Facades\Http::fake([
-        'https://repo.packagist.org/p2/robyajo/pasak.json' => \Illuminate\Support\Facades\Http::response([
+    Http::fake([
+        'https://repo.packagist.org/p2/robyajo/pasak.json' => Http::response([
             'packages' => ['robyajo/pasak' => [['version' => 'v99.9.9']]],
         ], 200),
     ]);
@@ -312,14 +312,13 @@ test('upgrade preserves customized blocked view unless sync-views is given', fun
     }
 });
 
-
 test('upgrade with force updates views, routes and cleans obsolete files', function () use (&$edgeDir) {
     $this->app->setBasePath($edgeDir);
 
-    File::put($edgeDir.'/routes/security.php', "<?php // KUSTOM RUTE LAMA
-");
-    File::put($edgeDir.'/config/security.php', "<?php // config lama
-");
+    File::put($edgeDir.'/routes/security.php', '<?php // KUSTOM RUTE LAMA
+');
+    File::put($edgeDir.'/config/security.php', '<?php // config lama
+');
     File::put($edgeDir.'/config/pasak.php', "<?php
 
 return [

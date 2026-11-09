@@ -30,158 +30,158 @@ use Internal\Pasak\Http\Middleware\PasakRotatingDashboard;
 |
 */
 
-$prefix = trim((string) config("pasak.dashboard.prefix", "pasak"), "/");
-if ($prefix === "") {
-    $prefix = "pasak";
+$prefix = trim((string) config('pasak.dashboard.prefix', 'pasak'), '/');
+if ($prefix === '') {
+    $prefix = 'pasak';
 }
 $middleware = array_filter(
-    (array) config("pasak.dashboard.middleware", ["web", "auth"]),
+    (array) config('pasak.dashboard.middleware', ['web', 'auth']),
 );
 $adminMiddleware = array_filter(
-    (array) config("pasak.dashboard.admin_middleware", []),
+    (array) config('pasak.dashboard.admin_middleware', []),
 );
-$rotating = (bool) config("pasak.dashboard.rotating", false);
+$rotating = (bool) config('pasak.dashboard.rotating', false);
 
 $registerPasakDashboard = function () {
-    Route::get("/", PasakOverviewController::class)->name("overview");
-    Route::get("threat-map", [PasakThreatMapController::class, "index"])->name(
-        "threat-map",
+    Route::get('/', PasakOverviewController::class)->name('overview');
+    Route::get('threat-map', [PasakThreatMapController::class, 'index'])->name(
+        'threat-map',
     );
-    Route::get("threat-map/feed", [
+    Route::get('threat-map/feed', [
         PasakThreatMapController::class,
-        "feed",
-    ])->name("threat-map.feed");
-    Route::get("logs", [PasakLogController::class, "index"])->name("logs");
-    Route::get("logs/{id}", [PasakLogController::class, "show"])
-        ->whereNumber("id")
-        ->name("logs.show");
-    Route::delete("logs", [PasakLogController::class, "clear"])->name(
-        "logs.clear",
+        'feed',
+    ])->name('threat-map.feed');
+    Route::get('logs', [PasakLogController::class, 'index'])->name('logs');
+    Route::get('logs/{id}', [PasakLogController::class, 'show'])
+        ->whereNumber('id')
+        ->name('logs.show');
+    Route::delete('logs', [PasakLogController::class, 'clear'])->name(
+        'logs.clear',
     );
-    Route::delete("logs/{id}", [PasakLogController::class, "destroy"])
-        ->whereNumber("id")
-        ->name("logs.destroy");
-    Route::get("blocked-ips", [PasakBlockedIpController::class, "index"])->name(
-        "blocked-ips",
+    Route::delete('logs/{id}', [PasakLogController::class, 'destroy'])
+        ->whereNumber('id')
+        ->name('logs.destroy');
+    Route::get('blocked-ips', [PasakBlockedIpController::class, 'index'])->name(
+        'blocked-ips',
     );
-    Route::get("blocked-ips/{id}", [PasakBlockedIpController::class, "show"])
-        ->whereNumber("id")
-        ->name("blocked-ips.show");
-    Route::post("blocked-ips", [
+    Route::get('blocked-ips/{id}', [PasakBlockedIpController::class, 'show'])
+        ->whereNumber('id')
+        ->name('blocked-ips.show');
+    Route::post('blocked-ips', [
         PasakBlockedIpController::class,
-        "store",
-    ])->name("blocked-ips.store");
-    Route::patch("blocked-ips/{id}/toggle", [
+        'store',
+    ])->name('blocked-ips.store');
+    Route::patch('blocked-ips/{id}/toggle', [
         PasakBlockedIpController::class,
-        "toggle",
+        'toggle',
     ])
-        ->whereNumber("id")
-        ->name("blocked-ips.toggle");
-    Route::delete("blocked-ips/{id}", [
+        ->whereNumber('id')
+        ->name('blocked-ips.toggle');
+    Route::delete('blocked-ips/{id}', [
         PasakBlockedIpController::class,
-        "destroy",
+        'destroy',
     ])
-        ->whereNumber("id")
-        ->name("blocked-ips.destroy");
-    Route::get("allowed-ips", [PasakAllowedIpController::class, "index"])->name(
-        "allowed-ips",
+        ->whereNumber('id')
+        ->name('blocked-ips.destroy');
+    Route::get('allowed-ips', [PasakAllowedIpController::class, 'index'])->name(
+        'allowed-ips',
     );
-    Route::post("allowed-ips", [
+    Route::post('allowed-ips', [
         PasakAllowedIpController::class,
-        "store",
-    ])->name("allowed-ips.store");
-    Route::patch("allowed-ips/{id}/toggle", [
+        'store',
+    ])->name('allowed-ips.store');
+    Route::patch('allowed-ips/{id}/toggle', [
         PasakAllowedIpController::class,
-        "toggle",
+        'toggle',
     ])
-        ->whereNumber("id")
-        ->name("allowed-ips.toggle");
-    Route::delete("allowed-ips/{id}", [
+        ->whereNumber('id')
+        ->name('allowed-ips.toggle');
+    Route::delete('allowed-ips/{id}', [
         PasakAllowedIpController::class,
-        "destroy",
+        'destroy',
     ])
-        ->whereNumber("id")
-        ->name("allowed-ips.destroy");
-    Route::get("server", [PasakServerController::class, "index"])->name(
-        "server",
+        ->whereNumber('id')
+        ->name('allowed-ips.destroy');
+    Route::get('server', [PasakServerController::class, 'index'])->name(
+        'server',
     );
-    Route::post("server/baseline", [
+    Route::post('server/baseline', [
         PasakServerController::class,
-        "createBaseline",
-    ])->name("server.baseline");
-    Route::delete("server/baseline", [
+        'createBaseline',
+    ])->name('server.baseline');
+    Route::delete('server/baseline', [
         PasakServerController::class,
-        "deleteBaseline",
-    ])->name("server.baseline.destroy");
-    Route::delete("server/suspicious-files", [
+        'deleteBaseline',
+    ])->name('server.baseline.destroy');
+    Route::delete('server/suspicious-files', [
         PasakServerController::class,
-        "deleteSuspiciousFile",
-    ])->name("server.suspicious-files.destroy");
-    Route::get("server/suspicious-files/download", [
+        'deleteSuspiciousFile',
+    ])->name('server.suspicious-files.destroy');
+    Route::get('server/suspicious-files/download', [
         PasakServerController::class,
-        "downloadSuspiciousFile",
-    ])->name("server.suspicious-files.download");
-    Route::post("server/suspicious-files/verify", [
+        'downloadSuspiciousFile',
+    ])->name('server.suspicious-files.download');
+    Route::post('server/suspicious-files/verify', [
         PasakServerController::class,
-        "verifySuspiciousFile",
-    ])->name("server.suspicious-files.verify");
-    Route::post("server/suspicious-files/unverify", [
+        'verifySuspiciousFile',
+    ])->name('server.suspicious-files.verify');
+    Route::post('server/suspicious-files/unverify', [
         PasakServerController::class,
-        "unverifySuspiciousFile",
-    ])->name("server.suspicious-files.unverify");
-    Route::post("optimize-clear", [
+        'unverifySuspiciousFile',
+    ])->name('server.suspicious-files.unverify');
+    Route::post('optimize-clear', [
         PasakServerController::class,
-        "optimizeClear",
-    ])->name("optimize-clear");
-    Route::delete("lockouts/{id}", [
+        'optimizeClear',
+    ])->name('optimize-clear');
+    Route::delete('lockouts/{id}', [
         PasakServerController::class,
-        "releaseLockout",
+        'releaseLockout',
     ])
-        ->whereNumber("id")
-        ->name("lockouts.destroy");
-    Route::get("sessions", [PasakSessionController::class, "index"])->name(
-        "sessions",
+        ->whereNumber('id')
+        ->name('lockouts.destroy');
+    Route::get('sessions', [PasakSessionController::class, 'index'])->name(
+        'sessions',
     );
-    Route::delete("user-sessions/{id}", [
+    Route::delete('user-sessions/{id}', [
         PasakSessionController::class,
-        "destroyLogin",
+        'destroyLogin',
     ])
-        ->whereNumber("id")
-        ->name("user-sessions.destroy");
-    Route::delete("sessions/{sessionId}", [
+        ->whereNumber('id')
+        ->name('user-sessions.destroy');
+    Route::delete('sessions/{sessionId}', [
         PasakSessionController::class,
-        "destroySession",
-    ])->name("sessions.destroy");
-    Route::delete("trusted-ips/{id}", [
+        'destroySession',
+    ])->name('sessions.destroy');
+    Route::delete('trusted-ips/{id}', [
         PasakSessionController::class,
-        "destroyTrusted",
+        'destroyTrusted',
     ])
-        ->whereNumber("id")
-        ->name("trusted-ips.destroy");
-    Route::post("trusted-ips/my-ip", [
+        ->whereNumber('id')
+        ->name('trusted-ips.destroy');
+    Route::post('trusted-ips/my-ip', [
         PasakSessionController::class,
-        "storeMyIp",
-    ])->name("trusted-ips.store-my-ip");
-    Route::get("tickets", [PasakTicketController::class, "index"])->name(
-        "tickets",
+        'storeMyIp',
+    ])->name('trusted-ips.store-my-ip');
+    Route::get('tickets', [PasakTicketController::class, 'index'])->name(
+        'tickets',
     );
-    Route::get("tickets/{id}", [PasakTicketController::class, "show"])
-        ->whereNumber("id")
-        ->name("tickets.show");
-    Route::post("tickets/{id}/respond", [
+    Route::get('tickets/{id}', [PasakTicketController::class, 'show'])
+        ->whereNumber('id')
+        ->name('tickets.show');
+    Route::post('tickets/{id}/respond', [
         PasakTicketController::class,
-        "respond",
+        'respond',
     ])
-        ->whereNumber("id")
-        ->name("tickets.respond");
-    Route::delete("tickets/{id}", [PasakTicketController::class, "destroy"])
-        ->whereNumber("id")
-        ->name("tickets.destroy");
-    Route::get("settings", [PasakSettingController::class, "index"])->name(
-        "settings",
+        ->whereNumber('id')
+        ->name('tickets.respond');
+    Route::delete('tickets/{id}', [PasakTicketController::class, 'destroy'])
+        ->whereNumber('id')
+        ->name('tickets.destroy');
+    Route::get('settings', [PasakSettingController::class, 'index'])->name(
+        'settings',
     );
-    Route::post("settings", [PasakSettingController::class, "update"])->name(
-        "settings.update",
+    Route::post('settings', [PasakSettingController::class, 'update'])->name(
+        'settings.update',
     );
 };
 
@@ -189,18 +189,18 @@ if ($rotating) {
     // Pintu stabil untuk bookmark: /pasak → 302 → /pasak-{token}/
     Route::middleware(array_merge($middleware, $adminMiddleware))
         ->get($prefix, PasakDashboardEntryController::class)
-        ->name("pasak.dashboard.entry");
+        ->name('pasak.dashboard.entry');
 
     Route::middleware(
         array_merge($middleware, $adminMiddleware, [
             PasakRotatingDashboard::class,
         ]),
     )
-        ->prefix("{pasakSlug}")
+        ->prefix('{pasakSlug}')
         ->where([
-            "pasakSlug" => preg_quote($prefix, "/") . "-[A-Za-z0-9]{12,32}",
+            'pasakSlug' => preg_quote($prefix, '/').'-[A-Za-z0-9]{12,32}',
         ])
-        ->name("pasak.dashboard.")
+        ->name('pasak.dashboard.')
         ->group($registerPasakDashboard);
 
     // Alias stabil: /pasak/logs → 302 → /pasak-{token}/logs. Menjaga bookmark,
@@ -208,14 +208,14 @@ if ($rotating) {
     Route::middleware(array_merge($middleware, $adminMiddleware))
         ->prefix($prefix)
         ->group(function () {
-            Route::get("{any}", PasakDashboardAliasController::class)->where(
-                "any",
-                ".*",
+            Route::get('{any}', PasakDashboardAliasController::class)->where(
+                'any',
+                '.*',
             );
         });
 } else {
     Route::middleware(array_merge($middleware, $adminMiddleware))
         ->prefix($prefix)
-        ->name("pasak.dashboard.")
+        ->name('pasak.dashboard.')
         ->group($registerPasakDashboard);
 }

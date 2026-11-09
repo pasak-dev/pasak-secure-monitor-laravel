@@ -17,13 +17,12 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Internal\Pasak\Console\Commands\PasakBaselineCommand;
 use Internal\Pasak\Console\Commands\PasakDeployCommand;
-use Internal\Pasak\Console\Commands\PasakSentinelCommand;
-use Internal\Pasak\Services\PasakSentinelBridge;
 use Internal\Pasak\Console\Commands\PasakInstallCommand;
 use Internal\Pasak\Console\Commands\PasakPruneSecurityLogsCommand;
 use Internal\Pasak\Console\Commands\PasakPurgeInjectedDataCommand;
 use Internal\Pasak\Console\Commands\PasakScanAccessLogsCommand;
 use Internal\Pasak\Console\Commands\PasakSecretCommand;
+use Internal\Pasak\Console\Commands\PasakSentinelCommand;
 use Internal\Pasak\Console\Commands\PasakUnblockIpCommand;
 use Internal\Pasak\Console\Commands\PasakUninstallCommand;
 use Internal\Pasak\Console\Commands\PasakUpgradeCommand;
@@ -41,6 +40,7 @@ use Internal\Pasak\Services\AccessLogScannerService;
 use Internal\Pasak\Services\LoginThrottleService;
 use Internal\Pasak\Services\PasakAccessLogScannerService;
 use Internal\Pasak\Services\PasakLoginThrottleService;
+use Internal\Pasak\Services\PasakSentinelBridge;
 use Internal\Pasak\Services\PasakServerSecurityService;
 use Internal\Pasak\Services\PasakService;
 use Internal\Pasak\Services\PasakUserLoginService;
@@ -81,7 +81,7 @@ class PasakServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(PasakSentinelBridge::class, function ($app) {
-            return new PasakSentinelBridge();
+            return new PasakSentinelBridge;
         });
 
         $this->app->singleton(PasakLoginThrottleService::class, function (

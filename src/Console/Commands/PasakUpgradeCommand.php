@@ -3,6 +3,7 @@
 namespace Internal\Pasak\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Internal\Pasak\Database\Seeders\PasakDefaultSettingsSeeder;
@@ -20,6 +21,7 @@ class PasakUpgradeCommand extends Command
      * @var array<int, string>
      */
     protected $aliases = ['pasak:upgrae'];
+
     protected $signature = 'pasak:upgrade
                             {--check : Hanya periksa apakah ada versi baru tanpa menjalankan pembaruan}
                             {--force : Paksa jalankan pembaruan dan sinkronisasi meskipun sudah di versi terbaru}
@@ -392,8 +394,8 @@ class PasakUpgradeCommand extends Command
             $wiringPath = base_path($wiring);
             if (File::exists($wiringPath)) {
                 $content = File::get($wiringPath);
-                $pattern = "/require\\s+__DIR__\\s*\\.\\s*[\x27\"\\/]+" . preg_quote(basename($legacy), "/") . "[\x27\"\\s]*;/m";
-                $updated = preg_replace($pattern, "require __DIR__.'/" . basename($current) . "';", $content);
+                $pattern = "/require\\s+__DIR__\\s*\\.\\s*[\x27\"\\/]+".preg_quote(basename($legacy), '/')."[\x27\"\\s]*;/m";
+                $updated = preg_replace($pattern, "require __DIR__.'/".basename($current)."';", $content);
 
                 if ($updated !== $content) {
                     File::put($wiringPath, $updated);
@@ -960,7 +962,7 @@ MARKDOWN;
     protected function detectPendingMigrations(): int
     {
         try {
-            /** @var \Illuminate\Database\Migrations\Migrator $migrator */
+            /** @var Migrator $migrator */
             $migrator = app('migrator');
             $paths = array_unique(array_merge($migrator->paths(), [database_path('migrations')]));
             $files = $migrator->getMigrationFiles($paths);
@@ -1081,7 +1083,7 @@ MARKDOWN;
                 continue;
             }
 
-            $items = glob($dir . DIRECTORY_SEPARATOR . '*backup-*');
+            $items = glob($dir.DIRECTORY_SEPARATOR.'*backup-*');
             if (! is_array($items) || count($items) === 0) {
                 continue;
             }
@@ -1100,6 +1102,7 @@ MARKDOWN;
                         // Abaikan bila tidak dapat dihapus
                     }
                 }
+
                 continue;
             }
 
@@ -1114,7 +1117,7 @@ MARKDOWN;
                 if (count($group) <= 1) {
                     continue;
                 }
-                usort($group, fn($a, $b) => filemtime($b) <=> filemtime($a));
+                usort($group, fn ($a, $b) => filemtime($b) <=> filemtime($a));
                 $toDelete = array_slice($group, 1);
                 foreach ($toDelete as $item) {
                     try {
@@ -1179,7 +1182,7 @@ MARKDOWN;
         ],
 PHP;
 
-        $updated = str_replace($matchedAnchor, $matchedAnchor . $block, $content);
+        $updated = str_replace($matchedAnchor, $matchedAnchor.$block, $content);
 
         if ($updated !== $content) {
             File::put($configPath, $updated);

@@ -279,7 +279,7 @@ class PasakThreatMapController extends Controller
 
                         $labelParts = array_filter([$city, $region]);
                         $name = ! empty($labelParts)
-                            ? implode(', ', array_unique($labelParts)) . " ({$countryCode})"
+                            ? implode(', ', array_unique($labelParts))." ({$countryCode})"
                             : "Server Node ({$countryCode})";
 
                         return [

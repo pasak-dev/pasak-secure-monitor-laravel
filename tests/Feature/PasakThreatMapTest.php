@@ -3,6 +3,7 @@
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -211,7 +212,7 @@ test('threat map payload passes recent security logs and origins to threat map',
 });
 
 test('threat map auto detects server location when manual config is not provided', function () {
-    Illuminate\Support\Facades\Cache::forget('pasak:threat_map_server_target');
+    Cache::forget('pasak:threat_map_server_target');
 
     config()->set('pasak.dashboard.threat_map.target_name', null);
     config()->set('pasak.dashboard.threat_map.target_lat', null);
