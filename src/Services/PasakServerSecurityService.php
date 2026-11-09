@@ -17,7 +17,7 @@ use Throwable;
 
 /**
  * Pemeriksaan keamanan sisi server ("server security scan") yang ditampilkan di
- * /security/server.
+ * /pasak/server.
  *
  * Tujuan: memberi admin satu halaman untuk melihat konfigurasi aplikasi/server
  * yang berisiko (debug mode, kredensial default, folder publik yang writable),
@@ -1663,7 +1663,7 @@ class PasakServerSecurityService
             'event_type' => 'suspicious_file_deleted',
             'threat_level' => 'high',
             'method' => 'DELETE',
-            'path' => '/security/server/suspicious-files',
+            'path' => '/'.trim((string) config('pasak.dashboard.prefix', 'pasak'), '/').'/server/suspicious-files',
             'rule_label' => 'Berkas mencurigakan dihapus oleh admin',
             'evidence' => "Admin menghapus berkas '{$relativeToApp}' (SHA-256: {$hash}, Ukuran: {$this->humanBytes(
                 (float) $size,
@@ -1787,7 +1787,7 @@ class PasakServerSecurityService
             'event_type' => 'suspicious_file_verified_safe',
             'threat_level' => 'low',
             'method' => 'POST',
-            'path' => '/security/server/suspicious-files/verify',
+            'path' => '/'.trim((string) config('pasak.dashboard.prefix', 'pasak'), '/').'/server/suspicious-files/verify',
             'rule_label' => 'Berkas mencurigakan diverifikasi aman oleh admin',
             'evidence' => "Admin memverifikasi berkas '{$relativeToApp}' (SHA-256: {$hash}, Ukuran: {$this->humanBytes((float) $size)}) sebagai aman. Catatan: ".($notes ?: 'Tanpa catatan'),
             'action_taken' => 'file_verified_safe',

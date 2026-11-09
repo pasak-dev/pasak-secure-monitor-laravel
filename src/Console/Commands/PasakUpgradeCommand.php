@@ -14,6 +14,12 @@ use Throwable;
 
 class PasakUpgradeCommand extends Command
 {
+    /**
+     * Alias perintah konsol agar salah ketik umum seperti pasak:upgrae tetap berjalan mulus.
+     *
+     * @var array<int, string>
+     */
+    protected $aliases = ['pasak:upgrae'];
     protected $signature = 'pasak:upgrade
                             {--check : Hanya periksa apakah ada versi baru tanpa menjalankan pembaruan}
                             {--force : Paksa jalankan pembaruan dan sinkronisasi meskipun sudah di versi terbaru}
@@ -82,12 +88,14 @@ class PasakUpgradeCommand extends Command
             }
         }
 
+        $force = (bool) $this->option('force');
+
         $this->info('Memulai proses pembaruan dan sinkronisasi...');
         $this->newLine();
 
         // 1. Composer Update
         if (! $this->option('no-composer')) {
-            $this->comment('1/5. Memperbarui package via Composer...');
+            $this->comment('1/6. Memperbarui package via Composer...');
             $composer = $this->findComposer();
             $cmd = array_merge($composer, [
                 'update',
@@ -129,7 +137,7 @@ class PasakUpgradeCommand extends Command
             $this->newLine();
         } else {
             $this->line(
-                '  (1/5. Pembaruan Composer dilewati via --no-composer).',
+                '  (1/6. Pembaruan Composer dilewati via --no-composer).',
             );
             $this->newLine();
         }
@@ -137,15 +145,24 @@ class PasakUpgradeCommand extends Command
         $this->syncComposerConstraint(PasakService::VERSION);
 
         // 2. Publish & Run Migrations
-        $this->comment('2/5. Menyinkronkan dan menerapkan migrasi database...');
+        $this->comment('2/6. Menyinkronkan dan menerapkan migrasi database...');
         $this->call('vendor:publish', [
             '--tag' => 'pasak-migrations',
             '--force' => true,
         ]);
         if (! $this->option('no-migrate')) {
-            $this->call('migrate', ['--force' => true]);
+            $pendingCount = $this->detectPendingMigrations();
+            if ($pendingCount > 0) {
+                $this->warn("  ⚠ Terdeteksi {$pendingCount} migrasi database baru yang perlu diterapkan.");
+                $this->call('migrate', ['--force' => true]);
+                $this->info("  ✓ {$pendingCount} migrasi database baru berhasil diterapkan ke database.");
+            } else {
+                $this->call('migrate', ['--force' => true]);
+                $this->info('  ✓ Skema database mutakhir (tidak ada migrasi baru yang tertunda).');
+            }
+        } else {
+            $this->comment('  (Migrasi database dilewati via --no-migrate).');
         }
-        $this->info('  ✓ Berkas migrasi telah disinkronkan dan diterapkan.');
         $this->newLine();
 
         // 2b. Tanam nilai bawaan pengaturan yang belum ada (idempotent — yang sudah diset user tidak disentuh).
@@ -170,15 +187,16 @@ class PasakUpgradeCommand extends Command
         }
         $this->newLine();
 
-        // 3. Synchronize routes (tanpa menimpa kustomisasi host kecuali diminta).
-        $this->comment('3/5. Menyinkronkan berkas rute kustom...');
+        // 3. Synchronize routes & configs
+        $this->comment('3/6. Menyinkronkan berkas rute dan konfigurasi...');
         $this->migrateLegacyHostFiles();
         $this->migrateLegacyEnvAndConfig();
         $hasWebRoutes = File::exists(base_path('routes/pasak.php'));
         $hasApiRoutes = File::exists(base_path('routes/pasak-api.php'));
+        $syncRoutes = (bool) $this->option('sync-routes') || ($force && ($hasWebRoutes || $hasApiRoutes));
 
         if ($hasWebRoutes || $hasApiRoutes || $this->option('sync-routes')) {
-            if ($this->option('sync-routes')) {
+            if ($syncRoutes && ($hasWebRoutes || $hasApiRoutes)) {
                 $this->backupHostFiles([
                     base_path('routes/pasak.php'),
                     base_path('routes/pasak-api.php'),
@@ -186,10 +204,20 @@ class PasakUpgradeCommand extends Command
             }
             $this->call('vendor:publish', [
                 '--tag' => 'pasak-routes',
-                '--force' => (bool) $this->option('sync-routes'),
+                '--force' => $syncRoutes,
             ]);
+            if ($syncRoutes) {
+                $stubDir = __DIR__.'/../../../stubs/routes';
+                File::ensureDirectoryExists(base_path('routes'));
+                if (File::exists($stubDir.'/pasak.php.stub')) {
+                    File::copy($stubDir.'/pasak.php.stub', base_path('routes/pasak.php'));
+                }
+                if (File::exists($stubDir.'/pasak-api.php.stub')) {
+                    File::copy($stubDir.'/pasak-api.php.stub', base_path('routes/pasak-api.php'));
+                }
+            }
             $this->info(
-                '  ✓ Berkas routes/pasak.php dan routes/pasak-api.php telah disinkronkan.',
+                '  ✓ Berkas routes/pasak.php dan routes/pasak-api.php telah disinkronkan ke versi terbaru.',
             );
         } else {
             $this->line(
@@ -198,20 +226,28 @@ class PasakUpgradeCommand extends Command
         }
         $this->newLine();
 
-        // 4. Synchronize dashboard views (tanpa menimpa kustomisasi host kecuali diminta).
-        $this->comment('4/5. Menyinkronkan tampilan dashboard monitoring...');
+        // 4. Synchronize dashboard views
+        $this->comment('4/6. Menyinkronkan tampilan dashboard monitoring...');
         $hasBladeViews = File::isDirectory(resource_path('views/pages/pasak'));
+        $syncViews = (bool) $this->option('sync-views') || ($force && $hasBladeViews);
 
         if ($hasBladeViews || $this->option('sync-views')) {
-            if ($this->option('sync-views')) {
+            if ($syncViews && $hasBladeViews) {
                 $this->backupHostFiles([resource_path('views/pages/pasak')]);
             }
             $this->call('vendor:publish', [
                 '--tag' => 'plain-views',
-                '--force' => (bool) $this->option('sync-views'),
+                '--force' => $syncViews,
             ]);
+            if ($syncViews) {
+                $stubViews = __DIR__.'/../../../stubs/blade/pages/pasak';
+                if (File::isDirectory($stubViews)) {
+                    File::ensureDirectoryExists(resource_path('views/pages/pasak'));
+                    File::copyDirectory($stubViews, resource_path('views/pages/pasak'));
+                }
+            }
             $this->info(
-                '  ✓ Tampilan dashboard Blade murni telah disinkronkan.',
+                '  ✓ Tampilan dashboard Blade murni telah disinkronkan ke versi terbaru.',
             );
             $this->warnIfViewsOutdated(
                 resource_path('views/pages/pasak/layout.blade.php'),
@@ -231,23 +267,41 @@ class PasakUpgradeCommand extends Command
             );
         }
 
-        if (File::exists(resource_path('views/errors/blocked.blade.php'))) {
+        $hasBlockedView = File::exists(resource_path('views/errors/blocked.blade.php'));
+        $syncBlocked = (bool) $this->option('sync-views') || ($force && $hasBlockedView);
+
+        if ($hasBlockedView || $this->option('sync-views')) {
+            if ($syncBlocked && $hasBlockedView) {
+                $this->backupHostFiles([resource_path('views/errors/blocked.blade.php')]);
+            }
             $this->call('vendor:publish', [
                 '--tag' => 'pasak-views',
-                '--force' => (bool) $this->option('sync-views'),
+                '--force' => $syncBlocked,
             ]);
+            if ($syncBlocked) {
+                $stubBlocked = __DIR__.'/../../../stubs/blocked.blade.php';
+                if (File::exists($stubBlocked)) {
+                    File::ensureDirectoryExists(resource_path('views/errors'));
+                    File::copy($stubBlocked, resource_path('views/errors/blocked.blade.php'));
+                }
+            }
             $this->info(
-                '  ✓ Halaman error blokir (errors/blocked.blade.php) telah disinkronkan.',
+                '  ✓ Halaman error blokir (errors/blocked.blade.php) telah disinkronkan ke versi terbaru.',
             );
         }
 
         // 4b. Sync AI Agent Skills & AGENTS.md Guidelines
-        $this->syncAgentSkillsAndGuidelines((bool) $this->option('sync-views') || (bool) $this->option('force'));
+        $this->syncAgentSkillsAndGuidelines($syncViews || $force);
         $this->newLine();
 
-        // 5. Clear Caches & Refresh
+        // 5. Cleanup Obsolete Legacy Files
+        $this->comment('5/6. Membersihkan berkas dan direktori usang dari versi lama...');
+        $this->cleanupObsoleteFiles($force);
+        $this->newLine();
+
+        // 6. Clear Caches & Refresh
         $this->comment(
-            '5/5. Membersihkan cache konfigurasi, rute, dan tampilan...',
+            '6/6. Membersihkan cache konfigurasi, rute, dan tampilan...',
         );
         try {
             $this->callSilent('optimize:clear');
@@ -298,11 +352,8 @@ class PasakUpgradeCommand extends Command
             $wiringPath = base_path($wiring);
             if (File::exists($wiringPath)) {
                 $content = File::get($wiringPath);
-                $updated = str_replace(
-                    ["require __DIR__.'/".basename($legacy)."';"],
-                    ["require __DIR__.'/".basename($current)."';"],
-                    $content,
-                );
+                $pattern = "/require\\s+__DIR__\\s*\\.\\s*[\x27\"\\/]+" . preg_quote(basename($legacy), "/") . "[\x27\"\\s]*;/m";
+                $updated = preg_replace($pattern, "require __DIR__.'/" . basename($current) . "';", $content);
 
                 if ($updated !== $content) {
                     File::put($wiringPath, $updated);
@@ -416,6 +467,8 @@ class PasakUpgradeCommand extends Command
         // 2b. config/pasak.php host versi lama: sisipkan kunci URL dashboard acak
         // sekali pakai (nested, tidak tercakup mergeConfigFrom yang dangkal).
         $this->migrateDashboardRotatingKeysInConfig();
+        $this->migrateDashboardThreatMapInConfig();
+        $this->migrateSentinelInConfig();
         $this->line(
             '  ✓ Kunci config baru dicakup bawaan paket (tidak ada kustomisasi yang ditimpa).',
         );
@@ -427,7 +480,7 @@ class PasakUpgradeCommand extends Command
             foreach (
                 [
                     __DIR__.'/../../../stubs/htaccess.stub',
-                    dirname(__DIR__, 2).'/stubs/htaccess.stub',
+                    __DIR__.'/../../../stubs/htaccess.stub',
                 ] as $stubPath
             ) {
                 if (File::exists($stubPath)) {
@@ -629,7 +682,7 @@ class PasakUpgradeCommand extends Command
         foreach (
             [
                 __DIR__.'/../../../stubs/env.stub',
-                dirname(__DIR__, 2).'/stubs/env.stub',
+                __DIR__.'/../../../stubs/env.stub',
             ] as $stubPath
         ) {
             if (! File::exists($stubPath)) {
@@ -853,6 +906,241 @@ MARKDOWN;
                     File::put($composerPath, $newContent);
                     $this->info("  ✓ Versi robyajo/pasak di composer.json diselaraskan ke \"{$target}\".");
                 }
+            }
+        }
+    }
+
+    /**
+     * Deteksi jumlah berkas migrasi yang belum dijalankan pada database.
+     */
+    protected function detectPendingMigrations(): int
+    {
+        try {
+            /** @var \Illuminate\Database\Migrations\Migrator $migrator */
+            $migrator = app('migrator');
+            if (! $migrator->repositoryExists()) {
+                return 0;
+            }
+
+            $paths = array_unique(array_merge($migrator->paths(), [database_path('migrations')]));
+            $files = $migrator->getMigrationFiles($paths);
+            $ran = $migrator->getRepository()->getRan();
+            $pending = array_diff(array_keys($files), $ran);
+
+            return count($pending);
+        } catch (Throwable) {
+            return 0;
+        }
+    }
+
+    /**
+     * Bersihkan berkas dan direktori usang dari versi paket terdahulu
+     * yang tidak lagi digunakan agar project host tetap bersih dan mutakhir.
+     */
+    protected function cleanupObsoleteFiles(bool $force = false): void
+    {
+        if (! $force) {
+            return;
+        }
+        $obsoleteFiles = [
+            base_path('routes/security.php'),
+            base_path('routes/security-api.php'),
+            config_path('security.php'),
+            base_path('finis.sh'),
+            base_path('install-dash.sh'),
+        ];
+
+        $obsoleteDirs = [
+            resource_path('views/pages/security'),
+            resource_path('js/pages/security'),
+            resource_path('js/components/security'),
+            base_path('web-docs'),
+        ];
+
+        $deletedCount = 0;
+
+        foreach ($obsoleteFiles as $file) {
+            if (File::exists($file)) {
+                // Pastikan padanan berkas baru sudah ada sebelum menghapus rute atau config lama
+                if (str_ends_with($file, 'routes/security.php') && ! File::exists(base_path('routes/pasak.php'))) {
+                    continue;
+                }
+                if (str_ends_with($file, 'routes/security-api.php') && ! File::exists(base_path('routes/pasak-api.php'))) {
+                    continue;
+                }
+                if (str_ends_with($file, 'config/security.php') && ! File::exists(config_path('pasak.php'))) {
+                    continue;
+                }
+
+                File::delete($file);
+                $rel = $this->relativeHostPath($file);
+                $this->info("  ✓ Berkas lama usang dibersihkan: {$rel}");
+                $deletedCount++;
+            }
+        }
+
+        foreach ($obsoleteDirs as $dir) {
+            if (File::isDirectory($dir)) {
+                if (str_ends_with($dir, 'views/pages/security') && ! File::isDirectory(resource_path('views/pages/pasak'))) {
+                    continue;
+                }
+
+                File::deleteDirectory($dir);
+                $rel = $this->relativeHostPath($dir);
+                $this->info("  ✓ Direktori lama usang dibersihkan: {$rel}");
+                $deletedCount++;
+            }
+        }
+
+        // Pangkas cadangan berlebih (.backup-*) agar tidak menumpuk di disk
+        $this->pruneExcessiveBackups();
+
+        if ($deletedCount === 0) {
+            $this->line('  ✓ Tidak ditemukan berkas atau direktori usang dari versi lama.');
+        }
+    }
+
+    /**
+     * Pangkas berkas/direktori cadangan .backup-* lama, menyisakan 2 cadangan terbaru.
+     */
+    protected function pruneExcessiveBackups(): void
+    {
+        $searchDirs = [
+            resource_path('views/pages'),
+            base_path('routes'),
+            config_path(),
+        ];
+
+        foreach ($searchDirs as $dir) {
+            if (! File::isDirectory($dir)) {
+                continue;
+            }
+
+            $items = glob($dir . DIRECTORY_SEPARATOR . '*backup-*');
+            if (! is_array($items) || count($items) <= 2) {
+                continue;
+            }
+
+            usort($items, fn($a, $b) => filemtime($b) <=> filemtime($a));
+
+            $toDelete = array_slice($items, 2);
+            foreach ($toDelete as $item) {
+                try {
+                    if (is_dir($item)) {
+                        File::deleteDirectory($item);
+                    } else {
+                        File::delete($item);
+                    }
+                    $rel = $this->relativeHostPath($item);
+                    $this->line("  ℹ Cadangan lama '{$rel}' dibersihkan.");
+                } catch (Throwable) {
+                    // Abaikan bila tidak dapat dihapus
+                }
+            }
+        }
+    }
+
+    /**
+     * Sisipkan konfigurasi threat_map ke config/pasak.php host jika belum ada.
+     */
+    protected function migrateDashboardThreatMapInConfig(): void
+    {
+        $configPath = config_path('pasak.php');
+
+        if (! File::exists($configPath)) {
+            return;
+        }
+
+        $content = File::get($configPath);
+
+        if (str_contains($content, "'threat_map' =>")) {
+            return;
+        }
+
+        $anchors = [
+            "'grace_seconds' => (int) env('PASAK_DASHBOARD_GRACE_SECONDS', env('SECURITY_DASHBOARD_GRACE_SECONDS', 120)),",
+            "'prefix' => env('PASAK_DASHBOARD_PREFIX', env('SECURITY_DASHBOARD_PREFIX', 'pasak')),",
+            "'dashboard' => [",
+        ];
+
+        $matchedAnchor = null;
+        foreach ($anchors as $a) {
+            if (str_contains($content, $a)) {
+                $matchedAnchor = $a;
+                break;
+            }
+        }
+
+        if (! $matchedAnchor) {
+            return;
+        }
+
+        $block = <<<'PHP'
+
+        // Peta Persebaran Serangan Global (Interactive 3D Threat Map Globe)
+        'threat_map' => [
+            'enabled' => (bool) env('PASAK_DASHBOARD_THREAT_MAP_ENABLED', true),
+            'window_hours' => (int) env('PASAK_DASHBOARD_MAP_WINDOW_HOURS', 24),
+            'max_origins' => (int) env('PASAK_DASHBOARD_MAP_MAX_ORIGINS', 10),
+            'refresh_seconds' => (int) env('PASAK_DASHBOARD_MAP_REFRESH_SECONDS', 8),
+        ],
+PHP;
+
+        $updated = str_replace($matchedAnchor, $matchedAnchor . $block, $content);
+
+        if ($updated !== $content) {
+            File::put($configPath, $updated);
+            $this->info(
+                '  ✓ Konfigurasi threat_map disisipkan ke config/pasak.php (kustomisasi Anda dipertahankan).',
+            );
+        }
+    }
+
+    /**
+     * Sisipkan konfigurasi sentinel ke config/pasak.php host jika belum ada.
+     */
+    protected function migrateSentinelInConfig(): void
+    {
+        $configPath = config_path('pasak.php');
+
+        if (! File::exists($configPath)) {
+            return;
+        }
+
+        $content = File::get($configPath);
+
+        if (str_contains($content, "'sentinel' =>")) {
+            return;
+        }
+
+        $block = <<<'PHP'
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pasak Sentinel Host Daemon IPC Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Konfigurasi komunikasi Unix Domain Socket antara aplikasi Laravel dan
+    | daemon Pasak Sentinel (Go host daemon). Memungkinkan delegasi pemblokiran
+    | IP ke kernel firewall Linux (nftables/iptables) secara instan (< 0.2ms).
+    |
+    */
+    'sentinel' => [
+        'enabled' => (bool) env('PASAK_SENTINEL_ENABLED', true),
+        'socket' => env('PASAK_SENTINEL_SOCKET', '/run/pasak/agent.sock'),
+        'timeout' => (float) env('PASAK_SENTINEL_TIMEOUT', 0.5),
+    ],
+];
+PHP;
+
+        $pattern = '/\];\s*$/';
+        if (preg_match($pattern, $content)) {
+            $updated = preg_replace($pattern, $block, $content);
+            if ($updated !== null && $updated !== $content) {
+                File::put($configPath, $updated);
+                $this->info(
+                    '  ✓ Konfigurasi sentinel IPC disisipkan ke config/pasak.php (kustomisasi Anda dipertahankan).',
+                );
             }
         }
     }

@@ -700,7 +700,7 @@ return [
     | Server Security Scan
     |--------------------------------------------------------------------------
     |
-    | Pemeriksaan sisi server yang ditampilkan di /security/server.
+    | Pemeriksaan sisi server yang ditampilkan di /pasak/server.
     | "cache_minutes" menyimpan hasil scan agar halaman tidak selalu membaca
     | filesystem; admin dapat memaksa scan ulang dari halaman tersebut.
     |

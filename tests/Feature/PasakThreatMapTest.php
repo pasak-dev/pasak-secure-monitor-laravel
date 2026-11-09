@@ -185,7 +185,6 @@ test('upgrade warns when published dashboard layout lacks the threat map menu', 
 
     try {
         $this->artisan('pasak:upgrade', [
-            '--force' => true,
             '--no-composer' => true,
             '--no-migrate' => true,
         ])->expectsOutputToContain('kedaluwarsa')

@@ -5,6 +5,7 @@ namespace Internal\Pasak\Tests\Feature;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Internal\Pasak\Services\VersionCheckService;
 use Internal\Pasak\Tests\TestCase;
@@ -197,5 +198,63 @@ class SecurityVersionCheckTest extends TestCase
             ->expectsOutputToContain('Menyinkronkan dan menerapkan migrasi database')
             ->expectsOutputToContain('berhasil diperbarui dan disinkronkan')
             ->assertExitCode(0);
+    }
+    public function test_upgrade_command_alias_upgrae_works(): void
+    {
+        Http::fake([
+            'https://repo.packagist.org/p2/robyajo/pasak.json' => Http::response([
+                'packages' => [
+                    'robyajo/pasak' => [
+                        ['version' => 'v2.0.8'],
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        $this->artisan('pasak:upgrae', [
+            '--force' => true,
+            '--no-composer' => true,
+            '--no-migrate' => true,
+        ])
+            ->expectsOutputToContain('BULWARK SECURITY UPGRADE')
+            ->expectsOutputToContain('Membersihkan berkas dan direktori usang dari versi lama')
+            ->assertExitCode(0);
+    }
+
+    public function test_upgrade_force_cleans_obsolete_files_and_injects_sentinel_config(): void
+    {
+        $tempDir = sys_get_temp_dir().'/pasak_test_upgrade_clean_'.uniqid();
+        File::makeDirectory($tempDir.'/config', 0755, true);
+        File::makeDirectory($tempDir.'/routes', 0755, true);
+        File::makeDirectory($tempDir.'/resources/views/pages/security', 0755, true);
+        $this->app->setBasePath($tempDir);
+
+        File::put($tempDir.'/routes/pasak.php', '<?php // current');
+        File::put($tempDir.'/routes/security.php', '<?php // obsolete');
+        File::put($tempDir.'/config/pasak.php', "<?php
+
+return [
+    'dashboard' => [
+        'prefix' => 'pasak',
+    ],
+];
+");
+        File::put($tempDir.'/config/security.php', '<?php // obsolete');
+
+        $this->artisan('pasak:upgrade', [
+            '--force' => true,
+            '--no-composer' => true,
+            '--no-migrate' => true,
+        ])->assertExitCode(0);
+
+        $this->assertFileDoesNotExist($tempDir.'/routes/security.php');
+        $this->assertFileDoesNotExist($tempDir.'/config/security.php');
+        $this->assertFileExists($tempDir.'/routes/pasak.php');
+
+        $configContent = File::get($tempDir.'/config/pasak.php');
+        $this->assertStringContainsString("'sentinel' =>", $configContent);
+        $this->assertStringContainsString("'threat_map' =>", $configContent);
+
+        File::deleteDirectory($tempDir);
     }
 }
