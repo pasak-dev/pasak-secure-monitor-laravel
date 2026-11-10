@@ -218,6 +218,17 @@
 
     <div style="height: 20px;"></div>
 
+    <div class="sec-card">
+        <h3 class="sec-card-title" style="font-size: 15px;">🌐 {{ __('Integrasi Navigasi: URL Kembali ke Dashboard Aplikasi Host') }}</h3>
+        <p class="sec-card-desc" style="margin-top: 6px;">{{ __('Tautan tombol "Dashboard Utama" pada header dan navigasi samping untuk kembali ke aplikasi utama atau dashboard admin pengguna. Jika dikosongkan, defaultnya adalah "/".') }}</p>
+        <div style="display: flex; gap: 10px; align-items: center; max-width: 520px;">
+            <input type="text" name="back_url" id="pasak_back_url" value="{{ $s['back_url'] ?? '/' }}" placeholder="/" class="sec-level-input" style="font-family: var(--sec-font-mono);">
+            <a href="{{ $s['back_url'] ?? '/' }}" target="_blank" class="sec-btn sec-btn-secondary sec-btn-sm" style="height: 36px;" title="{{ __('Uji buka tautan') }}">🔗 {{ __('Uji Tautan') }}</a>
+        </div>
+    </div>
+
+    <div style="height: 20px;"></div>
+
     <div class="sec-card" style="background: var(--sec-warning-bg); border-color: var(--sec-warning-border);">
         <span style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: var(--sec-warning);">
             ⚠ {{ __('Ringkasan Simulasi Kebijakan Auto-Blokir Aktif:') }}

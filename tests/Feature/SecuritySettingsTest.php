@@ -175,3 +175,65 @@ test('dynamic setting switches auto block behavior from device isolation to enti
         ->get('/')
         ->assertForbidden();
 });
+
+test('dashboard back url defaults to slash and falls back properly', function () {
+    $service = app(PasakService::class);
+
+    // Default configuration
+    expect($service->getDashboardBackUrl())->toBe('/');
+
+    // If config changes
+    config()->set('pasak.dashboard.back_url', '/admin/overview');
+    expect($service->getDashboardBackUrl())->toBe('/admin/overview');
+
+    // Setting in DB overrides config
+    $service->setSetting('dashboard.back_url', 'https://example.com/admin');
+    expect($service->getDashboardBackUrl())->toBe('https://example.com/admin');
+
+    // Empty string falls back to default
+    $service->updateSettings(['back_url' => '']);
+    expect($service->getDashboardBackUrl())->toBe('/');
+});
+
+test('admin can update dashboard back url via api and settings form', function () {
+    $admin = TestUser::create([
+        'name' => 'Super Admin',
+        'email' => 'admin-backurl@example.com',
+        'password' => bcrypt('password'),
+        'role' => 'admin',
+    ]);
+
+    $service = app(PasakService::class);
+
+    // 1. Update via JSON API
+    $response = $this->actingAs($admin)->postJson('/api/pasak/settings', [
+        'back_url' => '/custom-admin-dashboard',
+    ]);
+
+    $response->assertSuccessful();
+    $response->assertJson([
+        'success' => true,
+        'settings' => [
+            'back_url' => '/custom-admin-dashboard',
+        ],
+    ]);
+    expect($service->getDashboardBackUrl())->toBe('/custom-admin-dashboard');
+
+    // Ensure dashboard views and routes are loaded
+    $viewsTarget = resource_path("views/pages/pasak");
+    \Illuminate\Support\Facades\File::ensureDirectoryExists($viewsTarget);
+    \Illuminate\Support\Facades\File::copyDirectory(
+        dirname(__DIR__, 2)."/stubs/blade/pages/pasak",
+        $viewsTarget,
+    );
+    require dirname(__DIR__, 2)."/routes/pasak-dashboard-blade.php";
+    \Illuminate\Support\Facades\Route::getRoutes()->refreshNameLookups();
+
+    // 2. Settings blade page renders the updated back url and test button
+    $page = $this->actingAs($admin)->get(route('pasak.dashboard.settings'));
+    $page->assertSuccessful();
+    $page->assertSee('/custom-admin-dashboard');
+    $page->assertSee('URL Kembali ke Dashboard Aplikasi Host');
+    $page->assertSee('Dashboard Utama');
+    $page->assertSee('rel="icon"', false);
+});

@@ -1,34 +1,44 @@
 {
-    "date": "2026-11-10",
-    "type": "update",
-    "title": {
-        "id": "Pembersihan Cache Sekali Klik, Identitas Visual Resmi, dan Lencana Alamat Pengakses",
-        "en": "One-Click Cache Optimization, Official Visual Branding, and Live Visitor Address Badge"
+  "date": "2026-11-10",
+  "type": "update",
+  "title": {
+    "id": "Pembersihan Cache Sekali Klik, Identitas Visual Resmi, Favicon Terintegrasi, dan Lencana IP Pengakses",
+    "en": "One-Click Cache Optimization, Official Visual Branding, Integrated Favicon, and Live Visitor Address Badge"
+  },
+  "body": {
+    "id": "Pembaruan v1.7.4 menghadirkan kemudahan pembersihan dan penyegaran data aplikasi sekali klik langsung dari header dasbor, penerapan identitas visual dan logo resmi yang adaptif di berbagai tema, integrasi favicon resmi berkualitas tinggi pada seluruh halaman, indikator alamat IP pengakses dengan fitur salin instan, fleksibilitas konfigurasi tautan kembali dasbor, serta perbaikan menyeluruh pada akurasi pemetaan ancaman siber dan kenyamanan dialog konfirmasi.",
+    "en": "Update v1.7.4 introduces seamless one-click application cache clearing and data refresh directly from the dashboard header, official responsive visual branding tailored for both light and dark themes, high-resolution official favicon integration across all dashboard pages, a real-time visitor IP address indicator with instant clipboard copy, flexible return URL configuration, and comprehensive refinements to cyber threat map and alert dialog reliability."
+  },
+  "items": [
+    {
+      "type": "feature",
+      "id": "Integrasi Favicon Resmi dan Adaptif: Mengintegrasikan favicon bawaan beresolusi tinggi menggunakan ikon resmi aplikasi pada seluruh halaman dasbor dan halaman blokir keamanan, dengan dukungan penuh untuk kustomisasi mandiri.",
+      "en": "Official High-Resolution Favicon Integration: Embedded official application icons as high-DPI favicons across all monitoring views and blocked response screens, with native support for custom overrides."
     },
-    "body": {
-        "id": "Pembaruan v1.7.3 menghadirkan kemudahan pembersihan dan penyegaran data aplikasi sekali klik langsung dari header dasbor, penerapan identitas visual dan logo resmi yang adaptif di berbagai tema, indikator alamat IP pengakses dengan fitur salin instan, serta perbaikan menyeluruh pada akurasi pemetaan ancaman siber dan kenyamanan dialog konfirmasi.",
-        "en": "Update v1.7.3 introduces seamless one-click application cache clearing and data refresh directly from the dashboard header, official responsive visual branding tailored for both light and dark themes, a real-time visitor IP address indicator with instant clipboard copy, and comprehensive refinements to the cyber threat map and alert dialog reliability."
+    {
+      "type": "feature",
+      "id": "Penyegaran dan Pembersihan Cache Sekali Klik: Tombol Muat Ulang pada bilah atas kini secara otomatis membersihkan cache konfigurasi, rute, dan tampilan secara asinkron dengan umpan balik visual instan sebelum memuat ulang data terbaru.",
+      "en": "One-Click Cache Clearing and Refresh: The header reload button now automatically clears compiled configuration, routes, and views asynchronously with instant visual feedback before presenting fresh data."
     },
-    "items": [
-        {
-            "type": "feature",
-            "id": "Penyegaran dan Pembersihan Cache Sekali Klik: Tombol Muat Ulang pada bilah atas kini secara otomatis membersihkan cache konfigurasi, rute, dan tampilan secara asinkron dengan umpan balik visual instan sebelum memuat ulang data terbaru.",
-            "en": "One-Click Cache Clearing and Refresh: The header reload button now automatically clears compiled configuration, routes, and views asynchronously with instant visual feedback before presenting fresh data."
-        },
-        {
-            "type": "feature",
-            "id": "Penerapan Identitas Visual dan Logo Resmi: Penyematan logo resmi horizontal pada bilah atas dengan adaptasi warna otomatis pada mode terang dan gelap, serta ikon aplikasi berkualitas tinggi pada bagian bawah menu navigasi.",
-            "en": "Official Visual Identity Integration: Embedded official horizontal branding in the top navigation bar with intelligent light/dark mode color adaptation, paired with high-DPI application icons in the sidebar footer."
-        },
-        {
-            "type": "feature",
-            "id": "Lencana Informasi Alamat IP Pengakses Real-Time: Menampilkan alamat IP klien yang sedang mengakses dasbor lengkap dengan status koneksi aktif dan kemudahan salin ke papan klip hanya dengan satu klik.",
-            "en": "Real-Time Client IP Address Badge: Displays the active user IP address on the header alongside a live connectivity indicator and effortless one-click copy to clipboard."
-        },
-        {
-            "type": "fix",
-            "id": "Penyempurnaan Peta Ancaman dan Dialog Konfirmasi: Memperbaiki pemrosesan data simulasi serangan pada peta dunia interaktif dan meniadakan duplikasi dialog konfirmasi pada pemeriksaan integritas berkas sistem.",
-            "en": "Threat Map and Confirmation Dialog Refinement: Fixed script parsing on the interactive live attack globe and eliminated redundant confirmation prompts during system integrity baseline audits."
-        }
-    ]
+    {
+      "type": "feature",
+      "id": "Penerapan Identitas Visual dan Logo Resmi: Penyematan logo resmi horizontal pada bilah atas dengan adaptasi warna otomatis pada mode terang dan gelap, serta ikon aplikasi berkualitas tinggi pada bagian bawah menu navigasi.",
+      "en": "Official Visual Identity Integration: Embedded official horizontal branding in the top navigation bar with intelligent light/dark mode color adaptation, paired with high-DPI application icons in the sidebar footer."
+    },
+    {
+      "type": "feature",
+      "id": "Lencana Informasi Alamat IP Pengakses Real-Time: Menampilkan alamat IP klien yang sedang mengakses dasbor lengkap dengan status koneksi aktif dan kemudahan salin ke papan klip hanya dengan satu klik.",
+      "en": "Real-Time Client IP Address Badge: Displays the active user IP address on the header alongside a live connectivity indicator and effortless one-click copy to clipboard."
+    },
+    {
+      "type": "feature",
+      "id": "Pengaturan Fleksibel Tombol Kembali Aplikasi: Menambahkan konfigurasi tautan kembali dasbor sehingga pengguna dapat menentukan rute beranda aplikasi utama baik melalui menu pengaturan maupun file konfigurasi.",
+      "en": "Flexible Application Return URL Configuration: Added configurable dashboard return destination allowing administrators to customize the main app redirect target via settings UI or configuration."
+    },
+    {
+      "type": "fix",
+      "id": "Penyempurnaan Peta Ancaman dan Dialog Konfirmasi: Memperbaiki pemrosesan data simulasi serangan pada peta dunia interaktif dan meniadakan duplikasi dialog konfirmasi pada pemeriksaan integritas berkas sistem.",
+      "en": "Threat Map and Confirmation Dialog Refinement: Fixed script parsing on the interactive live attack globe and eliminated redundant confirmation prompts during system integrity baseline audits."
+    }
+  ]
 }

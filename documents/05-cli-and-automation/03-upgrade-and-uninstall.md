@@ -71,7 +71,36 @@ curl -I 'https://domain-anda.test/?q=%7B%7B7*7%7D%7D'
 
 ---
 
-## 4. Uninstall Bersih (Pencopotan Penuh)
+## 4. Panduan Deployment VPS & CI/CD (Migrasi, Seeder, dan Zero Double Data)
+
+Saat melakukan deployment pertama kali ke VPS, server baru, atau setelah melakukan `git pull` dalam alur rilis produksi/CI/CD, Anda tidak perlu menjalankan serangkaian perintah migrasi, seeder, dan clear cache secara manual satu per satu. Pasak menyediakan perintah deployment tunggal yang dirancang khusus:
+
+```bash
+php artisan pasak:deploy --force
+```
+
+### Mengapa Aman & Menjamin Zero Double Data?
+1. **Idempotent Seeder**: Seeder `PasakDefaultSettingsSeeder` menggunakan metode `firstOrCreate` / `updateOrCreate` pada tabel `pasak_settings`. Dijalankan 100 kali pun **tidak akan pernah menduplikasi baris konfigurasi**.
+2. **Isolasi Penuh dari Tabel Host**: Perintah ini hanya beroperasi pada tabel khusus paket Pasak (`pasak_*`). **Sama sekali tidak menyentuh atau merusak tabel bisnis utama** seperti `users`, `orders`, `products`, dsb.
+3. **Otomasi Secret Key**: Memastikan `PASAK_DASHBOARD_SECRET` terisi di berkas `.env` server produksi tanpa merusak nilai yang sudah ada, sehingga sesi login pengguna tidak akan terputus.
+4. **Pembersihan Cache Produksi**: Otomatis menjalankan `config:clear`, `route:clear`, dan `view:clear` agar konfigurasi dan rute termutakhir langsung aktif di lingkungan web server.
+
+### Opsi Perintah Deployment:
+
+```bash
+# Deployment standar otomatis di VPS / CI-CD:
+php artisan pasak:deploy --force
+
+# Reset konfigurasi keamanan pasak_settings ke bawaan pabrik (tanpa hapus log/blokir):
+php artisan pasak:deploy --reset-settings --force
+
+# Reset status bersih tabel Pasak untuk audit awal (tabel host users tetap 100% aman):
+php artisan pasak:deploy --reset-tables --force
+```
+
+---
+
+## 5. Uninstall Bersih (Pencopotan Penuh)
 
 Bila paket sudah tidak dibutuhkan, Pasak menyediakan perintah pencopotan bersih yang menghapus seluruh jejak tanpa meninggalkan residu atau merusak aplikasi host:
 

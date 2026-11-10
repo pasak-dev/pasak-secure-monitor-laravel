@@ -41,6 +41,8 @@ PASAK_DASHBOARD_SECRET=
 PASAK_DASHBOARD_TOKEN_LENGTH=16
 PASAK_DASHBOARD_SINGLE_USE=true
 PASAK_DASHBOARD_GRACE_SECONDS=120
+# URL tombol "Kembali ke Dashboard Utama" pada header & sidebar Pasak (bawaan: /)
+PASAK_DASHBOARD_BACK_URL=/
 
 # Alamat email dukungan yang ditampilkan pada respon blokir 403
 PASAK_SUPPORT_EMAIL=security@example.com
@@ -65,6 +67,7 @@ Saat migrasi dijalankan (atau saat `pasak:install --migrate` / `pasak:upgrade`),
 | `login_throttle.base_minutes`      | `1`                                          | Durasi lockout awal pada tingkatan pertama (menit).                                                         |
 | `login_throttle.max_minutes`       | `30`                                         | Batas maksimum penalti penguncian berjenjang (menit).                                                       |
 | `logs.retention_days`              | `90`                                         | Masa simpan riwayat log audit (hari) sebelum dibersihkan otomatis.                                          |
+| `dashboard.back_url`               | `/`                                          | URL tujuan tombol "Kembali ke Dashboard Utama" pada header dan navigasi sidebar. Dapat diatur via `/pasak/settings` (misal `/admin`, `/app`, dll). |
 
 > 💡 **Prioritas Konfigurasi**: Nilai yang tersimpan pada tabel `pasak_settings` diutamakan di atas nilai `.env`. Kunci `.env` lama tetap berlaku sebagai fallback senyap apabila entri pada database belum tersimpan.
 

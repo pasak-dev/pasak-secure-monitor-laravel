@@ -35,7 +35,7 @@ class PasakService
     /**
      * Versi paket Pasak (Bulwark).
      */
-    public const VERSION = '1.7.3';
+    public const VERSION = '1.7.4';
 
     /**
      * Rentang waktu yang didukung grafik tren serangan.
@@ -201,7 +201,20 @@ class PasakService
             'login_lockout_max_minutes' => (int) $this->getSetting('login_lockout.max_minutes', config('pasak.login_lockout.max_minutes', 30)),
             'login_lockout_decay_minutes' => (int) $this->getSetting('login_lockout.decay_minutes', config('pasak.login_lockout.decay_minutes', 60)),
             'log_retention_days' => (int) $this->getSetting('log_retention_days', config('pasak.retention_days', 90)),
+            'back_url' => (string) $this->getSetting('dashboard.back_url', config('pasak.dashboard.back_url', '/')),
         ];
+    }
+
+    /**
+     * Dapatkan URL kembali ke dashboard admin/aplikasi utama host.
+     * Diambil dari database (pasak_settings: dashboard.back_url) dengan
+     * fallback ke konfigurasi config('pasak.dashboard.back_url', '/').
+     */
+    public function getDashboardBackUrl(): string
+    {
+        $url = (string) $this->getSetting('dashboard.back_url', config('pasak.dashboard.back_url', '/'));
+
+        return $url !== '' ? $url : '/';
     }
 
     /**
@@ -236,6 +249,7 @@ class PasakService
             'login_lockout.decay_minutes' => (int) config('pasak.login_lockout.decay_minutes', 60),
 
             'log_retention_days' => (int) config('pasak.retention_days', 90),
+            'dashboard.back_url' => (string) config('pasak.dashboard.back_url', '/'),
         ];
     }
 
@@ -397,6 +411,11 @@ class PasakService
 
         if (isset($values['log_retention_days'])) {
             $this->setSetting('log_retention_days', max(0, (int) $values['log_retention_days']));
+        }
+
+        if (array_key_exists('back_url', $values)) {
+            $rawBackUrl = trim((string) $values['back_url']);
+            $this->setSetting('dashboard.back_url', $rawBackUrl !== '' ? $rawBackUrl : '/');
         }
 
         $fresh = $this->getSettings();

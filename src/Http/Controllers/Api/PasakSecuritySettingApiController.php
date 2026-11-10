@@ -59,6 +59,7 @@ class PasakSecuritySettingApiController extends Controller
             'login_lockout_max_minutes' => ['nullable', 'integer', 'min:1', 'max:10080'],
             'login_lockout_decay_minutes' => ['nullable', 'integer', 'min:1', 'max:10080'],
             'log_retention_days' => ['nullable', 'integer', 'min:0', 'max:3650'],
+            'back_url' => ['nullable', 'string', 'max:500'],
         ]);
 
         $updated = $this->securityService->updateSettings($validated);

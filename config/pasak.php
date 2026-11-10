@@ -938,6 +938,16 @@ return [
             env('SECURITY_DASHBOARD_ADMIN_ONLY', false),
         ),
 
+        // Favicon kustom untuk dashboard Pasak (bila null, memakai favicon perisai SVG cyber bawaan paket).
+        'favicon' => env('PASAK_DASHBOARD_FAVICON'),
+
+        // URL kembali ke dashboard admin/aplikasi utama host (default: '/').
+        // Tautan tombol 'Dashboard Utama' pada header dan navigasi samping dashboard.
+        'back_url' => env(
+            'PASAK_DASHBOARD_BACK_URL',
+            env('PASAK_BACK_URL', '/'),
+        ),
+
         // Peta ancaman (Threat Map): titik server yang dipantau + jendela
         // data serangan yang digambar.
         'threat_map' => [
