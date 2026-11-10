@@ -2,6 +2,24 @@
 
 All notable changes to `robyajo/pasak` will be documented in this file.
 
+## [1.7.7] - 2026-11-11
+
+### Security
+
+- **Pencegahan IP Spoofing pada `resolveClientIp`** (`src/Services/PasakService.php`):
+  - Request publik tidak dapat lagi mem-bypass atau memalsukan identitas IP via header `CF-Connecting-IP`, `True-Client-IP`, `X-Real-IP`, atau `X-Forwarded-For`.
+  - Header reverse proxy kini hanya dipercaya dan diekstrak bila koneksi klien terbukti berasal dari upstream / proxy terpercaya (`isTrustedProxy()`, subnet privat/internal Docker/Nginx/Kube, atau rentang subnet resmi Cloudflare).
+- **Penghapusan Auto-Whitelist Pengguna Biasa pada `isWhitelisted`** (`src/Services/PasakService.php`):
+  - Login pengguna reguler tidak lagi memberikan izin bypass bebas WAF ke IP pengunjung. Whitelist hanya diberikan kepada IP tepercaya eksplisit (`PasakTrustedIp` / config).
+- **Inspeksi Raw Body & Mitigasi Padding Evasion** (`src/Services/PasakService.php`):
+  - Konten mentah request (`$request->getContent()`) kini otomatis diikutsertakan pada inspeksi body (menjamin request JSON/XML mentah tetap terpindai).
+  - Menerapkan inspeksi awal dan akhir (*head + tail inspection*) jika panjang isi request melampaui `max_inspect_length`, sehingga teknik *padding evasion* (> 4000 byte karakter dummy untuk menyembunyikan serangan di ekor payload) berhasil dicegah.
+
+### Fixed
+
+- **Isolasi File Konfigurasi Testbench pada Suite Pengujian** (`tests/TestCase.php`):
+  - Membersihkan residu file `config/pasak.php` pada skeleton Testbench di `TestCase::setUp()` dan `tearDown()` agar tes fitur tidak saling menimpa konfigurasi paket (Fixes #3, PR #4).
+
 ## [1.7.6] - 2026-11-11
 
 ### Fixed
