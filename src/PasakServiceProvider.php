@@ -146,7 +146,7 @@ class PasakServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->loadJsonTranslationsFrom(__DIR__."/../lang");
+        $this->loadJsonTranslationsFrom(__DIR__.'/../lang');
         $this->registerPublishing();
         $this->registerCommands();
         $this->registerListeners();

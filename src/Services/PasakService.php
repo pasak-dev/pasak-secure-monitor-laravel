@@ -19,8 +19,6 @@ use Internal\Pasak\Models\PasakAllowedIp;
 use Internal\Pasak\Models\PasakBlockedIp;
 use Internal\Pasak\Models\PasakLog;
 use Internal\Pasak\Models\PasakSetting;
-use Internal\Pasak\Models\PasakTrustedIp;
-use Internal\Pasak\Models\PasakUserLogin;
 use Throwable;
 
 /**
@@ -719,8 +717,6 @@ class PasakService
         } catch (Throwable) {
             // Silently fallback if table query fails
         }
-
-
 
         return false;
     }

@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Route;
 use Internal\Pasak\Models\BlockedIp;
 use Internal\Pasak\Models\SecurityLog;
 use Internal\Pasak\Services\PasakService;
@@ -220,14 +222,14 @@ test('admin can update dashboard back url via api and settings form', function (
     expect($service->getDashboardBackUrl())->toBe('/custom-admin-dashboard');
 
     // Ensure dashboard views and routes are loaded
-    $viewsTarget = resource_path("views/pages/pasak");
-    \Illuminate\Support\Facades\File::ensureDirectoryExists($viewsTarget);
-    \Illuminate\Support\Facades\File::copyDirectory(
-        dirname(__DIR__, 2)."/stubs/blade/pages/pasak",
+    $viewsTarget = resource_path('views/pages/pasak');
+    File::ensureDirectoryExists($viewsTarget);
+    File::copyDirectory(
+        dirname(__DIR__, 2).'/stubs/blade/pages/pasak',
         $viewsTarget,
     );
-    require dirname(__DIR__, 2)."/routes/pasak-dashboard-blade.php";
-    \Illuminate\Support\Facades\Route::getRoutes()->refreshNameLookups();
+    require dirname(__DIR__, 2).'/routes/pasak-dashboard-blade.php';
+    Route::getRoutes()->refreshNameLookups();
 
     // 2. Settings blade page renders the updated back url and test button
     $page = $this->actingAs($admin)->get(route('pasak.dashboard.settings'));
