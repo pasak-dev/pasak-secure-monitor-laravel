@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-11",
+  "type": "important",
+  "title": {
+    "id": "Pengerasan Keamanan Berlapis, Panduan Bantuan, dan Pencegahan Pemblokiran Keliru",
+    "en": "Multi-Layered Security Hardening, Help Guide, and False Positive Prevention"
+  },
+  "body": {
+    "id": "Pembaruan v1.7.7 menghadirkan penguatan pertahanan menyeluruh terhadap manipulasi identitas jaringan dan penyelundupan ancaman siber, penghapusan celah bypass pada sesi pengguna, eliminasi pemblokiran keliru pada tautan konten publik, serta integrasi panduan bantuan interaktif dwibahasa di dasbor.",
+    "en": "Update v1.7.7 delivers comprehensive protection hardening against network identity spoofing and evasion tactics, eliminates session bypass vulnerabilities, prevents false positive blocks on public content links, and integrates an interactive bilingual help guide on the dashboard."
+  },
+  "items": [
+    {
+      "type": "security",
+      "id": "Perlindungan Manipulasi Jaringan & Verifikasi Gerbang Akses: Memastikan identitas pengunjung hanya dapat divalidasi melalui gerbang proksi resmi dan terpercaya guna mencegah pemalsuan alamat untuk menembus pengamanan.",
+      "en": "Network Identity Protection & Gateway Verification: Ensures visitor origins are strictly authenticated through verified reverse proxy gateways, preventing forged headers from circumventing security policies."
+    },
+    {
+      "type": "security",
+      "id": "Penghapusan Celah Bypass Pengguna: Menghilangkan pengecualian otomatis pada akun pengguna biasa sehingga seluruh lalu lintas tetap terpantau dan terlindungi secara konsisten tanpa celah.",
+      "en": "User Bypass Vulnerability Elimination: Removed blanket security bypasses for standard logged-in accounts, ensuring all application traffic remains uniformly inspected and guarded."
+    },
+    {
+      "type": "security",
+      "id": "Inspeksi Konten Mentah & Pencegahan Penyamaran Serangan: Sistem kini memindai isi permintaan aplikasi secara mendalam hingga ke bagian akhir untuk mencegah teknik penyelundupan ancaman yang disamarkan dengan teks panjang.",
+      "en": "Deep Content Inspection & Evasion Prevention: Enhanced payload inspection scans deep into request content including tails, preventing evasion tactics that attempt to conceal malicious activity behind dummy padding."
+    },
+    {
+      "type": "fix",
+      "id": "Pencegahan Pemblokiran Keliru pada Tautan Konten: Memperbaiki akurasi deteksi nama berkas sensitif sehingga pengunjung yang membaca artikel atau mengakses tautan informasi umum tidak lagi terkena pemblokiran otomatis.",
+      "en": "False-Positive Block Prevention on Content Links: Refined sensitive keyword detection boundaries so legitimate visitors browsing articles or general slugs are never erroneously blocked."
+    },
+    {
+      "type": "new",
+      "id": "Panduan Bantuan Dasbor Interaktif Dwibahasa: Menghadirkan modal panduan komprehensif dalam bahasa Indonesia dan Inggris yang dapat diakses langsung dari dasbor untuk memudahkan pemahaman fitur dan tindakan keamanan.",
+      "en": "Interactive Bilingual Dashboard Help Guide: Introduced a comprehensive built-in modal guide in Indonesian and English accessible directly from the dashboard to clarify security metrics and actions."
+    },
+    {
+      "type": "improvement",
+      "id": "Peningkatan Kestabilan & Kualitas Pengujian Otomatis: Penataan isolasi konfigurasi dan perapian standar kode menyeluruh demi memastikan sistem selalu andal dan lulus pengujian di seluruh lingkungan operasional.",
+      "en": "Automated Testing Stability & Code Standards: Enforced isolated test configurations and unified code quality standards, guaranteeing dependable performance across all supported operating environments."
+    }
+  ]
+}
