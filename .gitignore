@@ -4,6 +4,8 @@ composer.lock
 .pest
 .env
 *.log
+node_modules/
+dist/
 
 # Sandbox aplikasi Laravel uji (tidak ikut rilis paket)
 /laravel-test

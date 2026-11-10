@@ -38,6 +38,23 @@ trait RespondsWithPasakDashboard
             abort(500, 'Dashboard views are not published. Run: php artisan pasak:install --with-dashboard');
         }
 
+        $locale = (string) (request()->query('lang')
+            ?? (request()->hasSession() ? session('pasak_locale') : null)
+            ?? request()->cookie('pasak_locale')
+            ?? 'en');
+
+        if (! in_array($locale, ['en', 'id'], true)) {
+            $locale = 'en';
+        }
+
+        app()->setLocale($locale);
+
+        if (request()->hasSession()) {
+            session(['pasak_locale' => $locale]);
+        }
+
+        $data['currentLocale'] = $locale;
+
         return view($blade, $data);
     }
 }

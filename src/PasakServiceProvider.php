@@ -146,6 +146,7 @@ class PasakServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->loadJsonTranslationsFrom(__DIR__."/../lang");
         $this->registerPublishing();
         $this->registerCommands();
         $this->registerListeners();
@@ -294,6 +295,14 @@ class PasakServiceProvider extends ServiceProvider
                 ),
             ],
             'pasak-skills',
+        );
+
+        // Language translations
+        $this->publishes(
+            [
+                __DIR__.'/../lang' => $this->app->langPath('vendor/pasak'),
+            ],
+            'pasak-lang',
         );
 
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');

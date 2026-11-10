@@ -1,5 +1,16 @@
+@php
+    $currentLocale = (string) (request()->query('lang')
+        ?? (request()->hasSession() ? session('pasak_locale') : null)
+        ?? request()->cookie('pasak_locale')
+        ?? app()->getLocale()
+        ?? 'en');
+    if (! in_array($currentLocale, ['en', 'id'], true)) {
+        $currentLocale = 'en';
+    }
+    app()->setLocale($currentLocale);
+@endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ $currentLocale }}">
 
 <head>
     <meta charset="utf-8">
@@ -455,6 +466,148 @@
 
         .sec-refresh-btn.is-refreshing .sec-refresh-icon {
             animation: sec-spin 0.8s linear infinite;
+        }
+
+        .sec-lang-switcher {
+            display: inline-flex;
+            align-items: center;
+            height: 36px;
+            padding: 2px 3px;
+            border-radius: var(--sec-radius-sm);
+            background: var(--sec-card);
+            border: 1px solid var(--sec-border);
+            user-select: none;
+            gap: 2px;
+        }
+
+        .sec-lang-btn {
+            background: transparent;
+            border: none;
+            color: var(--sec-text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            line-height: 1;
+        }
+
+        .sec-lang-btn:hover {
+            color: var(--sec-text);
+            background: var(--sec-card-hover);
+        }
+
+        .sec-lang-btn.is-active {
+            color: #ffffff;
+            background: var(--sec-primary);
+        }
+
+        .sec-lang-sep {
+            color: var(--sec-border);
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .sec-support-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            height: 36px;
+            padding: 0 13px;
+            border-radius: var(--sec-radius-sm);
+            background: var(--sec-card);
+            border: 1px solid var(--sec-border);
+            color: var(--sec-text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            user-select: none;
+        }
+
+        .sec-support-btn:hover {
+            background: var(--sec-card-hover);
+            border-color: var(--sec-primary);
+            color: var(--sec-primary);
+        }
+
+        .sec-support-btn:active {
+            transform: scale(0.97);
+        }
+
+        .sec-support-modal-box {
+            background: var(--sec-card);
+            border: 1px solid var(--sec-border);
+            border-radius: var(--sec-radius);
+            box-shadow: var(--sec-shadow-md);
+            max-width: 680px;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: sec-modal-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .sec-support-modal-body {
+            padding: 22px 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: var(--sec-text);
+        }
+
+        .sec-support-section {
+            background: var(--sec-bg);
+            border: 1px solid var(--sec-border);
+            border-radius: var(--sec-radius-sm);
+            padding: 14px 16px;
+        }
+
+        .sec-support-section-title {
+            font-size: 12.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--sec-text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sec-support-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .sec-support-item {
+            background: var(--sec-card);
+            border: 1px solid var(--sec-border);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+        .sec-support-item-title {
+            font-weight: 600;
+            color: var(--sec-text);
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sec-support-item-desc {
+            font-size: 12px;
+            color: var(--sec-text-muted);
+            line-height: 1.45;
         }
 
         .sec-back-app-btn {
@@ -1923,6 +2076,14 @@
                             </svg>
                             <span>{{ __('Dashboard Utama') }}</span>
                         </a>
+                        <button type="button" class="sec-support-btn" onclick="window.pasakOpenPageSupport ? window.pasakOpenPageSupport() : null;" title="{{ __('Panduan & Informasi Halaman') }}" data-sec-header-support>
+                            <svg class="sec-support-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                            <span>{{ __('Support') }}</span>
+                        </button>
                         <div class="sec-client-ip-badge" onclick="window.pasakCopyIp ? window.pasakCopyIp('{{ request()->ip() }}') : null;" title="{{ __('Alamat IP Anda saat ini: :ip (Klik untuk menyalin)', ['ip' => request()->ip()]) }}" role="button" tabindex="0">
                             <span class="sec-ip-dot" aria-hidden="true"></span>
                             <span class="sec-ip-label">{{ __('IP Anda:') }}</span>
@@ -1937,6 +2098,11 @@
                             </svg>
                             <span>{{ __('Refresh') }}</span>
                         </button>
+                        <div class="sec-lang-switcher" role="group" aria-label="{{ __('Pilih Bahasa / Select Language') }}" title="{{ __('Ganti Bahasa / Switch Language') }}">
+                            <button type="button" class="sec-lang-btn {{ $currentLocale === 'en' ? 'is-active' : '' }}" onclick="window.pasakSetLocale('en');" title="English" aria-pressed="{{ $currentLocale === 'en' ? 'true' : 'false' }}">EN</button>
+                            <span class="sec-lang-sep" aria-hidden="true">/</span>
+                            <button type="button" class="sec-lang-btn {{ $currentLocale === 'id' ? 'is-active' : '' }}" onclick="window.pasakSetLocale('id');" title="Bahasa Indonesia" aria-pressed="{{ $currentLocale === 'id' ? 'true' : 'false' }}">ID</button>
+                        </div>
                     </div>
                 </header>
 
@@ -2121,6 +2287,18 @@
                 .catch(function() {
                     finishRefresh();
                 });
+            };
+
+            // Global Locale Switcher
+            window.pasakSetLocale = function(lang) {
+                if (lang !== 'en' && lang !== 'id') return;
+                try {
+                    localStorage.setItem('pasak_locale', lang);
+                    document.cookie = 'pasak_locale=' + lang + ';path=/;max-age=31536000;SameSite=Lax';
+                } catch (e) {}
+                var url = new URL(window.location.href);
+                url.searchParams.set('lang', lang);
+                window.location.href = url.toString();
             };
 
             // Copy Current Client IP Helper
@@ -2373,6 +2551,7 @@
             });
         })();
     </script>
+    @include('pages.pasak.page-support-modal')
 </body>
 
 </html>
