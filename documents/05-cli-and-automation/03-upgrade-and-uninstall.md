@@ -6,13 +6,27 @@ Panduan menaikkan versi paket pada aplikasi yang sudah terpasang, pembaruan meny
 
 ## 1. Upgrade Otomatis & Menyeluruh (Direkomendasikan)
 
-Mulai versi terbaru, Anda cukup menjalankan perintah dengan opsi `--force`. Perintah ini akan mengeksekusi seluruh siklus pembaruan secara otomatis tanpa harus menjalankan flag `--sync-views` secara terpisah:
+Secara default, `pasak:upgrade` otomatis mengeksekusi `composer update robyajo/pasak` di latar belakang lalu menyinkronkan seluruh aset. Anda cukup menjalankan:
 
 ```bash
 php artisan pasak:upgrade --force
 # Atau gunakan alias resmi bila salah ketik:
 php artisan pasak:upgrae --force
 ```
+
+### Opsi Manual untuk Server Produksi / VPS:
+
+Di beberapa server hosting / VPS di mana fungsi `proc_open` dinonaktifkan atau jika Anda lebih memilih menjalankan pembaruan Composer secara manual:
+
+```bash
+# 1. Unduh kode paket versi terbaru via Composer
+composer update robyajo/pasak
+
+# 2. Sinkronkan migrasi, rute, template Blade, dan segarkan cache
+php artisan pasak:upgrade --force --no-composer
+```
+
+---
 
 ### Alur Eksekusi Otomatis `--force`:
 
@@ -35,7 +49,7 @@ Jika Anda ingin mengontrol jalannya pembaruan secara terperinci atau menjalankan
 # Hanya cek ketersediaan versi baru tanpa mengubah berkas apa pun:
 php artisan pasak:upgrade --check
 
-# Sinkronisasi aset lokal tanpa mengunduh dari Composer (misal repository symlink lokal):
+# Sinkronisasi aset lokal tanpa mengunduh dari Composer (misal repository symlink lokal atau setelah composer update manual):
 php artisan pasak:upgrade --force --no-composer
 
 # Pembaruan tanpa menjalankan migrasi database:
@@ -80,6 +94,7 @@ php artisan pasak:deploy --force
 ```
 
 ### Mengapa Aman & Menjamin Zero Double Data?
+
 1. **Idempotent Seeder**: Seeder `PasakDefaultSettingsSeeder` menggunakan metode `firstOrCreate` / `updateOrCreate` pada tabel `pasak_settings`. Dijalankan 100 kali pun **tidak akan pernah menduplikasi baris konfigurasi**.
 2. **Isolasi Penuh dari Tabel Host**: Perintah ini hanya beroperasi pada tabel khusus paket Pasak (`pasak_*`). **Sama sekali tidak menyentuh atau merusak tabel bisnis utama** seperti `users`, `orders`, `products`, dsb.
 3. **Otomasi Secret Key**: Memastikan `PASAK_DASHBOARD_SECRET` terisi di berkas `.env` server produksi tanpa merusak nilai yang sudah ada, sehingga sesi login pengguna tidak akan terputus.
