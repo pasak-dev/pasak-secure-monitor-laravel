@@ -82,6 +82,7 @@
                 <tr>
                     <th>{{ __('IP / range') }}</th>
                     <th>{{ __('Label') }}</th>
+                    <th>{{ __('Allowed at') }}</th>
                     <th>{{ __('Expires') }}</th>
                     <th>{{ __('Status') }}</th>
                     <th style="text-align: right;">{{ __('Action') }}</th>
@@ -92,7 +93,16 @@
                     <tr>
                         <td class="sec-font-mono" style="font-weight: 600;">{{ $entry->ip_address }}</td>
                         <td style="font-size: 12px;">{{ $entry->label ?? '-' }}</td>
-                        <td style="font-size: 12px;">{{ $entry->expires_at ?? __('Permanent') }}</td>
+                        <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;">
+                            {{ $entry->created_at ? ($entry->created_at instanceof \DateTimeInterface ? $entry->created_at->format('d M Y H:i:s') : $entry->created_at) : '—' }}
+                        </td>
+                        <td style="font-size: 12px; white-space: nowrap;">
+                            @if ($entry->expires_at)
+                                <span class="sec-font-mono">{{ $entry->expires_at instanceof \DateTimeInterface ? $entry->expires_at->format('d M Y H:i:s') : $entry->expires_at }}</span>
+                            @else
+                                {{ __('Permanent') }}
+                            @endif
+                        </td>
                         <td>
                             <span class="sec-badge {{ $entry->is_active ? 'sec-badge-success' : 'sec-badge-low' }}">
                                 {{ $entry->is_active ? __('Active') : __('Inactive') }}
@@ -113,7 +123,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="text-align: center; color: var(--sec-text-muted); padding: 32px;">{{ __('No allowed IPs yet.') }}</td>
+                        <td colspan="6" style="text-align: center; color: var(--sec-text-muted); padding: 32px;">{{ __('No allowed IPs yet.') }}</td>
                     </tr>
                 @endforelse
             </tbody>
