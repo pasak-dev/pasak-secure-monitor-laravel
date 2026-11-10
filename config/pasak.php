@@ -206,7 +206,7 @@ return [
                 'target' => 'path',
                 'patterns' => [
                     "/\.(env|env\.[a-z]+|htaccess|htpasswd|user\.ini|git|svn|hg|bzr|aws|ssh)\b/i",
-                    "/(^|\/)(web\.config|php\.ini|composer\.(json|lock)|artisan|\.npmrc|\.dockerignore|Dockerfile|docker-compose\.ya?ml|id_rsa|id_dsa|\.my\.cnf|\.netrc)\b/i",
+                    "/(^|\/)(web\.config|php\.ini|composer\.(json|lock)|artisan|\.npmrc|\.dockerignore|Dockerfile|docker-compose\.ya?ml|id_rsa|id_dsa|\.my\.cnf|\.netrc)(?![\w-])/i",
                     "/(^|\/)(backup|dump|database|db|data|www)\.(sql|sql\.gz|tar|tar\.gz|zip|bak|old|orig|save|swp)\b/i",
                 ],
             ],

@@ -41,6 +41,8 @@ function detectorLegitCases(): array
         'referer normal' => ['referer' => 'https://superapp-api.pekanbaru.go.id/services'],
         'template literal JS' => ['body' => 'const pesan = `Halo ${nama}, total ${total}`;'],
         'query pencarian warga' => ['query' => 'search=laporan+masyarakat'],
+        'slug produk artisan-' => ['path' => '/produk/artisan-coffee'],
+        'slug artikel dockerfile-' => ['path' => '/blog/dockerfile-best-practices'],
     ];
 }
 
@@ -83,6 +85,10 @@ function detectorAttackCases(): array
         'traversal filename backslash' => [['filename' => '..\\..\\wne.jpg'], true],
         'traversal filename encoded' => [['filename' => '..%2f..%2fwne.jpg'], false],
         'probe .env' => [['path' => '/.env'], true],
+        'probe artisan' => [['path' => '/artisan'], true],
+        'probe Dockerfile' => [['path' => '/Dockerfile'], true],
+        'probe composer.json.bak' => [['path' => '/composer.json.bak'], true],
+        'probe id_rsa.pub' => [['path' => '/.ssh/id_rsa.pub'], true],
         'probe .env lewat query' => [['path' => '/index.php', 'query' => 'file=.env'], false],
         'os probe win.ini' => [['path' => '/windows/win.ini'], true],
         'webshell path' => [['path' => '/wne.php'], true],
@@ -139,6 +145,9 @@ function detectorFormat(array $threats): string
 }
 
 test('lalu lintas nyata tidak pernah memicu blokir instan', function () {
+    // Signature instan hanya dievaluasi bila blokir instan aktif.
+    config()->set('pasak.instant_block.enabled', true);
+
     $service = app(PasakService::class);
 
     foreach (detectorLegitCases() as $label => $haystacks) {

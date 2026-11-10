@@ -2,6 +2,12 @@
 
 All notable changes to `robyajo/pasak` will be documented in this file.
 
+## [1.7.6] - 2026-11-11
+
+### Fixed
+
+- **False positive blokir instan `config_probe` pada slug berawalan `artisan-` / `dockerfile-`** — pola nama berkas sensitif (`artisan`, `Dockerfile`, `composer.json`, `id_rsa`, dll.) kini tidak lagi cocok bila langsung diikuti huruf, angka, `_`, atau `-`, sehingga path seperti `/produk/artisan-coffee` atau `/blog/dockerfile-best-practices` tidak memblokir pengunjung selama 30 hari. Probe asli (`/artisan`, `/Dockerfile`, `/composer.json.bak`) tetap terblokir instan. Tes "lalu lintas nyata" pada `DetectorTuningTest` kini mengaktifkan blokir instan agar signature benar-benar dievaluasi.
+
 ## [1.7.4] - 2026-11-10
 
 ### Added
