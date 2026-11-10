@@ -2,6 +2,12 @@
 
 All notable changes to `robyajo/pasak` will be documented in this file.
 
+## [1.7.8] - 2026-11-11
+
+### Fixed
+
+- **Kepatuhan Gaya Kode Pint & CI**: Penyesuaian sintaksis kode sesuai standar Laravel Pint sehingga seluruh matrix pengujian otomatis lulus 100%.
+
 ## [1.7.7] - 2026-11-11
 
 ### Security
