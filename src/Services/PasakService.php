@@ -478,41 +478,142 @@ class PasakService
     /**
      * Resolve the client's true public IP address, respecting reverse proxies and CDNs.
      */
+    /**
+     * Determine whether the incoming request originates from a trusted reverse proxy.
+     */
+    public function isTrustedProxy(Request $request): bool
+    {
+        if ($request->isFromTrustedProxy()) {
+            return true;
+        }
+
+        $remote = (string) ($request->server('REMOTE_ADDR') ?? '');
+        if ($remote === '') {
+            return false;
+        }
+
+        // Loopback and private network ranges (Docker, Nginx, Kubernetes, internal gateway)
+        if (self::isPrivateIp($remote)) {
+            return true;
+        }
+
+        // Cloudflare IP ranges
+        if (self::isCloudflareIp($remote)) {
+            return true;
+        }
+
+        // Explicit trusted proxies in config
+        $trusted = config('pasak.trusted_proxies') ?? config('pasak.server_scan.trusted_proxies');
+        if (is_string($trusted) && $trusted !== '') {
+            foreach (explode(',', $trusted) as $proxy) {
+                if (self::ipMatches($remote, trim($proxy))) {
+                    return true;
+                }
+            }
+        } elseif (is_array($trusted)) {
+            foreach ($trusted as $proxy) {
+                if (self::ipMatches($remote, trim((string) $proxy))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if an IP address belongs to a private / reserved IP range.
+     */
+    public static function isPrivateIp(string $ip): bool
+    {
+        return ! filter_var(
+            $ip,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        );
+    }
+
+    /**
+     * Check if an IP address belongs to official Cloudflare reverse proxy ranges.
+     */
+    public static function isCloudflareIp(string $ip): bool
+    {
+        $cfRanges = [
+            '173.245.48.0/20',
+            '103.21.244.0/22',
+            '103.22.200.0/22',
+            '103.31.4.0/22',
+            '141.101.64.0/18',
+            '108.162.192.0/18',
+            '190.93.240.0/20',
+            '188.114.96.0/20',
+            '197.234.240.0/22',
+            '198.41.128.0/17',
+            '162.158.0.0/15',
+            '104.16.0.0/13',
+            '104.24.0.0/14',
+            '172.64.0.0/13',
+            '131.0.72.0/22',
+            '2400:cb00::/32',
+            '2606:4700::/32',
+            '2803:f800::/32',
+            '2405:b500::/32',
+            '2405:8100::/32',
+            '2a06:98c0::/29',
+            '2c0f:f248::/32',
+        ];
+
+        foreach ($cfRanges as $range) {
+            if (self::ipMatches($ip, $range)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Resolve the authentic client IP address, safely extracting from reverse
+     * proxy headers (Cloudflare, Nginx, Load Balancers) only when the request
+     * originates from a verified trusted proxy.
+     */
     public function resolveClientIp(Request $request): string
     {
-        // 1. Cloudflare CDN
-        if ($cfIp = $request->header('CF-Connecting-IP')) {
-            $candidate = trim(explode(',', $cfIp)[0]);
-            if (filter_var($candidate, FILTER_VALIDATE_IP)) {
-                return $candidate;
+        if ($this->isTrustedProxy($request)) {
+            // 1. Cloudflare CDN
+            if ($cfIp = $request->header('CF-Connecting-IP')) {
+                $candidate = trim(explode(',', $cfIp)[0]);
+                if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                    return $candidate;
+                }
+            }
+
+            // 2. Akamai / Cloudflare Enterprise
+            if ($trueIp = $request->header('True-Client-IP')) {
+                $candidate = trim(explode(',', $trueIp)[0]);
+                if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                    return $candidate;
+                }
+            }
+
+            // 3. Reverse Proxies (Nginx, Caddy, Traefik, Apache)
+            if ($realIp = $request->header('X-Real-IP')) {
+                $candidate = trim(explode(',', $realIp)[0]);
+                if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                    return $candidate;
+                }
+            }
+
+            // 4. Standard Forwarded / X-Forwarded-For header
+            if ($forwarded = $request->header('X-Forwarded-For')) {
+                $candidate = trim(explode(',', $forwarded)[0]);
+                if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                    return $candidate;
+                }
             }
         }
 
-        // 2. Akamai / Cloudflare Enterprise
-        if ($trueIp = $request->header('True-Client-IP')) {
-            $candidate = trim(explode(',', $trueIp)[0]);
-            if (filter_var($candidate, FILTER_VALIDATE_IP)) {
-                return $candidate;
-            }
-        }
-
-        // 3. Reverse Proxies (Nginx, Caddy, Traefik, Apache)
-        if ($realIp = $request->header('X-Real-IP')) {
-            $candidate = trim(explode(',', $realIp)[0]);
-            if (filter_var($candidate, FILTER_VALIDATE_IP)) {
-                return $candidate;
-            }
-        }
-
-        // 4. Standard Forwarded / X-Forwarded-For header
-        if ($forwarded = $request->header('X-Forwarded-For')) {
-            $candidate = trim(explode(',', $forwarded)[0]);
-            if (filter_var($candidate, FILTER_VALIDATE_IP)) {
-                return $candidate;
-            }
-        }
-
-        return (string) ($request->ip() ?? '127.0.0.1');
+        return (string) ($request->ip() ?? $request->server('REMOTE_ADDR') ?? '127.0.0.1');
     }
 
     /**
@@ -619,29 +720,7 @@ class PasakService
             // Silently fallback if table query fails
         }
 
-        try {
-            if (PasakTrustedIp::isAnyTrusted($ip, $deviceId, $localIp)) {
-                return true;
-            }
 
-            if ($deviceId && PasakUserLogin::query()->where('device_id', $deviceId)->whereNull('logout_at')->exists()) {
-                return true;
-            }
-
-            if ($localIp && PasakUserLogin::query()->where('local_ip', $localIp)->whereNull('logout_at')->exists()) {
-                return true;
-            }
-
-            if (PasakUserLogin::query()->where('ip_address', $ip)->whereNull('logout_at')->exists()) {
-                return true;
-            }
-
-            if (Schema::hasTable('sessions') && DB::table('sessions')->where('ip_address', $ip)->whereNotNull('user_id')->exists()) {
-                return true;
-            }
-        } catch (Throwable) {
-            // Silently fallback if table query fails
-        }
 
         return false;
     }
@@ -1342,10 +1421,19 @@ class PasakService
     {
         $limit = max(500, (int) config('pasak.max_inspect_length', 4000));
 
+        $bodyInput = $this->flattenInput($request->all());
+        $rawContent = (string) $request->getContent();
+
+        if ($rawContent !== '' && ! str_contains($bodyInput, substr($rawContent, 0, 100))) {
+            $combinedBody = $bodyInput !== '' ? $bodyInput.' '.$rawContent : $rawContent;
+        } else {
+            $combinedBody = $bodyInput !== '' ? $bodyInput : $rawContent;
+        }
+
         $haystacks = $this->haystacksFromParts(
             (string) $request->path(),
             (string) $request->getQueryString(),
-            Str::limit($this->flattenInput($request->all()), $limit, ''),
+            $combinedBody,
             (string) $request->userAgent(),
             (string) $request->headers->get('referer'),
         );
@@ -1376,13 +1464,21 @@ class PasakService
     {
         $limit = max(500, (int) config('pasak.max_inspect_length', 4000));
 
+        // Tail inspection prevents WAF padding evasion (padding with > 4000 bytes to hide attacks)
+        if (strlen($body) > $limit) {
+            $half = (int) ($limit / 2);
+            $inspectedBody = substr($body, 0, $half).' '.substr($body, -$half);
+        } else {
+            $inspectedBody = $body;
+        }
+
         return array_filter(
             [
                 'path' => $path,
                 'path-decoded' => rawurldecode($path),
                 'query' => $query,
                 'query-decoded' => rawurldecode($query),
-                'body' => Str::limit($body, $limit, ''),
+                'body' => $inspectedBody,
                 'referer' => $referer,
                 'user_agent' => $userAgent,
             ],
