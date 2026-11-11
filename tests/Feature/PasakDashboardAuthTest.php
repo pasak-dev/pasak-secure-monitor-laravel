@@ -63,6 +63,8 @@ it('renders the pasak login form with username and password fields', function ()
     $response->assertOk();
     $response->assertSee('name="username"', false);
     $response->assertSee('name="password"', false);
+    $response->assertSee('sec-header-logo-light', false);
+    $response->assertSee('sec-header-logo-dark', false);
     $response->assertSee('PASAK_DASHBOARD_SECRET');
 });
 
