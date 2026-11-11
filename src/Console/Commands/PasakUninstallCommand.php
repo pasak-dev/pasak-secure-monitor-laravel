@@ -513,6 +513,8 @@ class PasakUninstallCommand extends Command
             config_path('pasak.php'),
             config_path('security.php'),
             resource_path('views/errors/blocked.blade.php'),
+            resource_path('views/errors/pasak-login-throttle.blade.php'),
+            resource_path('views/errors/login-throttle.blade.php'),
         ];
 
         foreach ($deletions as $path) {

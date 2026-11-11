@@ -303,6 +303,11 @@ class PasakUpgradeCommand extends Command
                     File::ensureDirectoryExists(resource_path('views/errors'));
                     File::copy($stubBlocked, resource_path('views/errors/blocked.blade.php'));
                 }
+                $stubThrottle = __DIR__.'/../../../stubs/pasak-login-throttle.blade.php';
+                if (File::exists($stubThrottle)) {
+                    File::ensureDirectoryExists(resource_path('views/errors'));
+                    File::copy($stubThrottle, resource_path('views/errors/pasak-login-throttle.blade.php'));
+                }
             }
             $this->info(
                 '  ✓ Halaman error blokir (errors/blocked.blade.php) telah disinkronkan ke versi terbaru.',

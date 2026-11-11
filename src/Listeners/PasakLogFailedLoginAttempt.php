@@ -32,12 +32,17 @@ class PasakLogFailedLoginAttempt
         $ip = $this->request->ip();
 
         // Cooldown bertingkat berlaku juga pada IP yang masuk whitelist, karena
-        // ini proteksi akun (bukan proteksi IP).
+        // ini proteksi akun (bukan pemblokiran IP permanen WAF).
+        $lockoutStatus = null;
         try {
-            $this->throttle->registerFailure(
+            $lockoutStatus = $this->throttle->registerFailure(
                 is_string($email) ? $email : null,
                 $ip,
             );
+
+            if ($this->request->hasSession() && ! empty($lockoutStatus['locked'])) {
+                $this->request->session()->flash('pasak_login_lockout', $lockoutStatus);
+            }
         } catch (Throwable) {
             // Proteksi akun tidak boleh menggagalkan respons login.
         }
@@ -55,7 +60,7 @@ class PasakLogFailedLoginAttempt
             'local_ip' => $localIp,
             'user_id' => $event->user?->getAuthIdentifier(),
             'event_type' => 'login_failed',
-            'threat_level' => 'medium',
+            'threat_level' => 'low',
             'method' => Str::limit($this->request->method(), 10, ''),
             'path' => '/'.ltrim($this->request->path(), '/'),
             'full_url' => Str::limit($this->request->fullUrl(), 2000, ''),
@@ -74,11 +79,5 @@ class PasakLogFailedLoginAttempt
             ),
             'action_taken' => 'logged',
         ]);
-
-        try {
-            $this->service->autoBlockIfNeeded((string) $ip, $deviceId, $localIp);
-        } catch (Throwable) {
-            // Brute force protection must never break the login response.
-        }
     }
 }

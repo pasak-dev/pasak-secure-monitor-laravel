@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Internal\Pasak\Models\PasakSetting;
+use Internal\Pasak\Services\PasakLoginThrottleService;
 use Internal\Pasak\Support\PasakDashboardSecret;
 
 class PasakAuthController
@@ -22,6 +23,9 @@ class PasakAuthController
             return redirect()->to(url($prefix));
         }
 
+        $throttle = app(PasakLoginThrottleService::class);
+        $lockedAttempt = $throttle->enabled() ? $throttle->activeLockoutForIp($request->ip()) : null;
+
         $secret = $this->resolveExpectedSecret();
         $secretConfigured = $secret !== '';
 
@@ -30,6 +34,11 @@ class PasakAuthController
             'defaultUsername' => $this->resolveExpectedUsername(),
             'defaultPassword' => $this->resolveDefaultPassword(),
             'isPasswordStored' => PasakDashboardSecret::isPasswordStoredInDatabase(),
+            'lockout' => $lockedAttempt ? [
+                'seconds' => $lockedAttempt->secondsRemaining(),
+                'level' => $lockedAttempt->lockout_level,
+                'message' => $throttle->lockoutMessage($lockedAttempt->secondsRemaining()),
+            ] : null,
         ]);
     }
 
@@ -38,6 +47,24 @@ class PasakAuthController
      */
     public function login(Request $request)
     {
+        $throttle = app(PasakLoginThrottleService::class);
+        $username = (string) $request->input('username');
+        $ip = (string) $request->ip();
+
+        if ($throttle->enabled()) {
+            $status = $throttle->status($username, $ip);
+            if ($status['locked']) {
+                $msg = $status['message'] ?? $throttle->lockoutMessage($status['seconds']);
+
+                return back()
+                    ->withInput($request->only('username'))
+                    ->withErrors([
+                        'pasak_login' => $msg,
+                        'username' => $msg,
+                    ]);
+            }
+        }
+
         $throttleKey = 'pasak_login_throttle:'.Str::lower($request->ip());
 
         // Perlindungan brute-force: maksimal 5 percobaan gagal per 60 detik
@@ -82,6 +109,21 @@ class PasakAuthController
 
         if (! $userValid || ! $passResult['valid']) {
             RateLimiter::hit($throttleKey, 60);
+
+            if ($throttle->enabled()) {
+                $failStatus = $throttle->registerFailure($username, $ip);
+                if ($failStatus['locked']) {
+                    $msg = $failStatus['message'] ?? $throttle->lockoutMessage($failStatus['seconds']);
+
+                    return back()
+                        ->withInput($request->only('username'))
+                        ->withErrors([
+                            'pasak_login' => $msg,
+                            'username' => $msg,
+                            'password' => $msg,
+                        ]);
+                }
+            }
             $msg = __('Username atau password salah. Periksa kredensial pada berkas .env Anda.');
 
             return back()
@@ -94,6 +136,9 @@ class PasakAuthController
 
         // Login berhasil, bersihkan riwayat throttle
         RateLimiter::clear($throttleKey);
+        if ($throttle->enabled()) {
+            $throttle->registerSuccess($inputUser, $ip);
+        }
 
         if ($request->hasSession()) {
             $request->session()->regenerate();
