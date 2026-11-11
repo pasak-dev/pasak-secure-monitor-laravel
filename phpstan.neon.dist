@@ -36,6 +36,12 @@ parameters:
             message: '#Inertia#'
             path: src/Http/Controllers/Dashboard/*
 
+        # Larastan and strict PHPStan checks
+        - '#Called ''env'' outside of the config directory#'
+        - '#Parameter \#1 \$view of function view expects view-string\|null#'
+        - '#Parameter \#2 \$syntax of method Carbon\\Carbon::diffForHumans\(\) expects#'
+        - '#Strict comparison using === between non-empty-string and ''''#'
+
         # Pest tests rely on magic `$this`; the official Pest PHPStan plugin is
         # only available for Pest 5, so these are expected when tests are analysed.
         -

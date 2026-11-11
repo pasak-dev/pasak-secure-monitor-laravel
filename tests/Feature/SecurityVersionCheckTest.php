@@ -55,7 +55,7 @@ class SecurityVersionCheckTest extends TestCase
     {
         Http::fake([
             'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response(null, 500),
-            'https://api.github.com/repos/pasak-dev/secure-monitor/tags' => Http::response([
+            'https://api.github.com/repos/pasak-dev/pasak-secure-monitor-laravel/tags' => Http::response([
                 ['name' => 'v98.5.1'],
                 ['name' => 'v2.0.7'],
             ], 200),

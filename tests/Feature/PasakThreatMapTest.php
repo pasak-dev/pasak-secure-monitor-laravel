@@ -250,7 +250,7 @@ test('upgrade warns when published dashboard layout lacks the threat map menu', 
         'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
             'packages' => ['pasak-dev/secure-monitor' => [['version' => 'v99.9.9']]],
         ], 200),
-        'https://api.github.com/repos/pasak-dev/secure-monitor/tags' => Http::response([], 200),
+        'https://api.github.com/repos/pasak-dev/pasak-secure-monitor-laravel/tags' => Http::response([], 200),
     ]);
 
     $layout = resource_path('views/pages/pasak/layout.blade.php');
