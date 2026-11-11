@@ -41,6 +41,7 @@ parameters:
         - '#Parameter \#1 \$view of function view expects view-string\|null#'
         - '#Parameter \#2 \$syntax of method Carbon\\Carbon::diffForHumans\(\) expects#'
         - '#Strict comparison using === between non-empty-string and ''''#'
+        - '#Call to method Illuminate\\Contracts\\View\\Factory::exists\(\)#'
 
         # Pest tests rely on magic `$this`; the official Pest PHPStan plugin is
         # only available for Pest 5, so these are expected when tests are analysed.
