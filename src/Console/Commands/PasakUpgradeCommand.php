@@ -101,9 +101,10 @@ class PasakUpgradeCommand extends Command
         if (! $this->option('no-composer')) {
             $this->comment('1/6. Memperbarui package via Composer...');
             $composer = $this->findComposer();
+            $pkgName = $this->detectPackageName();
             $cmd = array_merge($composer, [
                 'update',
-                'robyajo/pasak',
+                $pkgName,
                 '--with-all-dependencies',
             ]);
 
@@ -130,7 +131,7 @@ class PasakUpgradeCommand extends Command
                             $e->getMessage(),
                     );
                     $this->line(
-                        '  Silakan jalankan <info>composer update robyajo/pasak</info> secara manual jika diperlukan.',
+                        "  Silakan jalankan <info>composer update {$pkgName}</info> secara manual jika diperlukan.",
                     );
                 }
             } else {
@@ -867,9 +868,9 @@ class PasakUpgradeCommand extends Command
 
         $guidelinesBlock = <<<'MARKDOWN'
 <!-- pasak-guidelines:start -->
-## Pasak WAF & Security Guidelines (`robyajo/pasak`)
+## Pasak WAF & Security Guidelines (`pasak-dev/pasak-secure-monitor-laravel`)
 
-This application is protected by **`robyajo/pasak`** (Bulwark), a standalone headless Web Application Firewall (WAF) and security toolkit for Laravel.
+This application is protected by **`pasak-dev/pasak-secure-monitor-laravel`** (Bulwark), a standalone headless Web Application Firewall (WAF) and security toolkit for Laravel.
 
 - **Official Online Documentation**: https://pasak.is-a.dev/
 
@@ -877,7 +878,7 @@ This application is protected by **`robyajo/pasak`** (Bulwark), a standalone hea
 - Activate the **`pasak`** skill (`.agents/skills/pasak/SKILL.md`) whenever writing, refactoring, or testing WAF rules, IP blocking, custom security dashboards, REST APIs, or server audits.
 
 ### 2. Zero-Vendor-Edit Policy
-- **NEVER modify files in `vendor/robyajo/pasak/`**. Any custom dashboard, controller, view, or API endpoint must be built inside the host application (`app/Http/Controllers/`, `resources/views/`, `routes/web.php`, `routes/api.php`).
+- **NEVER modify files in `vendor/pasak-dev/pasak-secure-monitor-laravel/`**. Any custom dashboard, controller, view, or API endpoint must be built inside the host application (`app/Http/Controllers/`, `resources/views/`, `routes/web.php`, `routes/api.php`).
 
 ### 3. Core Facade & Service Usage
 - Always interact via `Internal\Pasak\Facades\Pasak`:
@@ -929,8 +930,27 @@ MARKDOWN;
     }
 
     /**
-     * Selaraskan constraint versi robyajo/pasak di composer.json ke versi lengkap (^1.6.5).
-     * Mencegah Composer hanya menuliskan constraint ringkas seperti ^1.6.
+     * Deteksi nama package di composer.json host application.
+     */
+    protected function detectPackageName(): string
+    {
+        $composerPath = base_path('composer.json');
+        if (File::exists($composerPath)) {
+            $content = File::get($composerPath);
+            if (str_contains($content, 'pasak-dev/pasak-secure-monitor-laravel')) {
+                return 'pasak-dev/pasak-secure-monitor-laravel';
+            }
+            if (str_contains($content, 'robyajo/pasak')) {
+                return 'robyajo/pasak';
+            }
+        }
+
+        return 'pasak-dev/pasak-secure-monitor-laravel';
+    }
+
+    /**
+     * Selaraskan constraint versi di composer.json ke versi lengkap (^1.0.0).
+     * Mencegah Composer hanya menuliskan constraint ringkas seperti ^1.0.
      */
     protected function syncComposerConstraint(string $version): void
     {
@@ -940,18 +960,24 @@ MARKDOWN;
         }
 
         $content = File::get($composerPath);
-        $pattern = '/("robyajo\/pasak"\s*:\s*")([^"]+)(")/';
+        $patterns = [
+            'pasak-dev/pasak-secure-monitor-laravel' => '/("pasak-dev\/pasak-secure-monitor-laravel"\s*:\s*")([^"]+)(")/',
+            'robyajo/pasak' => '/("robyajo\/pasak"\s*:\s*")([^"]+)(")/',
+        ];
 
-        if (preg_match($pattern, $content, $matches)) {
-            $current = $matches[2];
-            $target = "^{$version}";
+        foreach ($patterns as $pkg => $pattern) {
+            if (preg_match($pattern, $content, $matches)) {
+                $current = $matches[2];
+                $target = "^{$version}";
 
-            if ($current !== $target && ! in_array($current, ['@dev', 'dev-main', '*'], true)) {
-                $newContent = preg_replace($pattern, '${1}'.$target.'${3}', $content, 1);
-                if ($newContent !== null && $newContent !== $content) {
-                    File::put($composerPath, $newContent);
-                    $this->info("  ✓ Versi robyajo/pasak di composer.json diselaraskan ke \"{$target}\".");
+                if ($current !== $target && ! in_array($current, ['@dev', 'dev-main', '*'], true)) {
+                    $newContent = preg_replace($pattern, '${1}'.$target.'${3}', $content, 1);
+                    if ($newContent !== null && $newContent !== $content) {
+                        File::put($composerPath, $newContent);
+                        $this->info("  ✓ Versi {$pkg} di composer.json diselaraskan ke \"{$target}\".");
+                    }
                 }
+                break;
             }
         }
     }

@@ -1,5 +1,5 @@
 {
-  "name": "robyajo/pasak",
+  "name": "pasak-dev/pasak-secure-monitor-laravel",
   "description": "Pasak - enterprise-grade headless self-hosted WAF, threat detection engine, zero-tolerance blocking, stepped login lockout, and security auditing toolkit for Laravel.",
   "keywords": [
     "laravel",
@@ -14,11 +14,11 @@
     "security-audit",
     "headless"
   ],
-  "homepage": "https://github.com/robyajo/pasak",
+  "homepage": "https://github.com/pasak-dev/pasak-secure-monitor-laravel",
   "support": {
-    "issues": "https://github.com/robyajo/pasak/issues",
-    "source": "https://github.com/robyajo/pasak",
-    "docs": "https://github.com/robyajo/pasak#readme"
+    "issues": "https://github.com/pasak-dev/pasak-secure-monitor-laravel/issues",
+    "source": "https://github.com/pasak-dev/pasak-secure-monitor-laravel",
+    "docs": "https://github.com/pasak-dev/pasak-secure-monitor-laravel#readme"
   },
   "funding": [
     {
@@ -33,6 +33,11 @@
       "name": "Roby",
       "email": "robyfull.dev@gmail.com",
       "role": "Developer"
+    },
+    {
+      "name": "pasak-dev",
+      "email": "pasak.dev@gmail.com",
+      "role": "Maintainer"
     }
   ],
   "require": {

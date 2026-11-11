@@ -1,5 +1,5 @@
 {{--
-    Default 403 "blocked" page for robyajo/pasak.
+    Default 403 "blocked" page for pasak-dev/pasak-secure-monitor-laravel.
 
     Dipublikasikan oleh:  php artisan vendor:publish --tag=security-views
     Tujuan default:       resources/views/errors/blocked.blade.php

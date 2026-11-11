@@ -1,6 +1,6 @@
 # 01. Integrasi Frontend React / Inertia
 
-Karena **`robyajo/pasak`** dirancang secara **Headless (Pure REST API)**, Anda dapat membangun antarmuka dashboard keamanan dan penanganan error pemblokiran menggunakan React dan Inertia.js sesuai kebutuhan desain aplikasi Anda.
+Karena **`pasak-dev/pasak-secure-monitor-laravel`** dirancang secara **Headless (Pure REST API)**, Anda dapat membangun antarmuka dashboard keamanan dan penanganan error pemblokiran menggunakan React dan Inertia.js sesuai kebutuhan desain aplikasi Anda.
 
 ---
 

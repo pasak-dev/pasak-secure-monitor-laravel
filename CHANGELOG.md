@@ -1,6 +1,14 @@
 # Changelog
 
-All notable changes to `robyajo/pasak` will be documented in this file.
+All notable changes to `pasak-dev/pasak-secure-monitor-laravel` will be documented in this file.
+
+## [1.0.0] - 2026-11-12
+
+### Rebrand & Initial Release
+- Rebranded package identifier to **`pasak-dev/pasak-secure-monitor-laravel`** under the **`pasak-dev`** organization.
+- Reset version baseline to `v1.0.0` for the newly organized repository suite.
+- Preserved complete Git commit history and author attribution (`robyajo` and contributors).
+- Enterprise-grade headless self-hosted WAF, threat detection engine, zero-tolerance blocking, stepped login lockout, server integrity baseline, webshell scanning, and security auditing toolkit for Laravel.
 
 ## [1.7.9] - 2026-11-11
 

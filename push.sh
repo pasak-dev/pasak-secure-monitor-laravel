@@ -2,7 +2,7 @@
 
 # ==============================================================================
 # Git Automated Push & Optional Tagging Script
-# Repository: robyajo/pasak
+# Repository: pasak-dev/pasak-secure-monitor-laravel
 #
 # Setiap kali dijalankan, skrip ini SELALU melakukan pengecekan versi:
 #   - Versi sekarang    : tag rilis semver terakhir (mis. v1.0.3)
@@ -417,7 +417,7 @@ if [ -n "$TAG_NAME" ] && [ "$NO_TAG" -eq 0 ]; then
 
     echo ""
     print_info "🚀 Paket versi ${TAG_NAME} kini siap dideteksi secara otomatis oleh Packagist!"
-    echo -e "   Periksa katalog rilis di: ${BLUE}https://packagist.org/packages/robyajo/pasak${NC}"
+    echo -e "   Periksa katalog rilis di: ${BLUE}https://packagist.org/packages/pasak-dev/pasak-secure-monitor-laravel${NC}"
 fi
 
 echo ""

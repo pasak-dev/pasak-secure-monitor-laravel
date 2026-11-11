@@ -1,6 +1,6 @@
 # Skill: pasak-release
 
-Release discipline for `robyajo/pasak`. Activate whenever committing, tagging, versioning, writing changelog entries, or pushing this repository.
+Release discipline for `pasak-dev/pasak-secure-monitor-laravel`. Activate whenever committing, tagging, versioning, writing changelog entries, or pushing this repository.
 
 ## 1. CHANGELOG-first rule (mandatory)
 

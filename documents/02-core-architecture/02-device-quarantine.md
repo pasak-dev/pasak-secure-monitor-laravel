@@ -16,7 +16,7 @@ Bayangkan skenario berikut:
 
 ## 2. Solusi: Isolasi Tingkat Perangkat
 
-**`robyajo/pasak`** memecahkan masalah ini dengan memperkenalkan konsep **Device-Level Quarantine**.
+**`pasak-dev/pasak-secure-monitor-laravel`** memecahkan masalah ini dengan memperkenalkan konsep **Device-Level Quarantine**.
 
 Selain alamat IP publik, sistem mengekstrak dua penanda unik perangkat:
 1. **`device_id`**: Fingerprint perangkat unik (berbasis WebRTC candidate hash, persistent cookie UUID, atau header `X-Device-Id`).

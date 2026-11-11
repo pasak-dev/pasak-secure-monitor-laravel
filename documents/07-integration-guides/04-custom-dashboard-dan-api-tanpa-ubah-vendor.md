@@ -1,6 +1,6 @@
 # 04. Panduan Kustomisasi Penuh (Full Custom Suite: Blade & REST API) Tanpa Mengubah Vendor
 
-Paket **`robyajo/pasak`** dirancang mengikuti filosofi **Spatie-Standard & Headless Architecture**. Artinya, setelah paket dipasang melalui `composer require robyajo/pasak`, Anda memiliki kebebasan dan kendali 100% penuh untuk membuat tampilan monitoring kustom, alur kerja keamanan sendiri, maupun antarmuka REST API JSON tanpa pernah menyentuh atau merusak berkas inti paket di `vendor/`.
+Paket **`pasak-dev/pasak-secure-monitor-laravel`** dirancang mengikuti filosofi **Spatie-Standard & Headless Architecture**. Artinya, setelah paket dipasang melalui `composer require pasak-dev/pasak-secure-monitor-laravel`, Anda memiliki kebebasan dan kendali 100% penuh untuk membuat tampilan monitoring kustom, alur kerja keamanan sendiri, maupun antarmuka REST API JSON tanpa pernah menyentuh atau merusak berkas inti paket di `vendor/`.
 
 Dokumen ini adalah cetak biru (*blueprint*) dan implementasi referensi resmi percontohan menyeluruh bagi pengembang yang ingin membangun dashboard Blade dan REST API kustom mencakup **seluruh 8 modul keamanan Pasak**.
 
@@ -9,7 +9,7 @@ Dokumen ini adalah cetak biru (*blueprint*) dan implementasi referensi resmi per
 ## 1. Aturan Emas: Kebijakan Dilarang Mengubah Vendor (*Zero-Vendor-Edit Policy*)
 
 > ⚠️ **PERINGATAN KRUSIAL**:
-> **JANGAN PERNAH** memodifikasi, mengedit, atau menghapus berkas apapun di dalam folder `vendor/robyajo/pasak/`.
+> **JANGAN PERNAH** memodifikasi, mengedit, atau menghapus berkas apapun di dalam folder `vendor/pasak-dev/pasak-secure-monitor-laravel/`.
 > Segala perubahan di dalam folder `vendor/` bersifat **sementara dan berbahaya**!
 
 ### Mengapa Dilarang Mengubah Folder `vendor/`?
@@ -23,7 +23,7 @@ Dokumen ini adalah cetak biru (*blueprint*) dan implementasi referensi resmi per
 
 Ketika Anda menjalankan:
 ```bash
-composer require robyajo/pasak
+composer require pasak-dev/pasak-secure-monitor-laravel
 php artisan pasak:install
 ```
 
@@ -55,7 +55,7 @@ PROYEK LARAVEL ANDA
 │   ├── pasak.php                           <-- [ZONA ANDA] Rute bawaan paket (bisa disesuaikan)
 │   └── pasak-api.php                       <-- [ZONA ANDA] Rute API bawaan paket
 │
-└── vendor/robyajo/pasak/                   <-- [ZONA DILINDUNGI / READ-ONLY]
+└── vendor/pasak-dev/pasak-secure-monitor-laravel/                   <-- [ZONA DILINDUNGI / READ-ONLY]
     ├── src/                                    (Engine WAF, Service, Middleware, Model)
     │   ├── Facades/Pasak.php                   (Facade resmi untuk dipanggil aplikasi Anda)
     │   ├── Services/PasakService.php           (Mesin deteksi ancaman & inspeksi payload)
@@ -66,7 +66,7 @@ PROYEK LARAVEL ANDA
     └── stubs/                                  (Template publikasi)
 ```
 
-- **`vendor/robyajo/pasak` (Zona Mesin / Engine)**: Layak dilihat hanya untuk referensi audit (*read-only*). Berisi logika inti WAF, parser header reverse-proxy, dan filter keamanan tingkat rendah.
+- **`vendor/pasak-dev/pasak-secure-monitor-laravel` (Zona Mesin / Engine)**: Layak dilihat hanya untuk referensi audit (*read-only*). Berisi logika inti WAF, parser header reverse-proxy, dan filter keamanan tingkat rendah.
 - **Aplikasi Host Anda (Zona Pengembang)**: Semua penyesuaian tampilan, rute, otorisasi, dan integrasi UI dilakukan di sini.
 
 ---

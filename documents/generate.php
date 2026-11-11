@@ -94,7 +94,7 @@ $template = <<<'HTML'
         </div>
         <div class="flex items-center gap-2">
             <button onclick="toggleTheme()" class="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold transition hover:border-sky-400 dark:border-slate-700 dark:bg-slate-800">🌓 <span class="hidden sm:inline">Ganti Tema</span></button>
-            <a href="https://github.com/robyajo/pasak" target="_blank" class="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold transition hover:border-sky-400 dark:border-slate-700 dark:bg-slate-800">GitHub</a>
+            <a href="https://github.com/pasak-dev/pasak-secure-monitor-laravel" target="_blank" class="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold transition hover:border-sky-400 dark:border-slate-700 dark:bg-slate-800">GitHub</a>
         </div>
     </header>
 

@@ -722,10 +722,16 @@ class PasakUninstallCommand extends Command
     protected function removeComposerPackage(): void
     {
         $composer = $this->findComposerBinary();
+        $pkgName = 'pasak-dev/pasak-secure-monitor-laravel';
+
+        $composerPath = base_path('composer.json');
+        if (File::exists($composerPath) && str_contains(File::get($composerPath), 'robyajo/pasak')) {
+            $pkgName = 'robyajo/pasak';
+        }
 
         if ($composer === null) {
             $this->line(
-                '  - Composer tidak ditemukan di PATH; jalankan manual: <fg=yellow>composer remove robyajo/pasak</>',
+                "  - Composer tidak ditemukan di PATH; jalankan manual: <fg=yellow>composer remove {$pkgName}</>",
             );
 
             return;
@@ -737,14 +743,14 @@ class PasakUninstallCommand extends Command
         $code = 0;
         $cmd =
             escapeshellcmd($composer).
-            ' remove robyajo/pasak --no-interaction --no-audit 2>&1';
+            " remove {$pkgName} --no-interaction --no-audit 2>&1";
         exec($cmd, $output, $code);
 
         if ($code === 0) {
-            $this->info('  ✓ Paket robyajo/pasak dilepas dari composer.json.');
+            $this->info("  ✓ Paket {$pkgName} dilepas dari composer.json.");
         } else {
             $this->warn(
-                '  ⚠ composer remove gagal; jalankan manual: composer remove robyajo/pasak',
+                "  ⚠ composer remove gagal; jalankan manual: composer remove {$pkgName}",
             );
         }
     }

@@ -1,8 +1,8 @@
 # Pasak (Bulwark)
 
-[![Run Tests](https://github.com/robyajo/pasak/actions/workflows/run-tests.yml/badge.svg)](https://github.com/robyajo/pasak/actions/workflows/run-tests.yml)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/robyajo/pasak.svg)](https://packagist.org/packages/robyajo/pasak)
-[![Total Downloads](https://img.shields.io/packagist/dt/robyajo/pasak.svg)](https://packagist.org/packages/robyajo/pasak)
+[![Run Tests](https://github.com/pasak-dev/pasak-secure-monitor-laravel/actions/workflows/run-tests.yml/badge.svg)](https://github.com/pasak-dev/pasak-secure-monitor-laravel/actions/workflows/run-tests.yml)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/pasak-dev/pasak-secure-monitor-laravel.svg)](https://packagist.org/packages/pasak-dev/pasak-secure-monitor-laravel)
+[![Total Downloads](https://img.shields.io/packagist/dt/pasak-dev/pasak-secure-monitor-laravel.svg)](https://packagist.org/packages/pasak-dev/pasak-secure-monitor-laravel)
 [![PHP Version](https://img.shields.io/badge/php-%5E8.2%20%7C%20%5E8.3%20%7C%20%5E8.4%20%7C%20%5E8.5-blue.svg)](https://www.php.net/supported-versions.php)
 [![Laravel Version](https://img.shields.io/badge/laravel-%5E10.0%20%7C%20%5E11.0%20%7C%20%5E12.0%20%7C%20%5E13.0-red.svg)](https://laravel.com/docs/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -60,14 +60,13 @@
 ### 1. Pasang Paket via Composer
 
 ```bash
-composer require "robyajo/pasak:^1.6.7"
+composer require "pasak-dev/pasak-secure-monitor-laravel:^1.0.0"
 ```
 
 > **Penting — gunakan versi rilis lengkap.** Menjalankan
-> `composer require "robyajo/pasak:^1.6.7"` memastikan `composer.json` mencatat rilis
-> patch yang akurat (Composer secara bawaan menyingkat menjadi `^1.6` bila tanpa versi).
-> Perintah `php artisan pasak:install` juga otomatis menyelaraskan constraint di
-> `composer.json` ke versi lengkap terbaru (`^1.6.7`). Jangan gunakan `@dev` di produksi.
+> `composer require "pasak-dev/pasak-secure-monitor-laravel:^1.0.0"` memastikan `composer.json` mencatat rilis
+> patch yang akurat. Perintah `php artisan pasak:install` juga otomatis menyelaraskan constraint di
+> `composer.json` ke versi lengkap terbaru (`^1.0.0`). Jangan gunakan `@dev` di produksi.
 
 ### 2. Publikasikan Aset Otomatis (`pasak:install`)
 

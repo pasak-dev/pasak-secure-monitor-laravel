@@ -18,12 +18,12 @@ class PasakVersionCheckService
     /**
      * Endpoint API Packagist v2.
      */
-    public const PACKAGIST_URL = 'https://repo.packagist.org/p2/robyajo/pasak.json';
+    public const PACKAGIST_URL = 'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json';
 
     /**
      * Fallback endpoint API GitHub Tags.
      */
-    public const GITHUB_TAGS_URL = 'https://api.github.com/repos/robyajo/pasak/tags';
+    public const GITHUB_TAGS_URL = 'https://api.github.com/repos/pasak-dev/pasak-secure-monitor-laravel/tags';
 
     /**
      * Menandai apakah notifikasi terminal sudah dicetak dalam siklus proses PHP ini.
@@ -36,10 +36,17 @@ class PasakVersionCheckService
     public function getCurrentVersion(): string
     {
         try {
-            if (class_exists(InstalledVersions::class) && InstalledVersions::isInstalled('robyajo/pasak')) {
-                $pretty = (string) InstalledVersions::getPrettyVersion('robyajo/pasak');
-                if (! empty($pretty) && ! str_starts_with($pretty, 'dev-')) {
-                    return ltrim($pretty, 'v');
+            if (class_exists(InstalledVersions::class)) {
+                if (InstalledVersions::isInstalled('pasak-dev/pasak-secure-monitor-laravel')) {
+                    $pretty = (string) InstalledVersions::getPrettyVersion('pasak-dev/pasak-secure-monitor-laravel');
+                    if (! empty($pretty) && ! str_starts_with($pretty, 'dev-')) {
+                        return ltrim($pretty, 'v');
+                    }
+                } elseif (InstalledVersions::isInstalled('robyajo/pasak')) {
+                    $pretty = (string) InstalledVersions::getPrettyVersion('robyajo/pasak');
+                    if (! empty($pretty) && ! str_starts_with($pretty, 'dev-')) {
+                        return ltrim($pretty, 'v');
+                    }
                 }
             }
         } catch (Throwable) {
@@ -101,7 +108,9 @@ class PasakVersionCheckService
                 return null;
             }
 
-            $packages = $response->json('packages.robyajo/pasak') ?? [];
+            $packages = $response->json('packages.pasak-dev/pasak-secure-monitor-laravel')
+                ?? $response->json('packages.robyajo/pasak')
+                ?? [];
 
             foreach ($packages as $pkg) {
                 $rawVersion = (string) ($pkg['version'] ?? '');
