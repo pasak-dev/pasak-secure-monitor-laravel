@@ -57,13 +57,9 @@ class PasakBlockIpAddress
      */
     protected function isAuthRoute(Request $request): bool
     {
-        $prefix = trim((string) config('pasak.dashboard.prefix', 'pasak'), '/');
-
         return $request->is(
             'login',
             'login/*',
-            $prefix.'/login',
-            $prefix.'/login/*',
             'two-factor-challenge',
             'two-factor-challenge/*',
             'forgot-password',

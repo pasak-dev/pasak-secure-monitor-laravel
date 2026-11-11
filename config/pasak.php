@@ -681,22 +681,6 @@ return [
             'PASAK_LOGIN_LOCKOUT_THRESHOLD',
             env('SECURITY_LOGIN_LOCKOUT_THRESHOLD', 3),
         ),
-        'step1_seconds' => (int) env(
-            'PASAK_LOGIN_LOCKOUT_STEP1_SECONDS',
-            30,
-        ),
-        'step2_seconds' => (int) env(
-            'PASAK_LOGIN_LOCKOUT_STEP2_SECONDS',
-            60,
-        ),
-        'step3_seconds' => (int) env(
-            'PASAK_LOGIN_LOCKOUT_STEP3_SECONDS',
-            120,
-        ),
-        'max_seconds' => (int) env(
-            'PASAK_LOGIN_LOCKOUT_MAX_SECONDS',
-            3600,
-        ),
         'base_minutes' => (int) env(
             'PASAK_LOGIN_LOCKOUT_BASE_MINUTES',
             env('SECURITY_LOGIN_LOCKOUT_BASE_MINUTES', 1),
@@ -707,7 +691,7 @@ return [
         ),
         'decay_minutes' => (int) env(
             'PASAK_LOGIN_LOCKOUT_DECAY_MINUTES',
-            env('SECURITY_LOGIN_LOCKOUT_DECAY_MINUTES', 360),
+            env('SECURITY_LOGIN_LOCKOUT_DECAY_MINUTES', 60),
         ),
     ],
 
@@ -1107,27 +1091,4 @@ return [
         'socket' => env('PASAK_SENTINEL_SOCKET', '/run/pasak/agent.sock'),
         'timeout' => (float) env('PASAK_SENTINEL_TIMEOUT', 0.5),
     ],
-    /*
-    |--------------------------------------------------------------------------
-    | Pasak Cloud & Sentinel Fleet Monitoring
-    |--------------------------------------------------------------------------
-    |
-    | Konfigurasi integrasi Pasak Cloud API dan Pasak Sentinel SOC Monitoring.
-    | Jika pengguna memiliki kunci lisensi langganan (PASAK_CLOUD_KEY), aplikasi
-    | akan secara otomatis terhubung ke Pasak Cloud Control Plane dan Sentinel
-    | untuk telemetri armada, sinkronisasi ancaman global, dan pelaporan SOC.
-    |
-    | Data aplikasi diambil secara dinamis dari APP_NAME dan APP_URL.
-    |
-    */
-    'cloud' => [
-        'enabled' => (bool) env('PASAK_CLOUD_ENABLED', true),
-        'key' => env('PASAK_CLOUD_KEY'),
-        'url' => rtrim(env('PASAK_CLOUD_URL', 'https://pasak-api.vercel.app'), '/'),
-        'timeout' => (float) env('PASAK_CLOUD_TIMEOUT', 3.0),
-        'sync_threats' => (bool) env('PASAK_CLOUD_SYNC_THREATS', true),
-        'heartbeat' => (bool) env('PASAK_CLOUD_HEARTBEAT', true),
-        'node_id' => env('PASAK_NODE_ID'),
-    ],
-
 ];

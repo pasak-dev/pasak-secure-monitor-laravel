@@ -182,59 +182,29 @@
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
         <div class="sec-card" style="margin-bottom: 0;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
-                <div>
-                    <h3 class="sec-card-title" style="font-size: 15px;">🔒 {{ __('Proteksi Brute Force & Stepped Login Cooldown') }}</h3>
-                    <p class="sec-card-desc" style="margin-top: 4px; font-size: 12px;">{{ __('Membatasi percobaan login gagal dengan jeda bertingkat (Rate Limit Countdown 429), terpisah dari blokir keras WAF 403.') }}</p>
-                </div>
-                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                    <span class="sec-badge" style="background: rgba(6, 182, 212, .12); color: #06b6d4; border: 1px solid rgba(6, 182, 212, .3); font-size: 11px;">1x-3x: 30s</span>
-                    <span class="sec-badge" style="background: rgba(6, 182, 212, .12); color: #06b6d4; border: 1px solid rgba(6, 182, 212, .3); font-size: 11px;">+1x: 60s</span>
-                    <span class="sec-badge" style="background: rgba(6, 182, 212, .12); color: #06b6d4; border: 1px solid rgba(6, 182, 212, .3); font-size: 11px;">+1x: 120s</span>
-                    <span class="sec-badge" style="background: rgba(245, 158, 11, .12); color: #f59e0b; border: 1px solid rgba(245, 158, 11, .3); font-size: 11px;">Reset: 6 Jam</span>
-                </div>
-            </div>
-
-            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 16px 0;">
+            <h3 class="sec-card-title" style="font-size: 15px;">🔒 {{ __('Proteksi Brute Force Login') }}</h3>
+            <label style="display: flex; align-items: center; gap: 8px; margin: 10px 0;">
                 <input type="hidden" name="login_lockout_enabled" value="0">
                 <input type="checkbox" name="login_lockout_enabled" value="1" @checked(! empty($s['login_lockout_enabled']))>
-                <span style="font-weight: 600; font-size: 13.5px;">{{ __('Aktifkan jeda bertingkat (cooldown 30s, 60s, 120s dengan masa reset 6 jam)') }}</span>
+                <span style="font-weight: 600; font-size: 13.5px;">{{ __('Aktifkan kunci bertingkat (cooldown 1m, 5m, 15m, hingga 24 jam)') }}</span>
             </label>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
                 <div>
-                    <span class="sec-label" style="font-size: 11.5px;">{{ __('Ambang Gagal Awal') }}</span>
-                    <input type="number" name="login_lockout_threshold" min="1" max="100" value="{{ $s['login_lockout_threshold'] ?? 3 }}" class="sec-level-input" title="{{ __('Jumlah kegagalan awal sebelum terkena jeda pertama (default: 3 kali)') }}">
-                    <span style="font-size: 10.5px; color: var(--sec-text-muted);">{{ __('x percobaan') }}</span>
+                    <span class="sec-label" style="font-size: 11.5px;">{{ __('Kegagalan sebelum kunci') }}</span>
+                    <input type="number" name="login_lockout_threshold" min="1" max="100" value="{{ $s['login_lockout_threshold'] ?? 3 }}" class="sec-level-input">
                 </div>
                 <div>
-                    <span class="sec-label" style="font-size: 11.5px;">{{ __('Jeda Tahap 1 (Detik)') }}</span>
-                    <input type="number" name="login_lockout_step1_seconds" min="1" max="86400" value="{{ $s['login_lockout_step1_seconds'] ?? 30 }}" class="sec-level-input">
-                    <span style="font-size: 10.5px; color: var(--sec-text-muted);">{{ __('detik (default: 30s)') }}</span>
+                    <span class="sec-label" style="font-size: 11.5px;">{{ __('Kunci awal (menit)') }}</span>
+                    <input type="number" name="login_lockout_base_minutes" min="1" max="1440" value="{{ $s['login_lockout_base_minutes'] ?? 1 }}" class="sec-level-input">
                 </div>
                 <div>
-                    <span class="sec-label" style="font-size: 11.5px;">{{ __('Jeda Tahap 2 (Detik)') }}</span>
-                    <input type="number" name="login_lockout_step2_seconds" min="1" max="86400" value="{{ $s['login_lockout_step2_seconds'] ?? 60 }}" class="sec-level-input">
-                    <span style="font-size: 10.5px; color: var(--sec-text-muted);">{{ __('detik (default: 60s)') }}</span>
+                    <span class="sec-label" style="font-size: 11.5px;">{{ __('Kunci maksimal (menit)') }}</span>
+                    <input type="number" name="login_lockout_max_minutes" min="1" max="10080" value="{{ $s['login_lockout_max_minutes'] ?? 30 }}" class="sec-level-input">
                 </div>
                 <div>
-                    <span class="sec-label" style="font-size: 11.5px;">{{ __('Jeda Tahap 3 (Detik)') }}</span>
-                    <input type="number" name="login_lockout_step3_seconds" min="1" max="86400" value="{{ $s['login_lockout_step3_seconds'] ?? 120 }}" class="sec-level-input">
-                    <span style="font-size: 10.5px; color: var(--sec-text-muted);">{{ __('detik (default: 120s)') }}</span>
+                    <span class="sec-label" style="font-size: 11.5px;">{{ __('Masa kadaluwarsa (menit)') }}</span>
+                    <input type="number" name="login_lockout_decay_minutes" min="1" max="10080" value="{{ $s['login_lockout_decay_minutes'] ?? 60 }}" class="sec-level-input">
                 </div>
-                <div>
-                    <span class="sec-label" style="font-size: 11.5px;">{{ __('Masa Reset Siklus') }}</span>
-                    <input type="number" name="login_lockout_decay_minutes" min="1" max="10080" value="{{ $s['login_lockout_decay_minutes'] ?? 360 }}" class="sec-level-input">
-                    <span style="font-size: 10.5px; color: var(--sec-text-muted);">{{ __('menit (360m = 6 jam)') }}</span>
-                </div>
-            </div>
-
-            <input type="hidden" name="login_lockout_base_minutes" value="{{ $s['login_lockout_base_minutes'] ?? 1 }}">
-            <input type="hidden" name="login_lockout_max_minutes" value="{{ $s['login_lockout_max_minutes'] ?? 30 }}">
-            <input type="hidden" name="login_lockout_max_seconds" value="{{ $s['login_lockout_max_seconds'] ?? 3600 }}">
-
-            <div style="margin-top: 14px; padding: 10px 12px; border-radius: var(--sec-radius-sm); background: var(--sec-surface); border: 1px solid var(--sec-border); font-size: 11.5px; color: var(--sec-text-muted); line-height: 1.5;">
-                💡 <b>{{ __('Alur Jeda Manusiawi:') }}</b> {{ __('Bila pengguna salah sandi :threshold kali, sistem mengunci sementara selama :step1 detik dengan tampilan countdown interaktif. Jika gagal lagi, sanksi naik menjadi :step2 detik lalu :step3 detik. Riwayat direset otomatis ke nol setelah :hours jam tanpa kegagalan atau begitu pengguna berhasil login.', ['threshold' => $s['login_lockout_threshold'] ?? 3, 'step1' => $s['login_lockout_step1_seconds'] ?? 30, 'step2' => $s['login_lockout_step2_seconds'] ?? 60, 'step3' => $s['login_lockout_step3_seconds'] ?? 120, 'hours' => round(($s['login_lockout_decay_minutes'] ?? 360) / 60)]) }}
             </div>
         </div>
 

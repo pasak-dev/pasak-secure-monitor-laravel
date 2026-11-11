@@ -22,7 +22,6 @@ use Internal\Pasak\Console\Commands\PasakPruneSecurityLogsCommand;
 use Internal\Pasak\Console\Commands\PasakPurgeInjectedDataCommand;
 use Internal\Pasak\Console\Commands\PasakScanAccessLogsCommand;
 use Internal\Pasak\Console\Commands\PasakSecretCommand;
-use Internal\Pasak\Console\Commands\PasakCloudCommand;
 use Internal\Pasak\Console\Commands\PasakSentinelCommand;
 use Internal\Pasak\Console\Commands\PasakUnblockIpCommand;
 use Internal\Pasak\Console\Commands\PasakUninstallCommand;
@@ -41,7 +40,6 @@ use Internal\Pasak\Services\AccessLogScannerService;
 use Internal\Pasak\Services\LoginThrottleService;
 use Internal\Pasak\Services\PasakAccessLogScannerService;
 use Internal\Pasak\Services\PasakLoginThrottleService;
-use Internal\Pasak\Services\PasakCloudService;
 use Internal\Pasak\Services\PasakSentinelBridge;
 use Internal\Pasak\Services\PasakServerSecurityService;
 use Internal\Pasak\Services\PasakService;
@@ -84,10 +82,6 @@ class PasakServiceProvider extends ServiceProvider
 
         $this->app->singleton(PasakSentinelBridge::class, function ($app) {
             return new PasakSentinelBridge;
-        });
-
-        $this->app->singleton(PasakCloudService::class, function ($app) {
-            return new PasakCloudService;
         });
 
         $this->app->singleton(PasakLoginThrottleService::class, function (
@@ -217,14 +211,11 @@ class PasakServiceProvider extends ServiceProvider
             'pasak-htaccess',
         );
 
-        // Default 403 "blocked" and 429 "pasak-login-throttle" error pages
+        // Default 403 "blocked" error page
         $this->publishes(
             [
                 __DIR__.'/../stubs/blocked.blade.php' => resource_path(
                     'views/errors/blocked.blade.php',
-                ),
-                __DIR__.'/../stubs/pasak-login-throttle.blade.php' => resource_path(
-                    'views/errors/pasak-login-throttle.blade.php',
                 ),
             ],
             'pasak-views',
@@ -246,9 +237,6 @@ class PasakServiceProvider extends ServiceProvider
                 __DIR__.'/../stubs/htaccess.stub' => public_path('.htaccess'),
                 __DIR__.'/../stubs/blocked.blade.php' => resource_path(
                     'views/errors/blocked.blade.php',
-                ),
-                __DIR__.'/../stubs/pasak-login-throttle.blade.php' => resource_path(
-                    'views/errors/pasak-login-throttle.blade.php',
                 ),
             ],
             'pasak-all',
@@ -338,7 +326,6 @@ class PasakServiceProvider extends ServiceProvider
             PasakSecretCommand::class,
             PasakDeployCommand::class,
             PasakSentinelCommand::class,
-            PasakCloudCommand::class,
         ]);
     }
 
