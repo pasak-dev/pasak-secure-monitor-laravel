@@ -1,14 +1,16 @@
 @extends('pages.pasak.layout', ['heading' => __('Pengaturan Pemblokiran Otomatis (Auto-Block WAF)'), 'subheading' => __('WAF memantau frekuensi ancaman yang dilakukan oleh IP atau perangkat yang sama, lalu menjatuhkan sanksi blokir saat melewati batas toleransi.')])
 
+@section('page_support_key', 'settings')
+
 @section('content')
 @php($s = $settings ?? [])
 @php($scales = [
-    'critical' => ['label' => __('Critical (Sangat Kritis)'), 'icon' => '🚨', 'badge' => 'Langsung Blokir', 'example' => __('SQL Injection, Command Injection, Webshell, Path Traversal. Sekali menyerang langsung blokir.')],
-    'high' => ['label' => __('High (Tinggi)'), 'icon' => '⚠', 'badge' => 'Max 2x', 'example' => __('Cross-Site Scripting (XSS), SSTI, Template / Expression Injection.')],
-    'medium' => ['label' => __('Medium (Sedang)'), 'icon' => 'ⓘ', 'badge' => 'Max 3x', 'example' => __('Null byte encoding, parameter tampering anomali, payload berbahaya sedang.')],
-    'low' => ['label' => __('Low (Rendah)'), 'icon' => '⚡', 'badge' => 'Max 5x', 'example' => __('User-agent scanner, traffic anomali ringan belum diblokir.')],
+    'critical' => ['label' => __('Critical (Sangat Kritis)'), 'icon' => '🚨', 'badge' => __('Langsung Blokir'), 'example' => __('SQL Injection, Command Injection, Webshell, Path Traversal. Sekali menyerang langsung blokir.')],
+    'high' => ['label' => __('High (Tinggi)'), 'icon' => '⚠', 'badge' => __('Max 2x'), 'example' => __('Cross-Site Scripting (XSS), SSTI, Template / Expression Injection.')],
+    'medium' => ['label' => __('Medium (Sedang)'), 'icon' => 'ⓘ', 'badge' => __('Max 3x'), 'example' => __('Null byte encoding, parameter tampering anomali, payload berbahaya sedang.')],
+    'low' => ['label' => __('Low (Rendah)'), 'icon' => '⚡', 'badge' => __('Max 5x'), 'example' => __('User-agent scanner, traffic anomali ringan belum diblokir.')],
 ])
-@php($durationLabel = ['6' => '6 Jam', '24' => '24 Jam (1 Hari)', '72' => '3 Hari (72 Jam)', '168' => '1 Pekan (7 Hari)', '504' => '3 Pekan (21 Hari)', '720' => '1 Bulan (30 Hari)', '8760' => '1 Tahun (365 Hari)', '0' => __('Permanen (Selamanya)')])
+@php($durationLabel = ['6' => __('6 Jam'), '24' => __('24 Jam (1 Hari)'), '72' => __('3 Hari (72 Jam)'), '168' => __('1 Pekan (7 Hari)'), '504' => __('3 Pekan (21 Hari)'), '720' => __('1 Bulan (30 Hari)'), '8760' => __('1 Tahun (365 Hari)'), '0' => __('Permanen (Selamanya)')])
 @php($simScopes = ['device' => __('Hanya perangkat penyerang (pengguna lain di WiFi sama tetap aman)'), 'ip' => __('Seluruh jaringan berbagi IP publik dengan penyerang (HTTP 403)'), 'auto' => __('Perangkat bila fingerprint terdeteksi; fallback ke seluruh IP')])
 @php($simLevels = ['critical' => __('Critical'), 'high' => __('High'), 'medium' => __('Medium'), 'low' => __('Low')])
 @php($simOrder = ['critical', 'high', 'medium', 'low'])
@@ -52,7 +54,7 @@
                     <input type="radio" name="auto_block_scope" value="{{ $scopeChoice }}" @checked($active) data-sec-live style="display: none;">
                     <div class="sec-scope-header">
                         <div class="sec-scope-title-wrap">
-                            <span class="sec-scope-title">{{ ['📱 Hanya Perangkat (Real Device)', '🏓 Seluruh IP Router / Publik', '⇉ Otomatis / Adaptif'][$loop->index] }}</span>
+                            <span class="sec-scope-title">{{ [__('📱 Hanya Perangkat (Real Device)'), __('🏓 Seluruh IP Router / Publik'), __('⇉ Otomatis / Adaptif')][$loop->index] }}</span>
                         </div>
                     </div>
                     <p class="sec-scope-desc">
@@ -252,6 +254,109 @@
     </div>
 </form>
 
+<div class="sec-card" id="password-section" style="margin-top: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+        <div>
+            <h3 class="sec-card-title" style="font-size: 16px;">🔑 {{ __('Kredensial & Pembaruan Password Dasbor Pasak') }}</h3>
+            <p class="sec-card-desc" style="margin-top: 6px;">{{ __('Password akses ke dasbor disimpan di database dan di-hash aman menggunakan HMAC SHA-256 berbasis PASAK_DASHBOARD_SECRET.') }}</p>
+        </div>
+        @if (\Internal\Pasak\Support\PasakDashboardSecret::isPasswordStoredInDatabase())
+            <span class="sec-pill sec-pill-success">✓ {{ __('Password Kustom Aktif') }}</span>
+        @else
+            <span class="sec-pill sec-pill-warning">⚠ {{ __('Password Bawaan (Admin)') }}</span>
+        @endif
+    </div>
+
+    <!-- Kotak Info Username & Status -->
+    <div style="margin-top: 16px; padding: 14px 16px; background: var(--sec-card-hover); border: 1px solid var(--sec-border); border-radius: var(--sec-radius-sm); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <div>
+            <div style="font-size: 13px; font-weight: 600; color: var(--sec-text);">
+                {{ __('Username Dasbor:') }} <span style="font-family: var(--sec-font-mono); color: var(--sec-primary);">{{ config('pasak.dashboard.auth.username', env('PASAK_DASHBOARD_USERNAME', 'admin')) }}</span>
+            </div>
+            <div style="font-size: 12px; color: var(--sec-text-muted); margin-top: 4px;">
+                @if (\Internal\Pasak\Support\PasakDashboardSecret::isPasswordStoredInDatabase())
+                    {{ __('Status: Password telah diperbarui dan di-hash aman di tabel pasak_settings database.') }}
+                @else
+                    <span style="color: var(--sec-warning); font-weight: 600;">{{ __('Status: Masih menggunakan password bawaan (Admin). Sangat disarankan segera diperbarui!') }}</span>
+                @endif
+            </div>
+        </div>
+        <button type="button" class="sec-btn sec-btn-ghost sec-btn-sm" onclick="window.pasakOpenPasswordModal ? window.pasakOpenPasswordModal() : null;" style="height: 32px; font-size: 12px;">
+            🗔 {{ __('Buka via Modal Pop-up') }}
+        </button>
+    </div>
+
+    <!-- Form Inline Pembaruan Password -->
+    <form method="POST" action="{{ \Illuminate\Support\Facades\Route::has('pasak.dashboard.password.update') ? route('pasak.dashboard.password.update') : url('/pasak/password') }}" style="margin-top: 20px;" data-sec-confirm="{{ __('Simpan dan terapkan password baru untuk dasbor Pasak?') }}" data-confirm-title="{{ __('Konfirmasi Ganti Password') }}" data-confirm-type="warning" data-confirm-btn="{{ __('Ya, Terapkan Password') }}">
+        @csrf
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+            <!-- Password Baru -->
+            <div>
+                <label for="settings_new_password" class="sec-label" style="font-weight: 600; font-size: 13px; margin-bottom: 6px; display: flex; justify-content: space-between;">
+                    <span>{{ __('Password Baru') }} <span style="color: var(--sec-danger);">*</span></span>
+                    <span style="font-size: 11px; color: var(--sec-text-muted); font-weight: normal;">Min. 6 karakter</span>
+                </label>
+                <div style="position: relative; display: flex; align-items: center;">
+                    <input type="password" name="password" id="settings_new_password" required minlength="6" placeholder="{{ __('Ketik password baru Anda') }}" class="sec-level-input" style="padding-right: 40px; width: 100%;">
+                    <button type="button" onclick="window.pasakTogglePasswordInput ? window.pasakTogglePasswordInput('settings_new_password', this) : null;" title="{{ __('Lihat / Sembunyikan Password') }}" style="position: absolute; right: 6px; width: 30px; height: 28px; background: none; border: none; color: var(--sec-text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Konfirmasi Password Baru -->
+            <div>
+                <label for="settings_confirm_password" class="sec-label" style="font-weight: 600; font-size: 13px; margin-bottom: 6px;">
+                    {{ __('Konfirmasi Password Baru') }} <span style="color: var(--sec-danger);">*</span>
+                </label>
+                <div style="position: relative; display: flex; align-items: center;">
+                    <input type="password" name="password_confirmation" id="settings_confirm_password" required minlength="6" placeholder="{{ __('Ketik ulang password baru Anda') }}" class="sec-level-input" style="padding-right: 40px; width: 100%;">
+                    <button type="button" onclick="window.pasakTogglePasswordInput ? window.pasakTogglePasswordInput('settings_confirm_password', this) : null;" title="{{ __('Lihat / Sembunyikan Password') }}" style="position: absolute; right: 6px; width: 30px; height: 28px; background: none; border: none; color: var(--sec-text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deskripsi & Contoh Pengisian Password Kuat -->
+        <div style="margin-top: 14px; padding: 12px 14px; background: rgba(59, 130, 246, 0.05); border: 1px dashed rgba(59, 130, 246, 0.25); border-radius: var(--sec-radius-sm); font-size: 12px; color: var(--sec-text-muted); line-height: 1.5;">
+            <div style="color: var(--sec-primary); font-weight: 600; margin-bottom: 4px;">
+                💡 {{ __('Deskripsi & Rekomendasi Format Password:') }}
+            </div>
+            <div>
+                {{ __('Gunakan kombinasi minimal 8 karakter yang memadukan huruf besar (A-Z), huruf kecil (a-z), angka (0-9), dan simbol khusus (@, #, $, !, %, *).') }}
+            </div>
+            <div style="margin-top: 4px; font-family: var(--sec-font-mono); color: var(--sec-text);">
+                {{ __('Contoh password kuat:') }} <code style="color: var(--sec-primary); background: rgba(59,130,246,0.1); padding: 2px 6px; border-radius: 4px;">P@sak#VPS2026!</code> {{ __('atau') }} <code style="color: var(--sec-primary); background: rgba(59,130,246,0.1); padding: 2px 6px; border-radius: 4px;">KunciCyber_99#</code>
+            </div>
+        </div>
+
+        <!-- Panduan Pemulihan Darurat (Emergency Recovery Guide) -->
+        <div style="margin-top: 12px; padding: 12px 14px; background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: var(--sec-radius-sm); font-size: 12px; color: var(--sec-text-muted); line-height: 1.5;">
+            <div style="color: var(--sec-warning); font-weight: 700; margin-bottom: 4px;">
+                🚨 {{ __('Panduan Pemulihan Jika Lupa Password di Masa Depan:') }}
+            </div>
+            <div>
+                {{ __('Jika sewaktu-waktu Anda lupa password dasbor, buka berkas') }} <code style="font-family: var(--sec-font-mono); color: var(--sec-warning);">.env</code> {{ __('pada server Anda, salin nilai') }} <code style="font-family: var(--sec-font-mono); color: var(--sec-warning);">PASAK_DASHBOARD_SECRET</code>, {{ __('dan masukkan nilai tersebut langsung pada kolom password di formulir login. Anda akan otomatis masuk dalam Mode Pemulihan Darurat untuk mereset kembali password dasbor Anda di halaman ini.') }}
+            </div>
+        </div>
+
+        <!-- Tombol Submit -->
+        <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+            <button type="submit" class="sec-btn sec-btn-primary" style="height: 38px; padding: 0 18px; font-weight: 600;">
+                💾 {{ __('Simpan Password Baru ke Database') }}
+            </button>
+        </div>
+    </form>
+</div>
+
 <script>
 (function () {
     var refs = {
@@ -282,7 +387,7 @@
 
     function durationText(hours) {
         if (refs.durations[hours]) {
-            return refs.durations[hours] + ' [Blokir response HTTP 403]';
+            return refs.durations[hours] + ' [' + @json(__('Blokir response HTTP 403')) + ']';
         }
 
         var days = Math.round((hours / 24) * 10) / 10;
@@ -351,8 +456,8 @@
             sim.chips.appendChild(combinedSpan);
         }
 
-        updateSwitch('auto_block_switch', 'auto_block_switch_label', 'Auto-Blokir Aktif', 'Hanya Pantauan');
-        updateSwitch('instant_block_switch', 'instant_block_switch_label', 'Blokir Instan Aktif', 'Hanya Rekam');
+        updateSwitch('auto_block_switch', 'auto_block_switch_label', @json(__('Auto-Blokir Aktif')), @json(__('Hanya Pantauan')));
+        updateSwitch('instant_block_switch', 'instant_block_switch_label', @json(__('Blokir Instan Aktif')), @json(__('Hanya Rekam')));
 
         document.querySelectorAll('input[data-sec-watch]').forEach(function (box) {
             box.closest('.sec-level-check').classList.toggle('checked', box.checked);

@@ -1,6 +1,11 @@
 @extends('pages.pasak.layout', ['heading' => __('Blocked IPs'), 'subheading' => __('Karantina IP dan perangkat aktif beserta riwayatnya')])
 
+@section('page_support_key', 'blocked-ips')
+
 @section('content')
+@php
+    $DV = \Internal\Pasak\Support\DashboardView::class;
+@endphp
 <div class="sec-grid-4">
     <div class="sec-stat-card">
         <div class="sec-stat-label">{{ __('Total blocks') }}</div>
@@ -103,11 +108,13 @@
                             @php
                                 $blockedAt = $block->blocked_at ?? $block->created_at;
                             @endphp
-                            {{ $blockedAt ? ($blockedAt instanceof \DateTimeInterface ? $blockedAt->format('d M Y H:i:s') : $blockedAt) : '—' }}
+                            <span title="{{ $blockedAt ? $DV::diffForHumans($blockedAt) : '' }}">
+                                {{ $blockedAt ? $DV::formatDate($blockedAt, 'd M Y H:i:s') : '—' }}
+                            </span>
                         </td>
                         <td style="font-size: 12px; white-space: nowrap;">
                             @if ($block->expires_at)
-                                <span class="sec-font-mono">{{ $block->expires_at instanceof \DateTimeInterface ? $block->expires_at->format('d M Y H:i:s') : $block->expires_at }}</span>
+                                <span class="sec-font-mono" title="{{ $DV::diffForHumans($block->expires_at) }}">{{ $DV::formatDate($block->expires_at, 'd M Y H:i:s') }}</span>
                             @else
                                 {{ __('Permanent') }}
                             @endif

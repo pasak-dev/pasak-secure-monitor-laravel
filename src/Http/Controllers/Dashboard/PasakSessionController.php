@@ -68,12 +68,24 @@ class PasakSessionController extends Controller
             }
         }
 
+        $currentUser = $request->user();
+        $currentIp = app(PasakService::class)->resolveClientIp($request);
+        $currentTrusted = $currentUser ? PasakTrustedIp::query()
+            ->where('user_id', $currentUser->getKey())
+            ->where('ip_address', $currentIp)
+            ->where('is_active', true)
+            ->first() : null;
+
         return $this->dashboardResponse(
             'pages.pasak.sessions',
             [
                 'logins' => $query->paginate($perPage)->withQueryString(),
                 'trustedIps' => PasakTrustedIp::query()->with('user')->latest('id')->get(),
                 'onlineCount' => PasakUserLogin::query()->active(5)->count(),
+                'currentUser' => $currentUser,
+                'currentIp' => $currentIp,
+                'currentTrusted' => $currentTrusted,
+                'isCurrentIpTrusted' => (bool) $currentTrusted,
                 'filters' => [
                     'search' => $search,
                     'date_from' => $dateFrom,
@@ -129,7 +141,10 @@ class PasakSessionController extends Controller
         $user = $request->user();
 
         if (! $user) {
-            return back();
+            return back()->with('toast', [
+                'type' => 'danger',
+                'message' => __('Anda harus login untuk menyimpan IP terpercaya.'),
+            ]);
         }
 
         $ip = $security->resolveClientIp($request);

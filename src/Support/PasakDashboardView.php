@@ -2,7 +2,11 @@
 
 namespace Internal\Pasak\Support;
 
+use DateTimeInterface;
+use DateTimeZone;
+use Illuminate\Support\Carbon;
 use Internal\Pasak\Services\PasakUserLoginService;
+use Throwable;
 
 /**
  * Helper presentasi bersama untuk dashboard Blade murni (tanpa Livewire).
@@ -84,7 +88,7 @@ class PasakDashboardView
     {
         try {
             return app(PasakUserLoginService::class)->resolveLocation($ip);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return [
                 'city' => null,
                 'region' => null,
@@ -95,5 +99,117 @@ class PasakDashboardView
                 'isp' => null,
             ];
         }
+    }
+
+    /**
+     * Resolusi timezone tampilan dasbor:
+     * 1. Prioritas konfigurasi eksplisit: config('pasak.dashboard.timezone') atau env('PASAK_DASHBOARD_TIMEZONE')
+     * 2. env('APP_TIMEZONE') dari .env aplikasi host
+     * 3. config('app.timezone') jika bukan 'UTC' default bawaan Laravel
+     * 4. Auto-detect timezone server fisik tempat aplikasi dipasang (/etc/localtime atau /etc/timezone)
+     * 5. Fallback ke config('app.timezone', 'UTC')
+     */
+    public static function timezone(): string
+    {
+        $custom = config('pasak.dashboard.timezone') ?: env('PASAK_DASHBOARD_TIMEZONE') ?: env('APP_TIMEZONE');
+        if (! empty($custom) && in_array($custom, DateTimeZone::listIdentifiers(), true)) {
+            return (string) $custom;
+        }
+
+        $appTz = config('app.timezone');
+        if (! empty($appTz) && $appTz !== 'UTC' && in_array($appTz, DateTimeZone::listIdentifiers(), true)) {
+            return (string) $appTz;
+        }
+
+        // Auto-detect timezone sistem/server tempat aplikasi diinstal
+        $detected = null;
+        if (is_link('/etc/localtime')) {
+            $link = @readlink('/etc/localtime');
+            if ($link && preg_match('#(?:zoneinfo|zoneinfo\.default)/(.+)$#', $link, $matches)) {
+                $detected = $matches[1];
+            }
+        }
+        if (! $detected && file_exists('/etc/timezone') && is_readable('/etc/timezone')) {
+            $t = trim((string) @file_get_contents('/etc/timezone'));
+            if ($t !== '') {
+                $detected = $t;
+            }
+        }
+
+        if ($detected && in_array($detected, DateTimeZone::listIdentifiers(), true)) {
+            return (string) $detected;
+        }
+
+        return ! empty($appTz) ? (string) $appTz : 'UTC';
+    }
+
+    /**
+     * Format tanggal/waktu sesuai locale aplikasi (APP_LOCALE=id / en) dan timezone server pengguna.
+     */
+    public static function formatDate(mixed $date, string $format = 'd M Y H:i:s'): string
+    {
+        if (! $date) {
+            return '—';
+        }
+
+        if (! ($date instanceof DateTimeInterface)) {
+            try {
+                $date = Carbon::parse($date);
+            } catch (Throwable) {
+                return (string) $date;
+            }
+        }
+
+        $carbon = $date instanceof Carbon
+            ? $date->copy()
+            : Carbon::instance($date);
+
+        $locale = app()->getLocale();
+        if (in_array($locale, ['id', 'en'], true)) {
+            $carbon->locale($locale);
+        }
+
+        try {
+            $carbon->setTimezone(static::timezone());
+        } catch (Throwable) {
+            // Abaikan jika timezone tidak valid
+        }
+
+        return $carbon->translatedFormat($format);
+    }
+
+    /**
+     * Tampilan waktu relatif (misal: "5 menit yang lalu" atau "5 minutes ago") sesuai locale dan timezone server.
+     */
+    public static function diffForHumans(mixed $date, bool $syntax = false): string
+    {
+        if (! $date) {
+            return '—';
+        }
+
+        if (! ($date instanceof DateTimeInterface)) {
+            try {
+                $date = Carbon::parse($date);
+            } catch (Throwable) {
+                return (string) $date;
+            }
+        }
+
+        $carbon = $date instanceof Carbon
+            ? $date->copy()
+            : Carbon::instance($date);
+
+        $locale = app()->getLocale();
+        if (in_array($locale, ['id', 'en'], true)) {
+            $carbon->locale($locale);
+        }
+
+        try {
+            $carbon->setTimezone(static::timezone());
+        } catch (Throwable) {
+            // Abaikan jika timezone tidak valid
+        }
+
+        return $carbon->diffForHumans(null, $syntax);
     }
 }

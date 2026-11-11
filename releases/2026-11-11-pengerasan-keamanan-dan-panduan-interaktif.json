@@ -2,14 +2,24 @@
   "date": "2026-11-11",
   "type": "important",
   "title": {
-    "id": "Pengerasan Keamanan Berlapis, Panduan Bantuan, dan Pencegahan Pemblokiran Keliru",
-    "en": "Multi-Layered Security Hardening, Help Guide, and False Positive Prevention"
+    "id": "Gerbang Masuk Mandiri, Pemulihan Sandi Darurat, dan Pengerasan Pertahanan Sistem",
+    "en": "Isolated Login Gateway, Emergency Access Recovery, and Multi-Layered Defense Hardening"
   },
   "body": {
-    "id": "Pembaruan v1.7.8 menghadirkan penguatan pertahanan menyeluruh terhadap manipulasi identitas jaringan dan penyelundupan ancaman siber, penghapusan celah bypass pada sesi pengguna, eliminasi pemblokiran keliru pada tautan konten publik, serta integrasi panduan bantuan interaktif dwibahasa di dasbor.",
-    "en": "Update v1.7.8 delivers comprehensive protection hardening against network identity spoofing and evasion tactics, eliminates session bypass vulnerabilities, prevents false positive blocks on public content links, and integrates an interactive bilingual help guide on the dashboard."
+    "id": "Pembaruan komprehensif menghadirkan gerbang masuk dasbor mandiri dengan mode pemulihan akses darurat, penguatan pertahanan terhadap manipulasi jaringan dan penyelundupan ancaman siber, eliminasi pemblokiran keliru pada tautan publik, dukungan dwibahasa penuh, serta tata letak navigasi yang lebih ramping.",
+    "en": "Comprehensive update delivering an isolated dashboard login gateway with emergency access recovery, robust defenses against network identity spoofing and payload evasion, prevention of false-positive blocks on public content, full bilingual support, and a streamlined ergonomic layout."
   },
   "items": [
+    {
+      "type": "new",
+      "id": "Gerbang Masuk Dasbor Mandiri & Peringatan Sandi Awal: Dasbor kini dilindungi oleh formulir login terisolasi dengan peringatan siaga otomatis dan panduan pembuatan sandi kuat saat pertama kali mengakses sistem.",
+      "en": "Independent Dashboard Login Gateway & Initial Password Advisory: The dashboard is now guarded by an isolated login form with automated security alerts and guided strong password creation on first access."
+    },
+    {
+      "type": "security",
+      "id": "Mode Pemulihan Sandi Darurat: Penyediaan mekanisme pemulihan akses instan saat pengelola lupa kata sandi melalui kunci rahasia internal tanpa harus membongkar basis data.",
+      "en": "Emergency Access Recovery Mode: Direct recovery mechanism enabling administrators to securely regain dashboard access and reset credentials using internal recovery keys without touching the database."
+    },
     {
       "type": "security",
       "id": "Perlindungan Manipulasi Jaringan & Verifikasi Gerbang Akses: Memastikan identitas pengunjung hanya dapat divalidasi melalui gerbang proksi resmi dan terpercaya guna mencegah pemalsuan alamat untuk menembus pengamanan.",
@@ -34,6 +44,16 @@
       "type": "new",
       "id": "Panduan Bantuan Dasbor Interaktif Dwibahasa: Menghadirkan modal panduan komprehensif dalam bahasa Indonesia dan Inggris yang dapat diakses langsung dari dasbor untuk memudahkan pemahaman fitur dan tindakan keamanan.",
       "en": "Interactive Bilingual Dashboard Help Guide: Introduced a comprehensive built-in modal guide in Indonesian and English accessible directly from the dashboard to clarify security metrics and actions."
+    },
+    {
+      "type": "improvement",
+      "id": "Peralihan Bahasa Instan & Jam Server Akurat: Menghadirkan tombol peralihan bahasa Indonesia dan Inggris secara menyeluruh di seluruh panel serta penyesuaian jam server otomatis sesuai zona waktu operasional.",
+      "en": "Instant Language Switching & Accurate Server Time: Complete bilingual support across all dashboard interfaces and automatic clock synchronization honoring local server timezones."
+    },
+    {
+      "type": "improvement",
+      "id": "Penyegaran Tata Letak & Kenyamanan Navigasi: Memisahkan bilah menu atas dengan judul halaman agar tampilan dasbor lebih lega, bersih, dan nyaman digunakan baik di komputer maupun ponsel pintar.",
+      "en": "Layout Restructuring & Ergonomic Navigation: Separated top utility actions from page titles, ensuring an open, clutter-free reading experience across desktop and mobile screens."
     },
     {
       "type": "improvement",

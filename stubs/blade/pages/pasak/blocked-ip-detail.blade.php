@@ -1,5 +1,7 @@
 @extends('pages.pasak.layout', ['heading' => __('Block detail'), 'subheading' => $block->ip_address])
 
+@section('page_support_key', 'blocked-ip-detail')
+
 @section('content')
 @php
     $DV = \Internal\Pasak\Support\DashboardView::class;
@@ -66,11 +68,11 @@
         </div>
         <div class="sec-detail-item">
             <div class="sec-detail-label">{{ __('Blocked at') }}</div>
-            <div class="sec-detail-value">{{ $block->blocked_at ?? $block->created_at }}</div>
+            <div class="sec-detail-value">{{ $DV::formatDate($block->blocked_at ?? $block->created_at, 'd M Y H:i:s') }}</div>
         </div>
         <div class="sec-detail-item">
             <div class="sec-detail-label">{{ __('Expires') }}</div>
-            <div class="sec-detail-value">{{ $block->expires_at ?? __('Permanent') }}</div>
+            <div class="sec-detail-value">{{ $block->expires_at ? $DV::formatDate($block->expires_at, 'd M Y H:i:s') : __('Permanent') }}</div>
         </div>
         <div class="sec-detail-item">
             <div class="sec-detail-label">{{ __('Hits since block') }}</div>
@@ -78,7 +80,7 @@
         </div>
         <div class="sec-detail-item">
             <div class="sec-detail-label">{{ __('Last hit') }}</div>
-            <div class="sec-detail-value">{{ $block->last_hit_at ?? '—' }}</div>
+            <div class="sec-detail-value">{{ $block->last_hit_at ? $DV::formatDate($block->last_hit_at, 'd M Y H:i:s') : '—' }}</div>
         </div>
         @if ($block->device_id || $block->local_ip)
             <div class="sec-detail-item">
@@ -136,8 +138,8 @@
                                 {{ $idx + 1 }}
                             </td>
                             <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;">
-                                <div style="font-weight: 600;">{{ $log->created_at }}</div>
-                                <div style="font-size: 11px; color: var(--sec-text-muted);">{{ $log->created_at ? $log->created_at->diffForHumans() : '' }}</div>
+                                <div style="font-weight: 600;">{{ $DV::formatDate($log->created_at, 'd M Y H:i:s') }}</div>
+                                <div style="font-size: 11px; color: var(--sec-text-muted);">{{ $log->created_at ? $DV::diffForHumans($log->created_at) : '' }}</div>
                             </td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 6px;">
@@ -190,7 +192,7 @@
                         <strong style="color: var(--sec-danger); font-size: 13.5px;">{{ __('TITIK PEMBLOKIRAN DITERAPKAN OLEH SISTEM') }}</strong>
                         <div style="margin-top: 2px; font-size: 12.5px; color: var(--sec-text);">
                             {{ __('IP ini resmi dimasukkan ke daftar karantina pada') }}
-                            <strong class="sec-font-mono" style="color: var(--sec-danger);">{{ $block->blocked_at ?? $block->created_at }}</strong>
+                            <strong class="sec-font-mono" style="color: var(--sec-danger);">{{ $DV::formatDate($block->blocked_at ?? $block->created_at, 'd M Y H:i:s') }}</strong>
                             @if ($block->reason)
                                 · {{ __('Alasan:') }} <em>{{ $block->reason }}</em>
                             @endif
@@ -230,7 +232,7 @@
                 <tbody>
                     @foreach ($logsAfterBlock as $pLog)
                         <tr>
-                            <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;">{{ $pLog->created_at }}</td>
+                            <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;" title="{{ $DV::diffForHumans($pLog->created_at) }}">{{ $DV::formatDate($pLog->created_at, 'Y-m-d H:i:s') }}</td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 6px;">
                                     <span class="sec-badge sec-badge-zinc sec-font-mono" style="font-size: 10px;">{{ $pLog->method ?? 'GET' }}</span>

@@ -1,5 +1,7 @@
 @extends('pages.pasak.layout', ['heading' => __('Log entry #:id', ['id' => $log->id]), 'subheading' => $log->event_type])
 
+@section('page_support_key', 'log-detail')
+
 @section('content')
 @php
     $DV = \Internal\Pasak\Support\DashboardView::class;
@@ -19,7 +21,7 @@
     <div class="sec-detail-grid">
         <div class="sec-detail-item">
             <div class="sec-detail-label">{{ __('Time') }}</div>
-            <div class="sec-detail-value sec-font-mono">{{ $log->created_at }}</div>
+            <div class="sec-detail-value sec-font-mono">{{ $DV::formatDate($log->created_at, 'd M Y H:i:s') }} <span style="font-size: 12px; color: var(--sec-text-muted); font-weight: normal; margin-left: 6px;">({{ $DV::diffForHumans($log->created_at) }})</span></div>
         </div>
         <div class="sec-detail-item">
             <div class="sec-detail-label">{{ __('IP address') }}</div>
@@ -172,7 +174,7 @@
                 <tbody>
                     @foreach ($relatedLogs as $related)
                         <tr>
-                            <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;">{{ $related->created_at }}</td>
+                            <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;" title="{{ $DV::diffForHumans($related->created_at) }}">{{ $DV::formatDate($related->created_at, 'Y-m-d H:i:s') }}</td>
                             <td>{{ $related->event_type }}</td>
                             <td><span class="sec-badge {{ $DV::levelClass($related->threat_level) }}">{{ $DV::levelLabel($related->threat_level) }}</span></td>
                             <td class="sec-font-mono" style="font-size: 12px; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $related->path }}">{{ $related->path }}</td>

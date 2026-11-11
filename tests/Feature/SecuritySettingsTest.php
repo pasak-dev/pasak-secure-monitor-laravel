@@ -235,7 +235,7 @@ test('admin can update dashboard back url via api and settings form', function (
     $page = $this->actingAs($admin)->get(route('pasak.dashboard.settings'));
     $page->assertSuccessful();
     $page->assertSee('/custom-admin-dashboard');
-    $page->assertSee('URL Kembali ke Dashboard Aplikasi Host');
+    $page->assertSee(__('Integrasi Navigasi: URL Kembali ke Dashboard Aplikasi Host'));
     $page->assertSee('Dashboard Utama');
     $page->assertSee('rel="icon"', false);
 });

@@ -2,6 +2,38 @@
 
 All notable changes to `robyajo/pasak` will be documented in this file.
 
+## [1.7.9] - 2026-11-11
+
+### Added
+
+- **Gerbang Autentikasi Mandiri Dashboard Pasak & Kredensial Bawaan** (`src/Http/Controllers/Dashboard/PasakAuthController.php`, `src/Http/Middleware/PasakDashboardAuthenticate.php`, `stubs/blade/pages/pasak/login.blade.php`):
+  - Dashboard Pasak kini dilindungi oleh form login mandiri (`/pasak-{token}/login`) yang terpisah dari sistem autentikasi aplikasi host.
+  - Kredensial bawaan dikonfigurasi melalui `.env`: `PASAK_DASHBOARD_USERNAME=admin` dan `PASAK_DASHBOARD_PASSWORD=Admin`.
+  - Hash password disimpan di database tabel `pasak_settings` menggunakan HMAC SHA-256 berbasis `PASAK_DASHBOARD_SECRET`.
+  - Banner peringatan siaga dan pop-up modal wajib ganti password muncul otomatis saat administrator masih menggunakan kredensial bawaan (`Admin`).
+
+- **Mode Pemulihan Darurat (Emergency Recovery via `PASAK_DASHBOARD_SECRET`)**:
+  - Apabila administrator lupa password yang telah disetel, nilai `PASAK_DASHBOARD_SECRET` dari berkas `.env` dapat langsung digunakan sebagai password darurat pada form login.
+  - Sistem mendeteksi kecocokan darurat dan mengizinkan login ke **Mode Pemulihan Darurat** (`is_emergency = true`), menampilkan banner peringatan siaga merah dan langsung memunculkan modal ganti password baru tanpa perlu menyentuh database.
+
+- **Modal Pembaruan Password & Formulir Pengaturan**:
+  - Menghadirkan modal pop-up pembaruan password (`update-password-modal.blade.php`) dan formulir inline di halaman Pengaturan (`settings.blade.php`).
+  - Dilengkapi rekomendasi contoh password kuat (misal `P@sak#VPS2026!`) dan petunjuk pemulihan darurat.
+
+- **Dukungan Multi-Bahasa Lengkap (i18n EN / ID Switcher)**:
+  - Tombol switcher dwibahasa di header dasbor (`EN / ID`) untuk peralihan instan.
+  - Seluruh teks tampilan (heading, subheading, label formulir, tabel, konfirmasi modal, alert) telah diterjemahkan secara konsisten ke dalam Bahasa Inggris dan Bahasa Indonesia.
+
+- **Sinkronisasi Waktu Server (`APP_LOCALE` / Timezone)**:
+  - Waktu server yang ditampilkan pada lencana header secara otomatis disinkronkan dengan `APP_LOCALE` dan zona waktu host Laravel (`config('app.timezone')`), menjamin akurasi waktu fisik server/VPS tempat aplikasi beroperasi.
+
+- **Modal Panduan & Dukungan Kontekstual Halaman (Page Support Modal)** (`components/page-support-modal.blade.php`):
+  - Tombol Support di header membuka modal penjelasan fungsi dan konteks teknis halaman yang sedang diakses (seperti `/blocked-ips`, `/logs`, `/settings`, `/sessions`, `/threat-map`), merinci informasi metrik dan opsi tindakan mitigasi.
+
+- **Restrukturisasi Layout Dashboard (Pemisahan Title dari Header Toolbar)**:
+  - Memisahkan elemen `$heading` dan `$subheading` keluar dari sticky `<header class="sec-header">` ke kontainer `.sec-page-header` di bawah header.
+  - Menjaga toolbar header tetap ramping dan judul leluasa di layar desktop maupun mobile tanpa berdesakan dengan tombol aksi utilitas.
+
 ## [1.7.8] - 2026-11-11
 
 ### Fixed

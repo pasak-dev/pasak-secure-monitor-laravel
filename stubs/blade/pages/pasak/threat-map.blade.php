@@ -1,5 +1,7 @@
 @extends('pages.pasak.layout', ['heading' => __('Live Threat Map'), 'subheading' => __('Visualisasi intelijen serangan siber real-time berbasis telemetri server')])
 
+@section('page_support_key', 'threat-map')
+
 @section('content')
 @php($payloadData = $payload)
 @php($s = $stats)
@@ -30,7 +32,7 @@
         <div class="threat-hud-right">
             <div class="threat-hud-clock" data-threat-clock>
                 <span class="threat-clock-time">--:--:--</span>
-                <span class="threat-clock-tz">WIB / UTC</span>
+                <span class="threat-clock-tz">{{ \Internal\Pasak\Support\DashboardView::timezone() }}</span>
             </div>
             <div class="threat-hud-stat is-danger">
                 <span class="threat-hud-stat-label">{{ ($s['logs_today'] ?? 0) > 0 ? __('Attacks (Today)') : __('Total Attacks') }}</span>
@@ -1291,15 +1293,26 @@
         } catch (e) { /* ignore audio failure */ }
     }
 
-    // Live Clock Ticker (WIB + UTC)
+    // Live Clock Ticker (Waktu Server / App Timezone)
     function updateClock() {
         var clockEl = card.querySelector('[data-threat-clock] .threat-clock-time');
         if (!clockEl) return;
         var now = new Date();
-        var hours = String(now.getHours()).padStart(2, '0');
-        var mins = String(now.getMinutes()).padStart(2, '0');
-        var secs = String(now.getSeconds()).padStart(2, '0');
-        clockEl.textContent = hours + ':' + mins + ':' + secs;
+        var tz = {!! json_encode(\Internal\Pasak\Support\DashboardView::timezone()) !!};
+        try {
+            clockEl.textContent = new Intl.DateTimeFormat('en-GB', {
+                timeZone: tz,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).format(now);
+        } catch (e) {
+            var hours = String(now.getHours()).padStart(2, '0');
+            var mins = String(now.getMinutes()).padStart(2, '0');
+            var secs = String(now.getSeconds()).padStart(2, '0');
+            clockEl.textContent = hours + ':' + mins + ':' + secs;
+        }
     }
     setInterval(updateClock, 1000);
     updateClock();

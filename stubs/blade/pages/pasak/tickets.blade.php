@@ -1,5 +1,7 @@
 @extends('pages.pasak.layout', ['heading' => __('Unblock Appeals'), 'subheading' => __('Tinjau permohonan buka blokir dari pengguna terblokir')])
 
+@section('page_support_key', 'tickets')
+
 @section('content')
 <div class="sec-grid-4">
     <div class="sec-stat-card">

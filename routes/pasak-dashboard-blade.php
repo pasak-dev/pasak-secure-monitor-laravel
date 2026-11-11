@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Internal\Pasak\Http\Controllers\Dashboard\PasakAllowedIpController;
+use Internal\Pasak\Http\Controllers\Dashboard\PasakAuthController;
 use Internal\Pasak\Http\Controllers\Dashboard\PasakBlockedIpController;
 use Internal\Pasak\Http\Controllers\Dashboard\PasakDashboardAliasController;
 use Internal\Pasak\Http\Controllers\Dashboard\PasakDashboardEntryController;
@@ -12,6 +13,7 @@ use Internal\Pasak\Http\Controllers\Dashboard\PasakSessionController;
 use Internal\Pasak\Http\Controllers\Dashboard\PasakSettingController;
 use Internal\Pasak\Http\Controllers\Dashboard\PasakThreatMapController;
 use Internal\Pasak\Http\Controllers\Dashboard\PasakTicketController;
+use Internal\Pasak\Http\Middleware\PasakDashboardAuthenticate;
 use Internal\Pasak\Http\Middleware\PasakRotatingDashboard;
 
 /*
@@ -21,7 +23,11 @@ use Internal\Pasak\Http\Middleware\PasakRotatingDashboard;
 |
 | Rute dashboard Blade murni (resources/views/pages/pasak) untuk aplikasi
 | Laravel tanpa Livewire/Inertia. Seluruh halaman dilindungi oleh
-| middleware "web" + "auth" (wajib login).
+| middleware autentikasi mandiri Pasak (form login dicegat sebelum akses).
+|
+| Kredensial login dikonfigurasi melalui .env:
+| - Username: PASAK_DASHBOARD_USERNAME (default: admin)
+| - Password: PASAK_DASHBOARD_SECRET (secret password server)
 |
 | Mode URL acak sekali pakai (PASAK_DASHBOARD_ROTATING=true):
 | pintu stabil "/pasak" 302 ke "/pasak-{token}/" milik sesi pengguna.
@@ -34,13 +40,45 @@ $prefix = trim((string) config('pasak.dashboard.prefix', 'pasak'), '/');
 if ($prefix === '') {
     $prefix = 'pasak';
 }
-$middleware = array_filter(
+
+$configuredMiddleware = array_filter(
     (array) config('pasak.dashboard.middleware', ['web', 'auth']),
 );
+$authEnabled = (bool) config('pasak.dashboard.auth.enabled', true);
+
+$middleware = [];
+foreach ($configuredMiddleware as $m) {
+    if ($m === 'auth' && $authEnabled) {
+        $middleware[] = PasakDashboardAuthenticate::class;
+    } else {
+        $middleware[] = $m;
+    }
+}
+
+if ($authEnabled && ! in_array(PasakDashboardAuthenticate::class, $middleware, true)) {
+    $middleware[] = PasakDashboardAuthenticate::class;
+}
+
+$middleware = array_values(array_unique(array_filter($middleware)));
+
 $adminMiddleware = array_filter(
     (array) config('pasak.dashboard.admin_middleware', []),
 );
 $rotating = (bool) config('pasak.dashboard.rotating', false);
+
+// Rute Form Login & Logout Mandiri Dashboard Pasak (tanpa proteksi auth)
+Route::middleware(['web'])
+    ->prefix($prefix)
+    ->group(function () {
+        Route::get('login', [PasakAuthController::class, 'showLoginForm'])
+            ->name('pasak.dashboard.login');
+        Route::post('login', [PasakAuthController::class, 'login'])
+            ->name('pasak.dashboard.login.submit');
+        Route::post('logout', [PasakAuthController::class, 'logout'])
+            ->name('pasak.dashboard.logout');
+        Route::post('password', [PasakAuthController::class, 'updatePassword'])
+            ->name('pasak.dashboard.password.update');
+    });
 
 $registerPasakDashboard = function () {
     Route::get('/', PasakOverviewController::class)->name('overview');
@@ -86,10 +124,9 @@ $registerPasakDashboard = function () {
     Route::get('allowed-ips', [PasakAllowedIpController::class, 'index'])->name(
         'allowed-ips',
     );
-    Route::post('allowed-ips', [
-        PasakAllowedIpController::class,
-        'store',
-    ])->name('allowed-ips.store');
+    Route::post('allowed-ips', [PasakAllowedIpController::class, 'store'])->name(
+        'allowed-ips.store',
+    );
     Route::patch('allowed-ips/{id}/toggle', [
         PasakAllowedIpController::class,
         'toggle',
@@ -210,7 +247,7 @@ if ($rotating) {
         ->group(function () {
             Route::get('{any}', PasakDashboardAliasController::class)->where(
                 'any',
-                '.*',
+                '^(?!login|logout|password).*$',
             );
         });
 } else {

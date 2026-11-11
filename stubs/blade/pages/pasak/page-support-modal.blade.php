@@ -1,31 +1,35 @@
 @php
+    $customPageKey = trim($__env->yieldContent('page_support_key'));
     $currentRouteName = request()->route() ? request()->route()->getName() : '';
-    $path = request()->path();
+    $path = trim(request()->path(), '/');
 
     // Determine current page key
-    $pageKey = 'overview';
-    if (str_contains($currentRouteName, 'logs.show') || str_contains($path, 'logs/')) {
-        $pageKey = 'log-detail';
-    } elseif (str_contains($currentRouteName, 'logs') || str_contains($path, 'logs')) {
-        $pageKey = 'logs';
-    } elseif (str_contains($currentRouteName, 'threat-map') || str_contains($path, 'threat-map')) {
-        $pageKey = 'threat-map';
-    } elseif (str_contains($currentRouteName, 'blocked-ips.show') || (str_contains($path, 'blocked-ips/') && !str_contains($path, 'toggle'))) {
-        $pageKey = 'blocked-ip-detail';
-    } elseif (str_contains($currentRouteName, 'blocked-ips') || str_contains($path, 'blocked-ips')) {
-        $pageKey = 'blocked-ips';
-    } elseif (str_contains($currentRouteName, 'allowed-ips') || str_contains($path, 'allowed-ips')) {
-        $pageKey = 'allowed-ips';
-    } elseif (str_contains($currentRouteName, 'server') || str_contains($path, 'server')) {
-        $pageKey = 'server';
-    } elseif (str_contains($currentRouteName, 'sessions') || str_contains($path, 'sessions')) {
-        $pageKey = 'sessions';
-    } elseif (str_contains($currentRouteName, 'tickets.show') || str_contains($path, 'tickets/')) {
-        $pageKey = 'ticket-detail';
-    } elseif (str_contains($currentRouteName, 'tickets') || str_contains($path, 'tickets')) {
-        $pageKey = 'tickets';
-    } elseif (str_contains($currentRouteName, 'settings') || str_contains($path, 'settings')) {
-        $pageKey = 'settings';
+    $pageKey = !empty($customPageKey) ? $customPageKey : 'overview';
+
+    if (empty($customPageKey)) {
+        if (str_contains($currentRouteName, 'logs.show') || str_contains($path, 'logs/')) {
+            $pageKey = 'log-detail';
+        } elseif (str_contains($currentRouteName, 'logs') || str_ends_with($path, 'logs') || str_contains($path, '/logs')) {
+            $pageKey = 'logs';
+        } elseif (str_contains($currentRouteName, 'threat-map') || str_contains($path, 'threat-map')) {
+            $pageKey = 'threat-map';
+        } elseif (str_contains($currentRouteName, 'blocked-ips.show') || (str_contains($path, 'blocked-ips/') && !str_contains($path, 'toggle'))) {
+            $pageKey = 'blocked-ip-detail';
+        } elseif (str_contains($currentRouteName, 'blocked-ips') || str_ends_with($path, 'blocked-ips') || str_contains($path, '/blocked-ips')) {
+            $pageKey = 'blocked-ips';
+        } elseif (str_contains($currentRouteName, 'allowed-ips') || str_ends_with($path, 'allowed-ips') || str_contains($path, '/allowed-ips')) {
+            $pageKey = 'allowed-ips';
+        } elseif (str_contains($currentRouteName, 'server') || str_ends_with($path, 'server') || str_contains($path, '/server')) {
+            $pageKey = 'server';
+        } elseif (str_contains($currentRouteName, 'sessions') || str_ends_with($path, 'sessions') || str_contains($path, '/sessions')) {
+            $pageKey = 'sessions';
+        } elseif (str_contains($currentRouteName, 'tickets.show') || str_contains($path, 'tickets/')) {
+            $pageKey = 'ticket-detail';
+        } elseif (str_contains($currentRouteName, 'tickets') || str_ends_with($path, 'tickets') || str_contains($path, '/tickets')) {
+            $pageKey = 'tickets';
+        } elseif (str_contains($currentRouteName, 'settings') || str_ends_with($path, 'settings') || str_contains($path, '/settings')) {
+            $pageKey = 'settings';
+        }
     }
 
     $pageGuides = [
@@ -40,83 +44,93 @@
                 'id' => 'Telemetri Eksekutif & Tren Ancaman',
             ],
             'purpose' => [
-                'en' => 'The executive command center for your Linux VPS & web fleet security. It delivers instant visibility into live attack traffic, today\'s high-severity threats, active IP quarantines, and geographic origins of malicious actors.',
-                'id' => 'Pusat komando eksekutif pertahanan Linux VPS & web fleet Anda. Halaman ini menyajikan visibilitas seketika terhadap lalu lintas serangan real-time, ancaman kritis hari ini, jumlah IP/perangkat yang dikarantina aktif, dan asal negara penyerang.',
+                'en' => 'The executive command center for your application and Linux VPS defense fleet. Delivers real-time visibility into incoming cyber attacks, today\'s critical threat incidents, active WAF quarantines, attack volume trends, and geographic origins of malicious actors.',
+                'id' => 'Pusat komando eksekutif pertahanan aplikasi dan server Linux VPS Anda. Menyajikan visibilitas seketika terhadap serangan siber yang masuk, insiden ancaman kritis hari ini, jumlah IP/perangkat yang aktif dikarantina WAF, tren volume serangan, dan asal negara penyerang.',
             ],
             'features' => [
                 'en' => [
-                    ['title' => 'Real-Time KPI Metric Cards', 'desc' => 'Track logs recorded today, critical threat counts, active WAF quarantines, and total unique attacker IPs.'],
-                    ['title' => 'Attack Trend Timeline', 'desc' => 'Interactive attack trend analysis with 7-day, 30-day, and 12-month views identifying attack volume and peak hours.'],
-                    ['title' => 'Threats by Severity & Top Origins', 'desc' => 'Visual breakdown of threats across Critical, High, Medium, and Low tiers alongside the top foreign ASNs and countries.'],
-                    ['title' => 'Live Incident Stream', 'desc' => 'Latest 10 security violations with instant client IP, HTTP target path, detection rules, and quick-action quarantine buttons.'],
+                    ['title' => 'Real-Time KPI Metric Cards', 'desc' => 'Instant count of total attack logs recorded today, critical threat counts, active WAF quarantines, and unique attacker IPs.'],
+                    ['title' => 'Attack Trend Timeline', 'desc' => 'Interactive chart tracking attack volume over 7-day, 30-day, and 12-month periods to identify peak attack hours and sudden traffic spikes.'],
+                    ['title' => 'Threat Distribution by Severity', 'desc' => 'Visual breakdown of threats categorized into Critical (red), High (orange), Medium (yellow), and Low (blue).'],
+                    ['title' => 'Top Attack Origins & Countries', 'desc' => 'Identifies foreign Autonomous System Numbers (ASNs) and countries transmitting the highest volume of malicious requests.'],
+                    ['title' => 'Live Incident Feed', 'desc' => 'Stream of the latest 10 security violations with instant client IP, HTTP request path, rule matched, and quick quarantine buttons.'],
+                    ['title' => 'Server Host Status Indicator', 'desc' => 'Quick indicators showing active firewall tables, cache status, and host application health.'],
                 ],
                 'id' => [
-                    ['title' => 'Kartu Metrik KPI Real-Time', 'desc' => 'Pantau total log hari ini, serangan level kritis, karantina WAF aktif, dan jumlah IP penyerang unik.'],
-                    ['title' => 'Grafik Tren Waktu Serangan', 'desc' => 'Analisis tren interaktif dengan pilihan rentang 7 hari, 30 hari, dan 12 bulan untuk melihat fluktuasi dan jam puncak serangan.'],
-                    ['title' => 'Distribusi Tingkat Keparahan & Asal Negara', 'desc' => 'Pengelompokan ancaman berdasarkan level Kritis, Tinggi, Sedang, dan Rendah serta negara/ASN sumber serangan terbanyak.'],
-                    ['title' => 'Stream Insiden Keamanan Terbaru', 'desc' => '10 serangan paling mutakhir lengkap dengan IP penyerang, path target HTTP, aturan pemicu, dan tombol karantina instan.'],
+                    ['title' => 'Kartu Metrik KPI Real-Time', 'desc' => 'Pantau total log serangan hari ini, jumlah ancaman level kritis, karantina WAF aktif, dan jumlah IP penyerang unik.'],
+                    ['title' => 'Grafik Tren Waktu Serangan', 'desc' => 'Grafik interaktif volume serangan dengan rentang 7 hari, 30 hari, dan 12 bulan untuk melihat jam sibuk dan lonjakan serangan.'],
+                    ['title' => 'Distribusi Tingkat Keparahan', 'desc' => 'Pengelompokan ancaman berdasarkan kategori Kritis (merah), Tinggi (oranye), Sedang (kuning), dan Rendah (biru).'],
+                    ['title' => 'Daftar Negara & ASN Sumber Serangan', 'desc' => 'Mengetahui negara dan operator jaringan (ASN) yang paling banyak mengirimkan request jahat ke server.'],
+                    ['title' => 'Stream Insiden Keamanan Terkini', 'desc' => '10 serangan paling mutakhir lengkap dengan IP penyerang, target path URL, rule yang terpicu, dan tombol karantina instan.'],
+                    ['title' => 'Indikator Kesehatan Host Server', 'desc' => 'Indikator ringkas kesiapan tabel firewall, status cache framework, dan integritas aplikasi.'],
                 ],
             ],
             'actions' => [
                 'en' => [
-                    ['title' => 'Timeframe Filter', 'desc' => 'Switch between Week (7d), Month (30d), and Year (12m) to inspect attack escalation patterns.'],
-                    ['title' => 'Quarantine Suspicious IP', 'desc' => 'Click "Quarantine" on any active incident to instantly enforce Linux kernel or WAF blocking on that IP.'],
-                    ['title' => 'Global Cache Clear & Refresh', 'desc' => 'Trigger the top Refresh button to flush framework view/route caches and retrieve fresh telemetry.'],
+                    ['title' => 'Timeframe Filter Selection', 'desc' => 'Switch trend chart between Week (7d), Month (30d), and Year (12m) to spot recurring attack campaigns.'],
+                    ['title' => 'Quick Quarantine Action', 'desc' => 'Click "Quarantine" directly on any live incident row to immediately enforce a WAF block on the attacker.'],
+                    ['title' => 'Deep Forensic Investigation', 'desc' => 'Click any incident row to jump directly into raw HTTP payload analysis and evidence inspector.'],
+                    ['title' => 'Global Cache Clear & Refresh', 'desc' => 'Use the top header Refresh button to flush framework view/route caches and reload live statistics.'],
                 ],
                 'id' => [
-                    ['title' => 'Filter Rentang Waktu', 'desc' => 'Beralih antara Minggu (7h), Bulan (30h), dan Tahun (12b) untuk mengamati pola eskalasi serangan siber.'],
-                    ['title' => 'Karantina IP Cepat', 'desc' => 'Klik tombol "Karantina" pada baris insiden untuk menjatuhkan blokir WAF / kernel seketika terhadap IP tersebut.'],
-                    ['title' => 'Refresh Global & Bersihkan Cache', 'desc' => 'Gunakan tombol Refresh di header atas untuk membersihkan cache framework dan memuat data terbaru.'],
+                    ['title' => 'Pilihan Rentang Waktu Tren', 'desc' => 'Beralih antara grafik 7 Hari, 30 Hari, dan 12 Bulan untuk mengidentifikasi pola kampanye serangan berkala.'],
+                    ['title' => 'Karantina Cepat', 'desc' => 'Klik tombol "Karantina" pada baris insiden untuk langsung menjatuhkan blokir WAF terhadap penyerang.'],
+                    ['title' => 'Buka Detail Forensik', 'desc' => 'Klik baris insiden untuk meneliti bukti muatan dan header HTTP penyerangan secara mendalam.'],
+                    ['title' => 'Refresh & Bersihkan Cache', 'desc' => 'Gunakan tombol Refresh di header atas untuk membersihkan cache framework dan memuat data telemetri terbaru.'],
                 ],
             ],
             'tips' => [
-                'en' => 'Review sudden spikes in Critical/High threats immediately. Combine Passive Monitoring with Auto-Block in Settings once normal baseline traffic is established.',
-                'id' => 'Waspadai lonjakan mendadak pada kategori Kritis/Tinggi. Setelah pola lalu lintas normal terbentuk, pertimbangkan untuk mengaktifkan Auto-Block di menu Pengaturan.',
+                'en' => 'Investigate sudden spikes in Critical/High incidents immediately. Check the Threat Map to verify if the attack originates from a coordinated botnet across multiple countries.',
+                'id' => 'Segera teliti lonjakan mendadak pada kategori Kritis/Tinggi. Periksa Peta Ancaman (Threat Map) untuk memastikan apakah serangan berasal dari botnet terkoordinasi di banyak negara.',
             ],
         ],
         'logs' => [
             'icon' => '📜',
             'title' => [
                 'en' => 'Security Audit Logs',
-                'id' => 'Log Keamanan & Forensik',
+                'id' => 'Log Audit Keamanan & Forensik',
             ],
             'badge' => [
                 'en' => 'Raw Telemetry & Evidence Inspector',
                 'id' => 'Inspektor Forensik & Bukti Serangan',
             ],
             'purpose' => [
-                'en' => 'Forensic investigation ledger logging every suspicious HTTP request, path traversal, SQL injection, scanner probe, or authentication anomaly intercepted by Pasak sensors.',
-                'id' => 'Buku besar forensik yang mencatat setiap request HTTP mencurigakan, upaya path traversal, SQL injection, scanner otomatis, maupun anomali autentikasi yang diintersepsi sensor Pasak.',
+                'en' => 'Comprehensive forensic audit ledger recording every suspicious HTTP request, path traversal attempt, SQL injection payload, vulnerability scanner probe, or authentication anomaly intercepted by Pasak sensors.',
+                'id' => 'Buku besar audit forensik lengkap yang mencatat setiap request HTTP mencurigakan, percobaan path traversal, payload SQL injection, probing scanner otomatis, maupun anomali otentikasi yang diintersepsi sensor Pasak.',
             ],
             'features' => [
                 'en' => [
-                    ['title' => 'Multi-Criteria Filter Engine', 'desc' => 'Filter by threat level (Critical, High, Medium, Low), rule name, search query, date ranges, and custom page size.'],
-                    ['title' => 'Forensic Attack Signature', 'desc' => 'Examine triggered rules, matched patterns, HTTP method, client user-agent, and incoming payload parameters.'],
-                    ['title' => 'Device ID & Local IP Extraction', 'desc' => 'Extracts client device fingerprint and local subnet IP, enabling WiFi-safe granular blocking.'],
-                    ['title' => 'Attack Trend Mini-HUD', 'desc' => 'Header statistics showing today\'s log distribution across severity levels.'],
+                    ['title' => 'Severity Mini-HUD Cards', 'desc' => 'Instant summary counts of attack logs recorded today across Critical, High, Medium, and Low tiers.'],
+                    ['title' => 'Multi-Criteria Filter Engine', 'desc' => 'Filter by threat level (Critical, High, Medium, Low), rule name, search keywords, date range, and custom page size.'],
+                    ['title' => 'Detailed Audit Table', 'desc' => 'Displays client IP, request method (GET/POST/PUT), target URL path, matched rule signature, threat badge, timestamp, and device fingerprint.'],
+                    ['title' => 'Evidence Snippet Box', 'desc' => 'Inline preview of the exact malicious string or pattern detected inside the incoming request payload.'],
+                    ['title' => 'Device ID & Local Subnet Detection', 'desc' => 'Extracts client device fingerprint and private LAN IP, enabling WiFi-Safe granular blocking.'],
                 ],
                 'id' => [
-                    ['title' => 'Mesin Pencarian & Filter Bertingkat', 'desc' => 'Saring log berdasarkan level ancaman (Kritis, Tinggi, Sedang, Rendah), nama rule, kata kunci, tanggal, dan jumlah baris.'],
-                    ['title' => 'Signature & Bukti Forensik Serangan', 'desc' => 'Teliti rule yang terpicu, pola muatan yang cocok, metode HTTP, user-agent penyerang, dan parameter payload.'],
-                    ['title' => 'Ekstraksi Device ID & IP Lokal', 'desc' => 'Mendeteksi sidik jari perangkat dan IP lokal penyerang untuk memungkinkan pemblokiran perangkat yang aman pada WiFi bersama.'],
-                    ['title' => 'Statistik Mini Tingkat Keparahan', 'desc' => 'Ringkasan jumlah serangan pada masing-masing level (Critical, High, Medium, Low) secara seketika.'],
+                    ['title' => 'Kartu Mini-HUD Tingkat Keparahan', 'desc' => 'Ringkasan jumlah serangan hari ini pada masing-masing level (Critical, High, Medium, Low).'],
+                    ['title' => 'Mesin Pencarian & Filter Bertingkat', 'desc' => 'Saring log berdasarkan tingkat keparahan (Kritis, Tinggi, Sedang, Rendah), nama aturan/rule, kata kunci, tanggal, dan jumlah baris.'],
+                    ['title' => 'Tabel Audit Forensik Lengkap', 'desc' => 'Menampilkan IP klien, metode HTTP, path URL target, signature rule, badge keparahan, waktu server, dan sidik jari perangkat.'],
+                    ['title' => 'Pratinjau Potongan Bukti (Evidence)', 'desc' => 'Pratinjau potongan string berbahaya atau pola payload yang terdeteksi oleh sensor secara presisi.'],
+                    ['title' => 'Deteksi Device ID & IP Lokal Subnet', 'desc' => 'Mendeteksi sidik jari perangkat dan IP lokal penyerang untuk memungkinkan pemblokiran perangkat yang aman pada WiFi bersama.'],
                 ],
             ],
             'actions' => [
                 'en' => [
-                    ['title' => 'Inspect Evidence Detail', 'desc' => 'Click "Detail" to open full forensic analysis including raw headers, payload dump, and timeline.'],
-                    ['title' => 'Quarantine Modal', 'desc' => 'Click "Block IP" to quarantine the attacker with custom duration (e.g. 1h, 24h, permanent) and scope (IP vs Device).'],
-                    ['title' => 'Purge Security Logs', 'desc' => 'Clean old logs using the prune action or configure automated database retention in Settings.'],
+                    ['title' => 'Inspect Raw Forensic Evidence', 'desc' => 'Click "Detail" on any log row to inspect raw HTTP headers, user-agent, full payload dumps, and related attack chronology.'],
+                    ['title' => 'Instant Quarantine Modal', 'desc' => 'Click "Block IP" to quarantine the attacker with custom duration (e.g. 1h, 24h, permanent) and scope (IP vs Device).'],
+                    ['title' => 'Date & Keyword Search', 'desc' => 'Search across URLs, IP addresses, rule names, and payloads within specific date windows.'],
+                    ['title' => 'Log Retention & Prune', 'desc' => 'Clean up legacy logs manually or configure automated database retention in Settings.'],
                 ],
                 'id' => [
-                    ['title' => 'Periksa Detail Bukti', 'desc' => 'Klik tombol "Detail" untuk membuka analisis forensik menyeluruh mencakup raw header, dump payload, dan riwayat.'],
-                    ['title' => 'Modal Karantina Terpadu', 'desc' => 'Klik "Karantina" untuk memblokir penyerang dengan durasi fleksibel (1 jam, 24 jam, permanen) dan pilihan lingkup IP/Perangkat.'],
-                    ['title' => 'Pembersihan Riwayat Log', 'desc' => 'Bersihkan log lawas secara manual atau atur masa retensi database otomatis di menu Pengaturan.'],
+                    ['title' => 'Periksa Bukti Forensik Mentah', 'desc' => 'Klik tombol "Detail" untuk membuka analisis forensik mendalam mencakup raw header, dump payload, dan riwayat serangan.'],
+                    ['title' => 'Modal Karantina Instan', 'desc' => 'Klik "Blokir IP" untuk memblokir penyerang dengan durasi fleksibel (1 jam, 24 jam, permanen) dan pilihan lingkup IP/Perangkat.'],
+                    ['title' => 'Pencarian Berdasarkan Tanggal & Kata Kunci', 'desc' => 'Cari berdasarkan URL, IP, nama rule, atau muatan payload dalam rentang tanggal tertentu.'],
+                    ['title' => 'Pembersihan & Retensi Log', 'desc' => 'Bersihkan log lama secara manual atau atur masa retensi database otomatis di menu Pengaturan.'],
                 ],
             ],
             'tips' => [
-                'en' => 'Hover over matched evidence text to see truncated payload data. Use the "Device" scope when blocking attackers on public or shared office networks to protect legitimate users.',
-                'id' => 'Arahkan kursor ke teks bukti untuk melihat muatan payload lengkap. Gunakan lingkup "Perangkat" jika penyerang berada di jaringan WiFi kantor/publik agar pengguna lain tidak terdampak.',
+                'en' => 'Hover over truncated evidence snippets to reveal the full malicious string. Use the "Device" scope when blocking attackers on public or corporate WiFi networks to avoid disrupting co-workers.',
+                'id' => 'Arahkan kursor ke potongan teks bukti untuk melihat muatan payload lengkap. Gunakan lingkup "Perangkat" jika penyerang berada di jaringan WiFi kantor/publik agar pengguna lain tidak terkena blokir.',
             ],
         ],
         'threat-map' => [
@@ -130,351 +144,99 @@
                 'id' => 'Monitor Spasial Globe 3D & Peta Datar 2D',
             ],
             'purpose' => [
-                'en' => 'Visualizes live cyber attacks targeting your server on a geospatial canvas. Switch seamlessly between a 3D orthographic globe with real-time missile arc trajectories and a 2D high-density tactical flat map for SOC display wallboards.',
-                'id' => 'Memvisualisasikan serangan siber yang menargetkan server Anda ke dalam kanvas geospasial interaktif. Anda dapat berpindah antara Globe 3D ortografis dengan lintasan serangan melengkung dan Peta Datar 2D resolusi tinggi untuk layar monitoring SOC.',
+                'en' => 'Visualizes live cyber attacks targeting your server on an interactive geospatial canvas. Switch seamlessly between a 3D orthographic globe with missile arc trajectories and a 2D high-density tactical flat map designed for SOC command centers.',
+                'id' => 'Memvisualisasikan serangan siber yang menargetkan server Anda ke dalam kanvas geospasial interaktif. Beralih antara Globe 3D ortografis dengan lintasan busur serangan melengkung dan Peta Datar 2D resolusi tinggi yang dirancang untuk wallboard SOC.',
             ],
             'features' => [
                 'en' => [
-                    ['title' => '3D Globe & 2D Flat Projections', 'desc' => 'Interactive Canvas/WebGL rendering with smooth rotation, inertia drag, zooming, and auto-rotation toggle.'],
-                    ['title' => 'Real-Time Server Target Node', 'desc' => 'Highlights your protected server\'s location as the central defense fortress with animated pulse waves.'],
-                    ['title' => 'Attacker Geolocation Arcs', 'desc' => 'Arcs connecting attacker coordinates to your server color-coded by threat severity (Red = Critical, Yellow = Medium).'],
-                    ['title' => 'Live Threat HUD Overlay', 'desc' => 'On-screen heads-up display showing live attack velocity, unique country breakdown, and recent hit log stream.'],
+                    ['title' => '3D Globe & 2D Tactical Projections', 'desc' => 'Smooth interactive Canvas rendering with mouse drag rotation, zoom, inertia, and auto-spin controls.'],
+                    ['title' => 'Central Protected Target Node', 'desc' => 'Highlights your protected server datacenter location as the central fortress with animated pulse waves.'],
+                    ['title' => 'Attacker Geospatial Arcs', 'desc' => 'Curved glowing trajectory arcs connecting attacker coordinates to your server, color-coded by threat severity (Red = Critical, Yellow = Medium).'],
+                    ['title' => 'Live Threat HUD Telemetry', 'desc' => 'Floating HUD overlay showing live attack velocity, unique attacking countries, top foreign ASNs, and latest attack feed.'],
                 ],
                 'id' => [
-                    ['title' => 'Proyeksi Globe 3D & Peta Datar 2D', 'desc' => 'Render interaktif Canvas dengan rotasi halus, drag inersia, pembesaran (zoom), dan saklar putar otomatis.'],
-                    ['title' => 'Node Target Server Terlindungi', 'desc' => 'Menandai lokasi geografis server Anda sebagai pusat pertahanan utama dengan gelombang denyut pulsa animasi.'],
-                    ['title' => 'Lintasan Busur Geolokasi Penyerang', 'desc' => 'Busur bercahaya yang menghubungkan koordinat penyerang ke server dengan warna sesuai tingkat keparahan.'],
-                    ['title' => 'Panel HUD Telemetri Langsung', 'desc' => 'Panel status transparan yang menampilkan kecepatan serangan, daftar negara sumber ancaman, dan stream log terkini.'],
+                    ['title' => 'Proyeksi Globe 3D & Peta Datar 2D', 'desc' => 'Render interaktif Canvas dengan rotasi mouse yang halus, kontrol perbesaran (zoom), dan rotasi otomatis.'],
+                    ['title' => 'Node Pusat Pertahanan Server', 'desc' => 'Menandai lokasi datacenter server Anda sebagai benteng pertahanan utama dengan denyut animasi gelombang.'],
+                    ['title' => 'Lintasan Busur Geolokasi Penyerang', 'desc' => 'Garis busur bercahaya yang menghubungkan koordinat penyerang ke server, dengan kode warna tingkat keparahan (Merah = Kritis, Kuning = Sedang).'],
+                    ['title' => 'Panel HUD Telemetri Langsung', 'desc' => 'Panel transparan yang menampilkan kecepatan serangan, daftar negara penyerang terbanyak, ASN sumber, dan stream log insiden.'],
                 ],
             ],
             'actions' => [
                 'en' => [
-                    ['title' => 'Projection Toggle', 'desc' => 'Toggle between 3D Globe and 2D Tactical Flat Map via the projection control button.'],
-                    ['title' => 'Focus Target / Reset View', 'desc' => 'Click "Center on Server" or "Center on Indonesia" to immediately recalibrate camera view.'],
-                    ['title' => 'Fullscreen SOC Mode', 'desc' => 'Enter fullscreen mode ideal for dedicated security operations center wall displays.'],
+                    ['title' => 'Toggle Projection Mode', 'desc' => 'Switch instantly between the 3D Globe and 2D Tactical Flat Map via the projection button.'],
+                    ['title' => 'Center & Recalibrate View', 'desc' => 'Click "Center on Server" or "Center on Indonesia" to immediately re-focus the camera.'],
+                    ['title' => 'Fullscreen SOC Mode', 'desc' => 'Enter clean fullscreen mode without dashboard navigation bars, ideal for dedicated security wall displays.'],
+                    ['title' => 'Toggle Auto-Rotation', 'desc' => 'Pause or resume automatic globe rotation during tactical threat inspections.'],
                 ],
                 'id' => [
-                    ['title' => 'Ganti Mode Proyeksi', 'desc' => 'Beralih antara Globe 3D dan Peta Datar 2D secara instan melalui tombol proyeksi di sudut canvas.'],
-                    ['title' => 'Pusatkan Pandangan', 'desc' => 'Gunakan tombol fokus untuk memusatkan kamera kembali ke koordinat server Anda atau wilayah Indonesia.'],
-                    ['title' => 'Mode Layar Penuh (SOC Wallboard)', 'desc' => 'Masuk ke mode layar penuh tanpa gangguan navigasi, sangat cocok untuk layar monitor di Command Center/SOC.'],
+                    ['title' => 'Ganti Mode Proyeksi', 'desc' => 'Beralih seketika antara Globe 3D dan Peta Datar 2D melalui tombol proyeksi di sudut canvas.'],
+                    ['title' => 'Pusatkan Pandangan Kamera', 'desc' => 'Klik "Pusatkan ke Server" atau "Pusatkan ke Indonesia" untuk mengembalikan fokus kamera ke target pertahanan.'],
+                    ['title' => 'Mode Layar Penuh (SOC Wallboard)', 'desc' => 'Aktifkan tampilan layar penuh tanpa bilah navigasi, sangat cocok untuk layar monitor di Command Center/SOC.'],
+                    ['title' => 'Jeda / Lanjutkan Putaran Otomatis', 'desc' => 'Hentikan sementara atau aktifkan kembali putaran globe saat menganalisis ancaman tertentu.'],
                 ],
             ],
             'tips' => [
-                'en' => 'Ensure your server\'s latitude and longitude are configured in Settings or config/pasak.php so threat arcs land precisely on your true location.',
-                'id' => 'Pastikan koordinat lintang dan bujur server Anda sudah diatur di Pengaturan agar pusat target pertahanan tepat berada di lokasi datacenter Anda.',
+                'en' => 'Ensure server latitude and longitude are correctly configured in Settings so threat trajectories land precisely on your real datacenter coordinates.',
+                'id' => 'Pastikan koordinat lintang dan bujur server Anda sudah diatur di menu Pengaturan agar busur serangan mendarat tepat di lokasi fisik datacenter Anda.',
             ],
         ],
         'blocked-ips' => [
             'icon' => '🚫',
             'title' => [
                 'en' => 'Quarantined & Blocked IPs',
-                'id' => 'IP & Perangkat Diblokir (Quarantine)',
+                'id' => 'Karantina IP & Perangkat Terblokir',
             ],
             'badge' => [
                 'en' => 'Active WAF & Linux Kernel Quarantine',
                 'id' => 'Karantina Aktif WAF & Kernel Linux',
             ],
             'purpose' => [
-                'en' => 'Central repository of all quarantined IP addresses and device fingerprints. Blocked visitors receive immediate HTTP 403 responses and are halted before consuming application resources.',
-                'id' => 'Pusat pengelolaan seluruh alamat IP dan fingerprint perangkat yang sedang dikarantina. Setiap permintaan dari entitas terblokir langsung ditolak dengan status HTTP 403 sebelum membebani aplikasi Anda.',
+                'en' => 'Central enforcement ledger managing all quarantined IP addresses and device fingerprints. Any visitor or automated script matching an active entry is immediately served an HTTP 403 Forbidden response and dropped before consuming CPU, memory, or database resources.',
+                'id' => 'Pusat penegakan dan buku besar karantina seluruh alamat IP dan fingerprint perangkat yang terisolasi. Setiap pengunjung atau bot yang cocok dengan entri aktif akan langsung ditolak dengan respon HTTP 403 Forbidden sebelum sempat membebani CPU, memori, atau database aplikasi.',
             ],
             'features' => [
                 'en' => [
-                    ['title' => 'Dual Quarantine Scopes', 'desc' => 'Supports blocking entire public IP addresses or isolating only malicious devices (WiFi-Safe isolation).'],
-                    ['title' => 'Timestamp & Expiration Audit', 'desc' => 'Shows exact date and time when the block was enforced, plus expiration date or permanent status.'],
-                    ['title' => 'Attack Hit Counter', 'desc' => 'Tracks how many unauthorized requests were dropped by the WAF after the block was enacted.'],
-                    ['title' => 'Manual Block Creation', 'desc' => 'Quick form to immediately enforce a block with custom duration (e.g. 1h, 24h, permanent) and operational reason.'],
+                    ['title' => 'Total Blocks Metric Card', 'desc' => 'Cumulative count of all block records stored in the database, including active, expired, and permanent entries.'],
+                    ['title' => 'Active Quarantines Card', 'desc' => 'The count of live blocks currently in effect. Visitors from these addresses are actively denied access with HTTP 403.'],
+                    ['title' => 'Permanent Blocks Card', 'desc' => 'Number of entries configured with infinite duration (never expire automatically until manually removed).'],
+                    ['title' => 'Total Hits Dropped Card', 'desc' => 'Total accumulated malicious requests intercepted and dropped by Pasak across all blocked entities.'],
+                    ['title' => 'Scope (IP vs Device Isolation)', 'desc' => 'Distinguishes between broad IP blocks (blocking all traffic from the public IP) and WiFi-Safe device blocks (blocking only the attacker\'s device fingerprint, sparing legitimate users on shared office WiFi/NAT).'],
+                    ['title' => 'Time Auditing (Blocked At & Expires)', 'desc' => 'Displays exact local server timestamp when the block was enforced, relative time elapsed, and precise expiration date or permanent flag.'],
+                    ['title' => 'Status Badges (Active / Inactive)', 'desc' => 'Visual badge indicating whether the block is currently Active (enforcing HTTP 403, red) or Inactive (temporarily suspended, gray).'],
+                    ['title' => 'Attack Rationale & Rule', 'desc' => 'Summary of the security sensor rule or custom administrative note that prompted the quarantine.'],
                 ],
                 'id' => [
-                    ['title' => 'Dua Lingkup Karantina (IP vs Perangkat)', 'desc' => 'Mendukung pemblokiran seluruh IP publik router atau isolasi khusus perangkat penyerang (WiFi-Safe).'],
-                    ['title' => 'Audit Waktu Pemblokiran & Kedaluwarsa', 'desc' => 'Menampilkan tanggal dan jam persis kapan IP diblokir beserta waktu kedaluwarsa atau status permanen.'],
-                    ['title' => 'Penghitung Serangan Lanjutan (Hits)', 'desc' => 'Menghitung berapa kali request dari IP tersebut berhasil ditolak sistem setelah hukuman blokir dijatuhkan.'],
-                    ['title' => 'Formulir Pemblokiran Manual', 'desc' => 'Tambahkan pemblokiran manual secara cepat dengan durasi fleksibel (mis. 24 jam atau permanen) dan alasan administratif.'],
+                    ['title' => 'Kartu Total Pemblokiran', 'desc' => 'Jumlah akumulasi seluruh catatan blokir yang tersimpan di database, mencakup status aktif, kedaluwarsa, maupun permanen.'],
+                    ['title' => 'Kartu Karantina Aktif', 'desc' => 'Jumlah pemblokiran yang saat ini sedang berlaku efektif. Setiap request dari IP/perangkat ini langsung ditolak dengan HTTP 403.'],
+                    ['title' => 'Kartu Blokir Permanen', 'desc' => 'Jumlah entri blokir yang disetel tanpa batas waktu (seumur hidup / tidak akan pernah kedaluwarsa secara otomatis).'],
+                    ['title' => 'Kartu Total Hits Digagalkan', 'desc' => 'Total akumulasi percobaan request jahat yang berhasil ditangkis dan ditolak oleh Pasak setelah pemblokiran diberlakukan.'],
+                    ['title' => 'Lingkup Sanksi (IP vs Perangkat)', 'desc' => 'Membedakan sanksi blokir seluruh IP publik router atau isolasi khusus perangkat penyerang (WiFi-Safe), sehingga pengguna sah lain di kantor/WiFi yang sama tidak terkena imbas.'],
+                    ['title' => 'Audit Waktu (Diblokir & Kedaluwarsa)', 'desc' => 'Menampilkan waktu persis server saat pemblokiran dijatuhkan, sisa durasi relatif, dan tanggal kedaluwarsa atau label Permanen.'],
+                    ['title' => 'Badge Status Aktif / Nonaktif', 'desc' => 'Indikator visual apakah sanksi blokir sedang aktif menolak request (merah) atau sedang ditangguhkan sementara (abu-abu).'],
+                    ['title' => 'Alasan & Rule Pemicu', 'desc' => 'Rangkuman alasan administratif atau nama rule sensor keamanan yang memicu penjatuhan sanksi blokir.'],
                 ],
             ],
             'actions' => [
                 'en' => [
-                    ['title' => 'Enable / Disable Block', 'desc' => 'Temporarily pause or reactivate quarantine for an IP without deleting its audit history.'],
-                    ['title' => 'Permanent Delete', 'desc' => 'Permanently remove a block record from database to completely restore visitor access.'],
-                    ['title' => 'View Intelligence Detail', 'desc' => 'Open the Block Detail page to inspect pre-block attack chronology, geolocation, and appeal tickets.'],
+                    ['title' => 'Block an IP Manually', 'desc' => 'Enter an IPv4/IPv6 address, set duration in hours (enter 0 for permanent), specify an administrative reason, and click "Block IP" with confirmation dialog.'],
+                    ['title' => 'Search & Filter Engine', 'desc' => 'Filter table entries by search query (IP, device ID, reason keyword), status (All, Active, Expired, Permanent), and date ranges (From / To).'],
+                    ['title' => 'Adjust Table Density (Show Per Page)', 'desc' => 'Change table pagination density between 10, 25, 50, or 100 rows per page using the toolbar selector.'],
+                    ['title' => 'Toggle Active / Inactive Status', 'desc' => 'Temporarily suspend or resume quarantine enforcement for testing or false-positive troubleshooting without deleting historical incident logs.'],
+                    ['title' => 'Permanent Record Deletion (Trash 🗑️)', 'desc' => 'Click the trash icon to permanently remove a block record from database and fully restore visitor access.'],
+                    ['title' => 'Deep Forensic Intelligence (Detail)', 'desc' => 'Click "Detail" on any entry to open the complete timeline of pre-block attacks, post-block dropped probes, and unblock appeal tickets.'],
                 ],
                 'id' => [
-                    ['title' => 'Aktifkan / Nonaktifkan Status Blokir', 'desc' => 'Jeda sementara atau aktifkan kembali pemblokiran tanpa menghapus riwayat insiden dari database.'],
-                    ['title' => 'Hapus Catatan Permanen', 'desc' => 'Hapus entri blokir secara permanen untuk mengembalikan akses penuh bagi pengguna bersangkutan.'],
-                    ['title' => 'Buka Detail Intelijen', 'desc' => 'Buka halaman detail untuk meninjau kronologi serangan pemicu blokir, geolokasi, dan tiket banding.'],
+                    ['title' => 'Tambah Blokir Manual', 'desc' => 'Masukkan alamat IPv4/IPv6, atur durasi dalam jam (isi 0 untuk permanen), tulis alasan administratif, dan klik tombol "Blokir IP" dengan konfirmasi dialog.'],
+                    ['title' => 'Pencarian & Filter Fleksibel', 'desc' => 'Saring daftar blokir berdasarkan kata kunci (IP, device ID, alasan), status (Semua, Aktif, Kedaluwarsa, Permanen), dan rentang tanggal (Dari / Sampai).'],
+                    ['title' => 'Pengaturan Jumlah Baris (Per Page)', 'desc' => 'Ubah tampilan baris per halaman antara 10, 25, 50, atau 100 baris melalui pemilih jumlah baris toolbar.'],
+                    ['title' => 'Ubah Status Aktif / Nonaktif', 'desc' => 'Tangguhkan sementara atau aktifkan kembali pemblokiran tanpa menghapus rekam jejak riwayat insiden, sangat berguna saat pengujian false-positive.'],
+                    ['title' => 'Hapus Catatan Permanen (Tong Sampah 🗑️)', 'desc' => 'Klik ikon tong sampah untuk menghapus permanen catatan blokir dari database dan memulihkan akses pengguna sepenuhnya.'],
+                    ['title' => 'Buka Intelijen Forensik (Detail)', 'desc' => 'Klik tombol "Detail" pada baris tabel untuk meninjau urutan serangan pemicu blokir, hit lanjutan yang ditolak, dan tiket banding.'],
                 ],
             ],
             'tips' => [
-                'en' => 'When a legitimate user is locked out, check their device ID or IP, click "Disable" or delete the block, or advise them to submit a self-service unblock appeal ticket.',
-                'id' => 'Jika pengguna sah terblokir tidak sengaja, cari IP mereka lalu klik "Nonaktifkan" atau arahkan mereka untuk mengajukan tiket banding melalui halaman error 403.',
-            ],
-        ],
-        'allowed-ips' => [
-            'icon' => '✅',
-            'title' => [
-                'en' => 'Allowed & Whitelisted IPs',
-                'id' => 'Daftar IP Diizinkan (Allowlist / Whitelist)',
-            ],
-            'badge' => [
-                'en' => 'Zero-Inspection Trusted Network Rules',
-                'id' => 'Aturan Jaringan Terpercaya Bebas Inspeksi',
-            ],
-            'purpose' => [
-                'en' => 'Defines trusted network addresses, subnets, and wildcard ranges that completely bypass Pasak security inspection and can never be blocked by automated rate limiting or honeypots.',
-                'id' => 'Menentukan alamat IP, subnet kantor, atau rentang wildcard terpercaya yang sepenuhnya dibebaskan dari inspeksi WAF dan tidak akan pernah terblokir oleh sensor otomatis maupun honeypot.',
-            ],
-            'features' => [
-                'en' => [
-                    ['title' => 'Flexible IP Notation', 'desc' => 'Accepts single IPs (203.0.113.10), wildcard masks (192.168.1.*), or standard CIDR subnets (10.0.0.0/8).'],
-                    ['title' => 'Time-Bound Whitelisting', 'desc' => 'Specify whitelist duration in hours (e.g. 8h for temporary maintenance) or leave 0 for permanent trust.'],
-                    ['title' => 'Custom Descriptive Labels', 'desc' => 'Tag entries with labels like "HQ Office VPN", "Staging Server", or "Third-Party Webhook Provider".'],
-                    ['title' => 'Allowed-At Audit Trail', 'desc' => 'Monitors the exact creation timestamp and remaining valid duration of every whitelist rule.'],
-                ],
-                'id' => [
-                    ['title' => 'Notasi Pola IP Fleksibel', 'desc' => 'Menerima IP tunggal (203.0.113.10), wildcard bintang (192.168.1.*), maupun subnet CIDR (10.0.0.0/8).'],
-                    ['title' => 'Durasi Izin Terbatas Waktu', 'desc' => 'Tentukan durasi izin dalam satuan jam (mis. 8 jam saat maintenance) atau isi 0 untuk izin permanen.'],
-                    ['title' => 'Label Keterangan Khusus', 'desc' => 'Sematkan label pengenal seperti "VPN Kantor Pusat", "Server Webhook Payment Gateway", dsb.'],
-                    ['title' => 'Jejak Audit Waktu Diizinkan', 'desc' => 'Mencatat tanggal dan jam pasti saat IP diizinkan serta menghitung sisa waktu kedaluwarsa.'],
-                ],
-            ],
-            'actions' => [
-                'en' => [
-                    ['title' => 'Add Whitelist Entry', 'desc' => 'Submit IP pattern, optional label, and duration to immediately grant unmonitored access.'],
-                    ['title' => 'Toggle Active Status', 'desc' => 'Temporarily suspend whitelist privilege without removing the rule configuration.'],
-                    ['title' => 'Delete Entry', 'desc' => 'Remove the entry to restore normal security inspection for that network range.'],
-                ],
-                'id' => [
-                    ['title' => 'Tambah Entri Izin', 'desc' => 'Kirimkan pola IP, label, dan durasi untuk segera memberikan hak akses bebas hambatan.'],
-                    ['title' => 'Ubah Status Aktif/Nonaktif', 'desc' => 'Bekukan sementara hak akses istimewa tanpa perlu menghapus konfigurasi aturan.'],
-                    ['title' => 'Hapus Aturan', 'desc' => 'Hapus entri dari daftar izin untuk mengembalikan pengawasan WAF normal pada rentang IP tersebut.'],
-                ],
-            ],
-            'tips' => [
-                'en' => 'Never whitelist broad public CIDRs (like 0.0.0.0/0). Restrict whitelists to known internal VPNs, server orchestrators, or static office gateway IPs.',
-                'id' => 'Jangan pernah mengizinkan subnet publik yang terlalu luas (seperti 0.0.0.0/0). Batasi whitelist hanya untuk VPN kantor, server webhook resmi, atau IP statis terpercaya.',
-            ],
-        ],
-        'server' => [
-            'icon' => '🛡️',
-            'title' => [
-                'en' => 'Server Security & Integrity Monitor',
-                'id' => 'Keamanan Server & Integritas Berkas',
-            ],
-            'badge' => [
-                'en' => 'FIM Baseline & Suspicious File Scanner',
-                'id' => 'Pemantau Integritas File & Anti-Webshell',
-            ],
-            'purpose' => [
-                'en' => 'Deep file integrity monitoring (FIM) and suspicious code analysis. Detects unauthorized PHP files, hidden webshells, polyglot JPEG payloads, and unexpected file modifications across your codebase.',
-                'id' => 'Pemantauan integritas berkas (FIM) mendalam dan analisis kode berbahaya. Mendeteksi file PHP liar, webshell terselubung, payload polyglot JPEG, dan modifikasi kode yang tidak sah.',
-            ],
-            'features' => [
-                'en' => [
-                    ['title' => 'Cryptographic Baseline Snapshots', 'desc' => 'Generates SHA-256 hashes of tracked application files to spot newly injected or modified files instantly.'],
-                    ['title' => 'Polyglot & Webshell Scanner', 'desc' => 'Heuristic inspection targeting obfuscated PHP, eval/exec/passthru patterns, base64 payloads, and backdoor stubs.'],
-                    ['title' => 'Suspicious File Alert Ledger', 'desc' => 'Lists flagged files with file size, modification timestamp, match rationale, and verified safe status.'],
-                    ['title' => 'Host Environment Diagnostics', 'desc' => 'Audits Linux environment, storage permissions, PHP configuration, and active firewall subsystems.'],
-                ],
-                'id' => [
-                    ['title' => 'Snapshot Baseline Kriptografis', 'desc' => 'Membuat hash SHA-256 dari seluruh berkas aplikasi untuk mendeteksi file sisipan atau modifikasi tak sah.'],
-                    ['title' => 'Pemindai Webshell & Polyglot', 'desc' => 'Pemeriksaan heuristik terhadap fungsi berbahaya PHP (eval/exec/passthru), payload base64, dan pintu belakang.'],
-                    ['title' => 'Daftar Peringatan Berkas Mencurigakan', 'desc' => 'Menyajikan berkas yang mencurigakan lengkap dengan ukuran, waktu perubahan, alasan deteksi, dan status verifikasi.'],
-                    ['title' => 'Diagnostik Lingkungan Server', 'desc' => 'Memeriksa konfigurasi keamanan PHP, hak akses direktori storage, dan kesiapan subsistem pertahanan.'],
-                ],
-            ],
-            'actions' => [
-                'en' => [
-                    ['title' => 'Rebuild Baseline', 'desc' => 'Update the file integrity baseline snapshot after legitimate deployments or code updates.'],
-                    ['title' => 'Verify Safe / Delete File', 'desc' => 'Mark verified benign files as safe to suppress warnings, or permanently delete confirmed webshells.'],
-                    ['title' => 'Download Suspicious File', 'desc' => 'Download the quarantined file safely to analyze its payload offline in an isolated sandbox.'],
-                    ['title' => 'Global Cache Clearance', 'desc' => 'Trigger optimize:clear to reset view, config, and route caches safely.'],
-                ],
-                'id' => [
-                    ['title' => 'Buat Ulang Baseline Integritas', 'desc' => 'Perbarui snapshot baseline berkas setelah Anda melakukan deployment resmi atau update kode aplikasi.'],
-                    ['title' => 'Tandai Aman / Hapus Berkas', 'desc' => 'Tandai berkas aman untuk membungkam peringatan, atau hapus permanen berkas webshell yang berbahaya.'],
-                    ['title' => 'Unduh Berkas untuk Analisis', 'desc' => 'Unduh berkas mencurigakan secara aman untuk diteliti payload-nya di lingkungan sandbox terisolasi.'],
-                    ['title' => 'Bersihkan Cache (Optimize:clear)', 'desc' => 'Jalankan pembersihan cache menyeluruh untuk menyegarkan route, config, dan views framework.'],
-                ],
-            ],
-            'tips' => [
-                'en' => 'Always click "Rebuild Baseline" immediately after running git pull or deploying new releases so legitimate code changes are not flagged as intrusions.',
-                'id' => 'Selalu perbarui baseline file setelah selesai melakukan rilis kode (git pull / composer install) agar perubahan kode yang sah tidak dianggap sebagai intrusi.',
-            ],
-        ],
-        'sessions' => [
-            'icon' => '👥',
-            'title' => [
-                'en' => 'User Sessions & Device Audit',
-                'id' => 'Sesi Pengguna & Riwayat Login',
-            ],
-            'badge' => [
-                'en' => 'Credential Shield & Account Takeover Defense',
-                'id' => 'Pelindung Akun & Pertahanan Brute-Force',
-            ],
-            'purpose' => [
-                'en' => 'Manages authenticated user sessions, tracks login device fingerprints, prevents account takeovers, and enforces brute-force lockout protections.',
-                'id' => 'Mengelola sesi pengguna terotentikasi, melacak riwayat perangkat login, mencegah pengambilalihan akun (account takeover), dan menerapkan proteksi brute-force bertingkat.',
-            ],
-            'features' => [
-                'en' => [
-                    ['title' => 'Active Sessions & Device Fingerprinting', 'desc' => 'Monitors online users within the last 5 minutes, client browser, operating system, and IP address.'],
-                    ['title' => 'Login History Audit Trail', 'desc' => 'Complete chronological record of all successful and failed authentication attempts across the fleet.'],
-                    ['title' => 'Trusted IP Registration', 'desc' => 'Allows administrators to register their home/office IP as trusted, granting administrative immunity.'],
-                    ['title' => 'Adaptive Brute-Force Lockouts', 'desc' => 'Tiered cooldown lockouts (1 min, 5 min, 15 min, up to 24 hours) after repeated failed login attempts.'],
-                ],
-                'id' => [
-                    ['title' => 'Sesi Login Aktif & Sidik Jari Perangkat', 'desc' => 'Memantau pengguna online dalam 5 menit terakhir beserta browser, sistem operasi, dan alamat IP klien.'],
-                    ['title' => 'Audit Riwayat Otentikasi', 'desc' => 'Catatan kronologis seluruh percobaan login yang berhasil maupun yang gagal di seluruh aplikasi.'],
-                    ['title' => 'Registrasi IP Terpercaya', 'desc' => 'Memungkinkan administrator menyimpan IP saat ini sebagai IP terpercaya untuk akun mereka.'],
-                    ['title' => 'Kunci Bertingkat Brute-Force', 'desc' => 'Menerapkan pendinginan bertingkat (cooldown 1m, 5m, 15m, hingga 24 jam) saat terdeteksi brute force login.'],
-                ],
-            ],
-            'actions' => [
-                'en' => [
-                    ['title' => 'Force Logout Session', 'desc' => 'Immediately terminate an active session token to instantly kick a suspicious device off the application.'],
-                    ['title' => 'Trust Current IP', 'desc' => 'Click "Trust my current IP" to store your administrative IP address safely in your profile.'],
-                    ['title' => 'Delete Login Record', 'desc' => 'Permanently remove individual authentication audit logs when necessary.'],
-                ],
-                'id' => [
-                    ['title' => 'Paksa Logout Sesi', 'desc' => 'Putus token sesi secara instan untuk mengeluarkan perangkat mencurigakan dari aplikasi seketika.'],
-                    ['title' => 'Simpan IP Terpercaya', 'desc' => 'Klik "Simpan IP ini sebagai terpercaya" untuk mendaftarkan IP Anda agar terbebas dari salah blokir.'],
-                    ['title' => 'Hapus Rekaman Riwayat', 'desc' => 'Hapus catatan audit sesi login secara permanen jika diperlukan pembersihan data.'],
-                ],
-            ],
-            'tips' => [
-                'en' => 'If an admin account is accidentally blocked by a honeypot, logging in successfully from a recognized browser will automatically lift the block.',
-                'id' => 'Jika akun administrator tidak sengaja terblokir, login yang berhasil dari browser terverifikasi akan secara otomatis membuka blokir IP tersebut.',
-            ],
-        ],
-        'tickets' => [
-            'icon' => '🎫',
-            'title' => [
-                'en' => 'Unblock Appeals & Support Tickets',
-                'id' => 'Tiket Banding Pembukaan Blokir',
-            ],
-            'badge' => [
-                'en' => 'Visitor Self-Service Quarantine Appeal Desk',
-                'id' => 'Layanan Banding Mandiri Pengguna Terblokir',
-            ],
-            'purpose' => [
-                'en' => 'A structured self-service appeal system allowing quarantined legitimate visitors who encountered an HTTP 403 page to submit unblock requests with explanations for admin review.',
-                'id' => 'Sistem penanganan banding mandiri yang memungkinkan pengunjung yang terkena halaman error 403 untuk mengirimkan permohonan pembukaan blokir beserta penjelasannya kepada administrator.',
-            ],
-            'features' => [
-                'en' => [
-                    ['title' => 'Public Appeal Submission', 'desc' => 'Blocked users submit their name, email address, IP address, and explanation directly from the 403 block page.'],
-                    ['title' => 'Status Triage (Pending, Approved, Rejected)', 'desc' => 'Clear workflow badges sorting requests by pending review, approved releases, and rejected appeals.'],
-                    ['title' => 'Automated Quarantine Lift', 'desc' => 'Approving an appeal immediately unblocks the associated IP address in both WAF and kernel tables.'],
-                    ['title' => 'Audit History & Admin Response', 'desc' => 'Stores administrative notes explaining why an appeal was granted or dismissed for future reference.'],
-                ],
-                'id' => [
-                    ['title' => 'Pengajuan Banding dari Halaman 403', 'desc' => 'Pengguna yang terblokir dapat mengisi nama, email, dan alasan langsung dari halaman blokir bawaan.'],
-                    ['title' => 'Manajemen Status Tiket', 'desc' => 'Kategorisasi tiket yang jelas antara Menunggu (Pending), Disetujui (Approved), dan Ditolak (Rejected).'],
-                    ['title' => 'Pencabutan Blokir Otomatis', 'desc' => 'Menyetujui tiket banding akan langsung menghapus hukuman blokir IP terkait dari database dan WAF.'],
-                    ['title' => 'Catatan Keputusan Administrator', 'desc' => 'Menyimpan alasan penolakan atau persetujuan dari admin sebagai rekaman audit resmi.'],
-                ],
-            ],
-            'actions' => [
-                'en' => [
-                    ['title' => 'Approve & Release', 'desc' => 'Click "Approve" to automatically validate the request and restore visitor access in one click.'],
-                    ['title' => 'Reject Appeal', 'desc' => 'Dismiss illegitimate or confirmed attacker appeals with an optional explanation note.'],
-                    ['title' => 'Inspect Ticket Detail', 'desc' => 'Open the full ticket detail view to cross-examine triggering attack logs with the user\'s appeal story.'],
-                ],
-                'id' => [
-                    ['title' => 'Setujui & Buka Blokir', 'desc' => 'Klik "Setujui" untuk memverifikasi permohonan dan membuka pemblokiran IP secara otomatis.'],
-                    ['title' => 'Tolak Permohonan Banding', 'desc' => 'Tolak permohonan dari penyerang yang tidak valid disertai catatan evaluasi jika diperlukan.'],
-                    ['title' => 'Buka Detail Tiket', 'desc' => 'Tinjau rincian tiket untuk mencocokkan alasan pemohon dengan catatan log serangan yang memicu blokir.'],
-                ],
-            ],
-            'tips' => [
-                'en' => 'Always check the triggering logs on the Ticket Detail page before approving an unblock to confirm the original traffic was truly a false positive.',
-                'id' => 'Periksa riwayat log yang memicu blokir pada halaman Detail Tiket sebelum menyetujui, guna memastikan bahwa insiden awal memang merupakan false-positive.',
-            ],
-        ],
-        'settings' => [
-            'icon' => '⚙️',
-            'title' => [
-                'en' => 'WAF & Sensor Security Settings',
-                'id' => 'Pengaturan WAF & Sensor Keamanan',
-            ],
-            'badge' => [
-                'en' => 'Enforcement Policies, Thresholds & Channels',
-                'id' => 'Kebijakan Penegakan, Ambang Batas & Notifikasi',
-            ],
-            'purpose' => [
-                'en' => 'The nerve center for configuring Pasak\'s security posture. Adjust automated quarantine thresholds, select enforcement modes (IP vs Device), tune rate limits, and set up notification webhooks.',
-                'id' => 'Pusat kendali konfigurasi postur pertahanan Pasak. Di sini Anda dapat mengatur ambang batas penjatuhan sanksi blokir otomatis, mode penegakan (IP vs Perangkat), rate limiting, dan webhook notifikasi.',
-            ],
-            'features' => [
-                'en' => [
-                    ['title' => 'Enforcement Modes (Passive vs Active)', 'desc' => 'Switch between passive monitoring-only mode or active WAF quarantine enforcement (HTTP 403 block).'],
-                    ['title' => 'Granular Threat Level Thresholds', 'desc' => 'Fine-tune hit tolerance before blocking across Critical (1 hit), High (3 hits), Medium (10 hits), and Low (25 hits).'],
-                    ['title' => 'WiFi-Safe Quarantine Scope', 'desc' => 'Choose between locking only the attacker\'s device fingerprint or dropping the entire public gateway IP.'],
-                    ['title' => 'Main Dashboard Navigation URL', 'desc' => 'Configure the destination link for the "Main Dashboard" header button to seamlessly integrate into your host app.'],
-                ],
-                'id' => [
-                    ['title' => 'Mode Penegakan (Pasif vs Aktif)', 'desc' => 'Beralih antara mode pemantauan pasif (hanya catat log) atau mode pertahanan aktif (blokir otomatis HTTP 403).'],
-                    ['title' => 'Ambang Batas Toleransi per Level', 'desc' => 'Atur batas toleransi hit sebelum pemblokiran otomatis untuk Kritis (1 hit), Tinggi, Sedang, dan Rendah.'],
-                    ['title' => 'Lingkup Isolasi WiFi-Safe', 'desc' => 'Pilih apakah pemblokiran otomatis mengunci seluruh IP router atau hanya perangkat penyerang.'],
-                    ['title' => 'URL Tautan Dashboard Utama', 'desc' => 'Atur tujuan tombol "Dashboard Utama" pada header untuk menghubungkan kembali ke aplikasi induk Anda.'],
-                ],
-            ],
-            'actions' => [
-                'en' => [
-                    ['title' => 'Save Configuration', 'desc' => 'Commit all policy changes securely to database and apply them instantly to all web requests.'],
-                    ['title' => 'Test Back URL Link', 'desc' => 'Verify that your configured main app URL opens correctly in a new tab.'],
-                    ['title' => 'Toggle Dark Mode / Theme', 'desc' => 'Switch between Dark, Light, or System-following visual themes.'],
-                ],
-                'id' => [
-                    ['title' => 'Simpan Pengaturan', 'desc' => 'Terapkan seluruh perubahan kebijakan ke database secara permanen seketika tanpa perlu restart server.'],
-                    ['title' => 'Uji Tautan Dashboard Utama', 'desc' => 'Pastikan tautan kembali ke aplikasi utama yang Anda atur berfungsi dengan membuka tab baru.'],
-                    ['title' => 'Ubah Tema Gelap / Terang', 'desc' => 'Sesuaikan tema antarmuka visual antara mode Gelap (Dark), Terang (Light), atau Otomatis (Sistem).'],
-                ],
-            ],
-            'tips' => [
-                'en' => 'Keep Critical threats set to threshold 1 so webshell injection and SQLi exploits are dropped on the very first probe.',
-                'id' => 'Pertahankan ambang batas ancaman Kritis pada angka 1 agar serangan webshell, SQLi, dan RCE langsung dijatuhkan pada percobaan pertama.',
-            ],
-        ],
-        'log-detail' => [
-            'icon' => '🔍',
-            'title' => [
-                'en' => 'Forensic Threat Log Details',
-                'id' => 'Detail Forensik Log Ancaman',
-            ],
-            'badge' => [
-                'en' => 'Evidence Dumps & Attack Chronology',
-                'id' => 'Dump Bukti Muatan & Kronologi Penyerangan',
-            ],
-            'purpose' => [
-                'en' => 'In-depth forensic examination of a specific intercepted threat event. Review raw HTTP headers, query string payloads, device fingerprint data, and related incident telemetry.',
-                'id' => 'Pemeriksaan forensik mendalam terhadap satu insiden ancaman yang terintersepsi. Analisis mencakup raw header HTTP, muatan query string / payload, data sidik jari perangkat, dan insiden terkait.',
-            ],
-            'features' => [
-                'en' => [
-                    ['title' => 'Evidence Inspector Box', 'desc' => 'Displays exact malicious patterns that triggered the WAF rule with syntax highlighting.'],
-                    ['title' => 'Client Fingerprint & IP Telemetry', 'desc' => 'Full IP address, resolved geographic coordinates, client user-agent, and local IP.'],
-                    ['title' => 'Attack Chronology from Same IP', 'desc' => 'Chronological table of other requests originating from this client leading up to this incident.'],
-                ],
-                'id' => [
-                    ['title' => 'Inspeksi Kotak Bukti Muatan', 'desc' => 'Menampilkan potongan pola muatan berbahaya yang memicu aturan WAF secara terisolasi.'],
-                    ['title' => 'Telemetri Klien & Geolokasi', 'desc' => 'Alamat IP lengkap, estimasi koordinat geolokasi, user-agent browser klien, dan identitas perangkat.'],
-                    ['title' => 'Kronologi Serangan dari IP yang Sama', 'desc' => 'Tabel jejak serangan lain yang dikirimkan oleh klien ini secara berurutan dalam rentang waktu yang sama.'],
-                ],
-            ],
-            'actions' => [
-                'en' => [
-                    ['title' => 'Quarantine Attacker', 'desc' => 'Instantly block this IP address or device directly from the forensic view.'],
-                    ['title' => 'Back to Security Logs', 'desc' => 'Return to the master audit log stream with active filters preserved.'],
-                ],
-                'id' => [
-                    ['title' => 'Karantina Penyerang', 'desc' => 'Blokir alamat IP atau perangkat ini seketika langsung dari halaman analisis forensik.'],
-                    ['title' => 'Kembali ke Daftar Log', 'desc' => 'Kembali ke halaman utama daftar log keamanan dengan mempertahankan filter sebelumnya.'],
-                ],
-            ],
-            'tips' => [
-                'en' => 'Cross-check the User-Agent and query parameters. Automated vulnerability scanners often send distinctive fingerprint probes.',
-                'id' => 'Perhatikan header User-Agent dan parameter URL. Scanner otomatis umumnya meninggalkan jejak signature yang khas.',
+                'en' => 'When investigating a suspected false-positive, use "Disable" instead of deleting immediately. If the user is on an office or public WiFi network, quarantine their Device ID instead of the public IP address in Settings.',
+                'id' => 'Saat menangani dugaan false-positive, gunakan tombol "Nonaktifkan" terlebih dahulu daripada langsung menghapus. Jika pengguna berada di jaringan WiFi bersama, gunakan lingkup isolasi Perangkat (Device) agar IP publik kantor tidak terblokir.',
             ],
         ],
         'blocked-ip-detail' => [
@@ -488,36 +250,234 @@
                 'id' => 'Metrik Serangan Sebelum & Sesudah Pemblokiran',
             ],
             'purpose' => [
-                'en' => 'Detailed intelligence profile for a quarantined client. Compares attack logs leading up to the block against subsequent requests dropped with HTTP 403, and reviews associated unblock appeal tickets.',
-                'id' => 'Profil intelijen lengkap bagi klien yang sedang dikarantina. Membandingkan seluruh log serangan sebelum pemblokiran dengan percobaan request setelah diblokir yang ditolak HTTP 403.',
+                'en' => 'Forensic investigation dossier for a specific quarantined IP or device. It cross-examines the chronological attack sequence that triggered the block against all post-block probes rejected with HTTP 403, and displays any visitor appeal tickets.',
+                'id' => 'Berkas investigasi forensik mendalam untuk alamat IP atau perangkat terblokir. Menghubungkan urutan serangan sebelum pemblokiran dengan seluruh request lanjutan yang digagalkan dengan HTTP 403, serta menampilkan tiket banding yang diajukan pengunjung.',
             ],
             'features' => [
                 'en' => [
-                    ['title' => 'Quarantine Status Card', 'desc' => 'Examines block scope, source (manual vs auto-sensor), blocked timestamp, expiration, and total dropped hits.'],
-                    ['title' => 'Pre-Block Incident Sequence', 'desc' => 'Chronological evidence log of malicious requests that caused the system to enforce the block.'],
-                    ['title' => 'Post-Block Dropped Probes (HTTP 403)', 'desc' => 'Tracks persistent requests sent by the attacker after being blocked, proving the WAF is actively protecting the app.'],
-                    ['title' => 'Appeal Tickets Desk', 'desc' => 'Reviews any unblock appeal tickets submitted by this IP address.'],
+                    ['title' => 'Quarantine Telemetry Card', 'desc' => 'Displays IP address, block scope (IP vs Device), creation origin (manual vs auto-sensor), enforcement timestamps, expiration countdown, and post-block hit volume.'],
+                    ['title' => 'Pre-Block Incident Sequence', 'desc' => 'Chronological log of malicious requests (SQLi, path traversal, scanner probes) that crossed the threat threshold and caused the quarantine.'],
+                    ['title' => 'Post-Block Dropped Probes (HTTP 403)', 'desc' => 'Real-time log of subsequent requests from this attacker intercepted and rejected with HTTP 403 Forbidden.'],
+                    ['title' => 'Unblock Appeal Tickets', 'desc' => 'Any appeal requests submitted by this visitor from the 403 error page, complete with their explanation, name, email, and submission time.'],
                 ],
                 'id' => [
-                    ['title' => 'Kartu Status Karantina', 'desc' => 'Menampilkan lingkup blokir, sumber (manual vs sensor), waktu diblokir, waktu kedaluwarsa, dan total hit yang ditolak.'],
-                    ['title' => 'Urutan Insiden Pemicu Blokir', 'desc' => 'Jejak rekaman serangan yang dilakukan oleh IP ini secara berurutan hingga kuota toleransi terlampaui.'],
-                    ['title' => 'Aktivitas Pasca-Blokir (Ditolak 403)', 'desc' => 'Mencatat request yang tetap dikirimkan oleh penyerang setelah diblokir dan langsung digagalkan WAF.'],
-                    ['title' => 'Riwayat Tiket Banding', 'desc' => 'Menampilkan permohonan banding pembukaan blokir yang pernah diajukan oleh pengguna dari IP ini.'],
+                    ['title' => 'Kartu Telemetri Karantina', 'desc' => 'Menyajikan alamat IP, lingkup blokir (IP vs Perangkat), asal sanksi (manual vs sensor otomatis), waktu blokir, sisa waktu, dan volume hit yang ditolak.'],
+                    ['title' => 'Urutan Insiden Pemicu Blokir', 'desc' => 'Daftar kronologis request berbahaya (SQLi, path traversal, scanner) yang melampaui batas toleransi hingga memicu pemblokiran.'],
+                    ['title' => 'Jejak Ditolak Pasca-Blokir (403)', 'desc' => 'Catatan request lanjutan yang terus dikirimkan oleh penyerang setelah diblokir dan langsung digagalkan WAF.'],
+                    ['title' => 'Tiket Banding Pengunjung', 'desc' => 'Daftar permohonan pembukaan blokir yang diajukan oleh pengguna dari halaman error 403 beserta nama, email, dan alasan yang ditulis.'],
                 ],
             ],
             'actions' => [
                 'en' => [
-                    ['title' => 'Toggle Active Status', 'desc' => 'Temporarily lift or re-enable the quarantine without deleting the intelligence record.'],
-                    ['title' => 'Delete Quarantine Record', 'desc' => 'Permanently delete the block to restore full access for this client.'],
+                    ['title' => 'Toggle Quarantine Enforcement', 'desc' => 'Temporarily pause or resume the block with a single click.'],
+                    ['title' => 'Delete Quarantine Record', 'desc' => 'Permanently delete the block to restore visitor access.'],
+                    ['title' => 'Inspect Individual Incidents', 'desc' => 'Click detail links on any incident row to inspect raw HTTP headers and payload parameters.'],
+                    ['title' => 'Review & Resolve Appeal', 'desc' => 'Review requester\'s explanation and approve or reject their appeal ticket directly.'],
                 ],
                 'id' => [
-                    ['title' => 'Ubah Status Blokir', 'desc' => 'Buka sementara atau aktifkan kembali pemblokiran tanpa menghilangkan data jejak serangan.'],
-                    ['title' => 'Hapus Catatan Karantina', 'desc' => 'Hapus hukuman blokir secara permanen untuk memulihkan akses pengguna ini sepenuhnya.'],
+                    ['title' => 'Ubah Status Karantina', 'desc' => 'Tangguhkan sementara atau aktifkan kembali sanksi blokir dengan satu klik.'],
+                    ['title' => 'Hapus Catatan Karantina', 'desc' => 'Hapus hukuman blokir secara permanen untuk memulihkan akses klien.'],
+                    ['title' => 'Periksa Raw Log Insiden', 'desc' => 'Klik detail pada baris insiden untuk melihat header HTTP lengkap dan muatan parameter request.'],
+                    ['title' => 'Proses Tiket Banding', 'desc' => 'Tinjau alasan yang ditulis pemohon dan setujui atau tolak tiket pembukaan blokir secara langsung.'],
                 ],
             ],
             'tips' => [
-                'en' => 'A high post-block hit count indicates an aggressive automated bot continuing to hammer your server, confirming the block was warranted.',
-                'id' => 'Jumlah hit pasca-blokir yang tinggi menandakan bot otomatis yang terus membombardir server, membuktikan bahwa sanksi blokir tepat sasaran.',
+                'en' => 'A high post-block hit count (e.g. dozens of dropped requests within minutes) is strong evidence of an automated scanner script continuing to hammer your server.',
+                'id' => 'Jumlah hit pasca-blokir yang tinggi dalam waktu singkat merupakan bukti kuat bahwa IP tersebut dikendalikan bot/scanner otomatis yang terus membombardir server.',
+            ],
+        ],
+        'allowed-ips' => [
+            'icon' => '✅',
+            'title' => [
+                'en' => 'Allowed & Whitelisted IPs',
+                'id' => 'Daftar IP Diizinkan (Allowlist / Whitelist)',
+            ],
+            'badge' => [
+                'en' => 'Zero-Inspection Trusted Network Rules',
+                'id' => 'Aturan Jaringan Terpercaya Bebas Inspeksi',
+            ],
+            'purpose' => [
+                'en' => 'Defines trusted network addresses, corporate subnets, and wildcard ranges that completely bypass Pasak security inspection. Traffic from allowed addresses is never throttled, blocked by honeypots, or flagged by rate limiters.',
+                'id' => 'Menentukan alamat IP, subnet kantor, atau rentang wildcard terpercaya yang sepenuhnya dibebaskan dari inspeksi WAF Pasak. Lalu lintas dari daftar ini tidak akan pernah diperlambat, terkena honeypot, maupun terblokir oleh rate limiter.',
+            ],
+            'features' => [
+                'en' => [
+                    ['title' => 'Allowlist Metrics Cards', 'desc' => 'Total allowed rules registered and number of currently active rules.'],
+                    ['title' => 'Flexible IP Notation', 'desc' => 'Supports single IPv4/IPv6 addresses (203.0.113.10), wildcard masks (192.168.1.*), or standard CIDR subnets (10.0.0.0/8).'],
+                    ['title' => 'Descriptive Identifier Labels', 'desc' => 'Custom human-readable tags such as "HQ Office VPN", "Staging Server", or "Payment Gateway Webhook".'],
+                    ['title' => 'Time-Bound Expiration Trail', 'desc' => 'Tracks duration in hours or marks entries as permanent, displaying exact allowed timestamp and expiry time.'],
+                    ['title' => 'Active / Inactive Status Badges', 'desc' => 'Visual indicators showing which whitelist rules are actively in effect.'],
+                ],
+                'id' => [
+                    ['title' => 'Kartu Metrik Daftar Izin', 'desc' => 'Jumlah total aturan izin yang terdaftar dan jumlah aturan yang saat ini aktif.'],
+                    ['title' => 'Notasi Pola IP Fleksibel', 'desc' => 'Mendukung IP tunggal (203.0.113.10), pola wildcard bintang (192.168.1.*), maupun subnet CIDR (10.0.0.0/8).'],
+                    ['title' => 'Label Keterangan Pengenal', 'desc' => 'Catatan pengenal administratif seperti "VPN Kantor Pusat", "Server Staging", atau "Webhook Payment Gateway".'],
+                    ['title' => 'Audit Kedaluwarsa Berbatas Waktu', 'desc' => 'Mendukung durasi izin dalam satuan jam atau permanen, menampilkan waktu pembuatan dan waktu kedaluwarsa.'],
+                    ['title' => 'Badge Status Aktif / Nonaktif', 'desc' => 'Indikator visual aturan mana yang sedang berlaku efektif membebaskan inspeksi.'],
+                ],
+            ],
+            'actions' => [
+                'en' => [
+                    ['title' => 'Add Allowed IP Entry', 'desc' => 'Input an IP pattern, optional descriptive label, and duration (0 for permanent), then submit with confirmation.'],
+                    ['title' => 'Toggle Active / Inactive', 'desc' => 'Temporarily suspend whitelist privilege without deleting the rule configuration.'],
+                    ['title' => 'Delete Whitelist Rule', 'desc' => 'Permanently remove the entry to restore normal security inspection for that network range.'],
+                    ['title' => 'Search & Filter', 'desc' => 'Quickly locate allowlist entries by IP pattern or descriptive label.'],
+                ],
+                'id' => [
+                    ['title' => 'Tambah Entri IP Diizinkan', 'desc' => 'Masukkan pola IP, label keterangan, dan durasi jam (isi 0 untuk permanen), lalu kirim dengan konfirmasi.'],
+                    ['title' => 'Ubah Status Aktif / Nonaktif', 'desc' => 'Tangguhkan sementara hak istimewa bebas inspeksi tanpa perlu menghapus konfigurasi aturan.'],
+                    ['title' => 'Hapus Aturan Izin', 'desc' => 'Hapus entri secara permanen untuk mengembalikan pengawasan keamanan normal pada rentang IP tersebut.'],
+                    ['title' => 'Pencarian Entri Izin', 'desc' => 'Cari aturan izin berdasarkan pola IP atau label keterangan secara instan.'],
+                ],
+            ],
+            'tips' => [
+                'en' => 'Never whitelist broad public CIDRs (like 0.0.0.0/0). Limit allowlist entries strictly to static corporate VPNs, known monitoring agents, or trusted payment gateway webhooks.',
+                'id' => 'Jangan pernah mengizinkan subnet publik yang terlalu luas (seperti 0.0.0.0/0). Batasi whitelist hanya untuk VPN kantor, IP monitoring resmi, atau webhook payment gateway terpercaya.',
+            ],
+        ],
+        'server' => [
+            'icon' => '🛡️',
+            'title' => [
+                'en' => 'Server Security & Integrity Monitor',
+                'id' => 'Keamanan Server & Integritas Berkas',
+            ],
+            'badge' => [
+                'en' => 'FIM Baseline & Suspicious File Scanner',
+                'id' => 'Pemantau Integritas File & Anti-Webshell',
+            ],
+            'purpose' => [
+                'en' => 'Deep file integrity monitoring (FIM) and suspicious code analysis. Detects unauthorized PHP files, hidden webshell backdoors, polyglot image payloads, and untracked code tampering across your application directory.',
+                'id' => 'Pemantauan integritas berkas (FIM) mendalam dan analisis kode berbahaya. Mendeteksi file PHP liar, webshell terselubung, payload gambar polyglot, dan modifikasi kode ilegal di seluruh direktori aplikasi.',
+            ],
+            'features' => [
+                'en' => [
+                    ['title' => 'Integrity Baseline Snapshot Card', 'desc' => 'Displays tracked file count, baseline generation timestamp, and cryptographic hash state.'],
+                    ['title' => 'Suspicious File Alert Ledger', 'desc' => 'Lists flagged files with file path, size, modification timestamp, match rationale (e.g. eval, base64_decode, system commands), and safety status.'],
+                    ['title' => 'Polyglot & Webshell Scanner', 'desc' => 'Automated heuristic scanner detecting hidden PHP code embedded inside JPEG/PNG headers, disguised extensions, and obfuscated stubs.'],
+                    ['title' => 'Host Environment Diagnostics', 'desc' => 'Audits Linux environment, storage directory permissions, PHP security settings, and active kernel firewall tables.'],
+                ],
+                'id' => [
+                    ['title' => 'Kartu Snapshot Baseline Integritas', 'desc' => 'Menampilkan jumlah berkas yang terpantau, waktu pembuatan baseline, dan status hash kriptografis.'],
+                    ['title' => 'Daftar Berkas Mencurigakan', 'desc' => 'Menyajikan berkas yang terindikasi berbahaya lengkap dengan path, ukuran file, waktu perubahan, alasan deteksi (eval, base64_decode, shell_exec), dan status verifikasi.'],
+                    ['title' => 'Pemindai Polyglot & Webshell', 'desc' => 'Deteksi heuristik terhadap kode PHP yang diselipkan ke dalam header gambar JPEG/PNG, ekstensi ganda, atau fungsi terselubung.'],
+                    ['title' => 'Diagnostik Lingkungan Server', 'desc' => 'Memeriksa sistem operasi Linux, hak akses direktori storage, konfigurasi keamanan PHP, dan kesiapan firewall kernel.'],
+                ],
+            ],
+            'actions' => [
+                'en' => [
+                    ['title' => 'Rebuild Baseline', 'desc' => 'Generate a fresh cryptographic baseline snapshot immediately after official code deployments or package upgrades.'],
+                    ['title' => 'Verify Benign / Safe', 'desc' => 'Mark legitimate application files as verified safe to silence scanner alerts.'],
+                    ['title' => 'Delete Malicious Webshell', 'desc' => 'Permanently delete confirmed webshells and injected backdoors directly from the server.'],
+                    ['title' => 'Download Suspicious File', 'desc' => 'Download quarantined files securely in a safe archive for offline analysis in an isolated sandbox.'],
+                    ['title' => 'Global Framework Optimize Clear', 'desc' => 'Execute optimize:clear to reset view, config, and route caches safely.'],
+                ],
+                'id' => [
+                    ['title' => 'Buat Ulang Baseline Integritas', 'desc' => 'Perbarui snapshot baseline berkas setelah Anda melakukan deployment resmi atau update kode aplikasi.'],
+                    ['title' => 'Tandai Berkas Aman (Verify Safe)', 'desc' => 'Tandai berkas yang sah sebagai aman untuk membungkam peringatan scanner di masa mendatang.'],
+                    ['title' => 'Hapus Berkas Webshell Berbahaya', 'desc' => 'Hapus permanen berkas webshell atau backdoor sisipan langsung dari server.'],
+                    ['title' => 'Unduh Berkas untuk Analisis', 'desc' => 'Unduh berkas mencurigakan secara aman untuk diteliti payload-nya di lingkungan sandbox terisolasi.'],
+                    ['title' => 'Bersihkan Cache Framework', 'desc' => 'Jalankan perintah optimize:clear untuk menyegarkan cache view, config, dan route aplikasi.'],
+                ],
+            ],
+            'tips' => [
+                'en' => 'Always click "Rebuild Baseline" immediately after completing a git pull, composer update, or production deployment so new files are recognized as authorized.',
+                'id' => 'Selalu klik "Buat Ulang Baseline" segera setelah selesai melakukan git pull atau update produksi agar berkas baru resmi dikenali sebagai kode yang sah.',
+            ],
+        ],
+        'sessions' => [
+            'icon' => '👥',
+            'title' => [
+                'en' => 'User Sessions & Device Audit',
+                'id' => 'Sesi Pengguna & Riwayat Login',
+            ],
+            'badge' => [
+                'en' => 'Credential Shield & Account Takeover Defense',
+                'id' => 'Pelindung Akun & Pertahanan Brute-Force',
+            ],
+            'purpose' => [
+                'en' => 'Monitors active user sessions, tracks authentication history, protects admin accounts against credential stuffing and brute-force attacks, and manages trusted IP immunity.',
+                'id' => 'Memantau sesi login pengguna yang sedang aktif, mencatat riwayat otentikasi, melindungi akun admin dari serangan brute-force dan credential stuffing, serta mengelola IP terpercaya dengan hak istimewa.',
+            ],
+            'features' => [
+                'en' => [
+                    ['title' => 'Online Users (5 min) Card', 'desc' => 'Tracks authenticated accounts currently interacting with the application in real-time.'],
+                    ['title' => 'Registered Trusted IPs Card', 'desc' => 'Shows the number of trusted administrative IPs registered to your account.'],
+                    ['title' => 'Active Session Fleet Table', 'desc' => 'Lists active session tokens, user ID/email, client browser, operating system, IP address, and last activity timestamp.'],
+                    ['title' => 'Authentication Audit Log', 'desc' => 'Chronological ledger of all login attempts (successful and failed), pinpointing brute-force probes and suspicious devices.'],
+                    ['title' => 'Adaptive Tiered Lockouts', 'desc' => 'Displays cooldown status when accounts or IPs are throttled by brute-force protection.'],
+                ],
+                'id' => [
+                    ['title' => 'Kartu Pengguna Online (5 Menit)', 'desc' => 'Menghitung jumlah akun terotentikasi yang sedang aktif berinteraksi dengan aplikasi secara real-time.'],
+                    ['title' => 'Kartu IP Terpercaya Terdaftar', 'desc' => 'Menampilkan jumlah IP administratif yang terdaftar sebagai IP terpercaya untuk akun Anda.'],
+                    ['title' => 'Tabel Sesi Pengguna Aktif', 'desc' => 'Mencatat token sesi aktif, ID/email pengguna, browser klien, sistem operasi, IP, dan waktu aktivitas terakhir.'],
+                    ['title' => 'Audit Riwayat Otentikasi', 'desc' => 'Buku besar kronologis seluruh percobaan login (berhasil maupun gagal) untuk melacak percobaan brute-force.'],
+                    ['title' => 'Pendinginan Bertingkat Brute-Force', 'desc' => 'Menerapkan masa jeda (cooldown) bertingkat saat terdeteksi upaya tebak kata sandi berulang.'],
+                ],
+            ],
+            'actions' => [
+                'en' => [
+                    ['title' => 'Trust My Current IP', 'desc' => 'Click "Save my IP" to register your current office/home IP as trusted, granting immunity from accidental honeypot lockouts.'],
+                    ['title' => 'Force Logout Active Session', 'desc' => 'Immediately terminate a session token to instantly evict a stolen or suspicious device from your application.'],
+                    ['title' => 'Filter Login Records', 'desc' => 'Search authentication history by user email, IP address, status (Success/Failed), or date window.'],
+                    ['title' => 'Delete Audit Entry', 'desc' => 'Remove individual login records when archiving or purging data.'],
+                ],
+                'id' => [
+                    ['title' => 'Simpan IP Saat Ini sebagai Terpercaya', 'desc' => 'Klik "Simpan IP Saya" untuk mendaftarkan IP Anda agar kebal dari salah blokir sensor/honeypot.'],
+                    ['title' => 'Paksa Logout Sesi Aktif', 'desc' => 'Putus token sesi secara instan untuk mendepak perangkat mencurigakan dari aplikasi seketika.'],
+                    ['title' => 'Filter Riwayat Login', 'desc' => 'Saring riwayat login berdasarkan email pengguna, IP, status (Berhasil/Gagal), atau rentang tanggal.'],
+                    ['title' => 'Hapus Catatan Riwayat', 'desc' => 'Hapus catatan sesi atau login tertentu dari database jika diperlukan pembersihan data.'],
+                ],
+            ],
+            'tips' => [
+                'en' => 'Always register your static office or home IP under Trusted IPs. If an administrator accidentally hits a security tripwire, logging in successfully from a recognized device will automatically lift the block.',
+                'id' => 'Daftarkan IP kantor atau rumah Anda sebagai IP Terpercaya. Jika admin tidak sengaja memicu jebakan honeypot, login yang berhasil dari browser terverifikasi akan otomatis mencabut blokir IP tersebut.',
+            ],
+        ],
+        'tickets' => [
+            'icon' => '🎫',
+            'title' => [
+                'en' => 'Unblock Appeals & Support Tickets',
+                'id' => 'Tiket Banding Pembukaan Blokir',
+            ],
+            'badge' => [
+                'en' => 'Visitor Self-Service Quarantine Appeal Desk',
+                'id' => 'Layanan Banding Mandiri Pengguna Terblokir',
+            ],
+            'purpose' => [
+                'en' => 'Visitor self-service unblock appeal management desk. Quarantined visitors encountering the HTTP 403 Forbidden page can submit an unblock request with their explanation, allowing administrators to review and release false-positive victims without touching the database.',
+                'id' => 'Pusat penanganan banding pembukaan blokir mandiri bagi pengunjung. Pengguna yang terkena halaman error HTTP 403 dapat mengajukan permohonan pembukaan blokir disertai alasan, sehingga admin dapat meninjau dan membuka blokir false-positive dalam satu klik.',
+            ],
+            'features' => [
+                'en' => [
+                    ['title' => 'Status Triage Badges', 'desc' => 'Sorts appeal tickets into Pending (awaiting admin review), Approved (quarantine lifted), and Rejected (confirmed malicious).'],
+                    ['title' => 'Requester Identification', 'desc' => 'Captures requester name, email address, blocked IP address, device identifier, and submission timestamp.'],
+                    ['title' => 'Appeal Justification Narrative', 'desc' => 'The user\'s stated explanation describing what they were attempting to do before being blocked.'],
+                    ['title' => 'Link to Quarantine Record', 'desc' => 'Direct link to the active block record and underlying attack logs for instant correlation.'],
+                ],
+                'id' => [
+                    ['title' => 'Badge Status Tiket', 'desc' => 'Mengelompokkan tiket ke status Menunggu (Pending), Disetujui (Approved), dan Ditolak (Rejected).'],
+                    ['title' => 'Identitas Lengkap Pemohon', 'desc' => 'Mencatat nama pemohon, alamat email, IP yang terblokir, identitas perangkat, dan waktu pengajuan.'],
+                    ['title' => 'Narasi Alasan Pemohon', 'desc' => 'Penjelasan tertulis yang dikirimkan pengguna mengenai aktivitas apa yang sedang dilakukan sebelum terkena blokir.'],
+                    ['title' => 'Tautan Rekaman Blokir Terkait', 'desc' => 'Tautan langsung ke data karantina aktif dan log serangan awal untuk memverifikasi kebenaran klaim.'],
+                ],
+            ],
+            'actions' => [
+                'en' => [
+                    ['title' => 'Approve & Lift Quarantine', 'desc' => 'Approve the appeal to immediately remove the block from both WAF and kernel tables in a single click.'],
+                    ['title' => 'Reject Appeal', 'desc' => 'Dismiss appeals submitted by confirmed attackers or automated vulnerability scanners with an optional note.'],
+                    ['title' => 'Inspect Ticket Detail', 'desc' => 'Open the full ticket dossier to cross-examine the visitor\'s story against the raw attack evidence.'],
+                    ['title' => 'Search & Filter Tickets', 'desc' => 'Filter appeal tickets by status, email, IP, or submission date.'],
+                ],
+                'id' => [
+                    ['title' => 'Setujui & Buka Blokir Seketika', 'desc' => 'Klik tombol Setujui untuk langsung mencabut sanksi blokir dari WAF dan kernel Linux secara otomatis.'],
+                    ['title' => 'Tolak Permohonan Banding', 'desc' => 'Tolak tiket dari penyerang atau bot scanner dengan catatan evaluasi penolakan.'],
+                    ['title' => 'Buka Rincian Tiket', 'desc' => 'Buka halaman detail tiket untuk mencocokkan alasan pemohon dengan bukti teknis pada log serangan.'],
+                    ['title' => 'Pencarian & Filter Tiket', 'desc' => 'Saring tiket banding berdasarkan status, email pemohon, IP, atau tanggal pengajuan.'],
+                ],
+            ],
+            'tips' => [
+                'en' => 'Always check the triggering attack logs on the Ticket Detail page before approving an appeal. If the request was caused by a benign user form submission, consider adjusting rule thresholds in Settings.',
+                'id' => 'Selalu periksa log serangan pemicu pada halaman Detail Tiket sebelum menyetujui. Jika terbukti merupakan form web normal yang salah terdeteksi, sesuaikan sensitivitas rule di Pengaturan.',
             ],
         ],
         'ticket-detail' => [
@@ -531,40 +491,140 @@
                 'id' => 'Verifikasi Klaim & Keputusan Administrator',
             ],
             'purpose' => [
-                'en' => 'Investigate and resolve an unblock appeal ticket submitted by a quarantined visitor. Cross-check their explanation against their recorded attack telemetry before deciding to approve or reject.',
-                'id' => 'Meneliti dan menyelesaikan permohonan pembukaan blokir yang diajukan pengunjung. Bandingkan alasan pemohon dengan log bukti serangan yang tercatat sebelum memutuskan menerima atau menolak.',
+                'en' => 'Detailed investigation workbench for resolving a specific unblock appeal ticket. Allows administrators to compare the requester\'s claim with the exact forensic attack evidence that triggered the quarantine before issuing an approval or rejection.',
+                'id' => 'Meja kerja investigasi menyeluruh untuk menyelesaikan satu tiket banding pembukaan blokir. Memungkinkan administrator membandingkan alasan pemohon dengan bukti forensik serangan asli sebelum memutuskan menyetujui atau menolak permohonan.',
             ],
             'features' => [
                 'en' => [
-                    ['title' => 'Requester Claim & Metadata', 'desc' => 'Displays requester name, email, IP address, submission timestamp, and their stated justification.'],
-                    ['title' => 'Associated Block Record Context', 'desc' => 'Links directly to the corresponding quarantine record and active enforcement scope.'],
-                    ['title' => 'Triggering Forensic Attack Log', 'desc' => 'Examines the exact request that originally triggered the block, enabling easy false-positive verification.'],
+                    ['title' => 'Requester Claim & Metadata', 'desc' => 'Requester\'s name, contact email, IP address, device hash, and submission timestamp.'],
+                    ['title' => 'Requester Explanation Box', 'desc' => 'Full unaltered text of the explanation provided by the user on the 403 block page.'],
+                    ['title' => 'Associated Block Record Card', 'desc' => 'Shows the active quarantine status, scope (IP vs Device), hit count, and expiration date.'],
+                    ['title' => 'Triggering Forensic Attack Log', 'desc' => 'Displays the exact HTTP request, URL path, matched rule signature, and payload snippet that caused the initial block.'],
                 ],
                 'id' => [
-                    ['title' => 'Klaim Pemohon & Data Pengenal', 'desc' => 'Menyajikan nama pemohon, alamat email, IP, waktu pengajuan, dan alasan pembukaan yang ditulis pemohon.'],
-                    ['title' => 'Konteks Rekaman Blokir Terkait', 'desc' => 'Terhubung langsung dengan data blokir aktif dan lingkup penegakan yang sedang berjalan.'],
-                    ['title' => 'Log Serangan Asal yang Memicu Blokir', 'desc' => 'Menampilkan request asli yang menyebabkan sistem memblokir IP ini agar Anda dapat memastikan false-positive.'],
+                    ['title' => 'Data & Metadata Pemohon', 'desc' => 'Nama pemohon, email kontak, alamat IP, hash perangkat, dan waktu pengiriman tiket.'],
+                    ['title' => 'Kotak Narasi Alasan Pemohon', 'desc' => 'Teks lengkap tanpa rekayasa yang ditulis pengguna saat menghadapi halaman pemblokiran 403.'],
+                    ['title' => 'Kartu Rekaman Blokir Terkait', 'desc' => 'Menampilkan status blokir aktif saat ini, lingkup penegakan, jumlah hit, dan masa berlaku.'],
+                    ['title' => 'Log Serangan Asal Pemicu Blokir', 'desc' => 'Menyajikan request HTTP asli, URL target, signature rule, dan potongan payload yang menyebabkan blokir dijatuhkan.'],
                 ],
             ],
             'actions' => [
                 'en' => [
-                    ['title' => 'Approve Appeal & Lift Block', 'desc' => 'Automatically lifts the IP/device block and marks the ticket as approved.'],
-                    ['title' => 'Reject Appeal', 'desc' => 'Rejects the appeal while maintaining the active quarantine enforcement.'],
+                    ['title' => 'Approve Appeal', 'desc' => 'Instantly lifts the quarantine and marks the ticket as Approved.'],
+                    ['title' => 'Reject Appeal', 'desc' => 'Dismisses the appeal while maintaining the active block, recording your administrative decision.'],
+                    ['title' => 'Return to Tickets', 'desc' => 'Return to the master appeal ticket triage list.'],
                 ],
                 'id' => [
-                    ['title' => 'Setujui Banding & Buka Blokir', 'desc' => 'Membuka blokir IP/perangkat secara otomatis dan menandai tiket sebagai disetujui (Approved).'],
-                    ['title' => 'Tolak Permohonan Banding', 'desc' => 'Menolak banding dan membiarkan status pemblokiran tetap aktif menolak akses penyerang.'],
+                    ['title' => 'Setujui Permohonan Banding', 'desc' => 'Mencabut sanksi blokir IP/perangkat seketika dan mengubah status tiket menjadi Disetujui (Approved).'],
+                    ['title' => 'Tolak Permohonan Banding', 'desc' => 'Menolak permohonan dan membiarkan sanksi blokir tetap aktif untuk melindungi aplikasi.'],
+                    ['title' => 'Kembali ke Daftar Tiket', 'desc' => 'Kembali ke daftar utama tiket banding.'],
                 ],
             ],
             'tips' => [
-                'en' => 'If the triggering log shows harmless behavior caused by a legitimate browser form submission, approve the appeal and consider tuning rule sensitivity in Settings.',
-                'id' => 'Jika log pemicu menunjukkan aktivitas wajar dari form web biasa, setujui banding dan sesuaikan sensitivitas aturan di menu Pengaturan.',
+                'en' => 'If the triggering log shows a legitimate form input (e.g. an address containing punctuation or SQL-like words), approve the appeal and whitelist the specific parameter in configuration.',
+                'id' => 'Jika log pemicu berasal dari input form yang wajar (misalnya alamat yang mengandung tanda kutip), setujui banding dan sesuaikan pengecualian parameter di konfigurasi.',
+            ],
+        ],
+        'settings' => [
+            'icon' => '⚙️',
+            'title' => [
+                'en' => 'WAF & Sensor Security Settings',
+                'id' => 'Pengaturan WAF & Sensor Keamanan',
+            ],
+            'badge' => [
+                'en' => 'Enforcement Policies, Thresholds & Channels',
+                'id' => 'Kebijakan Penegakan, Ambang Batas & Notifikasi',
+            ],
+            'purpose' => [
+                'en' => 'The central nerve center for configuring Pasak\'s security posture and threat tolerance. Customize automated quarantine enforcement modes, fine-tune threat level hit thresholds, configure notification webhooks, and adjust UI preferences.',
+                'id' => 'Pusat kendali konfigurasi postur pertahanan dan toleransi ancaman Pasak. Atur mode penegakan karantina otomatis, sesuaikan batas toleransi hit per level ancaman, konfigurasi webhook notifikasi, dan preferensi tampilan dasbor.',
+            ],
+            'features' => [
+                'en' => [
+                    ['title' => 'Enforcement Mode Selector', 'desc' => 'Choose between Passive Monitoring-Only (logs attacks without blocking) or Active Quarantine Enforcement (automatically drops attackers with HTTP 403).'],
+                    ['title' => 'Threat Level Hit Thresholds', 'desc' => 'Configure tolerance thresholds before auto-blocking across Critical (default: 1), High (default: 3), Medium (default: 10), and Low (default: 25) threats.'],
+                    ['title' => 'Quarantine Scope Strategy', 'desc' => 'Select default auto-blocking scope: Entire IP Address or WiFi-Safe Malicious Device Fingerprint.'],
+                    ['title' => 'Notification Channels', 'desc' => 'Configure Discord, Telegram, or custom webhook integrations for instant security alert dispatching.'],
+                    ['title' => 'Main App Integration URL', 'desc' => 'Set the destination URL for the "Main Dashboard" header button to return administrators to your host application.'],
+                    ['title' => 'Theme & Locale Preferences', 'desc' => 'Select Dark, Light, or System visual themes and manage dashboard localization.'],
+                ],
+                'id' => [
+                    ['title' => 'Pemilih Mode Penegakan', 'desc' => 'Pilih antara Mode Pemantauan Pasif (hanya mencatat log tanpa memblokir) atau Mode Penegakan Aktif (otomatis memblokir penyerang dengan HTTP 403).'],
+                    ['title' => 'Ambang Batas Toleransi per Level', 'desc' => 'Atur batas toleransi hit sebelum pemblokiran otomatis untuk Kritis (default: 1), Tinggi (default: 3), Sedang (default: 10), dan Rendah (default: 25).'],
+                    ['title' => 'Strategi Lingkup Karantina', 'desc' => 'Pilih lingkup sanksi otomatis: Seluruh Alamat IP atau Isolasi Perangkat Berbahaya (WiFi-Safe).'],
+                    ['title' => 'Kanal Notifikasi Eksternal', 'desc' => 'Konfigurasi integrasi webhook Discord, Telegram, atau custom HTTP endpoint untuk peringatan insiden seketika.'],
+                    ['title' => 'URL Integrasi Aplikasi Induk', 'desc' => 'Tentukan alamat tautan tombol "Dashboard Utama" pada header untuk kembali ke aplikasi utama Anda.'],
+                    ['title' => 'Tema Visual & Bahasa', 'desc' => 'Atur tema visual Gelap (Dark), Terang (Light), atau Otomatis (Sistem) dan preferensi bahasa dasbor.'],
+                ],
+            ],
+            'actions' => [
+                'en' => [
+                    ['title' => 'Save All Settings', 'desc' => 'Commit security policy changes to the database and apply them instantly across all incoming requests without restarting services.'],
+                    ['title' => 'Test Main Dashboard Link', 'desc' => 'Verify that your configured host app URL works properly.'],
+                    ['title' => 'Toggle Theme On The Fly', 'desc' => 'Switch between Dark and Light mode using the header theme switcher.'],
+                ],
+                'id' => [
+                    ['title' => 'Simpan Seluruh Pengaturan', 'desc' => 'Terapkan seluruh perubahan kebijakan ke database seketika tanpa perlu restart web server.'],
+                    ['title' => 'Uji Tautan Dashboard Utama', 'desc' => 'Pastikan alamat tautan kembali ke aplikasi induk yang Anda atur terbuka dengan benar.'],
+                    ['title' => 'Ubah Tema Visual Instan', 'desc' => 'Ganti tema tampilan Gelap/Terang langsung melalui tombol tema di header dasbor.'],
+                ],
+            ],
+            'tips' => [
+                'en' => 'Keep the Critical threat threshold at 1 hit so webshell backdoors, SQL injection, and remote code execution attempts are blocked on their very first probe.',
+                'id' => 'Pertahankan ambang batas ancaman Kritis pada angka 1 hit agar percobaan webshell, SQL injection, dan RCE langsung dijatuhkan pada serangan pertama.',
+            ],
+        ],
+        'log-detail' => [
+            'icon' => '🔍',
+            'title' => [
+                'en' => 'Forensic Threat Log Details',
+                'id' => 'Detail Forensik Log Ancaman',
+            ],
+            'badge' => [
+                'en' => 'Evidence Dumps & Attack Chronology',
+                'id' => 'Dump Bukti Muatan & Kronologi Penyerangan',
+            ],
+            'purpose' => [
+                'en' => 'Deep forensic examination of a single intercepted security violation. Allows security engineers to inspect raw HTTP headers, query string payloads, client fingerprints, and the attack sequence from the same IP.',
+                'id' => 'Pemeriksaan forensik mendalam terhadap satu insiden pelanggaran keamanan yang terintersepsi. Memungkinkan analis meneliti raw header HTTP, muatan query string/payload, sidik jari perangkat, dan urutan serangan dari IP yang sama.',
+            ],
+            'features' => [
+                'en' => [
+                    ['title' => 'Violation Header & Metadata Card', 'desc' => 'Threat level, matched rule name, HTTP method, URL path, timestamp in server timezone, and status code.'],
+                    ['title' => 'Malicious Evidence Inspector', 'desc' => 'Highlighted snippet of the exact hostile pattern (SQLi tokens, webshell commands, directory traversal dots) that triggered the rule.'],
+                    ['title' => 'Client Telemetry & Fingerprint', 'desc' => 'Client IP, client user-agent string, resolved country/city geolocation, and device fingerprint hash.'],
+                    ['title' => 'Raw HTTP Request Dump', 'desc' => 'Complete raw HTTP headers and request body payload captured at time of interception.'],
+                    ['title' => 'Timeline from Same IP', 'desc' => 'Table of preceding and subsequent requests originating from this client around the same timeframe.'],
+                ],
+                'id' => [
+                    ['title' => 'Kartu Metadata & Header Insiden', 'desc' => 'Tingkat keparahan, nama rule yang cocok, metode HTTP, path URL, waktu server, dan kode status.'],
+                    ['title' => 'Kotak Inspeksi Bukti Berbahaya', 'desc' => 'Potongan pola berbahaya (token SQLi, perintah webshell, traversal direktori) yang memicu aturan WAF.'],
+                    ['title' => 'Telemetri Klien & Sidik Jari', 'desc' => 'IP klien, string user-agent browser, estimasi geolokasi negara/kota, dan hash fingerprint perangkat.'],
+                    ['title' => 'Dump Request HTTP Mentah', 'desc' => 'Daftar lengkap raw header HTTP dan muatan body request saat insiden diintersepsi.'],
+                    ['title' => 'Kronologi Serangan dari IP Sama', 'desc' => 'Tabel request sebelum dan sesudah insiden ini yang dikirimkan oleh klien bersangkutan.'],
+                ],
+            ],
+            'actions' => [
+                'en' => [
+                    ['title' => 'Instant Quarantine', 'desc' => 'Click "Block IP" to quarantine the attacker immediately from this forensic view.'],
+                    ['title' => 'Back to Audit Logs', 'desc' => 'Return to the master audit log stream with your previous filters and search terms intact.'],
+                    ['title' => 'Copy Evidence', 'desc' => 'Copy raw payload strings or IP addresses for external firewall rule creation.'],
+                ],
+                'id' => [
+                    ['title' => 'Karantina Seketika', 'desc' => 'Klik tombol "Blokir IP" untuk mengisolasi penyerang langsung dari halaman forensik ini.'],
+                    ['title' => 'Kembali ke Log Audit', 'desc' => 'Kembali ke daftar log keamanan dengan mempertahankan filter dan kata kunci pencarian sebelumnya.'],
+                    ['title' => 'Salin Bukti Muatan', 'desc' => 'Salin teks payload atau alamat IP untuk pelaporan insiden atau konfigurasi firewall eksternal.'],
+                ],
+            ],
+            'tips' => [
+                'en' => 'Cross-reference the User-Agent and path patterns against known CVE databases to identify automated scanners such as sqlmap, Nikto, or Nuclei.',
+                'id' => 'Cocokkan string User-Agent dan pola URL dengan database CVE untuk mengetahui apakah penyerang menggunakan alat scanner otomatis seperti sqlmap, Nikto, atau Nuclei.',
             ],
         ],
     ];
 
     $guide = $pageGuides[$pageKey] ?? $pageGuides['overview'];
-    $currentLang = in_array(app()->getLocale(), ['en', 'id'], true) ? app()->getLocale() : 'en';
+    $currentLang = $currentLocale ?? (in_array(app()->getLocale(), ['en', 'id'], true) ? app()->getLocale() : 'en');
 @endphp
 
 <!-- Page Support & Guide Modal Component -->
@@ -573,7 +633,7 @@
         <!-- Modal Header with Page Title & In-Modal Language Switcher -->
         <div class="sec-modal-header" style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 24px; border-bottom: 1px solid var(--sec-border); background: var(--sec-card);">
             <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
-                <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.2); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.2); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
                     {{ $guide['icon'] }}
                 </div>
                 <div style="min-width: 0;">
@@ -587,9 +647,10 @@
                             <span data-guide-lang="id" style="{{ $currentLang === 'id' ? '' : 'display:none;' }}">{{ $guide['badge']['id'] }}</span>
                         </span>
                     </div>
-                    <div style="font-size: 12px; color: var(--sec-text-muted); margin-top: 2px;">
-                        <span data-guide-lang="en" style="{{ $currentLang === 'en' ? '' : 'display:none;' }}">Official Page Documentation & Usage Guide</span>
-                        <span data-guide-lang="id" style="{{ $currentLang === 'id' ? '' : 'display:none;' }}">Dokumentasi & Panduan Resmi Penggunaan Halaman</span>
+                    <div style="font-size: 12px; color: var(--sec-text-muted); margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <span data-guide-lang="en" style="{{ $currentLang === 'en' ? '' : 'display:none;' }}">Active Page:</span>
+                        <span data-guide-lang="id" style="{{ $currentLang === 'id' ? '' : 'display:none;' }}">Halaman Aktif:</span>
+                        <code class="sec-font-mono" style="background: var(--sec-bg); padding: 1px 6px; border-radius: 4px; font-size: 11px; color: var(--sec-primary); border: 1px solid var(--sec-border);">/{{ request()->path() }}</code>
                     </div>
                 </div>
             </div>
@@ -613,8 +674,8 @@
             <div class="sec-support-section" style="border-left: 3px solid var(--sec-primary);">
                 <div class="sec-support-section-title">
                     <span>🎯</span>
-                    <span data-guide-lang="en" style="{{ $currentLang === 'en' ? '' : 'display:none;' }}">Page Purpose & Value</span>
-                    <span data-guide-lang="id" style="{{ $currentLang === 'id' ? '' : 'display:none;' }}">Tujuan & Nilai Guna Halaman</span>
+                    <span data-guide-lang="en" style="{{ $currentLang === 'en' ? '' : 'display:none;' }}">Page Purpose & Strategic Role</span>
+                    <span data-guide-lang="id" style="{{ $currentLang === 'id' ? '' : 'display:none;' }}">Fungsi & Peran Strategis Halaman</span>
                 </div>
                 <p style="margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--sec-text);">
                     <span data-guide-lang="en" style="{{ $currentLang === 'en' ? '' : 'display:none;' }}">{{ $guide['purpose']['en'] }}</span>
@@ -625,9 +686,9 @@
             <!-- 2. Core Features Breakdown -->
             <div>
                 <div class="sec-support-section-title">
-                    <span>⚡</span>
-                    <span data-guide-lang="en" style="{{ $currentLang === 'en' ? '' : 'display:none;' }}">Core Capabilities & Telemetry Widgets</span>
-                    <span data-guide-lang="id" style="{{ $currentLang === 'id' ? '' : 'display:none;' }}">Kemampuan Utama & Widget Telemetri</span>
+                    <span>📊</span>
+                    <span data-guide-lang="en" style="{{ $currentLang === 'en' ? '' : 'display:none;' }}">Information & Metrics Displayed</span>
+                    <span data-guide-lang="id" style="{{ $currentLang === 'id' ? '' : 'display:none;' }}">Informasi & Data yang Ditampilkan</span>
                 </div>
                 <div class="sec-support-grid">
                     @foreach ($guide['features']['en'] as $idx => $featEn)
@@ -652,7 +713,7 @@
                 <div class="sec-support-section-title">
                     <span>🛠️</span>
                     <span data-guide-lang="en" style="{{ $currentLang === 'en' ? '' : 'display:none;' }}">Available Actions & Operator Guide</span>
-                    <span data-guide-lang="id" style="{{ $currentLang === 'id' ? '' : 'display:none;' }}">Panduan Tindakan & Aksi Operator</span>
+                    <span data-guide-lang="id" style="{{ $currentLang === 'id' ? '' : 'display:none;' }}">Panduan Tindakan & Aksi yang Dapat Dilakukan</span>
                 </div>
                 <div class="sec-support-grid">
                     @foreach ($guide['actions']['en'] as $idx => $actEn)

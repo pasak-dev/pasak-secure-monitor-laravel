@@ -3,6 +3,8 @@
 namespace Internal\Pasak\Http\Controllers\Dashboard;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Carbon;
+use Internal\Pasak\Support\PasakDashboardView;
 
 /**
  * Render dashboard pages as plain Blade views.
@@ -38,22 +40,32 @@ trait RespondsWithPasakDashboard
             abort(500, 'Dashboard views are not published. Run: php artisan pasak:install --with-dashboard');
         }
 
+        $appLocale = config('app.locale', env('APP_LOCALE', 'en'));
+        if (! in_array($appLocale, ['en', 'id'], true)) {
+            $appLocale = 'en';
+        }
+
         $locale = (string) (request()->query('lang')
             ?? (request()->hasSession() ? session('pasak_locale') : null)
             ?? request()->cookie('pasak_locale')
-            ?? 'en');
+            ?? $appLocale);
 
         if (! in_array($locale, ['en', 'id'], true)) {
-            $locale = 'en';
+            $locale = $appLocale;
         }
 
         app()->setLocale($locale);
+        Carbon::setLocale($locale);
+        if (class_exists(\Carbon\Carbon::class)) {
+            \Carbon\Carbon::setLocale($locale);
+        }
 
-        if (request()->hasSession()) {
+        if (request()->hasSession() && request()->query('lang')) {
             session(['pasak_locale' => $locale]);
         }
 
         $data['currentLocale'] = $locale;
+        $data['pasakTimezone'] = PasakDashboardView::timezone();
 
         return view($blade, $data);
     }

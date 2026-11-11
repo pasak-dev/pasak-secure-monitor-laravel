@@ -1,6 +1,11 @@
 @extends('pages.pasak.layout', ['heading' => __('User Sessions'), 'subheading' => __('Sesi login aktif, riwayat perangkat, dan IP terpercaya')])
 
+@section('page_support_key', 'sessions')
+
 @section('content')
+@php
+    $DV = \Internal\Pasak\Support\DashboardView::class;
+@endphp
 <div class="sec-grid-4">
     <div class="sec-stat-card">
         <div class="sec-stat-label">{{ __('Online now (5 min)') }}</div>
@@ -13,11 +18,70 @@
 </div>
 
 <div class="sec-card">
-    <h3 class="sec-card-title" style="margin-bottom: 14px;">{{ __('Trust my current IP') }}</h3>
-    <form method="POST" action="{{ route('pasak.dashboard.trusted-ips.store-my-ip') }}" data-sec-confirm="{{ __('Simpan IP saat ini sebagai IP terpercaya untuk akun Anda?') }}" data-confirm-title="{{ __('Konfirmasi Simpan IP') }}" data-confirm-type="primary" data-confirm-btn="{{ __('Ya, Simpan IP') }}">
-        @csrf
-        <button type="submit" class="sec-btn sec-btn-primary">{{ __('Save my IP') }}</button>
-    </form>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+        <div>
+            <h3 class="sec-card-title">{{ __('Trust my current IP') }}</h3>
+            <p class="sec-card-subtitle" style="margin-top: 4px;">
+                {{ __('Hanya IP dari sesi login Anda saat ini yang dapat disimpan sebagai IP terpercaya, bukan seluruh riwayat login.') }}
+            </p>
+        </div>
+        <div>
+            @if ($isCurrentIpTrusted ?? false)
+                <span class="sec-badge sec-badge-success" style="font-size: 12px; padding: 6px 12px;">
+                    🛡️ {{ __('IP Saat Ini Terverifikasi') }}
+                </span>
+            @else
+                <span class="sec-badge sec-badge-low" style="font-size: 12px; padding: 6px 12px;">
+                    {{ __('IP Belum Terdaftar') }}
+                </span>
+            @endif
+        </div>
+    </div>
+
+    <div style="margin-top: 16px; padding: 14px 16px; background: var(--sec-bg-subtle); border: 1px solid var(--sec-border); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+            <div>
+                <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sec-text-muted); font-weight: 600;">{{ __('Akun Aktif') }}</div>
+                <div style="font-size: 13.5px; font-weight: 600; color: var(--sec-text); margin-top: 2px;">
+                    {{ $currentUser?->name ?? auth()->user()?->name ?? 'User' }}
+                    <span style="font-size: 12px; font-weight: normal; color: var(--sec-text-muted);">({{ $currentUser?->email ?? auth()->user()?->email ?? '-' }})</span>
+                </div>
+            </div>
+            <div>
+                <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sec-text-muted); font-weight: 600;">{{ __('IP Sesi Saat Ini') }}</div>
+                <div class="sec-font-mono" style="font-size: 14px; font-weight: 700; color: var(--sec-primary); margin-top: 2px;">
+                    {{ $currentIp ?? request()->ip() }}
+                </div>
+            </div>
+            <div>
+                <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sec-text-muted); font-weight: 600;">{{ __('Status Proteksi Akun') }}</div>
+                <div style="margin-top: 4px;">
+                    @if ($isCurrentIpTrusted ?? false)
+                        <span style="font-size: 12px; color: var(--sec-success); font-weight: 600;">✓ {{ __('Terpercaya (Bypass Quota/Karantina)') }}</span>
+                    @else
+                        <span style="font-size: 12px; color: var(--sec-text-muted);">{{ __('Akses Standar (Sesi Aktif)') }}</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+            @if ($isCurrentIpTrusted ?? false)
+                @if (!empty($currentTrusted?->id))
+                    <form method="POST" action="{{ route('pasak.dashboard.trusted-ips.destroy', $currentTrusted->id) }}" data-sec-confirm="{{ __('Hapus IP saat ini (:ip) dari daftar IP terpercaya akun Anda?', ['ip' => $currentIp ?? request()->ip()]) }}" data-confirm-title="{{ __('Konfirmasi Hapus IP Terpercaya') }}" data-confirm-type="danger" data-confirm-btn="{{ __('Ya, Lepas Status') }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="sec-btn sec-btn-secondary">{{ __('Hapus Dari IP Terpercaya') }}</button>
+                    </form>
+                @endif
+            @else
+                <form method="POST" action="{{ route('pasak.dashboard.trusted-ips.store-my-ip') }}" data-sec-confirm="{{ __('Simpan IP sesi saat ini (:ip) sebagai IP terpercaya untuk akun Anda? IP login riwayat lain tidak akan terpengaruh.', ['ip' => $currentIp ?? request()->ip()]) }}" data-confirm-title="{{ __('Konfirmasi Simpan IP') }}" data-confirm-type="primary" data-confirm-btn="{{ __('Ya, Simpan IP') }}">
+                    @csrf
+                    <button type="submit" class="sec-btn sec-btn-primary">🛡️ {{ __('Save my IP') }}</button>
+                </form>
+            @endif
+        </div>
+    </div>
 </div>
 
 <div class="sec-card">
@@ -63,11 +127,22 @@
             </thead>
             <tbody>
                 @forelse (($logins ?? []) as $login)
-                    <tr>
-                        <td>{{ $login->user?->name ?? $login->user?->email ?? '-' }}</td>
+                    @php
+                        $thisIp = $login->ip_address;
+                        $isCurrentSession = ($login->session_id && $login->session_id === session()->getId()) || ($thisIp === ($currentIp ?? request()->ip()) && $login->user_id === ($currentUser?->id ?? auth()->id()));
+                    @endphp
+                    <tr @if ($isCurrentSession) style="background: rgba(37, 99, 235, 0.04);" @endif>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span>{{ $login->user?->name ?? $login->user?->email ?? '-' }}</span>
+                                @if ($isCurrentSession)
+                                    <span class="sec-badge sec-badge-success" style="font-size: 10px; padding: 2px 6px;">{{ __('Sesi Ini') }}</span>
+                                @endif
+                            </div>
+                        </td>
                         <td class="sec-font-mono" style="font-weight: 600;">{{ $login->ip_address }}</td>
                         <td style="font-size: 12px;">{{ $login->browser }} · {{ $login->operating_system }}</td>
-                        <td style="font-size: 12px; color: var(--sec-text-muted);">{{ $login->last_activity_at }}</td>
+                        <td style="font-size: 12px; color: var(--sec-text-muted);" title="{{ $login->last_activity_at ? $DV::diffForHumans($login->last_activity_at) : '' }}">{{ $login->last_activity_at ? $DV::formatDate($login->last_activity_at, 'd M Y H:i:s') : '—' }}</td>
                         <td style="text-align: right; white-space: nowrap;">
                             @if ($login->session_id)
                                 <form method="POST" action="{{ route('pasak.dashboard.sessions.destroy', $login->session_id) }}" style="display: inline;" data-sec-confirm="{{ __('Paksa keluar (logout) sesi pengguna ini sekarang?') }}" data-confirm-title="{{ __('Konfirmasi Putus Sesi') }}" data-confirm-type="warning" data-confirm-btn="{{ __('Ya, Logout Sesi') }}">
@@ -125,7 +200,12 @@
                 @forelse (($trustedIps ?? []) as $ip)
                     <tr>
                         <td>{{ $ip->user?->name ?? $ip->user?->email ?? '-' }}</td>
-                        <td class="sec-font-mono" style="font-weight: 600;">{{ $ip->ip_address }}</td>
+                        <td class="sec-font-mono" style="font-weight: 600;">
+                            {{ $ip->ip_address }}
+                            @if ($ip->ip_address === ($currentIp ?? request()->ip()))
+                                <span class="sec-badge sec-badge-success" style="font-size: 10px; padding: 2px 6px; margin-left: 4px;">{{ __('IP Anda Saat Ini') }}</span>
+                            @endif
+                        </td>
                         <td style="font-size: 12px;">{{ $ip->device_name ?? '-' }}</td>
                         <td style="text-align: right;">
                             <form method="POST" action="{{ route('pasak.dashboard.trusted-ips.destroy', $ip->id) }}" data-sec-confirm="{{ __('Hapus IP ini dari daftar IP terpercaya?') }}" data-confirm-title="{{ __('Konfirmasi Hapus IP Terpercaya') }}" data-confirm-type="danger" data-confirm-btn="{{ __('Ya, Hapus') }}">

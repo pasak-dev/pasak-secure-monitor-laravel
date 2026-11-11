@@ -1,7 +1,11 @@
 @extends('pages.pasak.layout', ['heading' => __('Server Audit'), 'subheading' => __('Integrity, webshell scanner, and environment hygiene')])
 
+@section('page_support_key', 'server')
+
 @section('content')
-@php($DV = \Internal\Pasak\Support\DashboardView::class)
+@php
+    $DV = \Internal\Pasak\Support\DashboardView::class;
+@endphp
 @php($summary = $report['summary'] ?? [])
 
 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
@@ -35,7 +39,7 @@
                 <h3 class="sec-card-title">{{ __('Integrity baseline') }}</h3>
                 <p class="sec-card-subtitle">
                     @if ($baseline['exists'] ?? false)
-                        {{ __(':files files tracked · created :when', ['files' => number_format($baseline['files'] ?? 0), 'when' => $baseline['created_at'] ?? '-']) }}
+                        {{ __(':files files tracked · created :when', ['files' => number_format($baseline['files'] ?? 0), 'when' => !empty($baseline['created_at']) ? $DV::formatDate($baseline['created_at'], 'd M Y, H:i:s') : '-']) }}
                     @else
                         {{ __('No baseline created yet (:watched files watched).', ['watched' => number_format($baseline['watched'] ?? 0)]) }}
                     @endif
@@ -132,7 +136,7 @@
                                 data-snippet="{{ $file['snippet'] ?? '' }}"
                                 data-size="{{ $file['size'] ?? '' }}"
                                 data-download-url="{{ route('pasak.dashboard.server.suspicious-files.download', ['file_path' => $file['path'] ?? '']) }}"
-                                data-modified="{{ !empty($file['modified_at']) ? \Carbon\Carbon::parse($file['modified_at'])->translatedFormat('d M Y, H:i:s') : '-' }}"
+                                data-modified="{{ !empty($file['modified_at']) ? $DV::formatDate($file['modified_at'], 'd M Y, H:i:s') : '-' }}"
                                 data-modified-human="{{ $file['modified_at_human'] ?? '' }}">
                                 {{ $file['path'] ?? '-' }}
                             </a>
@@ -141,10 +145,10 @@
                         <td style="max-width: 280px; font-size: 12px; color: var(--sec-text-muted);" title="{{ $file['reason'] ?? '' }}">{{ \Illuminate\Support\Str::limit((string) ($file['reason'] ?? ''), 60) }}</td>
                         <td style="font-size: 12px; white-space: nowrap;">
                             <div style="font-weight: 600; color: var(--sec-text);" class="sec-font-mono">
-                                {{ !empty($file['modified_at']) ? \Carbon\Carbon::parse($file['modified_at'])->translatedFormat('d M Y, H:i:s') : '-' }}
+                                {{ !empty($file['modified_at']) ? $DV::formatDate($file['modified_at'], 'd M Y, H:i:s') : '-' }}
                             </div>
                             <div style="font-size: 11px; color: var(--sec-text-muted);" title="{{ $file['modified_at'] ?? '' }}">
-                                {{ $file['modified_at_human'] ?? (!empty($file['modified_at']) ? \Carbon\Carbon::parse($file['modified_at'])->diffForHumans() : '-') }}
+                                {{ $file['modified_at_human'] ?? (!empty($file['modified_at']) ? $DV::diffForHumans($file['modified_at']) : '-') }}
                             </div>
                         </td>
                         <td style="text-align: right; font-size: 12px;" class="sec-font-mono">{{ $file['size'] ?? '-' }}</td>
@@ -160,7 +164,7 @@
                                     data-snippet="{{ $file['snippet'] ?? '' }}"
                                     data-size="{{ $file['size'] ?? '' }}"
                                     data-download-url="{{ route('pasak.dashboard.server.suspicious-files.download', ['file_path' => $file['path'] ?? '']) }}"
-                                    data-modified="{{ !empty($file['modified_at']) ? \Carbon\Carbon::parse($file['modified_at'])->translatedFormat('d M Y, H:i:s') : '-' }}"
+                                    data-modified="{{ !empty($file['modified_at']) ? $DV::formatDate($file['modified_at'], 'd M Y, H:i:s') : '-' }}"
                                     data-modified-human="{{ $file['modified_at_human'] ?? '' }}"
                                     title="{{ __('Lihat Bukti & Detail') }}">
                                     🔍 {{ __('Detail') }}

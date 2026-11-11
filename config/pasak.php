@@ -910,6 +910,24 @@ return [
             'PASAK_DASHBOARD_ROTATING',
             env('SECURITY_DASHBOARD_ROTATING', false),
         ),
+        // Autentikasi mandiri dashboard Pasak (form login dicegat sebelum akses).
+        // Username diatur via PASAK_DASHBOARD_USERNAME (default: 'admin'),
+        // Password default: PASAK_DASHBOARD_PASSWORD (default: 'Admin').
+        // Setelah login, password dapat diupdate dan disimpan ke database (hash HMAC dengan PASAK_DASHBOARD_SECRET).
+        'auth' => [
+            'enabled' => (bool) env(
+                'PASAK_DASHBOARD_AUTH_ENABLED',
+                true,
+            ),
+            'username' => env(
+                'PASAK_DASHBOARD_USERNAME',
+                'admin',
+            ),
+            'default_password' => env(
+                'PASAK_DASHBOARD_PASSWORD',
+                'Admin',
+            ),
+        ],
         'secret' => env(
             'PASAK_DASHBOARD_SECRET',
             env('SECURITY_DASHBOARD_SECRET'),
@@ -939,6 +957,10 @@ return [
         ),
 
         // Favicon kustom untuk dashboard Pasak (bila null, memakai favicon perisai SVG cyber bawaan paket).
+        // Timezone tampilan tanggal & jam dashboard (bila null, otomatis mendeteksi
+        // env('APP_TIMEZONE'), config('app.timezone'), atau timezone server fisik seperti Asia/Jakarta).
+        'timezone' => env('PASAK_DASHBOARD_TIMEZONE'),
+
         'favicon' => env('PASAK_DASHBOARD_FAVICON'),
 
         // URL kembali ke dashboard admin/aplikasi utama host (default: '/').

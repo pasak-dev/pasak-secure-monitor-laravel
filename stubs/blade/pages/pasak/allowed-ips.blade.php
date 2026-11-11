@@ -1,6 +1,11 @@
 @extends('pages.pasak.layout', ['heading' => __('Allowed IPs'), 'subheading' => __('Daftar IP yang selalu diizinkan — tidak pernah dicatat maupun diblokir')])
 
+@section('page_support_key', 'allowed-ips')
+
 @section('content')
+@php
+    $DV = \Internal\Pasak\Support\DashboardView::class;
+@endphp
 <div class="sec-grid-4">
     <div class="sec-stat-card">
         <div class="sec-stat-label">{{ __('Total entries') }}</div>
@@ -94,11 +99,13 @@
                         <td class="sec-font-mono" style="font-weight: 600;">{{ $entry->ip_address }}</td>
                         <td style="font-size: 12px;">{{ $entry->label ?? '-' }}</td>
                         <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;">
-                            {{ $entry->created_at ? ($entry->created_at instanceof \DateTimeInterface ? $entry->created_at->format('d M Y H:i:s') : $entry->created_at) : '—' }}
+                            <span title="{{ $entry->created_at ? $DV::diffForHumans($entry->created_at) : '' }}">
+                                {{ $entry->created_at ? $DV::formatDate($entry->created_at, 'd M Y H:i:s') : '—' }}
+                            </span>
                         </td>
                         <td style="font-size: 12px; white-space: nowrap;">
                             @if ($entry->expires_at)
-                                <span class="sec-font-mono">{{ $entry->expires_at instanceof \DateTimeInterface ? $entry->expires_at->format('d M Y H:i:s') : $entry->expires_at }}</span>
+                                <span class="sec-font-mono" title="{{ $DV::diffForHumans($entry->expires_at) }}">{{ $DV::formatDate($entry->expires_at, 'd M Y H:i:s') }}</span>
                             @else
                                 {{ __('Permanent') }}
                             @endif

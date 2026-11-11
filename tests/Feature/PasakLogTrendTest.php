@@ -89,9 +89,9 @@ test(
         expect($viewWeek->getData()['trendRange'])->toBe('week');
         expect($htmlWeek)->toContain('Attack trend');
         expect($htmlWeek)->toContain('polyline');
-        expect($htmlWeek)->toContain('Minggu');
-        expect($htmlWeek)->toContain('Bulan');
-        expect($htmlWeek)->toContain('Tahun');
+        expect($htmlWeek)->toContain(__('Minggu'));
+        expect($htmlWeek)->toContain(__('Bulan'));
+        expect($htmlWeek)->toContain(__('Tahun'));
 
         // 2. Month range
         $requestMonth = request()->create('/logs', 'GET', [
@@ -100,7 +100,7 @@ test(
         $viewMonth = $controller->index($requestMonth);
         expect($viewMonth->getData()['trendRange'])->toBe('month');
         $htmlMonth = $viewMonth->render();
-        expect($htmlMonth)->toContain('Bulan (30 Hari)');
+        expect($htmlMonth)->toContain(__('Bulan (30 Hari)'));
 
         // 3. Year range
         $requestYear = request()->create('/logs', 'GET', [
@@ -109,7 +109,7 @@ test(
         $viewYear = $controller->index($requestYear);
         expect($viewYear->getData()['trendRange'])->toBe('year');
         $htmlYear = $viewYear->render();
-        expect($htmlYear)->toContain('Tahun (12 Bulan)');
+        expect($htmlYear)->toContain(__('Tahun (12 Bulan)'));
     },
 );
 
@@ -135,22 +135,22 @@ test(
 
         // Pastikan tombol blokir hadir di tabel
         expect($html)->toContain('openBlockModal');
-        expect($html)->toContain('Blokir');
+        expect($html)->toContain(__('Blokir'));
 
         // Pastikan modal dan seluruh elemen sesuai desain screenshot hadir
         expect($html)->toContain('id="blockIpModal"');
-        expect($html)->toContain('Blokir Alamat IP');
+        expect($html)->toContain(__('Blokir Alamat IP'));
         expect($html)->toContain(
-            'Semua permintaan dari IP ini akan ditolak (HTTP 403) sampai blokir dibuka atau kedaluwarsa.',
+            __('Semua permintaan dari IP ini akan ditolak (HTTP 403) sampai blokir dibuka atau kedaluwarsa.'),
         );
-        expect($html)->toContain('Cakupan Pemblokiran');
-        expect($html)->toContain('Hanya Perangkat');
-        expect($html)->toContain('Seluruh IP Router');
-        expect($html)->toContain('Durasi Blokir');
-        expect($html)->toContain('Alasan');
-        expect($html)->toContain('Catatan Internal');
-        expect($html)->toContain('Batal');
-        expect($html)->toContain('Blokir Seluruh IP');
+        expect($html)->toContain(__('Cakupan Pemblokiran'));
+        expect($html)->toContain(__('Hanya Perangkat'));
+        expect($html)->toContain(__('Seluruh IP Router'));
+        expect($html)->toContain(__('Durasi Blokir'));
+        expect($html)->toContain(__('Alasan'));
+        expect($html)->toContain(__('Catatan Internal'));
+        expect($html)->toContain(__('Batal'));
+        expect($html)->toContain(__('Blokir Seluruh IP'));
     },
 );
 
@@ -199,7 +199,7 @@ test(
         expect($html)->not()->toContain("openBlockModal({\n                                        ip: '198.51.100.99'");
 
         // Pastikan badge "Diblokir" ditampilkan
-        expect($html)->toContain('Diblokir');
+        expect($html)->toContain(__('Diblokir'));
     },
 );
 

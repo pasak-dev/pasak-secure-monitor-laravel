@@ -1,6 +1,11 @@
 @extends('pages.pasak.layout', ['heading' => __('Ticket :number', ['number' => $ticket->ticket_number]), 'subheading' => $ticket->name . ' — ' . $ticket->ip_address])
 
+@section('page_support_key', 'ticket-detail')
+
 @section('content')
+@php
+    $DV = \Internal\Pasak\Support\DashboardView::class;
+@endphp
 <a href="{{ $urls['index'] }}" class="sec-back-link">← {{ __('Back to appeals') }}</a>
 
 <div class="sec-card">
@@ -33,7 +38,7 @@
         @endif
         <div class="sec-detail-item">
             <div class="sec-detail-label">{{ __('Submitted') }}</div>
-            <div class="sec-detail-value">{{ $ticket->created_at }}</div>
+            <div class="sec-detail-value">{{ $DV::formatDate($ticket->created_at, 'd M Y H:i:s') }} <span style="font-size: 12px; color: var(--sec-text-muted); margin-left: 6px;">({{ $DV::diffForHumans($ticket->created_at) }})</span></div>
         </div>
         @if ($ticket->device_id || $ticket->local_ip)
             <div class="sec-detail-item">
@@ -44,7 +49,7 @@
         @if ($ticket->resolved_at)
             <div class="sec-detail-item">
                 <div class="sec-detail-label">{{ __('Resolved') }}</div>
-                <div class="sec-detail-value">{{ $ticket->resolved_at }}{{ $ticket->resolver ? ' — ' . $ticket->resolver->name : '' }}</div>
+                <div class="sec-detail-value">{{ $ticket->resolved_at ? $DV::formatDate($ticket->resolved_at, 'd M Y H:i:s') : '—' }}{{ $ticket->resolver ? ' — ' . $ticket->resolver->name : '' }}</div>
             </div>
         @endif
     </div>
@@ -122,8 +127,8 @@
                                 {{ $idx + 1 }}
                             </td>
                             <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;">
-                                <div style="font-weight: 600;">{{ $log->created_at }}</div>
-                                <div style="font-size: 11px; color: var(--sec-text-muted);">{{ $log->created_at ? $log->created_at->diffForHumans() : '' }}</div>
+                                <div style="font-weight: 600;">{{ $DV::formatDate($log->created_at, 'd M Y H:i:s') }}</div>
+                                <div style="font-size: 11px; color: var(--sec-text-muted);">{{ $log->created_at ? $DV::diffForHumans($log->created_at) : '' }}</div>
                             </td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 6px;">
@@ -216,7 +221,7 @@
                 <tbody>
                     @foreach ($logsAfterBlock as $pLog)
                         <tr>
-                            <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;">{{ $pLog->created_at }}</td>
+                            <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;" title="{{ $DV::diffForHumans($pLog->created_at) }}">{{ $DV::formatDate($pLog->created_at, 'Y-m-d H:i:s') }}</td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 6px;">
                                     <span class="sec-badge sec-badge-zinc sec-font-mono" style="font-size: 10px;">{{ $pLog->method ?? 'GET' }}</span>

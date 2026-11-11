@@ -291,8 +291,8 @@ test(
             expect($html)->toContain(
                 '__pasak_test_server.suspicious-files.download',
             );
-            expect($html)->toContain('Unduh');
-            expect($html)->toContain('Verifikasi');
+            expect($html)->toContain(__('Unduh'));
+            expect($html)->toContain(__('Verifikasi'));
             expect($html)->toContain('id="verifySafeModal"');
             expect($html)->toContain('Verifikasi Berkas Aman');
             expect($html)->toContain(

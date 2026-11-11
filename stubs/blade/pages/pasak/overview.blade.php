@@ -1,7 +1,11 @@
 @extends('pages.pasak.layout', ['heading' => __('Security Overview'), 'subheading' => __('Ringkasan ancaman, blokir, dan aktivitas keamanan terbaru')])
 
+@section('page_support_key', 'overview')
+
 @section('content')
-@php($DV = \Internal\Pasak\Support\DashboardView::class)
+@php
+    $DV = \Internal\Pasak\Support\DashboardView::class;
+@endphp
 @php($maxTrend = max(1, collect($trend['points'] ?? [])->max('total') ?? 1))
 @php($maxAttackerHits = max(1, collect($attackers ?? [])->max('hits') ?? 1))
 
@@ -125,7 +129,7 @@
                             </td>
                             <td style="text-align: center;"><span class="sec-badge {{ $DV::levelClass($lvl) }}">{{ $DV::levelLabel($lvl) }}</span></td>
                             <td style="color: var(--sec-text-muted); font-size: 11px; white-space: nowrap; text-align: right;">
-                                {{ $seen ? \Illuminate\Support\Carbon::parse($seen)->diffForHumans(null, true) : '-' }}
+                                {{ $seen ? $DV::diffForHumans($seen, true) : '-' }}
                             </td>
                         </tr>
                     @empty
@@ -165,7 +169,7 @@
                     @forelse (($recentLogs ?? []) as $index => $log)
                         <tr class="sec-animated-row" style="animation-delay: {{ $index * 0.06 }}s;">
                             <td style="color: var(--sec-text-muted); font-size: 11px; white-space: nowrap;">
-                                {{ $log->created_at ? $log->created_at->diffForHumans(null, true) : '-' }}
+                                {{ $log->created_at ? $DV::diffForHumans($log->created_at, true) : '-' }}
                             </td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 6px;">

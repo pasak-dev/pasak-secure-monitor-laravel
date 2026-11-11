@@ -1,5 +1,7 @@
 @extends('pages.pasak.layout', ['heading' => __('Security Logs'), 'subheading' => __('Jejak audit ancaman, pola terdeteksi, dan aksi mitigasi')])
 
+@section('page_support_key', 'logs')
+
 @section('content')
 @php
     $DV = \Internal\Pasak\Support\DashboardView::class;
@@ -295,7 +297,7 @@
                         $blockedRecordId = $activeBlockedList[$log->ip_address] ?? null;
                     @endphp
                     <tr>
-                        <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;">{{ $log->created_at }}</td>
+                        <td class="sec-font-mono" style="font-size: 12px; white-space: nowrap;" title="{{ $DV::diffForHumans($log->created_at) }}">{{ $DV::formatDate($log->created_at, 'Y-m-d H:i:s') }}</td>
                         <td class="sec-font-mono" style="font-weight: 600;">
                             <div style="display: inline-flex; align-items: center; gap: 6px;">
                                 <span>{{ $log->ip_address }}</span>
@@ -304,7 +306,7 @@
                                         ip: '{{ $log->ip_address }}',
                                         device_id: '{{ $log->device_id ?? "" }}',
                                         local_ip: '{{ $log->local_ip ?? "" }}',
-                                        reason: '{{ addslashes($log->event_type . ($log->path ? " pada " . $log->path : "")) }}'
+                                        reason: '{{ addslashes($log->event_type . ($log->path ? " " . __("pada") . " " . $log->path : "")) }}'
                                     })">🚫</button>
                                 @endif
                             </div>
@@ -341,7 +343,7 @@
                                     ip: '{{ $log->ip_address }}',
                                     device_id: '{{ $log->device_id ?? "" }}',
                                     local_ip: '{{ $log->local_ip ?? "" }}',
-                                    reason: '{{ addslashes($log->event_type . ($log->path ? " pada " . $log->path : "")) }}'
+                                    reason: '{{ addslashes($log->event_type . ($log->path ? " " . __("pada") . " " . $log->path : "")) }}'
                                 })">
                                     <span>🚫</span>
                                     <span>{{ __('Blokir') }}</span>
