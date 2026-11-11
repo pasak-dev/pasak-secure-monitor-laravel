@@ -1,12 +1,12 @@
 # 03. Konfigurasi Lengkap & Environment Variable
 
-Seluruh perilaku **`pasak-dev/secure-monitor`** dikontrol melalui berkas konfigurasi `config/pasak.php`. Konfigurasi ini dirancang agar dapat disesuaikan tanpa perlu mengubah kode sumber paket, cukup melalui berkas `.env`.
+Seluruh perilaku **`pasak-dev/pasak-secure-monitor-laravel`** dikontrol melalui berkas konfigurasi `config/pasak.php`. Konfigurasi ini dirancang agar dapat disesuaikan tanpa perlu mengubah kode sumber paket, cukup melalui berkas `.env`.
 
 ---
 
 ## 1. Variabel Inti Lingkungan (`.env`) & Pengaturan Database
 
-Paket **`pasak-dev/secure-monitor`** menerapkan prinsip pemisahan tanggung jawab yang jelas:
+Paket **`pasak-dev/pasak-secure-monitor-laravel`** menerapkan prinsip pemisahan tanggung jawab yang jelas:
 
 - **Variabel Inti Bootstrap (`.env`)**: Berkas `.env` hanya memuat sakelar bootstrap paling vital (sakelar WAF, IP whitelist awal, dan rute).
 - **Pengaturan Operasional (`pasak_settings`)**: Seluruh perilaku keamanan dinamis (ambang blokir per-tingkat, ambang kombinasi, lingkup karantina `device|ip|auto`, durasi pemblokiran, brute force lockout, dan retensi log) diatur langsung dari **Dashboard Pasak → Pengaturan (`/pasak/settings`)** dan tersimpan di database.

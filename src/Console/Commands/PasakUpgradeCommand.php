@@ -937,18 +937,18 @@ MARKDOWN;
         $composerPath = base_path('composer.json');
         if (File::exists($composerPath)) {
             $content = File::get($composerPath);
-            if (str_contains($content, 'pasak-dev/secure-monitor')) {
-                return 'pasak-dev/secure-monitor';
-            }
             if (str_contains($content, 'pasak-dev/pasak-secure-monitor-laravel')) {
                 return 'pasak-dev/pasak-secure-monitor-laravel';
+            }
+            if (str_contains($content, 'pasak-dev/secure-monitor')) {
+                return 'pasak-dev/secure-monitor';
             }
             if (str_contains($content, 'robyajo/pasak')) {
                 return 'robyajo/pasak';
             }
         }
 
-        return 'pasak-dev/secure-monitor';
+        return 'pasak-dev/pasak-secure-monitor-laravel';
     }
 
     /**

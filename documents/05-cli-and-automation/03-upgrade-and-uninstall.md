@@ -6,7 +6,7 @@ Panduan menaikkan versi paket pada aplikasi yang sudah terpasang, pembaruan meny
 
 ## 1. Upgrade Otomatis & Menyeluruh (Direkomendasikan)
 
-Secara default, `pasak:upgrade` otomatis mengeksekusi `composer update pasak-dev/secure-monitor` di latar belakang lalu menyinkronkan seluruh aset. Anda cukup menjalankan:
+Secara default, `pasak:upgrade` otomatis mengeksekusi `composer update pasak-dev/pasak-secure-monitor-laravel` di latar belakang lalu menyinkronkan seluruh aset. Anda cukup menjalankan:
 
 ```bash
 php artisan pasak:upgrade --force
@@ -20,7 +20,7 @@ Di beberapa server hosting / VPS di mana fungsi `proc_open` dinonaktifkan atau j
 
 ```bash
 # 1. Unduh kode paket versi terbaru via Composer
-composer update pasak-dev/secure-monitor
+composer update pasak-dev/pasak-secure-monitor-laravel
 
 # 2. Sinkronkan migrasi, rute, template Blade, dan segarkan cache
 php artisan pasak:upgrade --force --no-composer
@@ -31,7 +31,7 @@ php artisan pasak:upgrade --force --no-composer
 ### Alur Eksekusi Otomatis `--force`:
 
 1. **Pengecekan Versi Rilis Terbaru**: Memeriksa ketersediaan versi baru di katalog Packagist / GitHub.
-2. **Pembaruan Dependensi Composer**: Menjalankan `composer update pasak-dev/secure-monitor` untuk mengunduh kode paket terkini.
+2. **Pembaruan Dependensi Composer**: Menjalankan `composer update pasak-dev/pasak-secure-monitor-laravel` untuk mengunduh kode paket terkini.
 3. **Deteksi & Migrasi Database Baru**: Mendeteksi jika terdapat migrasi database tabel `pasak_*` baru yang belum diterapkan, lalu mengeksekusi `php artisan migrate --force` secara aman.
 4. **Pembaruan Konfigurasi (`config/pasak.php`)**: Otomatis menyisipkan opsi konfigurasi baru yang belum ada (seperti socket daemon `sentinel`, visualizer `threat_map`, dan rotasi URL dashboard) tanpa menimpa konfigurasi kustom yang telah diubah pengguna.
 5. **Sinkronisasi Tampilan Blade & Rute**: Memperbarui berkas tampilan dashboard (`resources/views/pages/pasak`) dan rute (`routes/pasak.php`) ke versi terbaru secara otomatis.
@@ -130,7 +130,7 @@ php artisan pasak:uninstall --force
 - Mengembalikan konfigurasi `.htaccess` dari berkas cadangan asli sebelum instalasi.
 - Menghapus rute publikasi (`routes/pasak.php`), tampilan Blade, dan konfigurasi `config/pasak.php`.
 - Menghapus kunci environment `PASAK_*` dari `.env`.
-- Menjalankan `composer remove pasak-dev/secure-monitor`.
+- Menjalankan `composer remove pasak-dev/pasak-secure-monitor-laravel`.
 
 > [!TIP]
 > Gunakan flag `--keep-tables` atau `--keep-env` bila Anda ingin mencopot paket namun tetap menyimpan data audit log dan riwayat pemblokiran di database.

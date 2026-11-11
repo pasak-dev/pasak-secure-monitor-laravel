@@ -417,7 +417,7 @@ if [ -n "$TAG_NAME" ] && [ "$NO_TAG" -eq 0 ]; then
 
     echo ""
     print_info "🚀 Paket versi ${TAG_NAME} kini siap dideteksi secara otomatis oleh Packagist!"
-    echo -e "   Periksa katalog rilis di: ${BLUE}https://packagist.org/packages/pasak-dev/secure-monitor${NC}"
+    echo -e "   Periksa katalog rilis di: ${BLUE}https://packagist.org/packages/pasak-dev/pasak-secure-monitor-laravel${NC}"
 fi
 
 echo ""

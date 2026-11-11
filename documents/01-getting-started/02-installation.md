@@ -1,6 +1,6 @@
 # 02. Panduan Instalasi & Migrasi
 
-Halaman ini memandu proses instalasi paket **`pasak-dev/secure-monitor`** ke dalam aplikasi Laravel Anda.
+Halaman ini memandu proses instalasi paket **`pasak-dev/pasak-secure-monitor-laravel`** ke dalam aplikasi Laravel Anda.
 
 > 🌟 **Nol Ketergantungan NPM (Zero NPM)**: Paket ini murni PHP Composer library standar seperti paket Spatie. Anda **tidak perlu** menginstal dependensi npm atau menjalankan build tools frontend.
 
@@ -23,11 +23,11 @@ Pastikan lingkungan server Anda memenuhi spesifikasi minimum berikut:
 Jika paket sudah diterbitkan di Packagist, cantumkan versi lengkap agar `composer.json` mencatat rilis patch yang akurat:
 
 ```bash
-composer require "pasak-dev/secure-monitor:^1.6.7"
+composer require "pasak-dev/pasak-secure-monitor-laravel:^1.6.7"
 ```
 
 > **Tips Constraint Versi**:
-> Jika Anda menjalankan `composer require pasak-dev/secure-monitor` tanpa versi, Composer secara bawaan menyingkatnya menjadi `^1.6`. Menjalankan `php artisan pasak:install` akan secara otomatis menyelaraskan entri di `composer.json` ke versi lengkap terbaru (`^1.6.7`).
+> Jika Anda menjalankan `composer require pasak-dev/pasak-secure-monitor-laravel` tanpa versi, Composer secara bawaan menyingkatnya menjadi `^1.6`. Menjalankan `php artisan pasak:install` akan secara otomatis menyelaraskan entri di `composer.json` ke versi lengkap terbaru (`^1.6.7`).
 
 ### Menggunakan Repositori Lokal / Private Git (Monorepo atau Path)
 
@@ -48,7 +48,7 @@ Jika Anda menggunakan paket ini secara internal sebelum publikasi ke Packagist, 
 Kemudian pasang paket:
 
 ```bash
-composer require pasak-dev/secure-monitor:@dev
+composer require pasak-dev/pasak-secure-monitor-laravel:@dev
 ```
 
 ---
@@ -173,14 +173,14 @@ Perintah ini menyalin tujuh halaman Blade ke `resources/views/pages/pasak/` (CSS
 
 ---
 
-## 4.5. Batas Wilayah & Struktur Berkas di `vendor/pasak-dev/secure-monitor/`
+## 4.5. Batas Wilayah & Struktur Berkas di `vendor/pasak-dev/pasak-secure-monitor-laravel/`
 
-Paket ini menganut kebijakan **Zero-Vendor-Edit Policy** yang ketat. Ketika pengguna menjalankan `composer require pasak-dev/secure-monitor`, berkas pengujian dan aset internal otomatis dieksklusikan melalui `.gitattributes` sehingga hanya pustaka runtime murni yang diterima di folder `vendor/`.
+Paket ini menganut kebijakan **Zero-Vendor-Edit Policy** yang ketat. Ketika pengguna menjalankan `composer require pasak-dev/pasak-secure-monitor-laravel`, berkas pengujian dan aset internal otomatis dieksklusikan melalui `.gitattributes` sehingga hanya pustaka runtime murni yang diterima di folder `vendor/`.
 
-### Struktur Lengkap yang Diterima di `vendor/pasak-dev/secure-monitor/`:
+### Struktur Lengkap yang Diterima di `vendor/pasak-dev/pasak-secure-monitor-laravel/`:
 
 ```text
-vendor/pasak-dev/secure-monitor/
+vendor/pasak-dev/pasak-secure-monitor-laravel/
 ├── config/
 │   └── pasak.php                          # Sumber konfigurasi bawaan (dipublikasikan ke config/pasak.php)
 ├── database/migrations/
