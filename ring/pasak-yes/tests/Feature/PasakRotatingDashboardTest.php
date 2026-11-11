@@ -205,5 +205,5 @@ test(
 test('pengguna yang belum login dialihkan ke halaman login', function () {
     $response = $this->get('/pasak');
 
-    $response->assertRedirect('/login');
+    $response->assertRedirect(route('pasak.dashboard.login'));
 });
