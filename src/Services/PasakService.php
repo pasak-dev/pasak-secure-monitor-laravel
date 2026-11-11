@@ -2,6 +2,8 @@
 
 namespace Internal\Pasak\Services;
 
+use Internal\Pasak\Services\PasakCloudService;
+
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Cookie\CookieValuePrefix;
@@ -195,9 +197,13 @@ class PasakService
             'block_enforcement' => (bool) $this->getSetting('block_enforcement', config('pasak.block_enforcement', true)),
             'login_lockout_enabled' => (bool) $this->getSetting('login_lockout.enabled', config('pasak.login_lockout.enabled', true)),
             'login_lockout_threshold' => (int) $this->getSetting('login_lockout.threshold', config('pasak.login_lockout.threshold', 3)),
+            'login_lockout_step1_seconds' => (int) $this->getSetting('login_lockout.step1_seconds', config('pasak.login_lockout.step1_seconds', 30)),
+            'login_lockout_step2_seconds' => (int) $this->getSetting('login_lockout.step2_seconds', config('pasak.login_lockout.step2_seconds', 60)),
+            'login_lockout_step3_seconds' => (int) $this->getSetting('login_lockout.step3_seconds', config('pasak.login_lockout.step3_seconds', 120)),
+            'login_lockout_max_seconds' => (int) $this->getSetting('login_lockout.max_seconds', config('pasak.login_lockout.max_seconds', 3600)),
             'login_lockout_base_minutes' => (int) $this->getSetting('login_lockout.base_minutes', config('pasak.login_lockout.base_minutes', 1)),
             'login_lockout_max_minutes' => (int) $this->getSetting('login_lockout.max_minutes', config('pasak.login_lockout.max_minutes', 30)),
-            'login_lockout_decay_minutes' => (int) $this->getSetting('login_lockout.decay_minutes', config('pasak.login_lockout.decay_minutes', 60)),
+            'login_lockout_decay_minutes' => (int) $this->getSetting('login_lockout.decay_minutes', config('pasak.login_lockout.decay_minutes', 360)),
             'log_retention_days' => (int) $this->getSetting('log_retention_days', config('pasak.retention_days', 90)),
             'back_url' => (string) $this->getSetting('dashboard.back_url', config('pasak.dashboard.back_url', '/')),
         ];
@@ -242,9 +248,13 @@ class PasakService
 
             'login_lockout.enabled' => (bool) config('pasak.login_lockout.enabled', true),
             'login_lockout.threshold' => (int) config('pasak.login_lockout.threshold', 3),
+            'login_lockout.step1_seconds' => (int) config('pasak.login_lockout.step1_seconds', 30),
+            'login_lockout.step2_seconds' => (int) config('pasak.login_lockout.step2_seconds', 60),
+            'login_lockout.step3_seconds' => (int) config('pasak.login_lockout.step3_seconds', 120),
+            'login_lockout.max_seconds' => (int) config('pasak.login_lockout.max_seconds', 3600),
             'login_lockout.base_minutes' => (int) config('pasak.login_lockout.base_minutes', 1),
             'login_lockout.max_minutes' => (int) config('pasak.login_lockout.max_minutes', 30),
-            'login_lockout.decay_minutes' => (int) config('pasak.login_lockout.decay_minutes', 60),
+            'login_lockout.decay_minutes' => (int) config('pasak.login_lockout.decay_minutes', 360),
 
             'log_retention_days' => (int) config('pasak.retention_days', 90),
             'dashboard.back_url' => (string) config('pasak.dashboard.back_url', '/'),
@@ -393,6 +403,22 @@ class PasakService
 
         if (isset($values['login_lockout_threshold'])) {
             $this->setSetting('login_lockout.threshold', max(1, (int) $values['login_lockout_threshold']));
+        }
+
+        if (isset($values['login_lockout_step1_seconds'])) {
+            $this->setSetting('login_lockout.step1_seconds', max(1, (int) $values['login_lockout_step1_seconds']));
+        }
+
+        if (isset($values['login_lockout_step2_seconds'])) {
+            $this->setSetting('login_lockout.step2_seconds', max(1, (int) $values['login_lockout_step2_seconds']));
+        }
+
+        if (isset($values['login_lockout_step3_seconds'])) {
+            $this->setSetting('login_lockout.step3_seconds', max(1, (int) $values['login_lockout_step3_seconds']));
+        }
+
+        if (isset($values['login_lockout_max_seconds'])) {
+            $this->setSetting('login_lockout.max_seconds', max(1, (int) $values['login_lockout_max_seconds']));
         }
 
         if (isset($values['login_lockout_base_minutes'])) {
@@ -1855,7 +1881,21 @@ class PasakService
         }
 
         try {
-            return PasakLog::create($attributes);
+            $log = PasakLog::create($attributes);
+
+            // Laporkan event ancaman ke Pasak Cloud Control Plane hanya jika lisensi dikonfigurasi
+            if ($log && app()->bound(PasakCloudService::class)) {
+                $cloud = app(PasakCloudService::class);
+                if ($cloud->isConfigured()) {
+                    try {
+                        $cloud->reportThreat($attributes);
+                    } catch (Throwable) {
+                        // Fail-safe
+                    }
+                }
+            }
+
+            return $log;
         } catch (Throwable) {
             return null;
         }
@@ -1917,6 +1957,7 @@ class PasakService
 
             $query = PasakLog::query()
                 ->whereIn('threat_level', $levels)
+                ->whereNotIn('event_type', ['login_failed', 'login_lockout', 'login_throttle'])
                 ->where('created_at', '>=', now()->subMinutes($window));
 
             if ($scope === 'device' && $deviceId) {
