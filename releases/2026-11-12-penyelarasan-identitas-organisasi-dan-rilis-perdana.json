@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-12",
+  "type": "deploy",
+  "title": {
+    "id": "Penyelarasan Identitas Organisasi Baru, Pembaruan Rilis Resmi, dan Pemulihan Lencana Mutu",
+    "en": "Official Organization Identity Alignment, Release Baseline Synchronization, and Quality Badge Restoration"
+  },
+  "body": {
+    "id": "Penyelarasan menyeluruh identitas sistem di bawah naungan organisasi pengembang resmi, penetapan kembali nomor rilis stabil perdana dengan riwayat kontributor lengkap, serta pemulihan integrasi pengujian otomatis dan lencana pemantauan publik.",
+    "en": "Comprehensive alignment of system identity under the official maintainer organization, establishment of the baseline stable release with full contributor history preserved, and complete restoration of automated quality tests and public monitoring badges."
+  },
+  "items": [
+    {
+      "type": "new",
+      "id": "Penyelarasan Identitas Organisasi Pengembang: Seluruh identitas paket dan dokumentasi resmi kini terpusat di bawah organisasi pengembang mandiri guna menjamin keberlanjutan pemeliharaan jangka panjang.",
+      "en": "Developer Organization Alignment: Centralized all official system package identities and documentation under a dedicated organization to ensure long-term maintenance continuity."
+    },
+    {
+      "type": "update",
+      "id": "Pemeliharaan Riwayat Kontribusi: Menjaga seluruh jejak rekam komit dan kontribusi pengembang terdahulu secara utuh pada repositori organisasi yang baru.",
+      "en": "Contribution History Preservation: Retained the entire historical commit trail and developer attributions intact within the new organization repository."
+    },
+    {
+      "type": "fix",
+      "id": "Pemulihan Pengujian Mutu Otomatis: Memperbaiki keselarasan pengujian integrasi otomatis multi-lingkungan sehingga seluruh verifikasi pengujian berjalan lancar dan berstatus hijau.",
+      "en": "Automated Quality Test Suite Restoration: Fixed multi-environment integration test alignments, ensuring full automated verification passes with green status."
+    },
+    {
+      "type": "fix",
+      "id": "Sinkronisasi Lencana Katalog Publik: Menyambungkan kembali tautan lencana versi stabil dan statistik unduhan ke katalog publik resmi agar selalu akurat dan terpercaya.",
+      "en": "Public Catalog Badge Synchronization: Reconnected the stable version and download metric badges to the official public catalog for accurate real-time status reporting."
+    }
+  ]
+}
