@@ -722,11 +722,18 @@ class PasakUninstallCommand extends Command
     protected function removeComposerPackage(): void
     {
         $composer = $this->findComposerBinary();
-        $pkgName = 'pasak-dev/pasak-secure-monitor-laravel';
+        $pkgName = 'pasak-dev/secure-monitor';
 
         $composerPath = base_path('composer.json');
-        if (File::exists($composerPath) && str_contains(File::get($composerPath), 'robyajo/pasak')) {
-            $pkgName = 'robyajo/pasak';
+        if (File::exists($composerPath)) {
+            $content = File::get($composerPath);
+            if (str_contains($content, 'pasak-dev/secure-monitor')) {
+                $pkgName = 'pasak-dev/secure-monitor';
+            } elseif (str_contains($content, 'pasak-dev/pasak-secure-monitor-laravel')) {
+                $pkgName = 'pasak-dev/pasak-secure-monitor-laravel';
+            } elseif (str_contains($content, 'robyajo/pasak')) {
+                $pkgName = 'robyajo/pasak';
+            }
         }
 
         if ($composer === null) {

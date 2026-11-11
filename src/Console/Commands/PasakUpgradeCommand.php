@@ -937,6 +937,9 @@ MARKDOWN;
         $composerPath = base_path('composer.json');
         if (File::exists($composerPath)) {
             $content = File::get($composerPath);
+            if (str_contains($content, 'pasak-dev/secure-monitor')) {
+                return 'pasak-dev/secure-monitor';
+            }
             if (str_contains($content, 'pasak-dev/pasak-secure-monitor-laravel')) {
                 return 'pasak-dev/pasak-secure-monitor-laravel';
             }
@@ -945,7 +948,7 @@ MARKDOWN;
             }
         }
 
-        return 'pasak-dev/pasak-secure-monitor-laravel';
+        return 'pasak-dev/secure-monitor';
     }
 
     /**
@@ -961,6 +964,7 @@ MARKDOWN;
 
         $content = File::get($composerPath);
         $patterns = [
+            'pasak-dev/secure-monitor' => '/("pasak-dev\/secure-monitor"\s*:\s*")([^"]+)(")/',
             'pasak-dev/pasak-secure-monitor-laravel' => '/("pasak-dev\/pasak-secure-monitor-laravel"\s*:\s*")([^"]+)(")/',
             'robyajo/pasak' => '/("robyajo\/pasak"\s*:\s*")([^"]+)(")/',
         ];

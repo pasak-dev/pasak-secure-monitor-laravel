@@ -1,5 +1,5 @@
 {
-  "name": "pasak-dev/pasak-secure-monitor-laravel",
+  "name": "pasak-dev/secure-monitor",
   "description": "Pasak - enterprise-grade headless self-hosted WAF, threat detection engine, zero-tolerance blocking, stepped login lockout, and security auditing toolkit for Laravel.",
   "keywords": [
     "laravel",

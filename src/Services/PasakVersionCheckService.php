@@ -18,7 +18,7 @@ class PasakVersionCheckService
     /**
      * Endpoint API Packagist v2.
      */
-    public const PACKAGIST_URL = 'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json';
+    public const PACKAGIST_URL = 'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json';
 
     /**
      * Fallback endpoint API GitHub Tags.
@@ -37,7 +37,12 @@ class PasakVersionCheckService
     {
         try {
             if (class_exists(InstalledVersions::class)) {
-                if (InstalledVersions::isInstalled('pasak-dev/pasak-secure-monitor-laravel')) {
+                if (InstalledVersions::isInstalled('pasak-dev/secure-monitor')) {
+                    $pretty = (string) InstalledVersions::getPrettyVersion('pasak-dev/secure-monitor');
+                    if (! empty($pretty) && ! str_starts_with($pretty, 'dev-')) {
+                        return ltrim($pretty, 'v');
+                    }
+                } elseif (InstalledVersions::isInstalled('pasak-dev/pasak-secure-monitor-laravel')) {
                     $pretty = (string) InstalledVersions::getPrettyVersion('pasak-dev/pasak-secure-monitor-laravel');
                     if (! empty($pretty) && ! str_starts_with($pretty, 'dev-')) {
                         return ltrim($pretty, 'v');
@@ -108,7 +113,8 @@ class PasakVersionCheckService
                 return null;
             }
 
-            $packages = $response->json('packages.pasak-dev/pasak-secure-monitor-laravel')
+            $packages = $response->json('packages.pasak-dev/secure-monitor')
+                ?? $response->json('packages.pasak-dev/pasak-secure-monitor-laravel')
                 ?? $response->json('packages.robyajo/pasak')
                 ?? [];
 

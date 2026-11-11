@@ -13,10 +13,10 @@ beforeEach(function () use (&$edgeDir) {
     }
 
     Http::fake([
-        'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
-            'packages' => ['pasak-dev/pasak-secure-monitor-laravel' => [['version' => 'v99.9.9']]],
+        'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'packages' => ['pasak-dev/secure-monitor' => [['version' => 'v99.9.9']]],
         ], 200),
-        'https://api.github.com/repos/pasak-dev/pasak-secure-monitor-laravel/tags' => Http::response([], 200),
+        'https://api.github.com/repos/pasak-dev/secure-monitor/tags' => Http::response([], 200),
     ]);
 });
 
@@ -154,8 +154,8 @@ test('upgrade migrates legacy env values and warns on mismatched driver', functi
     File::makeDirectory($edgeDir.'/public', 0755, true, true);
 
     Http::fake([
-        'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
-            'packages' => ['pasak-dev/pasak-secure-monitor-laravel' => [['version' => 'v99.9.9']]],
+        'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'packages' => ['pasak-dev/secure-monitor' => [['version' => 'v99.9.9']]],
         ], 200),
     ]);
     $this->artisan('pasak:upgrade', [
@@ -171,8 +171,8 @@ test('upgrade migrates legacy env values and warns on mismatched driver', functi
 
 test('upgrade warns when published views lack the latest features', function () use (&$edgeDir) {
     Http::fake([
-        'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
-            'packages' => ['pasak-dev/pasak-secure-monitor-laravel' => [['version' => 'v99.9.9']]],
+        'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'packages' => ['pasak-dev/secure-monitor' => [['version' => 'v99.9.9']]],
         ], 200),
     ]);
     $this->app->setBasePath($edgeDir);
@@ -201,8 +201,8 @@ test('upgrade migrates legacy security-named host files to pasak names', functio
     File::deleteDirectory($edgeDir.'/resources/views/pages/pasak');
 
     Http::fake([
-        'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
-            'packages' => ['pasak-dev/pasak-secure-monitor-laravel' => [['version' => 'v99.9.9']]],
+        'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'packages' => ['pasak-dev/secure-monitor' => [['version' => 'v99.9.9']]],
         ], 200),
     ]);
     $this->artisan('pasak:upgrade', [
@@ -224,8 +224,8 @@ test('upgrade migrates legacy security-named host files to pasak names', functio
 
 test('upgrade preserves customized host routes by default', function () {
     Http::fake([
-        'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
-            'packages' => ['pasak-dev/pasak-secure-monitor-laravel' => [['version' => 'v99.9.9']]],
+        'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'packages' => ['pasak-dev/secure-monitor' => [['version' => 'v99.9.9']]],
         ], 200),
     ]);
     $routeFile = base_path('routes/pasak.php');
@@ -273,8 +273,8 @@ test('upgrade without local route files succeeds using internal routes', functio
     @unlink(base_path('routes/pasak-api.php'));
 
     Http::fake([
-        'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
-            'packages' => ['pasak-dev/pasak-secure-monitor-laravel' => [['version' => 'v99.9.9']]],
+        'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'packages' => ['pasak-dev/secure-monitor' => [['version' => 'v99.9.9']]],
         ], 200),
     ]);
     $this->artisan('pasak:upgrade', [
@@ -287,8 +287,8 @@ test('upgrade without local route files succeeds using internal routes', functio
 
 test('upgrade preserves customized blocked view unless sync-views is given', function () {
     Http::fake([
-        'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
-            'packages' => ['pasak-dev/pasak-secure-monitor-laravel' => [['version' => 'v99.9.9']]],
+        'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'packages' => ['pasak-dev/secure-monitor' => [['version' => 'v99.9.9']]],
         ], 200),
     ]);
     $viewFile = resource_path('views/errors/blocked.blade.php');

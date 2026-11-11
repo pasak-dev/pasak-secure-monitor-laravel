@@ -33,9 +33,9 @@ class SecurityVersionCheckTest extends TestCase
     public function test_can_fetch_and_cache_latest_version_from_packagist(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
+            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/pasak-secure-monitor-laravel' => [
+                    'pasak-dev/secure-monitor' => [
                         ['version' => 'v99.0.0'],
                         ['version' => 'v2.0.7'],
                     ],
@@ -54,8 +54,8 @@ class SecurityVersionCheckTest extends TestCase
     public function test_fallback_to_github_if_packagist_fails(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response(null, 500),
-            'https://api.github.com/repos/pasak-dev/pasak-secure-monitor-laravel/tags' => Http::response([
+            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response(null, 500),
+            'https://api.github.com/repos/pasak-dev/secure-monitor/tags' => Http::response([
                 ['name' => 'v98.5.1'],
                 ['name' => 'v2.0.7'],
             ], 200),
@@ -71,9 +71,9 @@ class SecurityVersionCheckTest extends TestCase
     public function test_notifies_user_in_terminal_when_update_available(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
+            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/pasak-secure-monitor-laravel' => [
+                    'pasak-dev/secure-monitor' => [
                         ['version' => 'v99.9.9'],
                     ],
                 ],
@@ -101,9 +101,9 @@ class SecurityVersionCheckTest extends TestCase
         config(['pasak.version_check.enabled' => false]);
 
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
+            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/pasak-secure-monitor-laravel' => [
+                    'pasak-dev/secure-monitor' => [
                         ['version' => 'v99.9.9'],
                     ],
                 ],
@@ -120,9 +120,9 @@ class SecurityVersionCheckTest extends TestCase
     public function test_command_starting_triggers_notice_on_serve_and_dev(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
+            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/pasak-secure-monitor-laravel' => [
+                    'pasak-dev/secure-monitor' => [
                         ['version' => 'v99.0.0'],
                     ],
                 ],
@@ -142,9 +142,9 @@ class SecurityVersionCheckTest extends TestCase
     public function test_command_starting_does_not_trigger_notice_on_other_commands(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
+            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/pasak-secure-monitor-laravel' => [
+                    'pasak-dev/secure-monitor' => [
                         ['version' => 'v99.0.0'],
                     ],
                 ],
@@ -162,9 +162,9 @@ class SecurityVersionCheckTest extends TestCase
     public function test_upgrade_command_check_option(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
+            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/pasak-secure-monitor-laravel' => [
+                    'pasak-dev/secure-monitor' => [
                         ['version' => 'v99.1.0'],
                     ],
                 ],
@@ -181,9 +181,9 @@ class SecurityVersionCheckTest extends TestCase
     public function test_upgrade_command_sync_only_with_no_composer(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
+            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/pasak-secure-monitor-laravel' => [
+                    'pasak-dev/secure-monitor' => [
                         ['version' => 'v2.0.8'],
                     ],
                 ],
@@ -203,9 +203,9 @@ class SecurityVersionCheckTest extends TestCase
     public function test_upgrade_command_alias_upgrae_works(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
+            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/pasak-secure-monitor-laravel' => [
+                    'pasak-dev/secure-monitor' => [
                         ['version' => 'v2.0.8'],
                     ],
                 ],
@@ -262,9 +262,9 @@ return [
     public function test_upgrade_notifies_user_to_run_php_artisan_migrate_when_new_migration_exists(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
+            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/pasak-secure-monitor-laravel' => [
+                    'pasak-dev/secure-monitor' => [
                         ['version' => 'v2.0.8'],
                     ],
                 ],
@@ -293,9 +293,9 @@ return [
     public function test_upgrade_notifies_user_to_run_php_artisan_migrate_after_migrations_applied(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json' => Http::response([
+            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/pasak-secure-monitor-laravel' => [
+                    'pasak-dev/secure-monitor' => [
                         ['version' => 'v2.0.8'],
                     ],
                 ],

@@ -1455,6 +1455,7 @@ MARKDOWN;
 
         $content = File::get($composerPath);
         $patterns = [
+            'pasak-dev/secure-monitor' => '/("pasak-dev\/secure-monitor"\s*:\s*")([^"]+)(")/',
             'pasak-dev/pasak-secure-monitor-laravel' => '/("pasak-dev\/pasak-secure-monitor-laravel"\s*:\s*")([^"]+)(")/',
             'robyajo/pasak' => '/("robyajo\/pasak"\s*:\s*")([^"]+)(")/',
         ];

@@ -1,6 +1,6 @@
 # 04. Model Database & Dynamic Decoupling
 
-Salah satu prinsip desain fundamental dari **`pasak-dev/pasak-secure-monitor-laravel`** adalah **Loose Coupling** (keterikatan longgar). Paket ini tidak pernah mengasumsikan model `User` bawaan Laravel atau nama tabel yang paten, melainkan menyelesaikan semuanya secara dinamis melalui konfigurasi.
+Salah satu prinsip desain fundamental dari **`pasak-dev/secure-monitor`** adalah **Loose Coupling** (keterikatan longgar). Paket ini tidak pernah mengasumsikan model `User` bawaan Laravel atau nama tabel yang paten, melainkan menyelesaikan semuanya secara dinamis melalui konfigurasi.
 
 ---
 
