@@ -2,6 +2,12 @@
 
 All notable changes to `pasak-dev/secure-monitor` will be documented in this file.
 
+## [1.0.1] - 2026-11-12
+
+### Changed
+- Bump version to `v1.0.1` for Packagist release immutability compliance.
+- Finalized package identifier as **`pasak-dev/secure-monitor`**.
+
 ## [1.0.0] - 2026-11-12
 
 ### Rebrand & Initial Release
