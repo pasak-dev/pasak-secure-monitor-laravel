@@ -180,7 +180,7 @@ test('install command aligns composer.json version constraint to full semver', f
         'name' => 'test/app',
         'require' => [
             'php' => '^8.2',
-            'pasak-dev/pasak-secure-monitor-laravel' => '^1.6',
+            'pasak-dev/secure-monitor' => '^1.6',
         ],
     ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
@@ -191,7 +191,7 @@ test('install command aligns composer.json version constraint to full semver', f
 
         $updated = File::get($composerFile);
         $expectedVersion = PasakService::VERSION;
-        expect($updated)->toContain("\"pasak-dev/pasak-secure-monitor-laravel\": \"^{$expectedVersion}\"");
+        expect($updated)->toContain("\"pasak-dev/secure-monitor\": \"^{$expectedVersion}\"");
     } finally {
         if ($hadComposer) {
             File::put($composerFile, $origComposer);

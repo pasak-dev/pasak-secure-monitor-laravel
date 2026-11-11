@@ -4,7 +4,7 @@
 
 > **Versi Paket**: `1.5.0` | **PHP**: `^8.2 | ^8.3 | ^8.4 | ^8.5` | **Laravel**: `^10.0 | ^11.0 | ^12.0 | ^13.0` | **Lisensi**: `MIT`
 
-Selamat datang di dokumentasi resmi **`pasak-dev/pasak-secure-monitor-laravel`** (Bulwark). Dokumentasi ini dirancang untuk memberikan panduan komprehensif mulai dari konsep arsitektur, instalasi, konfigurasi, integrasi REST API headless, modul keamanan tingkat lanjut, otomasi Artisan CLI, hingga hardening web server Nginx di lingkungan produksi.
+Selamat datang di dokumentasi resmi **`pasak-dev/secure-monitor`** (Bulwark). Dokumentasi ini dirancang untuk memberikan panduan komprehensif mulai dari konsep arsitektur, instalasi, konfigurasi, integrasi REST API headless, modul keamanan tingkat lanjut, otomasi Artisan CLI, hingga hardening web server Nginx di lingkungan produksi.
 
 ---
 

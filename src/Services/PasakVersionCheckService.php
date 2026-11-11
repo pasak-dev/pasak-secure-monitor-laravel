@@ -18,7 +18,7 @@ class PasakVersionCheckService
     /**
      * Endpoint API Packagist v2.
      */
-    public const PACKAGIST_URL = 'https://repo.packagist.org/p2/pasak-dev/pasak-secure-monitor-laravel.json';
+    public const PACKAGIST_URL = 'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json';
 
     /**
      * Fallback endpoint API GitHub Tags.

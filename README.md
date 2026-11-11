@@ -1,8 +1,8 @@
 # Pasak (Bulwark)
 
 [![Run Tests](https://github.com/pasak-dev/pasak-secure-monitor-laravel/actions/workflows/run-tests.yml/badge.svg)](https://github.com/pasak-dev/pasak-secure-monitor-laravel/actions/workflows/run-tests.yml)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/pasak-dev/pasak-secure-monitor-laravel.svg)](https://packagist.org/packages/pasak-dev/pasak-secure-monitor-laravel)
-[![Total Downloads](https://img.shields.io/packagist/dt/pasak-dev/pasak-secure-monitor-laravel.svg)](https://packagist.org/packages/pasak-dev/pasak-secure-monitor-laravel)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/pasak-dev/secure-monitor.svg)](https://packagist.org/packages/pasak-dev/secure-monitor)
+[![Total Downloads](https://img.shields.io/packagist/dt/pasak-dev/secure-monitor.svg)](https://packagist.org/packages/pasak-dev/secure-monitor)
 [![PHP Version](https://img.shields.io/badge/php-%5E8.2%20%7C%20%5E8.3%20%7C%20%5E8.4%20%7C%20%5E8.5-blue.svg)](https://www.php.net/supported-versions.php)
 [![Laravel Version](https://img.shields.io/badge/laravel-%5E10.0%20%7C%20%5E11.0%20%7C%20%5E12.0%20%7C%20%5E13.0-red.svg)](https://laravel.com/docs/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -60,14 +60,14 @@
 ### 1. Pasang Paket via Composer
 
 ```bash
-composer require pasak-dev/pasak-secure-monitor-laravel
+composer require pasak-dev/secure-monitor
 ```
 
 > **Catatan Versi**: Untuk mengunci ke versi rilis stabil tertentu, jalankan:
 > ```bash
-> composer require "pasak-dev/pasak-secure-monitor-laravel:^1.0.2"
+> composer require "pasak-dev/secure-monitor:^1.0.0"
 > ```
-> Perintah `php artisan pasak:install` juga secara otomatis menyelaraskan constraint versi di `composer.json` ke versi lengkap terbaru (`^1.0.2`). Jangan gunakan `@dev` di lingkungan produksi.
+> Perintah `php artisan pasak:install` juga secara otomatis menyelaraskan constraint versi di `composer.json` ke versi lengkap terbaru (`^1.0.0`). Jangan gunakan `@dev` di lingkungan produksi.
 
 ### 2. Publikasikan Aset Otomatis (`pasak:install`)
 

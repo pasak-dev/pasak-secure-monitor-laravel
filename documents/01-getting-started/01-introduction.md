@@ -9,7 +9,7 @@ Dalam pengembangan aplikasi berbasis Laravel modern di lingkungan enterprise dan
 3. **Penyalahgunaan IP Bersama (Shared NAT/Router)**: Ketika seorang penyerang berada di jaringan Wi-Fi publik, kantor, atau kampus yang sama dengan ratusan pengguna sah, pemblokiran berbasis IP publik akan menyebabkan _collateral damage_—seluruh kantor kehilangan akses ke aplikasi.
 4. **Credential Stuffing & DoS Regex (ReDoS)**: Serangan brute-force menggunakan botnet terdistribusi serta pengiriman string panjang berpola untuk memicu kegagalan komputasi CPU akibat regex backtracking berulang (_Catastrophic Backtracking_).
 
-**`pasak-dev/pasak-secure-monitor-laravel`** (Bulwark) dibangun dari pengalaman lapangan menangani insiden nyata tersebut, dikemas menjadi paket mandiri, modular, dan berperforma tinggi.
+**`pasak-dev/secure-monitor`** (Bulwark) dibangun dari pengalaman lapangan menangani insiden nyata tersebut, dikemas menjadi paket mandiri, modular, dan berperforma tinggi.
 
 ---
 
@@ -19,7 +19,7 @@ Berbeda dengan paket aplikasi yang mengikat pengguna ke antarmuka atau bundler J
 
 > 🌟 **Nol Dependensi NPM / Node.js**: Paket ini adalah **100% Murni PHP untuk Laravel**. Anda **TIDAK PERNAH** memerlukan `npm install`, `node`, `vite build`, atau bundler frontend apa pun untuk menjalankan paket ini.
 
-Setelah paket dipasang melalui `composer require pasak-dev/pasak-secure-monitor-laravel`, pengembang **bebas menerapkannya di mana saja** di seluruh ekosistem Laravel:
+Setelah paket dipasang melalui `composer require pasak-dev/secure-monitor`, pengembang **bebas menerapkannya di mana saja** di seluruh ekosistem Laravel:
 
 - ✅ **Aplikasi Laravel Blade Murni**: Bekerja langsung dengan view HTML standar dan sesi cookie.
 - ✅ **Aplikasi API Backend Murni (Headless)**: Menyuplai REST API JSON untuk aplikasi mobile (Flutter/React Native) atau SPA frontend terpisah.
@@ -35,7 +35,7 @@ Sama seperti paket Spatie terpopuler, paket ini menyatu secara elegan ke dalam t
 
 ```mermaid
 graph TD
-    Composer[composer require pasak-dev/pasak-secure-monitor-laravel] --> Discovery[1. Laravel Package Auto-Discovery<br/>PasakServiceProvider + Facade]
+    Composer[composer require pasak-dev/secure-monitor] --> Discovery[1. Laravel Package Auto-Discovery<br/>PasakServiceProvider + Facade]
 
     Discovery --> Hook1["2. Core Eloquent: HasPasakSecurityRelations Trait<br/>User::logins(), User::trustedIps()"]
     Discovery --> Hook2[3. Core Auth Events: Event::listen<br/>Failed & Login Events Otomatis Diawasi]

@@ -1,22 +1,11 @@
 # Changelog
 
-All notable changes to `pasak-dev/pasak-secure-monitor-laravel` will be documented in this file.
-
-## [1.0.2] - 2026-11-12
-
-### Fixed
-- Fixed GitHub Actions CI suite (resolved `SecurityVersionCheckTest` mock endpoint and PHPStan static analysis).
-- Aligned Packagist package identifier and badges with `pasak-dev/pasak-secure-monitor-laravel`.
-
-## [1.0.1] - 2026-11-12
-
-### Changed
-- Bump version to `v1.0.1` for Packagist release immutability compliance.
+All notable changes to `pasak-dev/secure-monitor` will be documented in this file.
 
 ## [1.0.0] - 2026-11-12
 
 ### Rebrand & Initial Release
-- Rebranded package identifier to **`pasak-dev/pasak-secure-monitor-laravel`** under the **`pasak-dev`** organization.
+- Rebranded package identifier to **`pasak-dev/secure-monitor`** under the **`pasak-dev`** organization.
 - Reset version baseline to `v1.0.0` for the newly organized repository suite.
 - Preserved complete Git commit history and author attribution (`robyajo` and contributors).
 - Enterprise-grade headless self-hosted WAF, threat detection engine, zero-tolerance blocking, stepped login lockout, server integrity baseline, webshell scanning, and security auditing toolkit for Laravel.
