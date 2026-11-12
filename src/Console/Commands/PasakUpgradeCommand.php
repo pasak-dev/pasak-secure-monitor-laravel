@@ -1285,6 +1285,7 @@ PHP;
             }
         }
     }
+
     protected function detectInstalledPackageName(): string
     {
         $composerPath = base_path('composer.json');
@@ -1303,5 +1304,4 @@ PHP;
 
         return 'pasak-dev/secure-monitor';
     }
-
 }

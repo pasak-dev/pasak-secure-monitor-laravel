@@ -7,10 +7,10 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
+use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use Pasak\SecureMonitor\Http\Middleware\BlockIpAddress;
 use Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats;
 use Pasak\SecureMonitor\PasakServiceProvider;
-use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 abstract class TestCase extends OrchestraTestCase
 {

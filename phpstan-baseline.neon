@@ -1,64 +1,334 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Using nullsafe property access "\?\-\>block_scope" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
+			message: '#^Trait Pasak\\SecureMonitor\\Concerns\\HasPasakSecurityRelations is used zero times and is not analysed\.$#'
+			identifier: trait.unused
 			count: 1
-			path: src/Http/Middleware/BlockIpAddress.php
+			path: src/Concerns/HasPasakSecurityRelations.php
 
 		-
-			message: '#^Using nullsafe property access "\?\-\>id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: src/Http/Middleware/BlockIpAddress.php
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakBlockedIp\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Console/Commands/PasakUnblockIpCommand.php
 
 		-
-			message: '#^Using nullsafe property access "\?\-\>reason" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: src/Http/Middleware/BlockIpAddress.php
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakAllowedIp\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Http/Controllers/Api/PasakAllowedIpApiController.php
 
 		-
-			message: '#^Call to function is_object\(\) with GdImage will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakAllowedIp\>\:\:expired\(\)\.$#'
+			identifier: method.notFound
 			count: 1
-			path: src/Rules/SafeImageFile.php
+			path: src/Http/Controllers/Api/PasakAllowedIpApiController.php
 
 		-
-			message: '#^Call to function method_exists\(\) with Illuminate\\Http\\UploadedFile and ''get'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Rules/SafeImageFile.php
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakBlockedIp\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Http/Controllers/Api/PasakBlockedIpApiController.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakBlockedIp\>\:\:expired\(\)\.$#'
+			identifier: method.notFound
 			count: 1
-			path: src/Rules/SafeImageFile.php
+			path: src/Http/Controllers/Api/PasakBlockedIpApiController.php
 
 		-
-			message: '#^Instanceof between GdImage and GdImage will always evaluate to true\.$#'
-			identifier: instanceof.alwaysTrue
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\>\:\:approved\(\)\.$#'
+			identifier: method.notFound
 			count: 1
-			path: src/Rules/SafeImageFile.php
+			path: src/Http/Controllers/Api/PasakIpUnblockRequestApiController.php
 
 		-
-			message: '#^Offset ''mime'' on array\{0\: int\<0, max\>, 1\: int\<0, max\>, 2\: int, 3\: string, mime\: string, channels\?\: int, bits\?\: int\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\>\:\:pending\(\)\.$#'
+			identifier: method.notFound
 			count: 1
-			path: src/Rules/SafeImageFile.php
+			path: src/Http/Controllers/Api/PasakIpUnblockRequestApiController.php
 
 		-
-			message: '#^PHPDoc tag @var with type mixed is not subtype of native type Illuminate\\Http\\UploadedFile\.$#'
-			identifier: varTag.nativeType
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\>\:\:rejected\(\)\.$#'
+			identifier: method.notFound
 			count: 1
-			path: src/Rules/SafeImageFile.php
+			path: src/Http/Controllers/Api/PasakIpUnblockRequestApiController.php
 
 		-
-			message: '#^Offset ''bytes'' on array\{0\: non\-falsy\-string, ip\: non\-empty\-string, 1\: non\-empty\-string, user\: non\-empty\-string, 2\: non\-empty\-string, time\: non\-empty\-string, 3\: non\-empty\-string, request\: string, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
-			path: src/Services/AccessLogScannerService.php
+			path: src/Http/Controllers/Api/PasakIpUnblockRequestApiController.php
+
+		-
+			message: '#^Property Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\:\:\$resolved_at \(Illuminate\\Support\\Carbon\|null\) does not accept Carbon\\CarbonInterface\.$#'
+			identifier: assign.propertyType
+			count: 2
+			path: src/Http/Controllers/Api/PasakIpUnblockRequestApiController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory\:\:id\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Controllers/Api/PasakServerSecurityApiController.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 2
+			path: src/Http/Controllers/Api/PasakServerSecurityApiController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakUserLogin\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Http/Controllers/Api/PasakUserSessionApiController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakAllowedIp\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Http/Controllers/Dashboard/PasakAllowedIpController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakAllowedIp\>\:\:expired\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakAllowedIpController.php
+
+		-
+			message: '#^Parameter \#2 \$default of method Illuminate\\Http\\Request\:\:query\(\) expects array\|string\|null, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakAllowedIpController.php
+
+		-
+			message: '#^PHPDoc tag @var for variable \$viewName contains unresolvable type\.$#'
+			identifier: varTag.unresolvableType
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakAuthController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakBlockedIp\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Http/Controllers/Dashboard/PasakBlockedIpController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakBlockedIp\>\:\:expired\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakBlockedIpController.php
+
+		-
+			message: '#^Parameter \#2 \$default of method Illuminate\\Http\\Request\:\:query\(\) expects array\|string\|null, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakBlockedIpController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Session\\Session\:\:reflash\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakDashboardAliasController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Session\\Session\:\:reflash\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakDashboardEntryController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakBlockedIp\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakLogController.php
+
+		-
+			message: '#^Parameter \#2 \$default of method Illuminate\\Http\\Request\:\:query\(\) expects array\|string\|null, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakLogController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory\:\:id\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: src/Http/Controllers/Dashboard/PasakServerController.php
+
+		-
+			message: '#^Call to an undefined method Pasak\\SecureMonitor\\Services\\PasakServerSecurityService\:\:isInspectable\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakServerController.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 2
+			path: src/Http/Controllers/Dashboard/PasakServerController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakUserLogin\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakSessionController.php
+
+		-
+			message: '#^Parameter \#2 \$default of method Illuminate\\Http\\Request\:\:query\(\) expects array\|string\|null, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakSessionController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakBlockedIp\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Http/Controllers/Dashboard/PasakThreatMapController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) expects callable\(stdClass, int\)\: array, Closure\(Pasak\\SecureMonitor\\Models\\PasakLog\)\: array given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Http/Controllers/Dashboard/PasakThreatMapController.php
+
+		-
+			message: '#^Parameter \#2 \$default of method Illuminate\\Http\\Request\:\:query\(\) expects array\|string\|null, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakThreatMapController.php
+
+		-
+			message: '#^Access to an undefined property Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\:\:\$blockedIp\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakTicketController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\>\:\:approved\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakTicketController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\>\:\:pending\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakTicketController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\>\:\:rejected\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakTicketController.php
+
+		-
+			message: '#^Parameter \#2 \$default of method Illuminate\\Http\\Request\:\:query\(\) expects array\|string\|null, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakTicketController.php
+
+		-
+			message: '#^Property Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\:\:\$resolved_at \(Illuminate\\Support\\Carbon\|null\) does not accept Carbon\\CarbonInterface\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Http/Controllers/Dashboard/PasakTicketController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Session\\Session\:\:reflash\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Middleware/PasakRotatingDashboard.php
+
+		-
+			message: '#^Method Pasak\\SecureMonitor\\Models\\PasakAllowedIp\:\:scopeExpired\(\) should return Illuminate\\Database\\Eloquent\\Builder but returns Illuminate\\Database\\Query\\Builder\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Models/PasakAllowedIp.php
+
+		-
+			message: '#^Method Pasak\\SecureMonitor\\Models\\PasakBlockedIp\:\:scopeExpired\(\) should return Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakBlockedIp\> but returns Illuminate\\Database\\Query\\Builder\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Models/PasakBlockedIp.php
+
+		-
+			message: '#^Method Pasak\\SecureMonitor\\Models\\PasakLog\:\:scopeAtLeast\(\) should return Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakLog\> but returns Illuminate\\Database\\Query\\Builder\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Models/PasakLog.php
+
+		-
+			message: '#^Method Pasak\\SecureMonitor\\Models\\PasakLoginAttempt\:\:scopeLocked\(\) should return Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakLoginAttempt\> but returns Illuminate\\Database\\Query\\Builder\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Models/PasakLoginAttempt.php
+
+		-
+			message: '#^Method Pasak\\SecureMonitor\\Models\\PasakUserLogin\:\:scopeActive\(\) should return Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakUserLogin\> but returns Illuminate\\Database\\Query\\Builder\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Models/PasakUserLogin.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakLoginAttempt\>\:\:locked\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: src/Services/PasakLoginThrottleService.php
+
+		-
+			message: '#^Property Pasak\\SecureMonitor\\Models\\PasakLoginAttempt\:\:\$last_attempt_at \(Illuminate\\Support\\Carbon\|null\) does not accept Carbon\\CarbonInterface\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Services/PasakLoginThrottleService.php
+
+		-
+			message: '#^Property Pasak\\SecureMonitor\\Models\\PasakLoginAttempt\:\:\$locked_until \(Illuminate\\Support\\Carbon\|null\) does not accept Carbon\\CarbonInterface\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Services/PasakLoginThrottleService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakBlockedIp\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Services/PasakServerSecurityService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakLoginAttempt\>\:\:locked\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Services/PasakServerSecurityService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Support\\Optional\:\:toIso8601String\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Services/PasakServerSecurityService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Pasak\\SecureMonitor\\Models\\PasakLoginAttempt\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: src/Services/PasakServerSecurityService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Authenticatable\:\:getKey\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Services/PasakService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Pasak\\SecureMonitor\\Models\\PasakBlockedIp\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Services/PasakService.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakLog\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: src/Services/PasakService.php
 
 		-
 			message: '#^Call to function method_exists\(\) with Illuminate\\Http\\UploadedFile and ''get'' will always evaluate to true\.$#'
@@ -73,43 +343,355 @@ parameters:
 			path: src/Services/PasakService.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$two_factor_confirmed_at\.$#'
-			identifier: property.notFound
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakTrustedIp\:\:updateOrCreate\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
-			path: src/Services/ServerSecurityService.php
+			path: src/Services/PasakUserLoginService.php
 
 		-
-			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
-			identifier: larastan.noEnvCallsOutsideOfConfig
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakUserLogin\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: src/Services/PasakUserLoginService.php
+
+		-
+			message: '#^Cannot call method getAttribute\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 4
+			path: src/Services/PasakUserLoginService.php
+
+		-
+			message: '#^Cannot call method update\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Services/PasakUserLoginService.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakAllowedIp\:\:count\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/AllowedIpTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakAllowedIp\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: tests/Feature/AllowedIpTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakAllowedIp\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 2
-			path: src/Services/ServerSecurityService.php
+			path: tests/Feature/AllowedIpTest.php
 
 		-
-			message: '#^Offset 1 on array\{non\-falsy\-string, int\<\-1, max\>\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Tests\\TestUser\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 2
-			path: src/Services/ServerSecurityService.php
+			path: tests/Feature/AllowedIpTest.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/Services/UserLoginService.php
+			message: '#^Call to an undefined method Illuminate\\Contracts\\View\\View\:\:getName\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Feature/DashboardDetailTest.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/Services/UserLoginService.php
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakBlockedIp\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/Feature/DashboardDetailTest.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
-			path: src/Services/UserLoginService.php
+			path: tests/Feature/DashboardDetailTest.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$role\.$#'
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakLog\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/Feature/DashboardDetailTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\Mixins\\Expectation\<string\|false\|null\>\:\:\$not\.$#'
 			identifier: property.notFound
 			count: 1
-			path: src/Services/UserLoginService.php
+			path: tests/Feature/DashboardRotatingUrlTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\Mixins\\Expectation\<string\|null\>\:\:\$not\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/DashboardRotatingUrlTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakBlockedIp\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/Feature/DashboardRotatingUrlTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakBlockedIp\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: tests/Feature/DeviceLevelBlockingTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/DeviceLevelBlockingTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/DeviceLevelBlockingTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Tests\\TestUser\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/DeviceLevelBlockingTest.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Validation\\Validator\:\:passes\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/InstantBlockTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakBlockedIp\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/Feature/InstantBlockTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Tests\\TestUser\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/InstantBlockTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakLog\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/PasakAutoBlockThresholdsTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$app\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PasakBladeDashboardTest.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\View\\View\:\:getName\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/PasakBladeDashboardTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakAllowedIp\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/PasakBladeDashboardTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakLog\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: tests/Feature/PasakBladeDashboardTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\Mixins\\Expectation\<string\>\:\:\$not\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PasakDashboardSecretTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\Mixins\\Expectation\<mixed\>\:\:\$not\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PasakDeployCommandTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$app\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PasakInstallWizardTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$app\.$#'
+			identifier: property.notFound
+			count: 10
+			path: tests/Feature/PasakLifecycleEdgeTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$app\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PasakPrefixAndUpgradeTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakBlockedIp\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/PasakPrefixAndUpgradeTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakBlockedIp\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/PasakPrefixAndUpgradeTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$app\.$#'
+			identifier: property.notFound
+			count: 5
+			path: tests/Feature/PasakThreatMapTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$target\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/PasakThreatMapTest.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\View\\View\:\:getName\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/PasakThreatMapTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakLog\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 8
+			path: tests/Feature/PasakThreatMapTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$app\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/PasakUninstallTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$admin\.$#'
+			identifier: property.notFound
+			count: 7
+			path: tests/Feature/SecurityAdminApiTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$regularUser\.$#'
+			identifier: property.notFound
+			count: 6
+			path: tests/Feature/SecurityAdminApiTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakBlockedIp\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/Feature/SecurityAdminApiTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakIpUnblockRequest\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/SecurityAdminApiTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakLog\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/SecurityAdminApiTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$app\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/SecurityInstallAutoInjectTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\|Pest\\Support\\HigherOrderTapProxy\:\:withServerVariables\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/SecurityMonitorTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakBlockedIp\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/Feature/SecurityMonitorTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakLog\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/SecurityMonitorTest.php
+
+		-
+			message: '#^Property Pasak\\SecureMonitor\\Models\\PasakLog\:\:\$created_at \(Illuminate\\Support\\Carbon\|null\) does not accept Carbon\\CarbonInterface\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: tests/Feature/SecurityMonitorTest.php
+
+		-
+			message: '#^Property Pasak\\SecureMonitor\\Models\\PasakLog\:\:\$updated_at \(Illuminate\\Support\\Carbon\|null\) does not accept Carbon\\CarbonInterface\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: tests/Feature/SecurityMonitorTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$app\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/SecurityRegressionTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakUserLogin\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/SecurityRegressionTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Models\\PasakLog\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/Feature/SecuritySettingsTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Tests\\TestUser\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: tests/Feature/SecuritySettingsTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$app\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/ServerLocationTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Tests\\TestUser\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: tests/Feature/ServerLocationTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Tests\\TestUser\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 5
+			path: tests/Feature/ServerSecurityTest.php
+
+		-
+			message: '#^Call to an undefined static method Pasak\\SecureMonitor\\Tests\\TestUser\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/TestCase.php
+
+		-
+			message: '#^Access to an undefined property Pasak\\SecureMonitor\\Tests\\TestUser\:\:\$role\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/TestUser.php

@@ -141,7 +141,7 @@ foreach ($aliases as [$target, $alias]) {
 // Fallback autoloader for any remaining Internal\Pasak\* references
 spl_autoload_register(function ($class) {
     if (str_starts_with($class, 'Internal\Pasak\\')) {
-        $target = 'Pasak\SecureMonitor\\' . substr($class, strlen('Internal\Pasak\\'));
+        $target = 'Pasak\SecureMonitor\\'.substr($class, strlen('Internal\Pasak\\'));
         if (class_exists($target) || interface_exists($target) || trait_exists($target)) {
             class_alias($target, $class);
         }

@@ -13,3 +13,4 @@ dist/
 /ring/pasak-no/public/assets/
 # Alias direktori skills sistem ACP (diarahkan ke .agents/skills)
 /skills
+/build/

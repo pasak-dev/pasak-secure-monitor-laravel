@@ -210,7 +210,7 @@ test(
             ->and(File::isDirectory($uninstallDir.'/.agents/skills/pasak'))
             ->toBeFalse()
             ->and(trim(File::get($uninstallDir.'/AGENTS.md')))
-            ->toBe("# Host Guidelines")
+            ->toBe('# Host Guidelines')
             ->and(File::get($uninstallDir.'/AGENTS.md'))
             ->not->toContain('pasak-guidelines');
     },

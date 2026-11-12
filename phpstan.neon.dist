@@ -10,9 +10,8 @@ parameters:
         - routes
         - tests
     tmpDir: build/phpstan
-    checkOctaneCompatibility: true
-    checkModelProperties: true
     treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         # Dynamic filesystem / runtime state checks
         - '#Negated boolean expression is always true.#'

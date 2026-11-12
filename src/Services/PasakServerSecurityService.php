@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Laravel\Fortify\Features;
 use Pasak\SecureMonitor\Models\PasakBlockedIp;
 use Pasak\SecureMonitor\Models\PasakLog;
 use Pasak\SecureMonitor\Models\PasakLoginAttempt;
 use Pasak\SecureMonitor\Support\PasakDashboardView;
-use Laravel\Fortify\Features;
 use Throwable;
 
 /**
