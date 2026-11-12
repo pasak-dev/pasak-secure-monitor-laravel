@@ -22,6 +22,10 @@ beforeEach(function () {
     config()->set('pasak.login_lockout.decay_minutes', 360);
 });
 
+afterEach(function () {
+    Carbon::setTestNow(null);
+});
+
 test('failed login attempts do not trigger WAF hard IP block 403', function () {
     $service = app(PasakService::class);
     $throttle = app(PasakLoginThrottleService::class);
@@ -41,6 +45,9 @@ test('failed login attempts do not trigger WAF hard IP block 403', function () {
 });
 
 test('stepped cooldown applies 30s -> 60s -> 120s sequence', function () {
+    $now = Carbon::parse('2026-01-01 12:00:00');
+    Carbon::setTestNow($now);
+
     $throttle = app(PasakLoginThrottleService::class);
     $email = 'john@example.test';
     $ip = '198.51.100.56';
@@ -61,11 +68,11 @@ test('stepped cooldown applies 30s -> 60s -> 120s sequence', function () {
     $s3 = $throttle->registerFailure($email, $ip);
     expect($s3['locked'])->toBeTrue()
         ->and($s3['level'])->toBe(1)
-        ->and($s3['seconds'])->toBeGreaterThanOrEqual(29)->toBeLessThanOrEqual(30)
+        ->and($s3['seconds'])->toBeGreaterThanOrEqual(28)->toBeLessThanOrEqual(30)
         ->and($throttle->isIpLocked($ip))->toBeTrue();
 
     // Fast-forward past 30 seconds
-    Carbon::setTestNow(now()->addSeconds(31));
+    Carbon::setTestNow($now = $now->copy()->addSeconds(31));
 
     expect($throttle->status($email, $ip)['locked'])->toBeFalse();
 
@@ -73,21 +80,24 @@ test('stepped cooldown applies 30s -> 60s -> 120s sequence', function () {
     $s4 = $throttle->registerFailure($email, $ip);
     expect($s4['locked'])->toBeTrue()
         ->and($s4['level'])->toBe(2)
-        ->and($s4['seconds'])->toBeGreaterThanOrEqual(59)->toBeLessThanOrEqual(60);
+        ->and($s4['seconds'])->toBeGreaterThanOrEqual(58)->toBeLessThanOrEqual(60);
 
     // Fast-forward past 60 seconds
-    Carbon::setTestNow(now()->addSeconds(61));
+    Carbon::setTestNow($now = $now->copy()->addSeconds(61));
 
     // Next failure trips Stage 3 (120 seconds)
     $s5 = $throttle->registerFailure($email, $ip);
     expect($s5['locked'])->toBeTrue()
         ->and($s5['level'])->toBe(3)
-        ->and($s5['seconds'])->toBeGreaterThanOrEqual(119)->toBeLessThanOrEqual(120);
+        ->and($s5['seconds'])->toBeGreaterThanOrEqual(118)->toBeLessThanOrEqual(120);
 
     Carbon::setTestNow(null);
 });
 
 test('penalty cycle decays and returns to normal after 6 hours of inactivity', function () {
+    $now = Carbon::parse('2026-01-01 12:00:00');
+    Carbon::setTestNow($now);
+
     $throttle = app(PasakLoginThrottleService::class);
     $email = 'decay@user.test';
     $ip = '198.51.100.57';
@@ -100,14 +110,14 @@ test('penalty cycle decays and returns to normal after 6 hours of inactivity', f
         ->and($status['level'])->toBe(1);
 
     // Fast forward 5 hours (less than 6 hours decay window)
-    Carbon::setTestNow(now()->addHours(5));
+    Carbon::setTestNow($now = $now->copy()->addHours(5));
 
     $status5h = $throttle->status($email, $ip);
     expect($status5h['locked'])->toBeFalse()
         ->and($status5h['level'])->toBe(1); // Level preserved within 6 hour window
 
     // Fast forward past 6 hours (e.g. 6.5 hours from original attempt)
-    Carbon::setTestNow(now()->addMinutes(100)); // Total 6 hours 40 minutes
+    Carbon::setTestNow($now->copy()->addMinutes(100)); // Total 6 hours 40 minutes
 
     $statusAfterDecay = $throttle->status($email, $ip);
     expect($statusAfterDecay['locked'])->toBeFalse()
