@@ -101,10 +101,9 @@ class PasakUpgradeCommand extends Command
         if (! $this->option('no-composer')) {
             $this->comment('1/6. Memperbarui package via Composer...');
             $composer = $this->findComposer();
-            $pkgName = $this->detectPackageName();
             $cmd = array_merge($composer, [
                 'update',
-                $pkgName,
+                'robyajo/pasak',
                 '--with-all-dependencies',
             ]);
 
@@ -131,7 +130,7 @@ class PasakUpgradeCommand extends Command
                             $e->getMessage(),
                     );
                     $this->line(
-                        "  Silakan jalankan <info>composer update {$pkgName}</info> secara manual jika diperlukan.",
+                        '  Silakan jalankan <info>composer update robyajo/pasak</info> secara manual jika diperlukan.',
                     );
                 }
             } else {
@@ -236,6 +235,7 @@ class PasakUpgradeCommand extends Command
                     File::copy($stubDir.'/pasak-api.php.stub', base_path('routes/pasak-api.php'));
                 }
             }
+            $this->ensureMissingRoutesInHostFiles();
             $this->info(
                 '  ✓ Berkas routes/pasak.php dan routes/pasak-api.php telah disinkronkan ke versi terbaru.',
             );
@@ -284,6 +284,10 @@ class PasakUpgradeCommand extends Command
             $this->warnIfViewsOutdated(
                 resource_path('views/pages/pasak/settings.blade.php'),
                 'auto_block_level_thresholds',
+            );
+            $this->warnIfViewsOutdated(
+                resource_path('views/pages/pasak/server.blade.php'),
+                'serverLocationForm',
             );
         }
 
@@ -374,6 +378,41 @@ class PasakUpgradeCommand extends Command
      * agar instalasi lama otomatis menyesuaikan: isi kustom user dipertahankan,
      * hanya nama berkas/direktori yang dipindahkan bila target baru belum ada.
      */
+    /**
+     * Pastikan rute-rute baru (seperti lokasi & waktu server) disematkan ke
+     * berkas rute lokal host jika pengguna belum menggunakan flag --sync-routes.
+     */
+    protected function ensureMissingRoutesInHostFiles(): void
+    {
+        $webRoutePath = base_path('routes/pasak.php');
+        if (File::exists($webRoutePath)) {
+            $content = File::get($webRoutePath);
+            if (! str_contains($content, "'server.location'")) {
+                $search = "Route::post('server/suspicious-files/unverify', [PasakServerController::class, 'unverifySuspiciousFile'])->name('server.suspicious-files.unverify');";
+                if (str_contains($content, $search)) {
+                    $insert = $search."\n    Route::post('server', [PasakServerController::class, 'updateLocation']);\n    Route::post('server/location', [PasakServerController::class, 'updateLocation'])->name('server.location');";
+                    $content = str_replace($search, $insert, $content);
+                    File::put($webRoutePath, $content);
+                    $this->info('  ✓ Rute server/location berhasil disematkan ke routes/pasak.php.');
+                }
+            }
+        }
+
+        $apiRoutePath = base_path('routes/pasak-api.php');
+        if (File::exists($apiRoutePath)) {
+            $content = File::get($apiRoutePath);
+            if (! str_contains($content, "'server.location'")) {
+                $search = "Route::post('server/suspicious-files/unverify', [PasakServerSecurityApiController::class, 'unverifySuspiciousFile'])->name('server.suspicious-files.unverify');";
+                if (str_contains($content, $search)) {
+                    $insert = $search."\n        Route::get('server/location', [PasakServerSecurityApiController::class, 'getLocation'])->name('server.location.get');\n        Route::post('server/location', [PasakServerSecurityApiController::class, 'updateLocation'])->name('server.location');";
+                    $content = str_replace($search, $insert, $content);
+                    File::put($apiRoutePath, $content);
+                    $this->info('  ✓ Rute server/location berhasil disematkan ke routes/pasak-api.php.');
+                }
+            }
+        }
+    }
+
     protected function migrateLegacyHostFiles(): void
     {
         // Berkas rute era lama -> nama baru (beserta require di web.php/api.php).
@@ -873,9 +912,9 @@ class PasakUpgradeCommand extends Command
 
         $guidelinesBlock = <<<'MARKDOWN'
 <!-- pasak-guidelines:start -->
-## Pasak WAF & Security Guidelines (`pasak-dev/pasak-secure-monitor-laravel`)
+## Pasak WAF & Security Guidelines (`pasak-dev/secure-monitor`)
 
-This application is protected by **`pasak-dev/pasak-secure-monitor-laravel`** (Bulwark), a standalone headless Web Application Firewall (WAF) and security toolkit for Laravel.
+This application is protected by **`pasak-dev/secure-monitor`** (Bulwark), a standalone headless Web Application Firewall (WAF) and security toolkit for Laravel.
 
 - **Official Online Documentation**: https://pasak.is-a.dev/
 
@@ -883,7 +922,7 @@ This application is protected by **`pasak-dev/pasak-secure-monitor-laravel`** (B
 - Activate the **`pasak`** skill (`.agents/skills/pasak/SKILL.md`) whenever writing, refactoring, or testing WAF rules, IP blocking, custom security dashboards, REST APIs, or server audits.
 
 ### 2. Zero-Vendor-Edit Policy
-- **NEVER modify files in `vendor/pasak-dev/pasak-secure-monitor-laravel/`**. Any custom dashboard, controller, view, or API endpoint must be built inside the host application (`app/Http/Controllers/`, `resources/views/`, `routes/web.php`, `routes/api.php`).
+- **NEVER modify files in `vendor/pasak-dev/`**. Any custom dashboard, controller, view, or API endpoint must be built inside the host application (`app/Http/Controllers/`, `resources/views/`, `routes/web.php`, `routes/api.php`).
 
 ### 3. Core Facade & Service Usage
 - Always interact via `Internal\Pasak\Facades\Pasak`:
@@ -935,30 +974,8 @@ MARKDOWN;
     }
 
     /**
-     * Deteksi nama package di composer.json host application.
-     */
-    protected function detectPackageName(): string
-    {
-        $composerPath = base_path('composer.json');
-        if (File::exists($composerPath)) {
-            $content = File::get($composerPath);
-            if (str_contains($content, 'pasak-dev/secure-monitor')) {
-                return 'pasak-dev/secure-monitor';
-            }
-            if (str_contains($content, 'pasak-dev/pasak-secure-monitor-laravel')) {
-                return 'pasak-dev/pasak-secure-monitor-laravel';
-            }
-            if (str_contains($content, 'robyajo/pasak')) {
-                return 'robyajo/pasak';
-            }
-        }
-
-        return 'pasak-dev/secure-monitor';
-    }
-
-    /**
-     * Selaraskan constraint versi di composer.json ke versi lengkap (^1.0.0).
-     * Mencegah Composer hanya menuliskan constraint ringkas seperti ^1.0.
+     * Selaraskan constraint versi robyajo/pasak di composer.json ke versi lengkap (^1.6.5).
+     * Mencegah Composer hanya menuliskan constraint ringkas seperti ^1.6.
      */
     protected function syncComposerConstraint(string $version): void
     {
@@ -968,25 +985,18 @@ MARKDOWN;
         }
 
         $content = File::get($composerPath);
-        $patterns = [
-            'pasak-dev/secure-monitor' => '/("pasak-dev\/secure-monitor"\s*:\s*")([^"]+)(")/',
-            'pasak-dev/pasak-secure-monitor-laravel' => '/("pasak-dev\/pasak-secure-monitor-laravel"\s*:\s*")([^"]+)(")/',
-            'robyajo/pasak' => '/("robyajo\/pasak"\s*:\s*")([^"]+)(")/',
-        ];
+        $pattern = '/("robyajo\/pasak"\s*:\s*")([^"]+)(")/';
 
-        foreach ($patterns as $pkg => $pattern) {
-            if (preg_match($pattern, $content, $matches)) {
-                $current = $matches[2];
-                $target = "^{$version}";
+        if (preg_match($pattern, $content, $matches)) {
+            $current = $matches[2];
+            $target = "^{$version}";
 
-                if ($current !== $target && ! in_array($current, ['@dev', 'dev-main', '*'], true)) {
-                    $newContent = preg_replace($pattern, '${1}'.$target.'${3}', $content, 1);
-                    if ($newContent !== null && $newContent !== $content) {
-                        File::put($composerPath, $newContent);
-                        $this->info("  ✓ Versi {$pkg} di composer.json diselaraskan ke \"{$target}\".");
-                    }
+            if ($current !== $target && ! in_array($current, ['@dev', 'dev-main', '*'], true)) {
+                $newContent = preg_replace($pattern, '${1}'.$target.'${3}', $content, 1);
+                if ($newContent !== null && $newContent !== $content) {
+                    File::put($composerPath, $newContent);
+                    $this->info("  ✓ Versi robyajo/pasak di composer.json diselaraskan ke \"{$target}\".");
                 }
-                break;
             }
         }
     }
@@ -1275,4 +1285,23 @@ PHP;
             }
         }
     }
+    protected function detectInstalledPackageName(): string
+    {
+        $composerPath = base_path('composer.json');
+        if (File::exists($composerPath)) {
+            $c = File::get($composerPath);
+            if (str_contains($c, 'pasak-dev/secure-monitor')) {
+                return 'pasak-dev/secure-monitor';
+            }
+            if (str_contains($c, 'pasak-dev/pasak-secure-monitor-laravel')) {
+                return 'pasak-dev/pasak-secure-monitor-laravel';
+            }
+            if (str_contains($c, 'robyajo/pasak')) {
+                return 'robyajo/pasak';
+            }
+        }
+
+        return 'pasak-dev/secure-monitor';
+    }
+
 }

@@ -1,5 +1,5 @@
 /**
- * Katalog serangan lengkap untuk package `robyajo/pasak` (Bulwark).
+ * Katalog serangan lengkap untuk package `pasak-dev/secure-monitor` (Bulwark).
  *
  * Setiap grup di bawah memetakan 1:1 ke signature di `config/pasak.php`:
  *  - instant_block.signatures: webshell_upload, unsafe_filename, webshell_path,

@@ -159,9 +159,9 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 </laravel-boost-guidelines>
 
 <!-- pasak-guidelines:start -->
-## Pasak WAF & Security Guidelines (`robyajo/pasak`)
+## Pasak WAF & Security Guidelines (`pasak-dev/secure-monitor`)
 
-This application is protected by **`robyajo/pasak`** (Bulwark), a standalone headless Web Application Firewall (WAF) and security toolkit for Laravel.
+This application is protected by **`pasak-dev/secure-monitor`** (Bulwark), a standalone headless Web Application Firewall (WAF) and security toolkit for Laravel.
 
 - **Official Online Documentation**: https://pasak.is-a.dev/
 
@@ -169,7 +169,7 @@ This application is protected by **`robyajo/pasak`** (Bulwark), a standalone hea
 - Activate the **`pasak`** skill (`.agents/skills/pasak/SKILL.md`) whenever writing, refactoring, or testing WAF rules, IP blocking, custom security dashboards, REST APIs, or server audits.
 
 ### 2. Zero-Vendor-Edit Policy
-- **NEVER modify files in `vendor/robyajo/pasak/`**. Any custom dashboard, controller, view, or API endpoint must be built inside the host application (`app/Http/Controllers/`, `resources/views/`, `routes/web.php`, `routes/api.php`).
+- **NEVER modify files in `vendor/pasak-dev/secure-monitor/`**. Any custom dashboard, controller, view, or API endpoint must be built inside the host application (`app/Http/Controllers/`, `resources/views/`, `routes/web.php`, `routes/api.php`).
 
 ### 3. Core Facade & Service Usage
 - Always interact via `Internal\Pasak\Facades\Pasak`:

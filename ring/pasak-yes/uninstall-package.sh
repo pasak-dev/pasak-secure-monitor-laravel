@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# uninstall-package.sh — copot TOTAL robyajo/pasak dari app uji ini untuk pengujian.
+# uninstall-package.sh — copot TOTAL pasak-dev/secure-monitor dari app uji ini untuk pengujian.
 #
 # Menghapus: tabel DB + record migrasi Pasak, rute, middleware, trait User,
 # variabel PASAK_* (.env), .htaccess Pasak, file publish (config, view,
@@ -32,8 +32,8 @@ echo "== [3/5] Migrasi database =="
 php artisan migrate --force
 
 echo "== [4/5] Memastikan paket lepas + dependensi utuh =="
-if composer show robyajo/pasak >/dev/null 2>&1; then
-    composer remove robyajo/pasak --no-interaction || true
+if composer show pasak-dev/secure-monitor >/dev/null 2>&1; then
+    composer remove pasak-dev/secure-monitor --no-interaction || true
 fi
 composer install --no-interaction
 

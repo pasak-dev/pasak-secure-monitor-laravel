@@ -23,7 +23,7 @@ Pastikan lingkungan server Anda memenuhi spesifikasi minimum berikut:
 Jika paket sudah diterbitkan di Packagist, cantumkan versi lengkap agar `composer.json` mencatat rilis patch yang akurat:
 
 ```bash
-composer require "pasak-dev/secure-monitor:^1.6.7"
+composer require "pasak-dev/secure-monitor:^1.0.0"
 ```
 
 > **Tips Constraint Versi**:

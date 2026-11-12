@@ -25,7 +25,7 @@ class PasakDemoSeeder extends Seeder
     {
         if (!class_exists(PasakLog::class)) {
             $this->command->warn(
-                "PasakDemoSeeder dilewati: paket robyajo/pasak belum terpasang.",
+                "PasakDemoSeeder dilewati: paket pasak-dev/secure-monitor belum terpasang.",
             );
 
             return;

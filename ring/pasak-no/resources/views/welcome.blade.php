@@ -48,9 +48,9 @@
 @if($pasakInstalled)
 <p class="meta">WAF aktif — signature instant-block, throttle login, dan karantina perangkat berjalan.</p>
 @else
-<p class="meta">Paket <code>robyajo/pasak</code> belum terpasang. Pola <code>../</code>, <code>&lt;script&gt;</code>, <code>.env</code>, <code>.php.jpg</code> semuanya lolos <code>200 OK</code>. Detail tiap celah ada di tombol melayang <b>⚠️ Kerentanan</b>.</p>
+<p class="meta">Paket <code>pasak-dev/secure-monitor</code> belum terpasang. Pola <code>../</code>, <code>&lt;script&gt;</code>, <code>.env</code>, <code>.php.jpg</code> semuanya lolos <code>200 OK</code>. Detail tiap celah ada di tombol melayang <b>⚠️ Kerentanan</b>.</p>
 <pre>cd laravel-test/laravel-none
-composer require robyajo/pasak
+composer require pasak-dev/secure-monitor
 php artisan pasak:install
 php artisan migrate</pre>
 @endif

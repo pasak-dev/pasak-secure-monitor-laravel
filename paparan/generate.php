@@ -486,7 +486,7 @@ $slides = [
         "kind" => "content",
         "title" => "Tautan",
         "bullets" => [
-            "Repositori: `github.com/robyajo/pasak`",
+            "Repositori: `github.com/pasak-dev/pasak-secure-monitor-laravel`",
             "Packagist: `packagist.org/packages/robyajo/pasak`",
             "Instalasi: `composer require robyajo/pasak`",
             "Dokumentasi: direktori `documents/` (25 bab) + portal `documents/index.html`",

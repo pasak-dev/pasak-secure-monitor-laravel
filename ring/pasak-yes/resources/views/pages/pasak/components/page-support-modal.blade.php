@@ -754,7 +754,7 @@
             <div style="font-size: 12px; color: var(--sec-text-muted);">
                 <span>Pasak Autonomous Linux VPS & Web Security</span>
                 <span> &bull; </span>
-                <a href="https://github.com/robyajo/pasak" target="_blank" rel="noopener" style="color: var(--sec-primary); text-decoration: none; font-weight: 500;">GitHub Docs &rarr;</a>
+                <a href="https://github.com/pasak-dev/pasak-secure-monitor-laravel" target="_blank" rel="noopener" style="color: var(--sec-primary); text-decoration: none; font-weight: 500;">GitHub Docs &rarr;</a>
             </div>
             <button type="button" class="sec-btn sec-btn-primary" onclick="window.pasakClosePageSupport();">
                 <span data-guide-lang="en" style="{{ $currentLang === 'en' ? '' : 'display:none;' }}">Got it, continue</span>

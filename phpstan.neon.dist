@@ -1,30 +1,26 @@
 includes:
-    - vendor/larastan/larastan/extension.neon
     - phpstan-baseline.neon
 
 parameters:
     level: 5
     paths:
         - src
-    excludePaths:
-        - vendor
+        - config
+        - database
+        - routes
+        - tests
+    tmpDir: build/phpstan
+    checkOctaneCompatibility: true
+    checkModelProperties: true
     treatPhpDocTypesAsCertain: false
-    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
-        # The traits are consumed by the host application (User model /
-        # dashboard controllers) only via dynamic aliases, never statically
-        # inside src. compat.php + alias files wire the legacy names.
-        - '#Trait Internal\\Pasak\\Concerns\\HasPasakSecurityRelations is used zero times and is not analysed#'
-        - '#Trait Internal\\Pasak\\Http\\Controllers\\Dashboard\\RespondsWithPasakDashboard is used zero times and is not analysed#'
         # Dynamic filesystem / runtime state checks
         - '#Negated boolean expression is always true.#'
         - '#Instanceof between .*Request and .*Request will always evaluate to true.#'
         # Larastan narrows view()->exists() based on the host's published views,
         # so its result is environment-dependent (true when the host has published
         # the view, false on a clean checkout such as CI).
-        -
-            message: '#Factory::exists\(\) with .*errors\.blocked.* will always evaluate to (true|false)#'
-            path: src/Http/Middleware/PasakBlockIpAddress.php
+        - '#Factory::exists\(\) with .* will always evaluate to (true|false)#'
         # The configured user model is dynamic; `email` is not part of the contract.
         - '#Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable::\$email#'
 

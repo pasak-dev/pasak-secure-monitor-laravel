@@ -1,7 +1,7 @@
 # DOCS — Konsol Uji WAF (app-waf)
 
 Konsol uji lokal satu halaman (React 19 + Vite 7 + Tailwind v4) untuk
-membuktikan WAF `robyajo/pasak` (Bulwark) bekerja — dan membuktikan aplikasi
+membuktikan WAF `pasak-dev/secure-monitor` (Bulwark) bekerja — dan membuktikan aplikasi
 **tanpa** WAF jebol. Alat pengujian saja: **jangan pernah diekspos ke internet
 publik** (bisa mengirim request ke URL apa pun dengan header IP palsu).
 

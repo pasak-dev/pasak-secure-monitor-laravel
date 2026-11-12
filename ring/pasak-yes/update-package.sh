@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# update-package.sh — sinkronisasi aset ter-publish robyajo/pasak ke app uji ini.
+# update-package.sh — sinkronisasi aset ter-publish pasak-dev/secure-monitor ke app uji ini.
 #
 # Konteks: composer memakai path-repository (symlink ke ../../), sehingga kode
 # PHP paket selalu live. Yang perlu disinkronkan hanyalah aset ter-publish:

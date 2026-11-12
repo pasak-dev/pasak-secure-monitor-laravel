@@ -42,7 +42,7 @@ export default function AppFooter({ children }: AppFooterProps) {
                 <span className="text-muted-foreground/40">•</span>
 
                 <a
-                    href="https://github.com/robyajo/pasak"
+                    href="https://github.com/pasak-dev/pasak-secure-monitor-laravel"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 hover:text-primary transition-colors underline-offset-4 hover:underline"

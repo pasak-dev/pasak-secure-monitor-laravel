@@ -6,7 +6,7 @@
   middleware `LogWafHits`, endpoint `/upload` sengaja rentan, beranda
   "Status Keamanan — TIDAK AMAN" + Monitor Serangan Masuk live.
 - `ring/pasak-yes/` (`:8001`) — Pasak terinstall via path-repo
-  (`robyajo/pasak:@dev`), `pasak:install --lang=id`, migrate, mode blokir
+  (`pasak-dev/secure-monitor:@dev`), `pasak:install --lang=id`, migrate, mode blokir
   aktif (`INSTANT_BLOCK`, `BLOCK_SUSPICIOUS`, `AUTO_BLOCK`).
 - `/ring` masuk `.gitignore` + `export-ignore` (tak ikut rilis paket).
 

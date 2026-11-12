@@ -2200,7 +2200,7 @@
                 <div class="sec-modal-body" style="font-size: 14px; color: var(--sec-text-muted); line-height: 1.6;">
                     <div>🛡️ {{ __('Bawaan instalasi adalah monitoring saja: ancaman dideteksi dan dicatat tanpa blokir otomatis.') }}</div>
                     <div>⚙️ {{ __('Siap karantina otomatis? Atur di halaman Settings atau via API.') }}</div>
-                    <div>📖 {{ __('Panduan lengkap:') }} <a href="https://github.com/robyajo/pasak" target="_blank" rel="noopener" style="color: var(--sec-primary);">github.com/robyajo/pasak</a></div>
+                    <div>📖 {{ __('Panduan lengkap:') }} <a href="https://github.com/pasak-dev/pasak-secure-monitor-laravel" target="_blank" rel="noopener" style="color: var(--sec-primary);">github.com/pasak-dev/pasak-secure-monitor-laravel</a></div>
                 </div>
                 <div class="sec-modal-footer">
                     <button type="button" class="sec-btn sec-btn-primary" data-pasak-announce-close>{{ __('Mengerti') }}</button>

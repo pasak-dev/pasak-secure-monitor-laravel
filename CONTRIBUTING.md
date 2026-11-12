@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for considering a contribution to `pasak-dev/pasak-secure-monitor-laravel`
+Thanks for considering a contribution to `pasak-dev/secure-monitor`
 (Bulwark). This guide explains how to set up the project and submit changes.
 
 ## Requirements
@@ -14,7 +14,7 @@ Thanks for considering a contribution to `pasak-dev/pasak-secure-monitor-laravel
 
 ```bash
 git clone https://github.com/pasak-dev/pasak-secure-monitor-laravel.git
-cd pasak-secure-monitor-laravel
+cd pasak
 composer install
 ```
 

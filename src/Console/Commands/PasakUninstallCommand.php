@@ -188,11 +188,18 @@ class PasakUninstallCommand extends Command
 
             $content = File::get($path);
 
-            // Bersihkan via regex untuk menangani variasi spasi (misal Pint/CS-Fixer: require __DIR__ . '/pasak.php';)
+            // Bersihkan blok if (file_exists(...)) { require ...; }
             $cleaned = (string) preg_replace(
-                '/^[ \t]*(?:require|require_once|include|include_once)\s+__DIR__\s*\.\s*[\'"]\/(?:pasak|pasak-api|security|security-api)\.php[\'"]\s*;[ \t]*\r?\n?/m',
+                "/[ \t]*if\s*\(\s*file_exists\s*\(\s*__DIR__\s*\.\s*[\x27\"]\/(?:pasak|pasak-api|security|security-api)\.php[\x27\"]\s*\)\s*\)\s*\{[ \t]*\r?\n?[ \t]*(?:require|require_once|include|include_once)\s+__DIR__\s*\.\s*[\x27\"]\/(?:pasak|pasak-api|security|security-api)\.php[\x27\"]\s*;[ \t]*\r?\n?[ \t]*\}[ \t]*\r?\n?/m",
                 '',
                 $content,
+            );
+
+            // Bersihkan via regex require standar untuk menangani variasi spasi (misal Pint/CS-Fixer: require __DIR__ . '/pasak.php';)
+            $cleaned = (string) preg_replace(
+                "/^[ \t]*(?:require|require_once|include|include_once)\s+__DIR__\s*\.\s*[\x27\"]\/(?:pasak|pasak-api|security|security-api)\.php[\x27\"]\s*;[ \t]*\r?\n?/m",
+                '',
+                $cleaned,
             );
 
             $cleaned = str_replace(
@@ -724,23 +731,10 @@ class PasakUninstallCommand extends Command
     protected function removeComposerPackage(): void
     {
         $composer = $this->findComposerBinary();
-        $pkgName = 'pasak-dev/secure-monitor';
-
-        $composerPath = base_path('composer.json');
-        if (File::exists($composerPath)) {
-            $content = File::get($composerPath);
-            if (str_contains($content, 'pasak-dev/secure-monitor')) {
-                $pkgName = 'pasak-dev/secure-monitor';
-            } elseif (str_contains($content, 'pasak-dev/pasak-secure-monitor-laravel')) {
-                $pkgName = 'pasak-dev/pasak-secure-monitor-laravel';
-            } elseif (str_contains($content, 'robyajo/pasak')) {
-                $pkgName = 'robyajo/pasak';
-            }
-        }
 
         if ($composer === null) {
             $this->line(
-                "  - Composer tidak ditemukan di PATH; jalankan manual: <fg=yellow>composer remove {$pkgName}</>",
+                '  - Composer tidak ditemukan di PATH; jalankan manual: <fg=yellow>composer remove robyajo/pasak</>',
             );
 
             return;
@@ -752,14 +746,14 @@ class PasakUninstallCommand extends Command
         $code = 0;
         $cmd =
             escapeshellcmd($composer).
-            " remove {$pkgName} --no-interaction --no-audit 2>&1";
+            ' remove robyajo/pasak --no-interaction --no-audit 2>&1';
         exec($cmd, $output, $code);
 
         if ($code === 0) {
-            $this->info("  ✓ Paket {$pkgName} dilepas dari composer.json.");
+            $this->info('  ✓ Paket robyajo/pasak dilepas dari composer.json.');
         } else {
             $this->warn(
-                "  ⚠ composer remove gagal; jalankan manual: composer remove {$pkgName}",
+                '  ⚠ composer remove gagal; jalankan manual: composer remove robyajo/pasak',
             );
         }
     }

@@ -51,6 +51,17 @@ fi
 # Pastikan seluruh berkas publikasi dan sisa backup dibersihkan total
 rm -f config/pasak.php config/security.php
 rm -f routes/pasak.php routes/pasak-api.php
+
+# Bersihkan baris penyertaan rute yatim di routes/web.php dan routes/api.php
+php -r '
+foreach (["routes/web.php", "routes/api.php"] as $f) {
+    if (file_exists($f)) {
+        $c = file_get_contents($f);
+        $c = preg_replace("/^[ \t]*(?:require|require_once|include|include_once)\s+__DIR__\s*\.\s*[\x27\"]\/(?:pasak|pasak-api|security|security-api)\.php[\x27\"]\s*;[ \t]*\r?\n?/m", "", $c);
+        file_put_contents($f, $c);
+    }
+}
+' 2>/dev/null || true
 rm -f resources/views/errors/blocked.blade.php
 rm -rf resources/views/pages/pasak
 rm -f nginx.conf apache2.conf
@@ -112,7 +123,7 @@ if [ "$MODE" = "local" ]; then
     ]];
     file_put_contents($file, json_encode($c, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
     '
-    composer require "robyajo/pasak:@dev" --no-interaction
+    composer require "pasak-dev/secure-monitor:@dev" --no-interaction
 else
     echo "  -> Menghapus path-repository dan mengunduh dari Packagist..."
     php -r '
@@ -122,7 +133,7 @@ else
     file_put_contents($file, json_encode($c, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
     '
     composer clear-cache
-    composer require robyajo/pasak --no-interaction
+    composer require pasak-dev/secure-monitor --no-interaction
 fi
 
 echo "== [4/5] Memasang instalasi Pasak baru (pasak:install) =="

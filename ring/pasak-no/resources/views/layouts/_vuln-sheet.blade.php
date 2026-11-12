@@ -8,7 +8,7 @@
 <button class="btn" id="vulnClose" type="button">Tutup ✕</button>
 </header>
 <div class="sheet-body">
-<p class="meta">Aplikasi ini <b>sengaja tanpa WAF</b> (paket <code>robyajo/pasak</code> belum dipasang) untuk keperluan audit. Daftar celah yang terbuka:</p>
+<p class="meta">Aplikasi ini <b>sengaja tanpa WAF</b> (paket <code>pasak-dev/secure-monitor</code> belum dipasang) untuk keperluan audit. Daftar celah yang terbuka:</p>
 <div class="vuln-item"><b>Upload webshell via double-extension<span class="sev critical">CRITICAL</span></b><p>Berkas <code>shell.php.jpg</code> lolos validasi dan tersimpan publik, lalu dieksekusi via <code>/shell/{nama}?cmd=...</code>. Buktikan di <a href="/upload">/upload</a>.</p></div>
 <div class="vuln-item"><b>Cross-Site Scripting (XSS) tercermin<span class="sev high">HIGH</span></b><p>Parameter pencarian / nama tanpa escaping (<code>&lt;script&gt;</code>) dirender mentah ke browser pengunjung.</p></div>
 <div class="vuln-item"><b>Path traversal &amp; probe berkas sensitif<span class="sev high">HIGH</span></b><p>Pola <code>../</code>, <code>.env</code>, <code>.git</code>, <code>.htaccess</code> dijawab <code>200 OK</code> — tidak ada instant-block.</p></div>
@@ -18,7 +18,7 @@
 <h3 style="font-size:.9rem">Serangan tercatat (live)</h3>
 <p class="meta" id="vulnLiveStatus">Memuat…</p>
 <div id="vulnLiveList"></div>
-<p class="meta">Pasang <code>composer require robyajo/pasak</code> + <code>php artisan pasak:install</code> untuk menutup celah di atas.</p>
+<p class="meta">Pasang <code>composer require pasak-dev/secure-monitor</code> + <code>php artisan pasak:install</code> untuk menutup celah di atas.</p>
 </div>
 </section>
 <script>

@@ -1,5 +1,5 @@
 {{--
-    Halaman Rate Limit / Cooldown Login Bertingkat (HTTP 429) untuk robyajo/pasak.
+    Halaman Rate Limit / Cooldown Login Bertingkat (HTTP 429) untuk pasak-dev/secure-monitor.
 
     Dipublikasikan oleh:  php artisan vendor:publish --tag=pasak-views
     Tujuan default:       resources/views/errors/pasak-login-throttle.blade.php

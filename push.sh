@@ -2,7 +2,7 @@
 
 # ==============================================================================
 # Git Automated Push & Optional Tagging Script
-# Repository: pasak-dev/pasak-secure-monitor-laravel
+# Repository: pasak-dev/secure-monitor
 #
 # Setiap kali dijalankan, skrip ini SELALU melakukan pengecekan versi:
 #   - Versi sekarang    : tag rilis semver terakhir (mis. v1.0.3)

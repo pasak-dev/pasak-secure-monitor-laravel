@@ -1,14 +1,14 @@
 ---
 name: pasak
-description: "Comprehensive development, maintenance, and integration guide for the pasak-dev/pasak-secure-monitor-laravel package. Activate this skill whenever writing, modifying, or testing WAF detection signatures, instant blocking rules, device-level quarantine, stepped login throttle, server security & webshell scanning, access log streaming, headless REST API controllers, Eloquent models, or Pest test cases. Covers package architecture, ReDoS prevention, Orchestra Testbench harnesses, and host app integration rules."
+description: "Comprehensive development, maintenance, and integration guide for the pasak-dev/secure-monitor package. Activate this skill whenever writing, modifying, or testing WAF detection signatures, instant blocking rules, device-level quarantine, stepped login throttle, server security & webshell scanning, access log streaming, headless REST API controllers, Eloquent models, or Pest test cases. Covers package architecture, ReDoS prevention, Orchestra Testbench harnesses, and host app integration rules."
 license: MIT
 metadata:
-  author: pasak-dev
+  author: robyajo
 ---
 
 # Pasak Development & Integration Guide
 
-`pasak-dev/pasak-secure-monitor-laravel` (Bulwark) is an enterprise-grade, headless self-hosted Web Application Firewall (WAF), threat detection engine, and security auditing toolkit for Laravel applications.
+`pasak-dev/secure-monitor` (Bulwark) is an enterprise-grade, headless self-hosted Web Application Firewall (WAF), threat detection engine, and security auditing toolkit for Laravel applications.
 
 > 📖 **Authoritative Documentation**: Complete 26-chapter guides and interactive portal at [https://pasak.is-a.dev/docs/pasak-security-monitor](https://pasak.is-a.dev/docs/pasak-security-monitor) and offline in [`documents/`](../../documents/) and [`documents/index.html`](../../documents/index.html).
 >

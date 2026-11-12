@@ -104,11 +104,11 @@ Berkas `composer.json` telah dikonfigurasi untuk standar katalog Packagist:
         "security-audit",
         "headless"
     ],
-    "homepage": "https://github.com/robyajo/pasak",
+    "homepage": "https://github.com/pasak-dev/pasak-secure-monitor-laravel",
     "support": {
-        "issues": "https://github.com/robyajo/pasak/issues",
-        "source": "https://github.com/robyajo/pasak",
-        "docs": "https://github.com/robyajo/pasak#readme"
+        "issues": "https://github.com/pasak-dev/pasak-secure-monitor-laravel/issues",
+        "source": "https://github.com/pasak-dev/pasak-secure-monitor-laravel",
+        "docs": "https://github.com/pasak-dev/pasak-secure-monitor-laravel#readme"
     },
     "type": "library",
     "license": "MIT",
@@ -178,11 +178,11 @@ Berkas `.github/workflows/run-tests.yml` telah dipasang untuk menguji kompatibil
 
 ### Langkah 1: Inisialisasi & Push ke GitHub Publik
 
-1. Buat repositori baru di GitHub: `https://github.com/robyajo/pasak`.
+1. Buat repositori baru di GitHub: `https://github.com/pasak-dev/pasak-secure-monitor-laravel`.
 2. Pastikan visibility disetel **Public**.
 3. Push seluruh berkas paket ke branch `main`:
     ```bash
-    git remote add origin https://github.com/robyajo/pasak.git
+    git remote add origin https://github.com/pasak-dev/pasak-secure-monitor-laravel.git
     git branch -M main
     git push -u origin main
     ```
@@ -200,7 +200,7 @@ git push origin v1.0.0
 
 1. Buka [https://packagist.org/packages/submit](https://packagist.org/packages/submit) dan login menggunakan akun GitHub Anda.
 2. Masukkan URL repositori:
-   `https://github.com/robyajo/pasak`
+   `https://github.com/pasak-dev/pasak-secure-monitor-laravel`
 3. Klik **Check**, lalu klik **Submit**.
 4. Paket akan terdaftar dengan nama **`robyajo/pasak`**.
 

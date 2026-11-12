@@ -1,6 +1,6 @@
 ---
 name: pasak-sandbox
-description: "Use whenever installing, updating, or uninstalling the robyajo/pasak package in this test sandbox app (ring/pasak-yes). Covers the install-package.sh, update-package.sh, and uninstall-package.sh helper scripts, the full test cycle (uninstall && install), path-repository composer quirks (@dev flag), and post-run verification. Activate before running or modifying any of those scripts."
+description: "Use whenever installing, updating, or uninstalling the pasak-dev/secure-monitor package in this test sandbox app (ring/pasak-yes). Covers the install-package.sh, update-package.sh, and uninstall-package.sh helper scripts, the full test cycle (uninstall && install), path-repository composer quirks (@dev flag), and post-run verification. Activate before running or modifying any of those scripts."
 license: MIT
 metadata:
   author: pasak-lab
@@ -8,7 +8,7 @@ metadata:
 
 # Pasak Sandbox (ring/pasak-yes)
 
-App ini adalah sandbox pengujian paket `robyajo/pasak` (sumber: `../../`, via
+App ini adalah sandbox pengujian paket `pasak-dev/secure-monitor` (sumber: `../../`, via
 Composer path-repository symlink — kode PHP paket selalu live, tanpa unduh
 packagist). Tiga skrip helper mengatur siklus hidup paket. Jangan jalankan
 perintah `pasak:*` / `composer require|remove` manual bila skrip sudah
@@ -32,7 +32,7 @@ Siklus uji standar:
 
 1. **Selalu teruskan `--no-interaction`** ke perintah artisan/composer di skrip
    (sandbox harus bisa jalan tanpa input).
-2. **`composer require` wajib pakai `@dev`** (`composer require "robyajo/pasak:@dev"`)
+2. **`composer require` wajib pakai `@dev`** (`composer require "pasak-dev/secure-monitor:@dev"`)
    karena `minimum-stability: stable` — tanpa ini Composer menolak path-repo
    ("packages from the higher priority repository ... not installable").
 3. **`update-package.sh` tidak menyentuh Composer** (`--no-composer`): kode paket

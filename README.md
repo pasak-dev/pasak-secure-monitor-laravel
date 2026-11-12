@@ -9,7 +9,7 @@
 
 **Pasak** (Bulwark) adalah paket keamanan komprehensif (_Self-Hosted WAF & Threat Engine_) berbasis **Headless REST API** untuk ekosistem Laravel. Paket ini murni PHP Composer library (Zero-NPM / standar Spatie) yang dirancang khusus untuk memproteksi aplikasi web internal dari serangan siber tingkat lanjut, injeksi payload pentest, eksploitasi webshell, dan brute force tanpa mengikat aplikasi ke template frontend tertentu.
 
-> 📚 **Portal Dokumentasi Resmi Lengkap**: Tersedia 26 bab panduan arsitektur mendalam di direktori [`documents/`](./documents/README.md), portal interaktif offline [`documents/index.html`](./documents/index.html), dan situs dokumentasi resmi di **[https://pasak.is-a.dev/](https://pasak.is-a.dev/)**.
+> 📚 **Portal Dokumentasi Resmi Lengkap**: Tersedia 25 bab dokumentasi mendalam di direktori [`documents/`](./documents/README.md) serta portal interaktif offline [`documents/index.html`](./documents/index.html).
 
 ---
 
@@ -63,11 +63,11 @@
 composer require pasak-dev/secure-monitor
 ```
 
-> **Catatan Versi**: Untuk mengunci ke versi rilis stabil tertentu, jalankan:
-> ```bash
-> composer require "pasak-dev/secure-monitor:^1.0.0"
-> ```
-> Perintah `php artisan pasak:install` juga secara otomatis menyelaraskan constraint versi di `composer.json` ke versi lengkap terbaru (`^1.0.0`). Jangan gunakan `@dev` di lingkungan produksi.
+> **Penting — gunakan versi rilis lengkap.** Menjalankan
+> `composer require pasak-dev/secure-monitor` memastikan `composer.json` mencatat rilis
+> patch yang akurat (Composer secara bawaan menyingkat menjadi `^1.6` bila tanpa versi).
+> Perintah `php artisan pasak:install` juga otomatis menyelaraskan constraint di
+> `composer.json` ke versi lengkap terbaru (`^1.6.7`). Jangan gunakan `@dev` di produksi.
 
 ### 2. Publikasikan Aset Otomatis (`pasak:install`)
 
@@ -524,3 +524,4 @@ diperbarui. Terima kasih! 🙏
 ## 📄 Lisensi
 
 Paket ini dilisensikan di bawah lisensi terbuka [MIT](LICENSE).
+

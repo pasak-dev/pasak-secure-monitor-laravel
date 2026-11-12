@@ -61,13 +61,13 @@ export default function PrivacyPolicyModal({
                             </a>
                             <span className="text-muted-foreground">•</span>
                             <a
-                                href="https://github.com/robyajo/pasak"
+                                href="https://github.com/pasak-dev/pasak-secure-monitor-laravel"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
                             >
                                 <ExternalLink className="size-3.5" />
-                                github.com/robyajo/pasak
+                                github.com/pasak-dev/pasak-secure-monitor-laravel
                             </a>
                         </div>
                     </div>

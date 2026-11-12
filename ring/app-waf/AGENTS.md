@@ -3,7 +3,7 @@
 ## 1. Project Overview
 
 `app-waf/` adalah **konsol uji lokal satu halaman** (React 19 + Vite 7 + Tailwind CSS v4)
-untuk memverifikasi WAF [`robyajo/pasak`](../) (Bulwark) — **bukan bagian dari paket
+untuk memverifikasi WAF [`pasak-dev/secure-monitor`](../) (Bulwark) — **bukan bagian dari paket
 rilis** (tidak ikut ke Packagist; tidak ada ketergantungan Composer).
 
 - **Sifat**: alat pengujian lokal saja. **Jangan pernah mengekspos ke internet publik**

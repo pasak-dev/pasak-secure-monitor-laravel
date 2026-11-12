@@ -1,6 +1,6 @@
 # Skill: app-waf-console
 
-Konsol uji WAF lokal (`app-waf/`) untuk paket `robyajo/pasak`. Aktifkan skill ini
+Konsol uji WAF lokal (`app-waf/`) untuk paket `pasak-dev/secure-monitor`. Aktifkan skill ini
 kapan pun mengerjakan: katalog vektor serangan (`src/lib/vectors.js`), proxy
 pengujian (`server/proxy.js`), analisis attack surface (`src/lib/surface.js`),
 tab Konsol Uji / Pengujian Serangan, atau alur request `useWafConsole.js`.
