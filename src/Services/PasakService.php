@@ -1,6 +1,6 @@
 <?php
 
-namespace Internal\Pasak\Services;
+namespace Pasak\SecureMonitor\Services;
 
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -15,10 +15,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
-use Internal\Pasak\Models\PasakAllowedIp;
-use Internal\Pasak\Models\PasakBlockedIp;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Models\PasakSetting;
+use Pasak\SecureMonitor\Models\PasakAllowedIp;
+use Pasak\SecureMonitor\Models\PasakBlockedIp;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Models\PasakSetting;
 use Throwable;
 
 /**
@@ -33,7 +33,7 @@ class PasakService
     /**
      * Versi paket Pasak (Bulwark).
      */
-    public const VERSION = '1.7.15';
+    public const VERSION = '1.1.0';
 
     /**
      * Rentang waktu yang didukung grafik tren serangan.

@@ -3,11 +3,11 @@
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Internal\Pasak\Models\PasakBlockedIp;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Models\PasakLoginAttempt;
-use Internal\Pasak\Services\PasakLoginThrottleService;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Models\PasakBlockedIp;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Models\PasakLoginAttempt;
+use Pasak\SecureMonitor\Services\PasakLoginThrottleService;
+use Pasak\SecureMonitor\Services\PasakService;
 
 beforeEach(function () {
     config()->set('pasak.enabled', true);

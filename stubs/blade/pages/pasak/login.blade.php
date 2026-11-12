@@ -9,7 +9,7 @@
     }
     app()->setLocale($currentLocale);
 
-    $pasakTimezone = \Internal\Pasak\Support\PasakDashboardView::timezone();
+    $pasakTimezone = \Pasak\SecureMonitor\Support\PasakDashboardView::timezone();
 @endphp
 <!DOCTYPE html>
 <html lang="{{ $currentLocale }}">
@@ -523,9 +523,9 @@
         <!-- Footer Controls -->
         <div class="sec-login-footer">
             <div>
-                <span>Pasak v{{ \Internal\Pasak\Services\PasakService::VERSION }}</span>
+                <span>Pasak v{{ \Pasak\SecureMonitor\Services\PasakService::VERSION }}</span>
                 <span> &bull; </span>
-                <span>{{ \Internal\Pasak\Support\DashboardView::formatDate(now(), 'H:i T') }}</span>
+                <span>{{ \Pasak\SecureMonitor\Support\DashboardView::formatDate(now(), 'H:i T') }}</span>
             </div>
             <div class="sec-lang-switcher" title="{{ __('Pilih Bahasa / Select Language') }}">
                 <a href="{{ request()->fullUrlWithQuery(['lang' => 'en']) }}" class="sec-lang-btn {{ $currentLocale === 'en' ? 'is-active' : '' }}">EN</a>

@@ -1,9 +1,9 @@
 <?php
 
-namespace Internal\Pasak\Listeners;
+namespace Pasak\SecureMonitor\Listeners;
 
 use Illuminate\Auth\Events\Login;
-use Internal\Pasak\Services\PasakUserLoginService;
+use Pasak\SecureMonitor\Services\PasakUserLoginService;
 use Throwable;
 
 class PasakRecordUserLogin

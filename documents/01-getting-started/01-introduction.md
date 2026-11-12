@@ -54,10 +54,10 @@ Di dalam `composer.json`, paket mendeklarasikan ServiceProvider dan Facade bawaa
 "extra": {
     "laravel": {
         "providers": [
-            "Internal\\Pasak\\PasakServiceProvider"
+            "Pasak\\SecureMonitor\\PasakServiceProvider"
         ],
         "aliases": {
-            "Pasak": "Internal\\Pasak\\Facades\\Pasak"
+            "Pasak": "Pasak\\SecureMonitor\\Facades\\Pasak"
         }
     }
 }
@@ -70,7 +70,7 @@ Laravel otomatis memuat provider ini saat proses booting. Pengembang tidak perlu
 Sama seperti menambahkan `use HasRoles;` pada paket Spatie Permission, pengembang cukup menambahkan satu baris ke model `User` miliknya:
 
 ```php
-use Internal\Pasak\Concerns\HasPasakSecurityRelations;
+use Pasak\SecureMonitor\Concerns\HasPasakSecurityRelations;
 
 class User extends Authenticatable
 {

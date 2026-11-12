@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Http;
-use Internal\Pasak\Services\PasakCloudService;
+use Pasak\SecureMonitor\Services\PasakCloudService;
 
 beforeEach(function () {
     config()->set('app.name', 'Laravel');

@@ -1,12 +1,12 @@
 <?php
 
-namespace Internal\Pasak\Services;
+namespace Pasak\SecureMonitor\Services;
 
 /**
  * Legacy alias for PasakLoginThrottleService.
  */
 class LoginThrottleService extends PasakLoginThrottleService {}
 
-if (! class_exists('Internal\Pasak\Services\LoginThrottleService', false)) {
-    class_alias(PasakLoginThrottleService::class, 'Internal\Pasak\Services\LoginThrottleService');
+if (! class_exists('Pasak\SecureMonitor\Services\LoginThrottleService', false)) {
+    class_alias(PasakLoginThrottleService::class, 'Pasak\SecureMonitor\Services\LoginThrottleService');
 }

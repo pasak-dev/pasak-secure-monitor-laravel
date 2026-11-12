@@ -77,15 +77,15 @@ Aplikasi Anda cukup memanggil komponen resmi berikut:
 
 | Komponen | Namespace / FQCN | Peran & Fungsi |
 |---|---|---|
-| **Facade Pasak** | `Internal\Pasak\Facades\Pasak` | Akses statistik (`stats()`), cek blokir (`isBlocked()`), blokir IP (`blockIp()`), unblock (`unblockIp()`), runtime settings (`getSettings()`, `updateSettings()`). |
-| **Server Security Service** | `Internal\Pasak\Services\PasakServerSecurityService` | Audit konfigurasi PHP/DB/Storage (`scan()`), buat baseline SHA-256 (`createBaseline()`), hapus berkas mencurigakan defensif (`deleteSuspiciousFile()`). |
-| **Model Log Ancaman** | `Internal\Pasak\Models\PasakLog` | Query Eloquent ke riwayat ancaman WAF (`threat_level`, `ip_address`, `path`, `payload`). |
-| **Model IP Terblokir** | `Internal\Pasak\Models\PasakBlockedIp` | Manajemen IP & device terisolasi (`ip_address`, `device_id`, `block_scope`, `is_active`). |
-| **Model Whitelist** | `Internal\Pasak\Models\PasakAllowedIp` | Daftar pengecualian IP/CIDR yang kebal deteksi WAF. |
-| **Model Percobaan Login** | `Internal\Pasak\Models\PasakLoginAttempt` | Pelacakan mitigasi brute-force bertingkat (*stepped throttling*). |
-| **Model Sesi Pengguna** | `Internal\Pasak\Models\PasakUserLogin` | Riwayat sesi aktif pengguna, heartbeat, dan data perangkat login. |
-| **Model IP Terpercaya** | `Internal\Pasak\Models\PasakTrustedIp` | Alamat IP admin/staf yang diverifikasi sah. |
-| **Model Tiket Banding** | `Internal\Pasak\Models\PasakIpUnblockRequest` | Alur *self-service appeal* bagi pengguna yang terblokir tidak sengaja. |
+| **Facade Pasak** | `Pasak\SecureMonitor\Facades\Pasak` | Akses statistik (`stats()`), cek blokir (`isBlocked()`), blokir IP (`blockIp()`), unblock (`unblockIp()`), runtime settings (`getSettings()`, `updateSettings()`). |
+| **Server Security Service** | `Pasak\SecureMonitor\Services\PasakServerSecurityService` | Audit konfigurasi PHP/DB/Storage (`scan()`), buat baseline SHA-256 (`createBaseline()`), hapus berkas mencurigakan defensif (`deleteSuspiciousFile()`). |
+| **Model Log Ancaman** | `Pasak\SecureMonitor\Models\PasakLog` | Query Eloquent ke riwayat ancaman WAF (`threat_level`, `ip_address`, `path`, `payload`). |
+| **Model IP Terblokir** | `Pasak\SecureMonitor\Models\PasakBlockedIp` | Manajemen IP & device terisolasi (`ip_address`, `device_id`, `block_scope`, `is_active`). |
+| **Model Whitelist** | `Pasak\SecureMonitor\Models\PasakAllowedIp` | Daftar pengecualian IP/CIDR yang kebal deteksi WAF. |
+| **Model Percobaan Login** | `Pasak\SecureMonitor\Models\PasakLoginAttempt` | Pelacakan mitigasi brute-force bertingkat (*stepped throttling*). |
+| **Model Sesi Pengguna** | `Pasak\SecureMonitor\Models\PasakUserLogin` | Riwayat sesi aktif pengguna, heartbeat, dan data perangkat login. |
+| **Model IP Terpercaya** | `Pasak\SecureMonitor\Models\PasakTrustedIp` | Alamat IP admin/staf yang diverifikasi sah. |
+| **Model Tiket Banding** | `Pasak\SecureMonitor\Models\PasakIpUnblockRequest` | Alur *self-service appeal* bagi pengguna yang terblokir tidak sengaja. |
 
 ---
 
@@ -101,15 +101,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Internal\Pasak\Facades\Pasak;
-use Internal\Pasak\Models\PasakAllowedIp;
-use Internal\Pasak\Models\PasakBlockedIp;
-use Internal\Pasak\Models\PasakIpUnblockRequest;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Models\PasakLoginAttempt;
-use Internal\Pasak\Models\PasakTrustedIp;
-use Internal\Pasak\Models\PasakUserLogin;
-use Internal\Pasak\Services\PasakServerSecurityService;
+use Pasak\SecureMonitor\Facades\Pasak;
+use Pasak\SecureMonitor\Models\PasakAllowedIp;
+use Pasak\SecureMonitor\Models\PasakBlockedIp;
+use Pasak\SecureMonitor\Models\PasakIpUnblockRequest;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Models\PasakLoginAttempt;
+use Pasak\SecureMonitor\Models\PasakTrustedIp;
+use Pasak\SecureMonitor\Models\PasakUserLogin;
+use Pasak\SecureMonitor\Services\PasakServerSecurityService;
 
 class KeamananController extends Controller
 {
@@ -423,15 +423,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Internal\Pasak\Facades\Pasak;
-use Internal\Pasak\Models\PasakAllowedIp;
-use Internal\Pasak\Models\PasakBlockedIp;
-use Internal\Pasak\Models\PasakIpUnblockRequest;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Models\PasakLoginAttempt;
-use Internal\Pasak\Models\PasakTrustedIp;
-use Internal\Pasak\Models\PasakUserLogin;
-use Internal\Pasak\Services\PasakServerSecurityService;
+use Pasak\SecureMonitor\Facades\Pasak;
+use Pasak\SecureMonitor\Models\PasakAllowedIp;
+use Pasak\SecureMonitor\Models\PasakBlockedIp;
+use Pasak\SecureMonitor\Models\PasakIpUnblockRequest;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Models\PasakLoginAttempt;
+use Pasak\SecureMonitor\Models\PasakTrustedIp;
+use Pasak\SecureMonitor\Models\PasakUserLogin;
+use Pasak\SecureMonitor\Services\PasakServerSecurityService;
 
 class KeamananController extends Controller
 {

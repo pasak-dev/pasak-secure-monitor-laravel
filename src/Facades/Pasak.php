@@ -1,9 +1,9 @@
 <?php
 
-namespace Internal\Pasak\Facades;
+namespace Pasak\SecureMonitor\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Services\PasakService;
 
 /**
  * @method static bool isEnabled()
@@ -25,15 +25,15 @@ use Internal\Pasak\Services\PasakService;
  * @method static array detectThreats(\Illuminate\Http\Request $request)
  * @method static bool isExcludedRoute(\Illuminate\Http\Request $request)
  * @method static bool isAdminRequest(\Illuminate\Http\Request $request)
- * @method static \Internal\Pasak\Models\SecurityLog|null log(array $attributes)
- * @method static \Internal\Pasak\Models\BlockedIp|null autoBlockIfNeeded(string $ip, ?string $deviceId = null, ?string $localIp = null)
+ * @method static \Pasak\SecureMonitor\Models\SecurityLog|null log(array $attributes)
+ * @method static \Pasak\SecureMonitor\Models\BlockedIp|null autoBlockIfNeeded(string $ip, ?string $deviceId = null, ?string $localIp = null)
  * @method static array stats()
  * @method static array getSettings()
  * @method static array updateSettings(array $values)
  * @method static array defaultSettings()
  * @method static array<int, string> seedDefaultSettings(bool $overwrite = false)
  * @method static array<string, int> autoBlockLevelThresholds()
- * @method static \Illuminate\Support\Collection<int, \Internal\Pasak\Models\SecurityLog> topAttackers(int $limit = 5, int $hours = 24)
+ * @method static \Illuminate\Support\Collection<int, \Pasak\SecureMonitor\Models\SecurityLog> topAttackers(int $limit = 5, int $hours = 24)
  * @method static array levelBreakdown(int $hours = 24)
  * @method static array attackTrend(string $range = 'week')
  *

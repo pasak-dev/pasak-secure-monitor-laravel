@@ -2,10 +2,10 @@
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use Internal\Pasak\Models\BlockedIp;
-use Internal\Pasak\Models\SecurityLog;
-use Internal\Pasak\Services\PasakService;
-use Internal\Pasak\Tests\TestUser;
+use Pasak\SecureMonitor\Models\BlockedIp;
+use Pasak\SecureMonitor\Models\SecurityLog;
+use Pasak\SecureMonitor\Services\PasakService;
+use Pasak\SecureMonitor\Tests\TestUser;
 
 beforeEach(function () {
     config()->set('pasak.enabled', true);

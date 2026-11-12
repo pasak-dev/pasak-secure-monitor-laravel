@@ -32,7 +32,7 @@
         <div class="threat-hud-right">
             <div class="threat-hud-clock" data-threat-clock>
                 <span class="threat-clock-time">--:--:--</span>
-                <span class="threat-clock-tz">{{ \Internal\Pasak\Support\DashboardView::timezone() }}</span>
+                <span class="threat-clock-tz">{{ \Pasak\SecureMonitor\Support\DashboardView::timezone() }}</span>
             </div>
             <div class="threat-hud-stat is-danger">
                 <span class="threat-hud-stat-label">{{ ($s['logs_today'] ?? 0) > 0 ? __('Attacks (Today)') : __('Total Attacks') }}</span>
@@ -1298,7 +1298,7 @@
         var clockEl = card.querySelector('[data-threat-clock] .threat-clock-time');
         if (!clockEl) return;
         var now = new Date();
-        var tz = {!! json_encode(\Internal\Pasak\Support\DashboardView::timezone()) !!};
+        var tz = {!! json_encode(\Pasak\SecureMonitor\Support\DashboardView::timezone()) !!};
         try {
             clockEl.textContent = new Intl.DateTimeFormat('en-GB', {
                 timeZone: tz,

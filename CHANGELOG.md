@@ -1,6 +1,18 @@
 # Changelog
 
-All notable changes to `robyajo/pasak` will be documented in this file.
+All notable changes to `pasak-dev/secure-monitor` will be documented in this file.
+
+## [1.1.0] - 2026-11-13
+
+### Changed
+
+- **Refactoring Namespace Resmi ke `Pasak\SecureMonitor\`**:
+  - Mengubah seluruh namespace inti dan impor dari `Internal\Pasak\` menjadi `Pasak\SecureMonitor\` (selaras dengan nama paket `pasak-dev/secure-monitor`).
+  - Memperbarui `composer.json` dengan namespace PSR-4 `"Pasak\\SecureMonitor\\": "src/"` dan dev `"Pasak\\SecureMonitor\\Tests\\": "tests/"`.
+  - Service Provider didaftarkan ke `Pasak\SecureMonitor\PasakServiceProvider`, dan Facade ke `Pasak\SecureMonitor\Facades\Pasak`.
+  - Mengimplementasikan backward-compatibility aliases dan fallback dynamic autoloader di `src/compat.php` untuk `Internal\Pasak\*` dan `Internal\SecurityMonitor\*` agar aplikasi host lama tetap berfungsi 100% tanpa breaking changes.
+  - Memperbarui seluruh pengujian unit/fitur, stubs, konfigurasi, migrasi, dan dokumentasi ke `Pasak\SecureMonitor`.
+  - Seluruh 280 test case Pest PHP (`tests/`) dan 42 test case aplikasi contoh (`ring/pasak-yes`) lulus dengan status hijau (100% Passed).
 
 ## [1.7.15] - 2026-11-12
 

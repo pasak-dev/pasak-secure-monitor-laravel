@@ -1,6 +1,6 @@
 <?php
 
-namespace Internal\Pasak\Services;
+namespace Pasak\SecureMonitor\Services;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Internal\Pasak\Models\PasakTrustedIp;
-use Internal\Pasak\Models\PasakUserLogin;
+use Pasak\SecureMonitor\Models\PasakTrustedIp;
+use Pasak\SecureMonitor\Models\PasakUserLogin;
 use Throwable;
 
 class PasakUserLoginService

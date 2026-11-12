@@ -4,11 +4,11 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
-use Internal\Pasak\Console\Commands\PasakDeployCommand;
-use Internal\Pasak\Models\PasakBlockedIp;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Models\PasakSetting;
-use Internal\Pasak\Support\PasakDashboardSecret;
+use Pasak\SecureMonitor\Console\Commands\PasakDeployCommand;
+use Pasak\SecureMonitor\Models\PasakBlockedIp;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Models\PasakSetting;
+use Pasak\SecureMonitor\Support\PasakDashboardSecret;
 
 function pasakDeployTemporaryEnv(): string
 {

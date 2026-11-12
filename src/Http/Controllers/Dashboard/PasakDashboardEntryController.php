@@ -1,11 +1,11 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Dashboard;
+namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Internal\Pasak\Services\PasakDashboardUrlService;
+use Pasak\SecureMonitor\Services\PasakDashboardUrlService;
 
 /**
  * Pintu masuk stabil "/pasak" untuk mode URL berputar.

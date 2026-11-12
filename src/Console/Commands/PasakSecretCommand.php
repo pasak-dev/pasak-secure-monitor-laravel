@@ -1,10 +1,10 @@
 <?php
 
-namespace Internal\Pasak\Console\Commands;
+namespace Pasak\SecureMonitor\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Internal\Pasak\Support\PasakDashboardSecret;
+use Pasak\SecureMonitor\Support\PasakDashboardSecret;
 
 /**
  * Membuat atau membuat ulang `PASAK_DASHBOARD_SECRET` pada berkas `.env`.

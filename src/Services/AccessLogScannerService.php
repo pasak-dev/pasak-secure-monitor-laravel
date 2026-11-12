@@ -1,12 +1,12 @@
 <?php
 
-namespace Internal\Pasak\Services;
+namespace Pasak\SecureMonitor\Services;
 
 /**
  * Legacy alias for PasakAccessLogScannerService.
  */
 class AccessLogScannerService extends PasakAccessLogScannerService {}
 
-if (! class_exists('Internal\Pasak\Services\AccessLogScannerService', false)) {
-    class_alias(PasakAccessLogScannerService::class, 'Internal\Pasak\Services\AccessLogScannerService');
+if (! class_exists('Pasak\SecureMonitor\Services\AccessLogScannerService', false)) {
+    class_alias(PasakAccessLogScannerService::class, 'Pasak\SecureMonitor\Services\AccessLogScannerService');
 }

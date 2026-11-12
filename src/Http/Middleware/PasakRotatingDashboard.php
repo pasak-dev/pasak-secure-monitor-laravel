@@ -1,11 +1,11 @@
 <?php
 
-namespace Internal\Pasak\Http\Middleware;
+namespace Pasak\SecureMonitor\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
-use Internal\Pasak\Services\PasakDashboardUrlService;
+use Pasak\SecureMonitor\Services\PasakDashboardUrlService;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

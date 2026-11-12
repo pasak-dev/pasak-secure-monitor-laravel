@@ -1,24 +1,24 @@
 <?php
 
-namespace Internal\Pasak\Console\Commands;
+namespace Pasak\SecureMonitor\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
-use Internal\Pasak\Database\Seeders\PasakDefaultSettingsSeeder;
-use Internal\Pasak\Models\PasakAllowedIp;
-use Internal\Pasak\Models\PasakBlockedIp;
-use Internal\Pasak\Models\PasakIpUnblockRequest;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Models\PasakLoginAttempt;
-use Internal\Pasak\Models\PasakSetting;
-use Internal\Pasak\Models\PasakTrustedIp;
-use Internal\Pasak\Models\PasakUserLogin;
-use Internal\Pasak\Services\PasakDashboardUrlService;
-use Internal\Pasak\Services\PasakVersionCheckService;
-use Internal\Pasak\Support\PasakDashboardSecret;
+use Pasak\SecureMonitor\Database\Seeders\PasakDefaultSettingsSeeder;
+use Pasak\SecureMonitor\Models\PasakAllowedIp;
+use Pasak\SecureMonitor\Models\PasakBlockedIp;
+use Pasak\SecureMonitor\Models\PasakIpUnblockRequest;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Models\PasakLoginAttempt;
+use Pasak\SecureMonitor\Models\PasakSetting;
+use Pasak\SecureMonitor\Models\PasakTrustedIp;
+use Pasak\SecureMonitor\Models\PasakUserLogin;
+use Pasak\SecureMonitor\Services\PasakDashboardUrlService;
+use Pasak\SecureMonitor\Services\PasakVersionCheckService;
+use Pasak\SecureMonitor\Support\PasakDashboardSecret;
 use Throwable;
 
 /**

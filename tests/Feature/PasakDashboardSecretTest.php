@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
-use Internal\Pasak\Support\PasakDashboardSecret;
+use Pasak\SecureMonitor\Support\PasakDashboardSecret;
 
 function pasakTemporaryEnvFile(): string
 {

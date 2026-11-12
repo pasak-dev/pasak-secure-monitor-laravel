@@ -1,8 +1,8 @@
 <?php
 
-namespace Internal\Pasak\Concerns;
+namespace Pasak\SecureMonitor\Concerns;
 
-use Internal\Pasak\Support\PasakTableResolver;
+use Pasak\SecureMonitor\Support\PasakTableResolver;
 
 trait ResolvesPasakTable
 {

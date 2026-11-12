@@ -178,7 +178,7 @@ Buka model `App\Models\User.php` dan tambahkan trait `HasSecurityRelations`:
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Internal\Pasak\Concerns\HasSecurityRelations;
+use Pasak\SecureMonitor\Concerns\HasSecurityRelations;
 
 class User extends Authenticatable
 {
@@ -213,20 +213,20 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         // Daftarkan penegakan WAF dan blokir IP secara global
-        $middleware->append(\Internal\Pasak\Http\Middleware\BlockIpAddress::class);
-        $middleware->append(\Internal\Pasak\Http\Middleware\DetectSecurityThreats::class);
+        $middleware->append(\Pasak\SecureMonitor\Http\Middleware\BlockIpAddress::class);
+        $middleware->append(\Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats::class);
 
         // Lacak aktivitas sesi pengguna di grup web
         $middleware->web(append: [
-            \Internal\Pasak\Http\Middleware\TrackUserActivity::class,
+            \Pasak\SecureMonitor\Http\Middleware\TrackUserActivity::class,
         ]);
 
         // Alias middleware keamanan
         $middleware->alias([
-            'pasak.block' => \Internal\Pasak\Http\Middleware\BlockIpAddress::class,
-            'pasak.detect' => \Internal\Pasak\Http\Middleware\DetectSecurityThreats::class,
-            'pasak.admin' => \Internal\Pasak\Http\Middleware\EnsureSecurityAdmin::class,
-            'pasak.activity' => \Internal\Pasak\Http\Middleware\TrackUserActivity::class,
+            'pasak.block' => \Pasak\SecureMonitor\Http\Middleware\BlockIpAddress::class,
+            'pasak.detect' => \Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats::class,
+            'pasak.admin' => \Pasak\SecureMonitor\Http\Middleware\EnsureSecurityAdmin::class,
+            'pasak.activity' => \Pasak\SecureMonitor\Http\Middleware\TrackUserActivity::class,
         ]);
     })
     ->create();
@@ -237,22 +237,22 @@ return Application::configure(basePath: dirname(__DIR__))
 ```php
 protected $middleware = [
     // ...
-    \Internal\Pasak\Http\Middleware\BlockIpAddress::class,
-    \Internal\Pasak\Http\Middleware\DetectSecurityThreats::class,
+    \Pasak\SecureMonitor\Http\Middleware\BlockIpAddress::class,
+    \Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats::class,
 ];
 
 protected $middlewareGroups = [
     'web' => [
         // ...
-        \Internal\Pasak\Http\Middleware\TrackUserActivity::class,
+        \Pasak\SecureMonitor\Http\Middleware\TrackUserActivity::class,
     ],
 ];
 
 protected $middlewareAliases = [
-    'pasak.block' => \Internal\Pasak\Http\Middleware\BlockIpAddress::class,
-    'pasak.detect' => \Internal\Pasak\Http\Middleware\DetectSecurityThreats::class,
-    'pasak.admin' => \Internal\Pasak\Http\Middleware\EnsureSecurityAdmin::class,
-    'pasak.activity' => \Internal\Pasak\Http\Middleware\TrackUserActivity::class,
+    'pasak.block' => \Pasak\SecureMonitor\Http\Middleware\BlockIpAddress::class,
+    'pasak.detect' => \Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats::class,
+    'pasak.admin' => \Pasak\SecureMonitor\Http\Middleware\EnsureSecurityAdmin::class,
+    'pasak.activity' => \Pasak\SecureMonitor\Http\Middleware\TrackUserActivity::class,
 ];
 ```
 
@@ -348,7 +348,7 @@ Paket menyediakan aturan validasi siap pakai untuk request form aplikasi Anda:
 Memvalidasi unggahan gambar dan mencegah serangan _polyglot image_ (gambar JPEG/PNG sah yang diinjeksi kode `<?php`), ekstensi ganda berbahaya, dan SVG bereksekusi JavaScript/XSS:
 
 ```php
-use Internal\Pasak\Rules\SafeImageFile;
+use Pasak\SecureMonitor\Rules\SafeImageFile;
 
 $request->validate([
     'avatar' => ['required', 'file', new SafeImageFile(maxKilobytes: 2048)],
@@ -360,7 +360,7 @@ $request->validate([
 Memvalidasi string path aset gambar/ikon agar terbebas dari path traversal, probe direktori sensitif, dan file `.htaccess`:
 
 ```php
-use Internal\Pasak\Rules\SafeAssetPath;
+use Pasak\SecureMonitor\Rules\SafeAssetPath;
 
 $request->validate([
     'icon_path' => ['required', 'string', new SafeAssetPath],

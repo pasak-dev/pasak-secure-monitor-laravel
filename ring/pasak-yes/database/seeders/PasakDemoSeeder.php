@@ -5,13 +5,13 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
-use Internal\Pasak\Models\PasakAllowedIp;
-use Internal\Pasak\Models\PasakBlockedIp;
-use Internal\Pasak\Models\PasakIpUnblockRequest;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Models\PasakLoginAttempt;
-use Internal\Pasak\Models\PasakTrustedIp;
-use Internal\Pasak\Models\PasakUserLogin;
+use Pasak\SecureMonitor\Models\PasakAllowedIp;
+use Pasak\SecureMonitor\Models\PasakBlockedIp;
+use Pasak\SecureMonitor\Models\PasakIpUnblockRequest;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Models\PasakLoginAttempt;
+use Pasak\SecureMonitor\Models\PasakTrustedIp;
+use Pasak\SecureMonitor\Models\PasakUserLogin;
 
 /**
  * Isi demo otomatis untuk SETIAP CRUD dashboard Pasak agar bisa diuji

@@ -1,6 +1,6 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Dashboard;
+namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -8,11 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Internal\Pasak\Models\PasakBlockedIp;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Models\PasakSetting;
-use Internal\Pasak\Services\PasakService;
-use Internal\Pasak\Services\PasakUserLoginService;
+use Pasak\SecureMonitor\Models\PasakBlockedIp;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Models\PasakSetting;
+use Pasak\SecureMonitor\Services\PasakService;
+use Pasak\SecureMonitor\Services\PasakUserLoginService;
 
 /**
  * Threat map page for the Blade monitoring dashboard.

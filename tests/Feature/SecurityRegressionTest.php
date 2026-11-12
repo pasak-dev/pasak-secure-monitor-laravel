@@ -2,12 +2,12 @@
 
 use Illuminate\Auth\Events\Login;
 use Illuminate\Http\Request;
-use Internal\Pasak\Models\PasakTrustedIp;
-use Internal\Pasak\Models\TrustedIp;
-use Internal\Pasak\Models\UserLogin;
-use Internal\Pasak\Services\PasakService;
-use Internal\Pasak\Services\ServerSecurityService;
-use Internal\Pasak\Services\UserLoginService;
+use Pasak\SecureMonitor\Models\PasakTrustedIp;
+use Pasak\SecureMonitor\Models\TrustedIp;
+use Pasak\SecureMonitor\Models\UserLogin;
+use Pasak\SecureMonitor\Services\PasakService;
+use Pasak\SecureMonitor\Services\ServerSecurityService;
+use Pasak\SecureMonitor\Services\UserLoginService;
 
 test('login event records a user login session', function () {
     $user = $this->createRegularUser();

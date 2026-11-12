@@ -2,10 +2,10 @@
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
-use Internal\Pasak\Models\BlockedIp;
-use Internal\Pasak\Models\SecurityLog;
-use Internal\Pasak\Rules\SafeImageFile;
-use Internal\Pasak\Services\PasakServerSecurityService;
+use Pasak\SecureMonitor\Models\BlockedIp;
+use Pasak\SecureMonitor\Models\SecurityLog;
+use Pasak\SecureMonitor\Rules\SafeImageFile;
+use Pasak\SecureMonitor\Services\PasakServerSecurityService;
 
 beforeEach(function () {
     config()->set('pasak.enabled', true);
@@ -26,7 +26,7 @@ test('polyglot jpeg containing php code triggers an instant block', function () 
 
     $file = UploadedFile::fake()->createWithContent('innocent_photo.jpg', $jpegData.'<?php
 
-use Internal\Pasak\Models\SecurityLog; phpinfo(); ?>');
+use Pasak\SecureMonitor\Models\SecurityLog; phpinfo(); ?>');
 
     $response = $this->post('/login', ['avatar' => $file]);
 
@@ -60,7 +60,7 @@ test('safe image file rule rejects polyglot jpeg with embedded php', function ()
 
     $file = UploadedFile::fake()->createWithContent('test.jpg', $jpegData."<?php
 
-use Internal\Pasak\Models\SecurityLog; eval(\$_POST['x']); ?>");
+use Pasak\SecureMonitor\Models\SecurityLog; eval(\$_POST['x']); ?>");
 
     $validator = Validator::make(['icon' => $file], [
         'icon' => [new SafeImageFile],

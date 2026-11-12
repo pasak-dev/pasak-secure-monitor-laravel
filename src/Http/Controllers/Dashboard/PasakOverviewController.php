@@ -1,12 +1,12 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Dashboard;
+namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Services\PasakService;
 
 /**
  * Overview page for the Blade monitoring dashboard.

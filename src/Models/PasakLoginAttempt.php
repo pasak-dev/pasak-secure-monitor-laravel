@@ -1,11 +1,11 @@
 <?php
 
-namespace Internal\Pasak\Models;
+namespace Pasak\SecureMonitor\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Internal\Pasak\Concerns\ResolvesPasakTable;
+use Pasak\SecureMonitor\Concerns\ResolvesPasakTable;
 
 /**
  * Berisi hitungan percobaan login gagal per kombinasi email + IP, dipakai oleh

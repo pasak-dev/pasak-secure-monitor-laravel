@@ -874,7 +874,7 @@ return [
         'middleware' => ['api'],
         'auth_middleware' => ['auth'],
         'admin_middleware' => [
-            'Internal\\Pasak\\Http\\Middleware\\PasakEnsureSecurityAdmin',
+            'Pasak\\SecureMonitor\\Http\\Middleware\\PasakEnsureSecurityAdmin',
         ],
     ],
 
@@ -965,7 +965,7 @@ return [
             'PASAK_DASHBOARD_ADMIN_ONLY',
             env('SECURITY_DASHBOARD_ADMIN_ONLY', false),
         )
-            ? ['Internal\\Pasak\\Http\\Middleware\\PasakEnsureSecurityAdmin']
+            ? ['Pasak\\SecureMonitor\\Http\\Middleware\\PasakEnsureSecurityAdmin']
             : [],
         'admin_only' => (bool) env(
             'PASAK_DASHBOARD_ADMIN_ONLY',

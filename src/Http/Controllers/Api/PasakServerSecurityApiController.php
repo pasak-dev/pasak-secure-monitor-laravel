@@ -1,15 +1,15 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Api;
+namespace Pasak\SecureMonitor\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Artisan;
-use Internal\Pasak\Models\PasakLoginAttempt;
-use Internal\Pasak\Models\PasakSetting;
-use Internal\Pasak\Services\PasakLoginThrottleService;
-use Internal\Pasak\Services\PasakServerSecurityService;
+use Pasak\SecureMonitor\Models\PasakLoginAttempt;
+use Pasak\SecureMonitor\Models\PasakSetting;
+use Pasak\SecureMonitor\Services\PasakLoginThrottleService;
+use Pasak\SecureMonitor\Services\PasakServerSecurityService;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PasakServerSecurityApiController extends Controller

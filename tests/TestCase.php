@@ -1,15 +1,15 @@
 <?php
 
-namespace Internal\Pasak\Tests;
+namespace Pasak\SecureMonitor\Tests;
 
 use Illuminate\Contracts\Http\Kernel as KernelContract;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
-use Internal\Pasak\Http\Middleware\BlockIpAddress;
-use Internal\Pasak\Http\Middleware\DetectSecurityThreats;
-use Internal\Pasak\PasakServiceProvider;
+use Pasak\SecureMonitor\Http\Middleware\BlockIpAddress;
+use Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats;
+use Pasak\SecureMonitor\PasakServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 abstract class TestCase extends OrchestraTestCase

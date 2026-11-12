@@ -7,7 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use Internal\Pasak\Services\PasakLoginThrottleService;
+use Pasak\SecureMonitor\Services\PasakLoginThrottleService;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller

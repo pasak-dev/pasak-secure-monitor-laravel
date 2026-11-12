@@ -49,7 +49,7 @@ Siklus uji standar:
 - Install: `php -l bootstrap/app.php` bersih, `grep -c "^PASAK_" .env` > 0,
   `route:list --path=pasak` terdaftar, tabel `blocked_ips` ada.
 - Uninstall: sisa `PASAK_*` di `.env`/`.env.example` NOL, tidak ada referensi
-  `Internal\Pasak` / `HasSecurityRelations` di `routes/ config/ resources/
+  `Pasak\SecureMonitor` / `HasSecurityRelations` di `routes/ config/ resources/
   app/ bootstrap/`, tidak ada sisa `*.backup-*`, app boot normal.
 - Update: view ter-publish sama dengan `stubs/` paket, cache bersih
   (`view:clear` + `config:clear` tercakup `optimize:clear`).

@@ -1,10 +1,10 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Dashboard;
+namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
-use Internal\Pasak\Support\PasakDashboardView;
+use Pasak\SecureMonitor\Support\PasakDashboardView;
 
 /**
  * Render dashboard pages as plain Blade views.

@@ -1,6 +1,6 @@
 <?php
 
-namespace Internal\Pasak\Support;
+namespace Pasak\SecureMonitor\Support;
 
 use Illuminate\Support\Facades\Schema;
 

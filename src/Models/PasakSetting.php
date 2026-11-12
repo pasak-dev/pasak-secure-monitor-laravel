@@ -1,13 +1,13 @@
 <?php
 
-namespace Internal\Pasak\Models;
+namespace Pasak\SecureMonitor\Models;
 
 use DateTimeZone;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Internal\Pasak\Concerns\ResolvesPasakTable;
-use Internal\Pasak\Support\PasakDashboardView;
+use Pasak\SecureMonitor\Concerns\ResolvesPasakTable;
+use Pasak\SecureMonitor\Support\PasakDashboardView;
 
 /**
  * Persisted key-value settings for Pasak.

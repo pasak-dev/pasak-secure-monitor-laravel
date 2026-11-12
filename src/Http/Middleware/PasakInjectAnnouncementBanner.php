@@ -1,11 +1,11 @@
 <?php
 
-namespace Internal\Pasak\Http\Middleware;
+namespace Pasak\SecureMonitor\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Services\PasakService;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

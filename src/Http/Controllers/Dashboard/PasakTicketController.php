@@ -1,15 +1,15 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Dashboard;
+namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
-use Internal\Pasak\Models\PasakIpUnblockRequest;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Models\PasakIpUnblockRequest;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Services\PasakService;
 
 /**
  * Unblock appeal tickets page for the Blade monitoring dashboard.

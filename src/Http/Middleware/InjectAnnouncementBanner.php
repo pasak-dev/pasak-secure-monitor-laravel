@@ -1,12 +1,12 @@
 <?php
 
-namespace Internal\Pasak\Http\Middleware;
+namespace Pasak\SecureMonitor\Http\Middleware;
 
 /**
  * Legacy alias for PasakInjectAnnouncementBanner.
  */
 class InjectAnnouncementBanner extends PasakInjectAnnouncementBanner {}
 
-if (! class_exists('Internal\Pasak\Http\Middleware\InjectAnnouncementBanner', false)) {
-    class_alias(PasakInjectAnnouncementBanner::class, 'Internal\Pasak\Http\Middleware\InjectAnnouncementBanner');
+if (! class_exists('Pasak\SecureMonitor\Http\Middleware\InjectAnnouncementBanner', false)) {
+    class_alias(PasakInjectAnnouncementBanner::class, 'Pasak\SecureMonitor\Http\Middleware\InjectAnnouncementBanner');
 }

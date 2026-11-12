@@ -1,6 +1,6 @@
 <?php
 
-namespace Internal\Pasak\Console\Commands;
+namespace Pasak\SecureMonitor\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;

@@ -1,12 +1,12 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Api;
+namespace Pasak\SecureMonitor\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Services\PasakService;
 
 class PasakSecurityLogApiController extends Controller
 {

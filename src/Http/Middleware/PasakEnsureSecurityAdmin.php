@@ -1,6 +1,6 @@
 <?php
 
-namespace Internal\Pasak\Http\Middleware;
+namespace Pasak\SecureMonitor\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;

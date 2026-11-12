@@ -1,13 +1,13 @@
 <?php
 
-namespace Internal\Pasak\Console\Commands;
+namespace Pasak\SecureMonitor\Console\Commands;
 
 use Carbon\CarbonInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use Internal\Pasak\Services\PasakAccessLogScannerService;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Services\PasakAccessLogScannerService;
+use Pasak\SecureMonitor\Services\PasakService;
 use Throwable;
 
 /**

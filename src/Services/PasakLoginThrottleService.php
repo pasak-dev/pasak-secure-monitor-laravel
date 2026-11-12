@@ -1,12 +1,12 @@
 <?php
 
-namespace Internal\Pasak\Services;
+namespace Pasak\SecureMonitor\Services;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Models\PasakLoginAttempt;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Models\PasakLoginAttempt;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 

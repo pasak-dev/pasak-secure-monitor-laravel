@@ -1,9 +1,9 @@
 <?php
 
-namespace Internal\Pasak\Console\Commands;
+namespace Pasak\SecureMonitor\Console\Commands;
 
 use Illuminate\Console\Command;
-use Internal\Pasak\Services\PasakSentinelBridge;
+use Pasak\SecureMonitor\Services\PasakSentinelBridge;
 
 class PasakSentinelCommand extends Command
 {

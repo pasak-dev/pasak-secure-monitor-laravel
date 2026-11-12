@@ -1,7 +1,7 @@
 <?php
 
-use Internal\Pasak\Models\BlockedIp;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Models\BlockedIp;
+use Pasak\SecureMonitor\Services\PasakService;
 
 /**
  * Penjaga keseimbangan pola deteksi:

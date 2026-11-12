@@ -1,13 +1,13 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Dashboard;
+namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
-use Internal\Pasak\Models\PasakSetting;
-use Internal\Pasak\Services\PasakLoginThrottleService;
-use Internal\Pasak\Support\PasakDashboardSecret;
+use Pasak\SecureMonitor\Models\PasakSetting;
+use Pasak\SecureMonitor\Services\PasakLoginThrottleService;
+use Pasak\SecureMonitor\Support\PasakDashboardSecret;
 
 class PasakAuthController
 {

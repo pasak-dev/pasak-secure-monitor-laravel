@@ -1,15 +1,15 @@
 <?php
 
-namespace Internal\Pasak\Console\Commands;
+namespace Pasak\SecureMonitor\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
-use Internal\Pasak\Database\Seeders\PasakDefaultSettingsSeeder;
-use Internal\Pasak\Services\PasakService;
-use Internal\Pasak\Support\PasakDashboardSecret;
+use Pasak\SecureMonitor\Database\Seeders\PasakDefaultSettingsSeeder;
+use Pasak\SecureMonitor\Services\PasakService;
+use Pasak\SecureMonitor\Support\PasakDashboardSecret;
 
 class PasakInstallCommand extends Command
 {
@@ -337,7 +337,7 @@ class PasakInstallCommand extends Command
                 }
             } catch (\Throwable $e) {
                 $this->comment(
-                    '  ℹ Nilai bawaan pengaturan belum ditanam. Jalankan: php artisan db:seed --class=Internal\\Pasak\\Database\\Seeders\\PasakDefaultSettingsSeeder --force',
+                    '  ℹ Nilai bawaan pengaturan belum ditanam. Jalankan: php artisan db:seed --class=Pasak\\SecureMonitor\\Database\\Seeders\\PasakDefaultSettingsSeeder --force',
                 );
             }
         }
@@ -395,7 +395,7 @@ class PasakInstallCommand extends Command
                     'Tambahkan trait HasPasakSecurityRelations ke model User:',
                     'Add the HasPasakSecurityRelations trait to your User model:',
                 ),
-                "use Internal\Pasak\Concerns\HasPasakSecurityRelations;",
+                "use Pasak\SecureMonitor\Concerns\HasPasakSecurityRelations;",
                 $doc('getting-started/installation'),
             ];
         }
@@ -413,8 +413,8 @@ class PasakInstallCommand extends Command
                     'Daftarkan middleware proteksi WAF di bootstrap/app.php (Laravel 11+) atau app/Http/Kernel.php (Laravel 10):',
                     'Register the WAF protection middleware in bootstrap/app.php (Laravel 11+) or app/Http/Kernel.php (Laravel 10):',
                 ),
-                "\Internal\Pasak\Http\Middleware\PasakBlockIpAddress::class",
-                "\Internal\Pasak\Http\Middleware\PasakDetectSecurityThreats::class",
+                "\Pasak\SecureMonitor\Http\Middleware\PasakBlockIpAddress::class",
+                "\Pasak\SecureMonitor\Http\Middleware\PasakDetectSecurityThreats::class",
                 $doc('getting-started/installation'),
             ];
         }
@@ -906,13 +906,13 @@ class PasakInstallCommand extends Command
             return;
         }
 
-        // 1. Tambahkan import `use Internal\Pasak\Concerns\HasPasakSecurityRelations;`
+        // 1. Tambahkan import `use Pasak\SecureMonitor\Concerns\HasPasakSecurityRelations;`
         $importStatement =
-            "use Internal\\Pasak\\Concerns\\HasPasakSecurityRelations;\n";
+            "use Pasak\\SecureMonitor\\Concerns\\HasPasakSecurityRelations;\n";
         if (
             ! str_contains(
                 $content,
-                'use Internal\\Pasak\\Concerns\\HasPasakSecurityRelations;',
+                'use Pasak\\SecureMonitor\\Concerns\\HasPasakSecurityRelations;',
             )
         ) {
             $lastUsePos = strrpos($content, "\nuse ");
@@ -1034,9 +1034,9 @@ class PasakInstallCommand extends Command
                 $varName = $matches[1][0];
                 $snippet =
                     "        \${$varName}->append([\n".
-                    "            \\Internal\\Pasak\\Http\\Middleware\\PasakBlockIpAddress::class,\n".
-                    "            \\Internal\\Pasak\\Http\\Middleware\\PasakDetectSecurityThreats::class,\n".
-                    "            \\Internal\\Pasak\\Http\\Middleware\\PasakInjectAnnouncementBanner::class,\n".
+                    "            \\Pasak\\SecureMonitor\\Http\\Middleware\\PasakBlockIpAddress::class,\n".
+                    "            \\Pasak\\SecureMonitor\\Http\\Middleware\\PasakDetectSecurityThreats::class,\n".
+                    "            \\Pasak\\SecureMonitor\\Http\\Middleware\\PasakInjectAnnouncementBanner::class,\n".
                     "        ]);\n";
 
                 $matchEnd = $matches[0][1] + strlen($matches[0][0]);
@@ -1088,9 +1088,9 @@ class PasakInstallCommand extends Command
             }
 
             $middlewareSnippet =
-                "        \\Internal\\Pasak\\Http\\Middleware\\PasakBlockIpAddress::class,\n".
-                "        \\Internal\\Pasak\\Http\\Middleware\\PasakDetectSecurityThreats::class,\n".
-                "        \\Internal\\Pasak\\Http\\Middleware\\PasakInjectAnnouncementBanner::class,\n";
+                "        \\Pasak\\SecureMonitor\\Http\\Middleware\\PasakBlockIpAddress::class,\n".
+                "        \\Pasak\\SecureMonitor\\Http\\Middleware\\PasakDetectSecurityThreats::class,\n".
+                "        \\Pasak\\SecureMonitor\\Http\\Middleware\\PasakInjectAnnouncementBanner::class,\n";
 
             if (
                 preg_match(
@@ -1377,13 +1377,13 @@ This application is protected by **`pasak-dev/secure-monitor`** (Bulwark), a sta
 - **NEVER modify files in `vendor/pasak-dev/`**. Any custom dashboard, controller, view, or API endpoint must be built inside the host application (`app/Http/Controllers/`, `resources/views/`, `routes/web.php`, `routes/api.php`).
 
 ### 3. Core Facade & Service Usage
-- Always interact via `Internal\Pasak\Facades\Pasak`:
+- Always interact via `Pasak\SecureMonitor\Facades\Pasak`:
   - `Pasak::isBlocked($ip)` — Check if an IP is currently blocked.
   - `Pasak::blockIp($ip, $reason, $durationHours, $source, $userId, $scope)` — Block an IP or specific device.
   - `Pasak::unblockIp($ip)` — Lift an IP block.
   - `Pasak::stats()` — Retrieve threat and blocking statistics.
   - `Pasak::getSettings()` / `Pasak::updateSettings($array)` — Runtime database settings.
-- Server security audits & SHA-256 integrity: use `Internal\Pasak\Services\PasakServerSecurityService`.
+- Server security audits & SHA-256 integrity: use `Pasak\SecureMonitor\Services\PasakServerSecurityService`.
 
 ### 4. Testing & Verification
 - Test all security endpoints with Pest/PHPUnit. Run `php artisan test` or `./vendor/bin/pest`.
@@ -1454,7 +1454,7 @@ MARKDOWN;
         }
 
         $content = File::get($composerPath);
-        $pattern = '/("robyajo\/pasak"\s*:\s*")([^"]+)(")/';
+        $pattern = '/("(?:robyajo\/pasak|pasak-dev\/secure-monitor)"\s*:\s*")([^"]+)(")/';
 
         if (preg_match($pattern, $content, $matches)) {
             $current = $matches[2];

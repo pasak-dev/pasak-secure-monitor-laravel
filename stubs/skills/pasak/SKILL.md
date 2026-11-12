@@ -35,12 +35,12 @@ This application is protected by **`pasak-dev/secure-monitor`** (Bulwark), an en
 
 ---
 
-## 2. Core Facade: `Internal\Pasak\Facades\Pasak`
+## 2. Core Facade: `Pasak\SecureMonitor\Facades\Pasak`
 
 Always use the official `Pasak` Facade for interacting with the WAF engine:
 
 ```php
-use Internal\Pasak\Facades\Pasak;
+use Pasak\SecureMonitor\Facades\Pasak;
 
 // 1. Status & Inspeksi
 $isEnabled = Pasak::isEnabled();
@@ -83,13 +83,13 @@ Semua model memiliki awalan tabel dinamis dan dapat di-query langsung seperti mo
 
 | Model | FQCN | Nama Tabel Default | Deskripsi & Kolom Kunci |
 |---|---|---|---|
-| `PasakLog` | `Internal\Pasak\Models\PasakLog` | `pasak_logs` | Catatan deteksi ancaman (`ip_address`, `threat_level`, `path`, `rule_label`, `was_blocked`, `payload`). |
-| `PasakBlockedIp` | `Internal\Pasak\Models\PasakBlockedIp` | `pasak_blocked_ips` | IP & perangkat terisolasi (`ip_address`, `device_id`, `block_scope`, `is_active`, `blocked_until`). |
-| `PasakAllowedIp` | `Internal\Pasak\Models\PasakAllowedIp` | `pasak_allowed_ips` | Whitelist IP & subnet CIDR (kebal dari seluruh deteksi WAF). |
-| `PasakUserLogin` | `Internal\Pasak\Models\PasakUserLogin` | `pasak_user_logins` | Sesi pengguna masuk, browser, OS, heartbeat (`last_activity_at`), dan waktu `logout_at`. |
-| `PasakTrustedIp` | `Internal\Pasak\Models\PasakTrustedIp` | `pasak_trusted_ips` | Alamat IP admin/staf terpercaya yang dilewatkan dari login throttle. |
-| `PasakIpUnblockRequest` | `Internal\Pasak\Models\PasakIpUnblockRequest` | `pasak_ip_unblock_requests` | Tiket permohonan banding unblock (`ticket_number`, `status`, `reason`, `admin_notes`). |
-| `PasakLoginAttempt` | `Internal\Pasak\Models\PasakLoginAttempt` | `pasak_login_attempts` | Pelacakan login gagal dan penguncian bertingkat (*stepped login throttling*). |
+| `PasakLog` | `Pasak\SecureMonitor\Models\PasakLog` | `pasak_logs` | Catatan deteksi ancaman (`ip_address`, `threat_level`, `path`, `rule_label`, `was_blocked`, `payload`). |
+| `PasakBlockedIp` | `Pasak\SecureMonitor\Models\PasakBlockedIp` | `pasak_blocked_ips` | IP & perangkat terisolasi (`ip_address`, `device_id`, `block_scope`, `is_active`, `blocked_until`). |
+| `PasakAllowedIp` | `Pasak\SecureMonitor\Models\PasakAllowedIp` | `pasak_allowed_ips` | Whitelist IP & subnet CIDR (kebal dari seluruh deteksi WAF). |
+| `PasakUserLogin` | `Pasak\SecureMonitor\Models\PasakUserLogin` | `pasak_user_logins` | Sesi pengguna masuk, browser, OS, heartbeat (`last_activity_at`), dan waktu `logout_at`. |
+| `PasakTrustedIp` | `Pasak\SecureMonitor\Models\PasakTrustedIp` | `pasak_trusted_ips` | Alamat IP admin/staf terpercaya yang dilewatkan dari login throttle. |
+| `PasakIpUnblockRequest` | `Pasak\SecureMonitor\Models\PasakIpUnblockRequest` | `pasak_ip_unblock_requests` | Tiket permohonan banding unblock (`ticket_number`, `status`, `reason`, `admin_notes`). |
+| `PasakLoginAttempt` | `Pasak\SecureMonitor\Models\PasakLoginAttempt` | `pasak_login_attempts` | Pelacakan login gagal dan penguncian bertingkat (*stepped login throttling*). |
 
 ---
 
@@ -98,7 +98,7 @@ Semua model memiliki awalan tabel dinamis dan dapat di-query langsung seperti mo
 Gunakan service resmi `PasakServerSecurityService`:
 
 ```php
-use Internal\Pasak\Services\PasakServerSecurityService;
+use Pasak\SecureMonitor\Services\PasakServerSecurityService;
 
 $service = app(PasakServerSecurityService::class);
 
@@ -158,8 +158,8 @@ Header `CF-Connecting-IP`, `X-Real-IP`, dan `X-Forwarded-For` akan otomatis diev
 Saat menulis pengujian untuk fitur yang bersinggungan dengan keamanan:
 ```php
 use App\Models\User;
-use Internal\Pasak\Facades\Pasak;
-use Internal\Pasak\Models\PasakLog;
+use Pasak\SecureMonitor\Facades\Pasak;
+use Pasak\SecureMonitor\Models\PasakLog;
 
 test('blocked ip receives 403 forbidden', function () {
     Pasak::blockIp('203.0.113.99', 'Uji coba blokir');

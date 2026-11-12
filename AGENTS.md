@@ -5,7 +5,7 @@
 This repository is **`pasak-dev/secure-monitor`** (Bulwark), an enterprise-grade, standalone, headless self-hosted Web Application Firewall (WAF), threat detection engine, and security auditing library for the Laravel ecosystem.
 
 - **Package Name**: `pasak-dev/secure-monitor`
-- **Root Namespace**: `Internal\Pasak\`
+- **Root Namespace**: `Pasak\SecureMonitor\`
 - **Target Environments**: PHP `^8.2 | ^8.3 | ^8.4 | ^8.5`, Laravel `^10.0 | ^11.0 | ^12.0 | ^13.0`
 - **Package Type**: `library` (Composer only)
 
@@ -70,7 +70,7 @@ The repository contains an authoritative, 25-chapter documentation suite located
 
 ## 3. Directory Structure Standards
 
-Source files reside under `src/` conforming strictly to PSR-4 (`Internal\Pasak\`):
+Source files reside under `src/` conforming strictly to PSR-4 (`Pasak\SecureMonitor\`):
 
 ```
 src/

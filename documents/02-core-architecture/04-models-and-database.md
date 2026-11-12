@@ -35,7 +35,7 @@ PASAK_ALLOWED_IPS_TABLE=pasak_allowed_ips
 
 > **Kompatibilitas Penuh**: Model baru bernama `Pasak*` (`PasakBlockedIp`, `PasakLog`, `PasakLoginAttempt`, `PasakIpUnblockRequest`, `PasakUserLogin`, `PasakTrustedIp`, `PasakAllowedIp`, `PasakSetting`). Nama model lama (`BlockedIp`, `SecurityLog`, `LoginAttempt`, dll.) tetap disediakan sebagai class alias transparan sehingga proyek lama tidak terganggu.
 
-### A. `PasakBlockedIp` (Alias: `BlockedIp`) (`Internal\Pasak\Models\PasakBlockedIp`)
+### A. `PasakBlockedIp` (Alias: `BlockedIp`) (`Pasak\SecureMonitor\Models\PasakBlockedIp`)
 Menyimpan data entitas yang sedang diblokir atau pernah diblokir. Default tabel: `pasak_blocked_ips`.
 
 | Kolom | Tipe Data | Deskripsi |
@@ -62,7 +62,7 @@ Menyimpan data entitas yang sedang diblokir atau pernah diblokir. Default tabel:
 
 ---
 
-### B. `SecurityLog` (`Internal\Pasak\Models\SecurityLog`)
+### B. `SecurityLog` (`Pasak\SecureMonitor\Models\SecurityLog`)
 Menyimpan rekam jejak setiap ancaman keamanan yang terdeteksi oleh WAF.
 
 | Kolom | Tipe Data | Deskripsi |
@@ -87,7 +87,7 @@ Menyimpan rekam jejak setiap ancaman keamanan yang terdeteksi oleh WAF.
 
 ---
 
-### C. `LoginAttempt` (`Internal\Pasak\Models\LoginAttempt`)
+### C. `LoginAttempt` (`Pasak\SecureMonitor\Models\LoginAttempt`)
 Melacak kegagalan otentikasi untuk mitigasi brute force bertingkat (*stepped lockout*).
 
 | Kolom | Tipe Data | Deskripsi |
@@ -103,7 +103,7 @@ Melacak kegagalan otentikasi untuk mitigasi brute force bertingkat (*stepped loc
 
 ---
 
-### D. `IpUnblockRequest` (`Internal\Pasak\Models\IpUnblockRequest`)
+### D. `IpUnblockRequest` (`Pasak\SecureMonitor\Models\IpUnblockRequest`)
 Menyimpan tiket banding yang diajukan oleh pengguna publik yang terblokir.
 
 | Kolom | Tipe Data | Deskripsi |
@@ -134,7 +134,7 @@ Menyimpan tiket banding yang diajukan oleh pengguna publik yang terblokir.
 
 ---
 
-### F. `PasakSetting` (`Internal\Pasak\Models\PasakSetting`)
+### F. `PasakSetting` (`Pasak\SecureMonitor\Models\PasakSetting`)
 Menyimpan konfigurasi dinamis yang dikelola via **Dashboard Pasak → Pengaturan** (`/pasak/settings`) maupun API Admin. Default tabel: `pasak_settings`.
 
 | Kolom | Tipe Data | Deskripsi |
@@ -152,13 +152,13 @@ Entri default diisi otomatis oleh `PasakDefaultSettingsSeeder` saat `pasak:insta
 
 ## 3. Integrasi Trait `HasPasakSecurityRelations`
 
-Untuk menghubungkan model `User` aplikasi Anda dengan model-model di atas, cukup gunakan trait `Internal\Pasak\Concerns\HasPasakSecurityRelations`:
+Untuk menghubungkan model `User` aplikasi Anda dengan model-model di atas, cukup gunakan trait `Pasak\SecureMonitor\Concerns\HasPasakSecurityRelations`:
 
 ```php
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Internal\Pasak\Concerns\HasPasakSecurityRelations;
+use Pasak\SecureMonitor\Concerns\HasPasakSecurityRelations;
 
 class User extends Authenticatable
 {

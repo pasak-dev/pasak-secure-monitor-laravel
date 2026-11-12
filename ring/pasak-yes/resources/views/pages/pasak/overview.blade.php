@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-    $DV = \Internal\Pasak\Support\DashboardView::class;
+    $DV = \Pasak\SecureMonitor\Support\DashboardView::class;
 @endphp
 @php($maxTrend = max(1, collect($trend['points'] ?? [])->max('total') ?? 1))
 @php($maxAttackerHits = max(1, collect($attackers ?? [])->max('hits') ?? 1))
@@ -64,7 +64,7 @@
         <h3 class="sec-card-title" style="margin-bottom: 16px;">{{ __('Threats by severity (24h)') }}</h3>
         @php($levelTotal = max(1, array_sum($levels ?? [])))
         <div style="display: flex; flex-direction: column; gap: 14px;">
-            @foreach (\Internal\Pasak\Models\SecurityLog::LEVELS as $index => $level)
+            @foreach (\Pasak\SecureMonitor\Models\SecurityLog::LEVELS as $index => $level)
                 @php($count = ($levels ?? [])[$level] ?? 0)
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">

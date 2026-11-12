@@ -1,6 +1,6 @@
 <?php
 
-namespace Internal\Pasak\Rules;
+namespace Pasak\SecureMonitor\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;

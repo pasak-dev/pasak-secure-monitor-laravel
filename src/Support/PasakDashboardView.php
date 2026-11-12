@@ -1,13 +1,13 @@
 <?php
 
-namespace Internal\Pasak\Support;
+namespace Pasak\SecureMonitor\Support;
 
 use DateTimeInterface;
 use DateTimeZone;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Internal\Pasak\Models\PasakSetting;
-use Internal\Pasak\Services\PasakUserLoginService;
+use Pasak\SecureMonitor\Models\PasakSetting;
+use Pasak\SecureMonitor\Services\PasakUserLoginService;
 use Throwable;
 
 /**

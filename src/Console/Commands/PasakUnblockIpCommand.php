@@ -1,10 +1,10 @@
 <?php
 
-namespace Internal\Pasak\Console\Commands;
+namespace Pasak\SecureMonitor\Console\Commands;
 
 use Illuminate\Console\Command;
-use Internal\Pasak\Models\PasakBlockedIp;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Models\PasakBlockedIp;
+use Pasak\SecureMonitor\Services\PasakService;
 
 /**
  * Escape hatch so an administrator can never be permanently locked out of the

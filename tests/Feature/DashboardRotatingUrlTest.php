@@ -2,11 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakBlockedIpController;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakDashboardEntryController;
-use Internal\Pasak\Http\Middleware\PasakRotatingDashboard;
-use Internal\Pasak\Models\PasakBlockedIp;
-use Internal\Pasak\Services\PasakDashboardUrlService;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakBlockedIpController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakDashboardEntryController;
+use Pasak\SecureMonitor\Http\Middleware\PasakRotatingDashboard;
+use Pasak\SecureMonitor\Models\PasakBlockedIp;
+use Pasak\SecureMonitor\Services\PasakDashboardUrlService;
 
 beforeEach(function () {
     config()->set('pasak.dashboard.enabled', true);

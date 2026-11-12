@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Http\Request;
-use Internal\Pasak\Models\BlockedIp;
-use Internal\Pasak\Models\IpUnblockRequest;
-use Internal\Pasak\Services\PasakService;
-use Internal\Pasak\Tests\TestUser;
+use Pasak\SecureMonitor\Models\BlockedIp;
+use Pasak\SecureMonitor\Models\IpUnblockRequest;
+use Pasak\SecureMonitor\Services\PasakService;
+use Pasak\SecureMonitor\Tests\TestUser;
 
 test('device-scoped block only blocks the offending device while innocent devices on same public router IP remain unblocked', function () {
     $service = app(PasakService::class);

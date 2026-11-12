@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\File;
-use Internal\Pasak\Console\Commands\SecurityInstallCommand;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Console\Commands\SecurityInstallCommand;
+use Pasak\SecureMonitor\Services\PasakService;
 
 test('install command registers wizard options', function () {
     $definition = $this->app->make(SecurityInstallCommand::class)->getDefinition();

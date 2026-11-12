@@ -60,7 +60,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Internal\\Pasak\\": "src/"
+      "Pasak\\SecureMonitor\\": "src/"
     },
     "files": [
       "src/compat.php"
@@ -68,7 +68,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Internal\\Pasak\\Tests\\": "tests/"
+      "Pasak\\SecureMonitor\\Tests\\": "tests/"
     }
   },
   "scripts": {
@@ -82,11 +82,11 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Internal\\Pasak\\PasakServiceProvider"
+        "Pasak\\SecureMonitor\\PasakServiceProvider"
       ],
       "aliases": {
-        "Pasak": "Internal\\Pasak\\Facades\\Pasak",
-        "SecurityMonitor": "Internal\\Pasak\\Facades\\Pasak"
+        "Pasak": "Pasak\\SecureMonitor\\Facades\\Pasak",
+        "SecurityMonitor": "Pasak\\SecureMonitor\\Facades\\Pasak"
       }
     }
   },

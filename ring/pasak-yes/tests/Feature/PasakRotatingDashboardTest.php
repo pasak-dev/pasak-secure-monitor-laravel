@@ -2,7 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Internal\Pasak\Services\PasakDashboardUrlService;
+use Pasak\SecureMonitor\Services\PasakDashboardUrlService;
 
 uses(RefreshDatabase::class);
 

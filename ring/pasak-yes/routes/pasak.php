@@ -1,20 +1,20 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakAllowedIpController;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakAuthController;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakBlockedIpController;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakDashboardAliasController;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakDashboardEntryController;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakLogController;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakOverviewController;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakServerController;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakSessionController;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakSettingController;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakThreatMapController;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakTicketController;
-use Internal\Pasak\Http\Middleware\PasakDashboardAuthenticate;
-use Internal\Pasak\Http\Middleware\PasakRotatingDashboard;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakAllowedIpController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakAuthController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakBlockedIpController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakDashboardAliasController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakDashboardEntryController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakLogController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakOverviewController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakServerController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakSessionController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakSettingController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakThreatMapController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakTicketController;
+use Pasak\SecureMonitor\Http\Middleware\PasakDashboardAuthenticate;
+use Pasak\SecureMonitor\Http\Middleware\PasakRotatingDashboard;
 
 /*
 |--------------------------------------------------------------------------

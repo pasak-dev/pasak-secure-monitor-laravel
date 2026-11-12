@@ -1,11 +1,11 @@
 <?php
 
-use Internal\Pasak\Database\Seeders\PasakDefaultSettingsSeeder;
-use Internal\Pasak\Models\BlockedIp;
-use Internal\Pasak\Models\PasakSetting;
-use Internal\Pasak\Models\SecurityLog;
-use Internal\Pasak\Services\PasakLoginThrottleService;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Database\Seeders\PasakDefaultSettingsSeeder;
+use Pasak\SecureMonitor\Models\BlockedIp;
+use Pasak\SecureMonitor\Models\PasakSetting;
+use Pasak\SecureMonitor\Models\SecurityLog;
+use Pasak\SecureMonitor\Services\PasakLoginThrottleService;
+use Pasak\SecureMonitor\Services\PasakService;
 
 beforeEach(function () {
     config()->set('pasak.enabled', true);

@@ -1,12 +1,12 @@
 <?php
 
-namespace Internal\Pasak\Listeners;
+namespace Pasak\SecureMonitor\Listeners;
 
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Internal\Pasak\Services\PasakLoginThrottleService;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Services\PasakLoginThrottleService;
+use Pasak\SecureMonitor\Services\PasakService;
 use Throwable;
 
 /**

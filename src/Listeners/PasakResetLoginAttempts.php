@@ -1,11 +1,11 @@
 <?php
 
-namespace Internal\Pasak\Listeners;
+namespace Pasak\SecureMonitor\Listeners;
 
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Gate;
-use Internal\Pasak\Services\PasakLoginThrottleService;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Services\PasakLoginThrottleService;
+use Pasak\SecureMonitor\Services\PasakService;
 
 /**
  * Mengosongkan riwayat kegagalan login setelah pengguna berhasil masuk,

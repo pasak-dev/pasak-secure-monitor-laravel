@@ -2,11 +2,11 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Internal\Pasak\Facades\Pasak;
-use Internal\Pasak\Models\PasakAllowedIp;
-use Internal\Pasak\Models\PasakIpUnblockRequest;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Models\PasakTrustedIp;
+use Pasak\SecureMonitor\Facades\Pasak;
+use Pasak\SecureMonitor\Models\PasakAllowedIp;
+use Pasak\SecureMonitor\Models\PasakIpUnblockRequest;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Models\PasakTrustedIp;
 
 uses(RefreshDatabase::class);
 

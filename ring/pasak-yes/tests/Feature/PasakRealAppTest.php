@@ -4,13 +4,13 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-use Internal\Pasak\Concerns\HasPasakSecurityRelations;
-use Internal\Pasak\Models\BlockedIp;
-use Internal\Pasak\Models\PasakBlockedIp;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Models\SecurityLog;
-use Internal\Pasak\Rules\PasakSafeAssetPath;
-use Internal\Pasak\Rules\PasakSafeImageFile;
+use Pasak\SecureMonitor\Concerns\HasPasakSecurityRelations;
+use Pasak\SecureMonitor\Models\BlockedIp;
+use Pasak\SecureMonitor\Models\PasakBlockedIp;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Models\SecurityLog;
+use Pasak\SecureMonitor\Rules\PasakSafeAssetPath;
+use Pasak\SecureMonitor\Rules\PasakSafeImageFile;
 
 uses(RefreshDatabase::class);
 
@@ -100,7 +100,7 @@ test('dashboard overview route renders for authenticated users', function () {
 
     $response->assertStatus(200);
     $response->assertSee('sec-sidebar-version');
-    $response->assertSee('v'.\Internal\Pasak\Services\PasakService::VERSION);
+    $response->assertSee('v'.\Pasak\SecureMonitor\Services\PasakService::VERSION);
 });
 
 test(

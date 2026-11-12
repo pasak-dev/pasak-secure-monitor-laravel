@@ -1,14 +1,14 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Api;
+namespace Pasak\SecureMonitor\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Internal\Pasak\Models\PasakTrustedIp;
-use Internal\Pasak\Models\PasakUserLogin;
-use Internal\Pasak\Services\PasakService;
-use Internal\Pasak\Services\PasakUserLoginService;
+use Pasak\SecureMonitor\Models\PasakTrustedIp;
+use Pasak\SecureMonitor\Models\PasakUserLogin;
+use Pasak\SecureMonitor\Services\PasakService;
+use Pasak\SecureMonitor\Services\PasakUserLoginService;
 
 class PasakUserSessionApiController extends Controller
 {

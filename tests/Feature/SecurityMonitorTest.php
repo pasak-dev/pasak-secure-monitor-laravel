@@ -1,7 +1,7 @@
 <?php
 
-use Internal\Pasak\Models\BlockedIp;
-use Internal\Pasak\Models\SecurityLog;
+use Pasak\SecureMonitor\Models\BlockedIp;
+use Pasak\SecureMonitor\Models\SecurityLog;
 
 function attackFrom(string $ip = '198.51.100.7'): void
 {

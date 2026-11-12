@@ -3,9 +3,9 @@
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakServerController;
-use Internal\Pasak\Services\ServerSecurityService;
-use Internal\Pasak\Tests\TestUser;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakServerController;
+use Pasak\SecureMonitor\Services\ServerSecurityService;
+use Pasak\SecureMonitor\Tests\TestUser;
 
 beforeEach(function () {
     Cache::flush();

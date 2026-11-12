@@ -1,14 +1,14 @@
 <?php
 
-namespace Internal\Pasak\Tests\Feature;
+namespace Pasak\SecureMonitor\Tests\Feature;
 
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
-use Internal\Pasak\Services\VersionCheckService;
-use Internal\Pasak\Tests\TestCase;
+use Pasak\SecureMonitor\Services\VersionCheckService;
+use Pasak\SecureMonitor\Tests\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 

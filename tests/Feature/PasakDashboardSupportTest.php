@@ -4,8 +4,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use Internal\Pasak\Http\Controllers\Dashboard\OverviewController;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\OverviewController;
+use Pasak\SecureMonitor\Services\PasakService;
 
 test('dashboard defaults to english locale and renders support button with language switcher', function () {
     config()->set('pasak.dashboard.driver', 'blade');

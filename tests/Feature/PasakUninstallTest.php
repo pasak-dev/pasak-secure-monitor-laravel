@@ -53,8 +53,8 @@ beforeEach(function () use (&$uninstallDir) {
         return Application::configure(basePath: dirname(__DIR__))
             ->withMiddleware(function (Middleware $middleware): void {
                 $middleware->append([
-                    \Internal\Pasak\Http\Middleware\BlockIpAddress::class,
-                    \Internal\Pasak\Http\Middleware\DetectSecurityThreats::class,
+                    \Pasak\SecureMonitor\Http\Middleware\BlockIpAddress::class,
+                    \Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats::class,
                 ]);
             })
             ->create();
@@ -69,7 +69,7 @@ beforeEach(function () use (&$uninstallDir) {
         namespace App\Models;
 
         use Illuminate\Foundation\Auth\User as Authenticatable;
-        use Internal\Pasak\Concerns\HasSecurityRelations;
+        use Pasak\SecureMonitor\Concerns\HasSecurityRelations;
 
         class User extends Authenticatable
         {
@@ -209,8 +209,8 @@ test(
             ->toBeFalse()
             ->and(File::isDirectory($uninstallDir.'/.agents/skills/pasak'))
             ->toBeFalse()
-            ->and(File::get($uninstallDir.'/AGENTS.md'))
-            ->toBe("# Host Guidelines\n")
+            ->and(trim(File::get($uninstallDir.'/AGENTS.md')))
+            ->toBe("# Host Guidelines")
             ->and(File::get($uninstallDir.'/AGENTS.md'))
             ->not->toContain('pasak-guidelines');
     },
@@ -228,9 +228,9 @@ test(
             use Illuminate\Foundation\Configuration\Exceptions;
             use Illuminate\Foundation\Configuration\Middleware;
             use Illuminate\Http\Request;
-            use Internal\Pasak\Http\Middleware\PasakBlockIpAddress;
-            use Internal\Pasak\Http\Middleware\PasakDetectSecurityThreats;
-            use Internal\Pasak\Http\Middleware\PasakInjectAnnouncementBanner;
+            use Pasak\SecureMonitor\Http\Middleware\PasakBlockIpAddress;
+            use Pasak\SecureMonitor\Http\Middleware\PasakDetectSecurityThreats;
+            use Pasak\SecureMonitor\Http\Middleware\PasakInjectAnnouncementBanner;
 
             return Application::configure(basePath: dirname(__DIR__))
                 ->withRouting(
@@ -334,9 +334,9 @@ test(
                 ->withMiddleware(function (Middleware $middleware): void {
                     $middleware->trustProxies(at: ['127.0.0.1', '::1']);
                     $middleware->append([
-                        \Internal\Pasak\Http\Middleware\BlockIpAddress::class,
-                        \Internal\Pasak\Http\Middleware\DetectSecurityThreats::class,
-                        \Internal\Pasak\Http\Middleware\InjectAnnouncementBanner::class,
+                        \Pasak\SecureMonitor\Http\Middleware\BlockIpAddress::class,
+                        \Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats::class,
+                        \Pasak\SecureMonitor\Http\Middleware\InjectAnnouncementBanner::class,
                     ]);
                 })
                 ->create();

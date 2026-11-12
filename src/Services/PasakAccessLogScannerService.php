@@ -1,11 +1,11 @@
 <?php
 
-namespace Internal\Pasak\Services;
+namespace Pasak\SecureMonitor\Services;
 
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use Internal\Pasak\Models\PasakLog;
+use Pasak\SecureMonitor\Models\PasakLog;
 use Throwable;
 
 /**

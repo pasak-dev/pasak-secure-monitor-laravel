@@ -1,15 +1,15 @@
 <?php
 
-namespace Internal\Pasak\Console\Commands;
+namespace Pasak\SecureMonitor\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
-use Internal\Pasak\Database\Seeders\PasakDefaultSettingsSeeder;
-use Internal\Pasak\Services\PasakService;
-use Internal\Pasak\Services\PasakVersionCheckService;
-use Internal\Pasak\Support\PasakDashboardSecret;
+use Pasak\SecureMonitor\Database\Seeders\PasakDefaultSettingsSeeder;
+use Pasak\SecureMonitor\Services\PasakService;
+use Pasak\SecureMonitor\Services\PasakVersionCheckService;
+use Pasak\SecureMonitor\Support\PasakDashboardSecret;
 use Symfony\Component\Process\Process;
 use Throwable;
 
@@ -201,7 +201,7 @@ class PasakUpgradeCommand extends Command
             }
         } catch (Throwable $e) {
             $this->comment(
-                '  ℹ Nilai bawaan pengaturan belum ditanam. Jalankan: php artisan db:seed --class=Internal\\Pasak\\Database\\Seeders\\PasakDefaultSettingsSeeder --force',
+                '  ℹ Nilai bawaan pengaturan belum ditanam. Jalankan: php artisan db:seed --class=Pasak\\SecureMonitor\\Database\\Seeders\\PasakDefaultSettingsSeeder --force',
             );
         }
         $this->newLine();
@@ -925,13 +925,13 @@ This application is protected by **`pasak-dev/secure-monitor`** (Bulwark), a sta
 - **NEVER modify files in `vendor/pasak-dev/`**. Any custom dashboard, controller, view, or API endpoint must be built inside the host application (`app/Http/Controllers/`, `resources/views/`, `routes/web.php`, `routes/api.php`).
 
 ### 3. Core Facade & Service Usage
-- Always interact via `Internal\Pasak\Facades\Pasak`:
+- Always interact via `Pasak\SecureMonitor\Facades\Pasak`:
   - `Pasak::isBlocked($ip)` — Check if an IP is currently blocked.
   - `Pasak::blockIp($ip, $reason, $durationHours, $source, $userId, $scope)` — Block an IP or specific device.
   - `Pasak::unblockIp($ip)` — Lift an IP block.
   - `Pasak::stats()` — Retrieve threat and blocking statistics.
   - `Pasak::getSettings()` / `Pasak::updateSettings($array)` — Runtime database settings.
-- Server security audits & SHA-256 integrity: use `Internal\Pasak\Services\PasakServerSecurityService`.
+- Server security audits & SHA-256 integrity: use `Pasak\SecureMonitor\Services\PasakServerSecurityService`.
 
 ### 4. Testing & Verification
 - Test all security endpoints with Pest/PHPUnit. Run `php artisan test` or `./vendor/bin/pest`.

@@ -1,112 +1,149 @@
 <?php
 
-// Backward-compatibility aliases: robyajo/pasak was previously
-// published as robyajo/laravel-security-monitor under the
-// Internal\SecurityMonitor namespace. Old host applications referencing
-// those class names keep working via these aliases.
+// Backward-compatibility aliases: pasak-dev/secure-monitor was previously
+// published under Internal\Pasak and Internal\SecurityMonitor. Old host applications
+// referencing those class names keep working via these aliases.
 
-if (! class_exists('Internal\SecurityMonitor\PasakServiceProvider') && class_exists('Internal\Pasak\PasakServiceProvider')) {
-    class_alias('Internal\Pasak\PasakServiceProvider', 'Internal\SecurityMonitor\SecurityMonitorServiceProvider');
+$serviceProviders = [
+    'Internal\SecurityMonitor\SecurityMonitorServiceProvider',
+    'Internal\SecurityMonitor\PasakServiceProvider',
+    'Internal\Pasak\PasakServiceProvider',
+];
+foreach ($serviceProviders as $alias) {
+    if (! class_exists($alias, false) && class_exists('Pasak\SecureMonitor\PasakServiceProvider')) {
+        class_alias('Pasak\SecureMonitor\PasakServiceProvider', $alias);
+    }
 }
 
-if (! class_exists('Internal\SecurityMonitor\Facades\SecurityMonitor') && class_exists('Internal\Pasak\Facades\Pasak')) {
-    class_alias('Internal\Pasak\Facades\Pasak', 'Internal\SecurityMonitor\Facades\SecurityMonitor');
+$facades = [
+    'Internal\SecurityMonitor\Facades\SecurityMonitor',
+    'Internal\SecurityMonitor\Facades\Pasak',
+    'Internal\Pasak\Facades\Pasak',
+];
+foreach ($facades as $alias) {
+    if (! class_exists($alias, false) && class_exists('Pasak\SecureMonitor\Facades\Pasak')) {
+        class_alias('Pasak\SecureMonitor\Facades\Pasak', $alias);
+    }
 }
 
-if (! class_exists('Internal\SecurityMonitor\Services\SecurityMonitorService') && class_exists('Internal\Pasak\Services\PasakService')) {
-    class_alias('Internal\Pasak\Services\PasakService', 'Internal\SecurityMonitor\Services\SecurityMonitorService');
-}
-
-if (! class_exists('Internal\SecurityMonitor\Services\PasakService') && class_exists('Internal\Pasak\Services\PasakService')) {
-    class_alias('Internal\Pasak\Services\PasakService', 'Internal\SecurityMonitor\Services\PasakService');
+$services = [
+    'Internal\SecurityMonitor\Services\SecurityMonitorService',
+    'Internal\SecurityMonitor\Services\PasakService',
+    'Internal\Pasak\Services\PasakService',
+];
+foreach ($services as $alias) {
+    if (! class_exists($alias, false) && class_exists('Pasak\SecureMonitor\Services\PasakService')) {
+        class_alias('Pasak\SecureMonitor\Services\PasakService', $alias);
+    }
 }
 
 // Backward-compatibility aliases: Pasak* (prefixed class names) <=> legacy non-prefixed class names
 $aliases = [
     // Models
-    ['Internal\Pasak\Models\PasakBlockedIp', 'Internal\Pasak\Models\BlockedIp'],
-    ['Internal\Pasak\Models\PasakLog', 'Internal\Pasak\Models\SecurityLog'],
-    ['Internal\Pasak\Models\PasakLog', 'Internal\Pasak\Models\PasakSecurityLog'],
-    ['Internal\Pasak\Models\PasakLoginAttempt', 'Internal\Pasak\Models\LoginAttempt'],
-    ['Internal\Pasak\Models\PasakIpUnblockRequest', 'Internal\Pasak\Models\IpUnblockRequest'],
-    ['Internal\Pasak\Models\PasakUserLogin', 'Internal\Pasak\Models\UserLogin'],
-    ['Internal\Pasak\Models\PasakTrustedIp', 'Internal\Pasak\Models\TrustedIp'],
-    ['Internal\Pasak\Models\PasakAllowedIp', 'Internal\Pasak\Models\AllowedIp'],
-    ['Internal\Pasak\Models\PasakSetting', 'Internal\Pasak\Models\SecuritySetting'],
-    ['Internal\Pasak\Models\PasakSetting', 'Internal\Pasak\Models\PasakSecuritySetting'],
+    ['Pasak\SecureMonitor\Models\PasakBlockedIp', 'Pasak\SecureMonitor\Models\BlockedIp'],
+    ['Pasak\SecureMonitor\Models\PasakLog', 'Pasak\SecureMonitor\Models\SecurityLog'],
+    ['Pasak\SecureMonitor\Models\PasakLog', 'Pasak\SecureMonitor\Models\PasakSecurityLog'],
+    ['Pasak\SecureMonitor\Models\PasakLoginAttempt', 'Pasak\SecureMonitor\Models\LoginAttempt'],
+    ['Pasak\SecureMonitor\Models\PasakIpUnblockRequest', 'Pasak\SecureMonitor\Models\IpUnblockRequest'],
+    ['Pasak\SecureMonitor\Models\PasakUserLogin', 'Pasak\SecureMonitor\Models\UserLogin'],
+    ['Pasak\SecureMonitor\Models\PasakTrustedIp', 'Pasak\SecureMonitor\Models\TrustedIp'],
+    ['Pasak\SecureMonitor\Models\PasakAllowedIp', 'Pasak\SecureMonitor\Models\AllowedIp'],
+    ['Pasak\SecureMonitor\Models\PasakSetting', 'Pasak\SecureMonitor\Models\SecuritySetting'],
+    ['Pasak\SecureMonitor\Models\PasakSetting', 'Pasak\SecureMonitor\Models\PasakSecuritySetting'],
 
     // Middleware
-    ['Internal\Pasak\Http\Middleware\PasakBlockIpAddress', 'Internal\Pasak\Http\Middleware\BlockIpAddress'],
-    ['Internal\Pasak\Http\Middleware\PasakDetectSecurityThreats', 'Internal\Pasak\Http\Middleware\DetectSecurityThreats'],
-    ['Internal\Pasak\Http\Middleware\PasakEnsureSecurityAdmin', 'Internal\Pasak\Http\Middleware\EnsureSecurityAdmin'],
-    ['Internal\Pasak\Http\Middleware\PasakInjectAnnouncementBanner', 'Internal\Pasak\Http\Middleware\InjectAnnouncementBanner'],
-    ['Internal\Pasak\Http\Middleware\PasakTrackUserActivity', 'Internal\Pasak\Http\Middleware\TrackUserActivity'],
+    ['Pasak\SecureMonitor\Http\Middleware\PasakBlockIpAddress', 'Pasak\SecureMonitor\Http\Middleware\BlockIpAddress'],
+    ['Pasak\SecureMonitor\Http\Middleware\PasakDetectSecurityThreats', 'Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats'],
+    ['Pasak\SecureMonitor\Http\Middleware\PasakEnsureSecurityAdmin', 'Pasak\SecureMonitor\Http\Middleware\EnsureSecurityAdmin'],
+    ['Pasak\SecureMonitor\Http\Middleware\PasakInjectAnnouncementBanner', 'Pasak\SecureMonitor\Http\Middleware\InjectAnnouncementBanner'],
+    ['Pasak\SecureMonitor\Http\Middleware\PasakTrackUserActivity', 'Pasak\SecureMonitor\Http\Middleware\TrackUserActivity'],
 
     // Listeners
-    ['Internal\Pasak\Listeners\PasakLogFailedLoginAttempt', 'Internal\Pasak\Listeners\LogFailedLoginAttempt'],
-    ['Internal\Pasak\Listeners\PasakRecordUserLogin', 'Internal\Pasak\Listeners\RecordUserLogin'],
-    ['Internal\Pasak\Listeners\PasakResetLoginAttempts', 'Internal\Pasak\Listeners\ResetLoginAttempts'],
+    ['Pasak\SecureMonitor\Listeners\PasakLogFailedLoginAttempt', 'Pasak\SecureMonitor\Listeners\LogFailedLoginAttempt'],
+    ['Pasak\SecureMonitor\Listeners\PasakRecordUserLogin', 'Pasak\SecureMonitor\Listeners\RecordUserLogin'],
+    ['Pasak\SecureMonitor\Listeners\PasakResetLoginAttempts', 'Pasak\SecureMonitor\Listeners\ResetLoginAttempts'],
 
     // Rules
-    ['Internal\Pasak\Rules\PasakSafeAssetPath', 'Internal\Pasak\Rules\SafeAssetPath'],
-    ['Internal\Pasak\Rules\PasakSafeImageFile', 'Internal\Pasak\Rules\SafeImageFile'],
+    ['Pasak\SecureMonitor\Rules\PasakSafeAssetPath', 'Pasak\SecureMonitor\Rules\SafeAssetPath'],
+    ['Pasak\SecureMonitor\Rules\PasakSafeImageFile', 'Pasak\SecureMonitor\Rules\SafeImageFile'],
 
     // Services
-    ['Internal\Pasak\Services\PasakAccessLogScannerService', 'Internal\Pasak\Services\AccessLogScannerService'],
-    ['Internal\Pasak\Services\PasakLoginThrottleService', 'Internal\Pasak\Services\LoginThrottleService'],
-    ['Internal\Pasak\Services\PasakServerSecurityService', 'Internal\Pasak\Services\ServerSecurityService'],
-    ['Internal\Pasak\Services\PasakUserLoginService', 'Internal\Pasak\Services\UserLoginService'],
-    ['Internal\Pasak\Services\PasakVersionCheckService', 'Internal\Pasak\Services\VersionCheckService'],
+    ['Pasak\SecureMonitor\Services\PasakAccessLogScannerService', 'Pasak\SecureMonitor\Services\AccessLogScannerService'],
+    ['Pasak\SecureMonitor\Services\PasakLoginThrottleService', 'Pasak\SecureMonitor\Services\LoginThrottleService'],
+    ['Pasak\SecureMonitor\Services\PasakServerSecurityService', 'Pasak\SecureMonitor\Services\ServerSecurityService'],
+    ['Pasak\SecureMonitor\Services\PasakUserLoginService', 'Pasak\SecureMonitor\Services\UserLoginService'],
+    ['Pasak\SecureMonitor\Services\PasakVersionCheckService', 'Pasak\SecureMonitor\Services\VersionCheckService'],
 
     // Support
-    ['Internal\Pasak\Support\PasakDashboardView', 'Internal\Pasak\Support\DashboardView'],
-    ['Internal\Pasak\Support\PasakTableResolver', 'Internal\Pasak\Support\TableResolver'],
+    ['Pasak\SecureMonitor\Support\PasakDashboardView', 'Pasak\SecureMonitor\Support\DashboardView'],
+    ['Pasak\SecureMonitor\Support\PasakTableResolver', 'Pasak\SecureMonitor\Support\TableResolver'],
 
     // Concerns / Traits
-    ['Internal\Pasak\Concerns\HasPasakSecurityRelations', 'Internal\Pasak\Concerns\HasSecurityRelations'],
-    ['Internal\Pasak\Http\Controllers\Dashboard\RespondsWithPasakDashboard', 'Internal\Pasak\Http\Controllers\Dashboard\RespondsWithDashboard'],
+    ['Pasak\SecureMonitor\Concerns\HasPasakSecurityRelations', 'Pasak\SecureMonitor\Concerns\HasSecurityRelations'],
+    ['Pasak\SecureMonitor\Http\Controllers\Dashboard\RespondsWithPasakDashboard', 'Pasak\SecureMonitor\Http\Controllers\Dashboard\RespondsWithDashboard'],
 
     // Commands
-    ['Internal\Pasak\Console\Commands\PasakInstallCommand', 'Internal\Pasak\Console\Commands\SecurityInstallCommand'],
-    ['Internal\Pasak\Console\Commands\PasakUpgradeCommand', 'Internal\Pasak\Console\Commands\SecurityUpgradeCommand'],
-    ['Internal\Pasak\Console\Commands\PasakBaselineCommand', 'Internal\Pasak\Console\Commands\SecurityBaselineCommand'],
-    ['Internal\Pasak\Console\Commands\PasakPruneSecurityLogsCommand', 'Internal\Pasak\Console\Commands\PruneSecurityLogs'],
-    ['Internal\Pasak\Console\Commands\PasakPurgeInjectedDataCommand', 'Internal\Pasak\Console\Commands\PurgeInjectedData'],
-    ['Internal\Pasak\Console\Commands\PasakScanAccessLogsCommand', 'Internal\Pasak\Console\Commands\SecurityScanAccessLogs'],
-    ['Internal\Pasak\Console\Commands\PasakUnblockIpCommand', 'Internal\Pasak\Console\Commands\UnblockIpAddress'],
+    ['Pasak\SecureMonitor\Console\Commands\PasakInstallCommand', 'Pasak\SecureMonitor\Console\Commands\SecurityInstallCommand'],
+    ['Pasak\SecureMonitor\Console\Commands\PasakUpgradeCommand', 'Pasak\SecureMonitor\Console\Commands\SecurityUpgradeCommand'],
+    ['Pasak\SecureMonitor\Console\Commands\PasakBaselineCommand', 'Pasak\SecureMonitor\Console\Commands\SecurityBaselineCommand'],
+    ['Pasak\SecureMonitor\Console\Commands\PasakPruneSecurityLogsCommand', 'Pasak\SecureMonitor\Console\Commands\PruneSecurityLogs'],
+    ['Pasak\SecureMonitor\Console\Commands\PasakPurgeInjectedDataCommand', 'Pasak\SecureMonitor\Console\Commands\PurgeInjectedData'],
+    ['Pasak\SecureMonitor\Console\Commands\PasakScanAccessLogsCommand', 'Pasak\SecureMonitor\Console\Commands\SecurityScanAccessLogs'],
+    ['Pasak\SecureMonitor\Console\Commands\PasakUnblockIpCommand', 'Pasak\SecureMonitor\Console\Commands\UnblockIpAddress'],
 
     // API Controllers
-    ['Internal\Pasak\Http\Controllers\Api\PasakAllowedIpApiController', 'Internal\Pasak\Http\Controllers\Api\AllowedIpApiController'],
-    ['Internal\Pasak\Http\Controllers\Api\PasakBlockedIpApiController', 'Internal\Pasak\Http\Controllers\Api\BlockedIpApiController'],
-    ['Internal\Pasak\Http\Controllers\Api\PasakIpUnblockRequestApiController', 'Internal\Pasak\Http\Controllers\Api\IpUnblockRequestApiController'],
-    ['Internal\Pasak\Http\Controllers\Api\PasakSecurityLogApiController', 'Internal\Pasak\Http\Controllers\Api\SecurityLogApiController'],
-    ['Internal\Pasak\Http\Controllers\Api\PasakSecuritySettingApiController', 'Internal\Pasak\Http\Controllers\Api\SecuritySettingApiController'],
-    ['Internal\Pasak\Http\Controllers\Api\PasakServerSecurityApiController', 'Internal\Pasak\Http\Controllers\Api\ServerSecurityApiController'],
-    ['Internal\Pasak\Http\Controllers\Api\PasakUserSessionApiController', 'Internal\Pasak\Http\Controllers\Api\UserSessionApiController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Api\PasakAllowedIpApiController', 'Pasak\SecureMonitor\Http\Controllers\Api\AllowedIpApiController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Api\PasakBlockedIpApiController', 'Pasak\SecureMonitor\Http\Controllers\Api\BlockedIpApiController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Api\PasakIpUnblockRequestApiController', 'Pasak\SecureMonitor\Http\Controllers\Api\IpUnblockRequestApiController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Api\PasakSecurityLogApiController', 'Pasak\SecureMonitor\Http\Controllers\Api\SecurityLogApiController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Api\PasakSecuritySettingApiController', 'Pasak\SecureMonitor\Http\Controllers\Api\SecuritySettingApiController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Api\PasakServerSecurityApiController', 'Pasak\SecureMonitor\Http\Controllers\Api\ServerSecurityApiController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Api\PasakUserSessionApiController', 'Pasak\SecureMonitor\Http\Controllers\Api\UserSessionApiController'],
 
     // Dashboard Controllers
-    ['Internal\Pasak\Http\Controllers\Dashboard\PasakAllowedIpController', 'Internal\Pasak\Http\Controllers\Dashboard\AllowedIpController'],
-    ['Internal\Pasak\Http\Controllers\Dashboard\PasakBlockedIpController', 'Internal\Pasak\Http\Controllers\Dashboard\BlockedIpController'],
-    ['Internal\Pasak\Http\Controllers\Dashboard\PasakLogController', 'Internal\Pasak\Http\Controllers\Dashboard\LogController'],
-    ['Internal\Pasak\Http\Controllers\Dashboard\PasakOverviewController', 'Internal\Pasak\Http\Controllers\Dashboard\OverviewController'],
-    ['Internal\Pasak\Http\Controllers\Dashboard\PasakServerController', 'Internal\Pasak\Http\Controllers\Dashboard\ServerController'],
-    ['Internal\Pasak\Http\Controllers\Dashboard\PasakSessionController', 'Internal\Pasak\Http\Controllers\Dashboard\SessionController'],
-    ['Internal\Pasak\Http\Controllers\Dashboard\PasakSettingController', 'Internal\Pasak\Http\Controllers\Dashboard\SettingController'],
-    ['Internal\Pasak\Http\Controllers\Dashboard\PasakTicketController', 'Internal\Pasak\Http\Controllers\Dashboard\TicketController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakAllowedIpController', 'Pasak\SecureMonitor\Http\Controllers\Dashboard\AllowedIpController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakBlockedIpController', 'Pasak\SecureMonitor\Http\Controllers\Dashboard\BlockedIpController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakLogController', 'Pasak\SecureMonitor\Http\Controllers\Dashboard\LogController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakOverviewController', 'Pasak\SecureMonitor\Http\Controllers\Dashboard\OverviewController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakServerController', 'Pasak\SecureMonitor\Http\Controllers\Dashboard\ServerController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakSessionController', 'Pasak\SecureMonitor\Http\Controllers\Dashboard\SessionController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakSettingController', 'Pasak\SecureMonitor\Http\Controllers\Dashboard\SettingController'],
+    ['Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakTicketController', 'Pasak\SecureMonitor\Http\Controllers\Dashboard\TicketController'],
 
     // Pre-rename namespace (Internal\SecurityMonitor\Models\*)
-    ['Internal\Pasak\Models\PasakBlockedIp', 'Internal\SecurityMonitor\Models\BlockedIp'],
-    ['Internal\Pasak\Models\PasakLog', 'Internal\SecurityMonitor\Models\SecurityLog'],
-    ['Internal\Pasak\Models\PasakLoginAttempt', 'Internal\SecurityMonitor\Models\LoginAttempt'],
-    ['Internal\Pasak\Models\PasakIpUnblockRequest', 'Internal\SecurityMonitor\Models\IpUnblockRequest'],
-    ['Internal\Pasak\Models\PasakUserLogin', 'Internal\SecurityMonitor\Models\UserLogin'],
-    ['Internal\Pasak\Models\PasakTrustedIp', 'Internal\SecurityMonitor\Models\TrustedIp'],
-    ['Internal\Pasak\Models\PasakAllowedIp', 'Internal\SecurityMonitor\Models\AllowedIp'],
-    ['Internal\Pasak\Models\PasakSetting', 'Internal\SecurityMonitor\Models\SecuritySetting'],
+    ['Pasak\SecureMonitor\Models\PasakBlockedIp', 'Internal\SecurityMonitor\Models\BlockedIp'],
+    ['Pasak\SecureMonitor\Models\PasakLog', 'Internal\SecurityMonitor\Models\SecurityLog'],
+    ['Pasak\SecureMonitor\Models\PasakLoginAttempt', 'Internal\SecurityMonitor\Models\LoginAttempt'],
+    ['Pasak\SecureMonitor\Models\PasakIpUnblockRequest', 'Internal\SecurityMonitor\Models\IpUnblockRequest'],
+    ['Pasak\SecureMonitor\Models\PasakUserLogin', 'Internal\SecurityMonitor\Models\UserLogin'],
+    ['Pasak\SecureMonitor\Models\PasakTrustedIp', 'Internal\SecurityMonitor\Models\TrustedIp'],
+    ['Pasak\SecureMonitor\Models\PasakAllowedIp', 'Internal\SecurityMonitor\Models\AllowedIp'],
+    ['Pasak\SecureMonitor\Models\PasakSetting', 'Internal\SecurityMonitor\Models\SecuritySetting'],
 ];
 
 foreach ($aliases as [$target, $alias]) {
     if (! class_exists($alias, false) && ! trait_exists($alias, false) && (class_exists($target) || trait_exists($target))) {
         class_alias($target, $alias);
     }
+
+    // Mirror to Internal\Pasak for backward compatibility
+    $internalPasakTarget = str_replace('Pasak\SecureMonitor\\', 'Internal\Pasak\\', $target);
+    if (! class_exists($internalPasakTarget, false) && ! trait_exists($internalPasakTarget, false) && (class_exists($target) || trait_exists($target))) {
+        class_alias($target, $internalPasakTarget);
+    }
+
+    $internalPasakAlias = str_replace('Pasak\SecureMonitor\\', 'Internal\Pasak\\', $alias);
+    if (! class_exists($internalPasakAlias, false) && ! trait_exists($internalPasakAlias, false) && (class_exists($target) || trait_exists($target))) {
+        class_alias($target, $internalPasakAlias);
+    }
 }
+
+// Fallback autoloader for any remaining Internal\Pasak\* references
+spl_autoload_register(function ($class) {
+    if (str_starts_with($class, 'Internal\Pasak\\')) {
+        $target = 'Pasak\SecureMonitor\\' . substr($class, strlen('Internal\Pasak\\'));
+        if (class_exists($target) || interface_exists($target) || trait_exists($target)) {
+            class_alias($target, $class);
+        }
+    }
+});

@@ -45,7 +45,7 @@ Paket secara otomatis mendaftarkan listener pada event otentikasi Laravel:
 Jika Anda membangun form login kustom atau API login headless, Anda dapat memeriksa status lockout sebelum memvalidasi kredensial:
 
 ```php
-use Internal\Pasak\Services\LoginThrottleService;
+use Pasak\SecureMonitor\Services\LoginThrottleService;
 
 class AuthController extends Controller
 {

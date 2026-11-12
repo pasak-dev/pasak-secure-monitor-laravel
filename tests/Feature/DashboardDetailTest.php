@@ -4,12 +4,12 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use Internal\Pasak\Http\Controllers\Dashboard\BlockedIpController;
-use Internal\Pasak\Http\Controllers\Dashboard\LogController;
-use Internal\Pasak\Http\Controllers\Dashboard\TicketController;
-use Internal\Pasak\Models\BlockedIp;
-use Internal\Pasak\Models\IpUnblockRequest;
-use Internal\Pasak\Models\SecurityLog;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\BlockedIpController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\LogController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\TicketController;
+use Pasak\SecureMonitor\Models\BlockedIp;
+use Pasak\SecureMonitor\Models\IpUnblockRequest;
+use Pasak\SecureMonitor\Models\SecurityLog;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 function publishBladeDashboard(): string
@@ -172,7 +172,7 @@ test('blade layout ships the dark mode toggle and detail styles', function () {
         ->and($bladeLayout)->toContain('color-scheme')
         ->and($bladeLayout)->toContain('sec-detail-grid')
         ->and($bladeLayout)->toContain('sec-sidebar-version')
-        ->and($bladeLayout)->toContain('\Internal\Pasak\Services\PasakService::VERSION');
+        ->and($bladeLayout)->toContain('\Pasak\SecureMonitor\Services\PasakService::VERSION');
 });
 
 test('blade detail pages exist for logs, blocks, and tickets', function () {

@@ -1,12 +1,12 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Api;
+namespace Pasak\SecureMonitor\Http\Controllers\Api;
 
 /**
  * Legacy alias for PasakUserSessionApiController.
  */
 class UserSessionApiController extends PasakUserSessionApiController {}
 
-if (! class_exists('Internal\\Pasak\\Http\\Controllers\\Api\\UserSessionApiController', false)) {
-    class_alias(PasakUserSessionApiController::class, 'Internal\\Pasak\\Http\\Controllers\\Api\\UserSessionApiController');
+if (! class_exists('Pasak\\SecureMonitor\\Http\\Controllers\\Api\\UserSessionApiController', false)) {
+    class_alias(PasakUserSessionApiController::class, 'Pasak\\SecureMonitor\\Http\\Controllers\\Api\\UserSessionApiController');
 }

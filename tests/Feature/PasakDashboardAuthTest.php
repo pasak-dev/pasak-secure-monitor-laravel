@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use Internal\Pasak\Models\PasakSetting;
-use Internal\Pasak\Support\PasakDashboardSecret;
+use Pasak\SecureMonitor\Models\PasakSetting;
+use Pasak\SecureMonitor\Support\PasakDashboardSecret;
 
 beforeEach(function () {
     config()->set('pasak.dashboard.enabled', true);

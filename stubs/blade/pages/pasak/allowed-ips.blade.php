@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-    $DV = \Internal\Pasak\Support\DashboardView::class;
+    $DV = \Pasak\SecureMonitor\Support\DashboardView::class;
 @endphp
 <div class="sec-grid-4">
     <div class="sec-stat-card">

@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
-use Internal\Pasak\Concerns\ResolvesPasakTable;
+use Pasak\SecureMonitor\Concerns\ResolvesPasakTable;
 
 return new class extends Migration
 {

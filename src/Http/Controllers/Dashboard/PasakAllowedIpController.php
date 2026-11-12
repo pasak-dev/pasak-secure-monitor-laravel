@@ -1,13 +1,13 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Dashboard;
+namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
-use Internal\Pasak\Models\PasakAllowedIp;
+use Pasak\SecureMonitor\Models\PasakAllowedIp;
 
 class PasakAllowedIpController extends Controller
 {

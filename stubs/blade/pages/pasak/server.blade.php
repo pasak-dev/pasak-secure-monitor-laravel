@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-    $DV = \Internal\Pasak\Support\DashboardView::class;
+    $DV = \Pasak\SecureMonitor\Support\DashboardView::class;
     $summary = $report['summary'] ?? [];
 @endphp
 
@@ -110,7 +110,7 @@
 
 {{-- Pengaturan Lokasi Fisik & Zona Waktu Server (Live Threat Map & System Clock) --}}
 @php
-    $effectiveTz = $serverLocation['effective_timezone'] ?? ($serverLocation['timezone'] ?? \Internal\Pasak\Support\DashboardView::timezone());
+    $effectiveTz = $serverLocation['effective_timezone'] ?? ($serverLocation['timezone'] ?? \Pasak\SecureMonitor\Support\DashboardView::timezone());
     $customTz = $serverLocation['timezone'] ?? null;
     $indonesianTzs = [
         'Asia/Jakarta' => 'Asia/Jakarta (WIB — UTC+07:00: Jakarta, Sumatra, Jawa)',

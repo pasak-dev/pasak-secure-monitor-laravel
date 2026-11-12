@@ -48,8 +48,8 @@ class Kernel
 {
     protected $middleware = [
         \App\Http\Middleware\TrustProxies::class,
-        \Internal\Pasak\Http\Middleware\BlockIpAddress::class,
-        \Internal\Pasak\Http\Middleware\DetectSecurityThreats::class,
+        \Pasak\SecureMonitor\Http\Middleware\BlockIpAddress::class,
+        \Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats::class,
     ];
 }
 PHP
@@ -91,7 +91,7 @@ test('uninstall removes trait from combined use statement and keeps other traits
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Internal\Pasak\Concerns\HasSecurityRelations;
+use Pasak\SecureMonitor\Concerns\HasSecurityRelations;
 
 class User extends Authenticatable
 {

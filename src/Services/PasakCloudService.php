@@ -1,6 +1,6 @@
 <?php
 
-namespace Internal\Pasak\Services;
+namespace Pasak\SecureMonitor\Services;
 
 use Illuminate\Support\Facades\Http;
 use Throwable;

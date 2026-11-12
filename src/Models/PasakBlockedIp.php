@@ -1,13 +1,13 @@
 <?php
 
-namespace Internal\Pasak\Models;
+namespace Pasak\SecureMonitor\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use Internal\Pasak\Concerns\ResolvesPasakTable;
+use Pasak\SecureMonitor\Concerns\ResolvesPasakTable;
 
 /**
  * @property int $id

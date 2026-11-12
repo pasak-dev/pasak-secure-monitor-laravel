@@ -1,13 +1,13 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Dashboard;
+namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Internal\Pasak\Services\PasakService;
-use Internal\Pasak\Services\VersionCheckService;
+use Pasak\SecureMonitor\Services\PasakService;
+use Pasak\SecureMonitor\Services\VersionCheckService;
 
 class PasakSettingController extends Controller
 {

@@ -1,9 +1,9 @@
 <?php
 
-use Internal\Pasak\Models\BlockedIp;
-use Internal\Pasak\Models\IpUnblockRequest;
-use Internal\Pasak\Models\SecurityLog;
-use Internal\Pasak\Models\TrustedIp;
+use Pasak\SecureMonitor\Models\BlockedIp;
+use Pasak\SecureMonitor\Models\IpUnblockRequest;
+use Pasak\SecureMonitor\Models\SecurityLog;
+use Pasak\SecureMonitor\Models\TrustedIp;
 
 beforeEach(function () {
     $this->admin = $this->createAdminUser();

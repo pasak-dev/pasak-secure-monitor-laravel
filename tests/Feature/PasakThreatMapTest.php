@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ViewErrorBag;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakThreatMapController;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakThreatMapController;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Services\PasakService;
 
 beforeEach(function () {
     config()->set('pasak.dashboard.driver', 'blade');

@@ -1,9 +1,9 @@
 <?php
 
-namespace Internal\Pasak\Console\Commands;
+namespace Pasak\SecureMonitor\Console\Commands;
 
 use Illuminate\Console\Command;
-use Internal\Pasak\Models\PasakLog;
+use Pasak\SecureMonitor\Models\PasakLog;
 
 class PasakPruneSecurityLogsCommand extends Command
 {

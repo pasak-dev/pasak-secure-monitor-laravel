@@ -74,7 +74,7 @@ Perintah ini akan secara otomatis:
     - Menambahkan blok konfigurasi lengkap (`PASAK_*`) disertai dokumentasi penjelasan fungsi berbahasa Indonesia langsung di bagian bawah berkas `.env` dan `.env.example`.
     - Menggunakan deteksi cerdas agar tidak terjadi duplikasi jika variabel sudah pernah ditambahkan sebelumnya.
 6. **Menyematkan Trait `HasPasakSecurityRelations` ke Model User**:
-    - Secara otomatis mendeteksi model `User` (`app/Models/User.php`) dan menambahkan import `use Internal\Pasak\Concerns\HasPasakSecurityRelations;` serta menyematkan trait `HasPasakSecurityRelations`.
+    - Secara otomatis mendeteksi model `User` (`app/Models/User.php`) dan menambahkan import `use Pasak\SecureMonitor\Concerns\HasPasakSecurityRelations;` serta menyematkan trait `HasPasakSecurityRelations`.
     - Idempotent: tidak akan menduplikasi jika trait sudah ada.
 7. **Mendaftarkan Middleware WAF ke Aplikasi Host**:
     - Otomatis mendaftarkan `PasakBlockIpAddress`, `PasakDetectSecurityThreats`, dan `PasakInjectAnnouncementBanner` ke dalam `bootstrap/app.php` (Laravel 11 & 12) atau `app/Http/Kernel.php` (Laravel 10).
@@ -296,7 +296,7 @@ Buka model pengguna aplikasi Anda (biasanya `app/Models/User.php`) dan sertakan 
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Internal\Pasak\Concerns\HasPasakSecurityRelations;
+use Pasak\SecureMonitor\Concerns\HasPasakSecurityRelations;
 
 class User extends Authenticatable
 {
@@ -306,7 +306,7 @@ class User extends Authenticatable
 }
 ```
 
-> **Catatan Kompatibilitas**: Nama lama `use Internal\Pasak\Concerns\HasSecurityRelations;` dan `use HasSecurityRelations;` tetap 100% didukung melalui alias.
+> **Catatan Kompatibilitas**: Nama lama `use Pasak\SecureMonitor\Concerns\HasSecurityRelations;` dan `use HasSecurityRelations;` tetap 100% didukung melalui alias.
 
 Metode relasi Eloquent yang otomatis tersedia:
 
@@ -325,20 +325,20 @@ Paket menyediakan 5 middleware terisolasi:
 
 | Alias               | Kelas Middleware                                                 | Peran                                                                                                       |
 | :------------------ | :--------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- |
-| `pasak.block`    | `Internal\Pasak\Http\Middleware\PasakBlockIpAddress`        | Menolak request dari IP/perangkat yang sedang terblokir aktif (HTTP 403).                                   |
-| `pasak.detect`   | `Internal\Pasak\Http\Middleware\PasakDetectSecurityThreats` | Menginspeksi payload request terhadap tanda-tanda serangan siber dan mengaktifkan auto-block/instant block. |
-| `pasak.admin`    | `Internal\Pasak\Http\Middleware\PasakEnsureSecurityAdmin`   | Memastikan hanya user dengan wewenang admin yang dapat mengakses REST API admin.                            |
-| `pasak.activity` | `Internal\Pasak\Http\Middleware\PasakTrackUserActivity`     | Memperbarui heartbeat aktivitas login pengguna di database (ter-throttle 45 detik).                         |
-| `pasak.announce` | `Internal\Pasak\Http\Middleware\PasakInjectAnnouncementBanner` | Menyuntikkan banner dan dialog pengumuman versi di halaman host yang ditentukan.                            |
+| `pasak.block`    | `Pasak\SecureMonitor\Http\Middleware\PasakBlockIpAddress`        | Menolak request dari IP/perangkat yang sedang terblokir aktif (HTTP 403).                                   |
+| `pasak.detect`   | `Pasak\SecureMonitor\Http\Middleware\PasakDetectSecurityThreats` | Menginspeksi payload request terhadap tanda-tanda serangan siber dan mengaktifkan auto-block/instant block. |
+| `pasak.admin`    | `Pasak\SecureMonitor\Http\Middleware\PasakEnsureSecurityAdmin`   | Memastikan hanya user dengan wewenang admin yang dapat mengakses REST API admin.                            |
+| `pasak.activity` | `Pasak\SecureMonitor\Http\Middleware\PasakTrackUserActivity`     | Memperbarui heartbeat aktivitas login pengguna di database (ter-throttle 45 detik).                         |
+| `pasak.announce` | `Pasak\SecureMonitor\Http\Middleware\PasakInjectAnnouncementBanner` | Menyuntikkan banner dan dialog pengumuman versi di halaman host yang ditentukan.                            |
 
 ### Pendaftaran pada Laravel 11 / 12 / 13 (`bootstrap/app.php`)
 
 ```php
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Middleware;
-use Internal\Pasak\Http\Middleware\PasakBlockIpAddress;
-use Internal\Pasak\Http\Middleware\PasakDetectSecurityThreats;
-use Internal\Pasak\Http\Middleware\PasakTrackUserActivity;
+use Pasak\SecureMonitor\Http\Middleware\PasakBlockIpAddress;
+use Pasak\SecureMonitor\Http\Middleware\PasakDetectSecurityThreats;
+use Pasak\SecureMonitor\Http\Middleware\PasakTrackUserActivity;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -369,8 +369,8 @@ Buka `app/Http/Kernel.php` dan tambahkan ke array `$middleware`:
 ```php
 protected $middleware = [
     // ...
-    \Internal\Pasak\Http\Middleware\PasakBlockIpAddress::class,
-    \Internal\Pasak\Http\Middleware\PasakDetectSecurityThreats::class,
+    \Pasak\SecureMonitor\Http\Middleware\PasakBlockIpAddress::class,
+    \Pasak\SecureMonitor\Http\Middleware\PasakDetectSecurityThreats::class,
 ];
 ```
 
@@ -412,7 +412,7 @@ Panel tersedia di `/pasak` dan berisi tujuh modul: **Overview**, **Security Logs
         'enabled' => (bool) env('PASAK_DASHBOARD_ENABLED', false),
         'prefix' => env('PASAK_DASHBOARD_PREFIX', 'pasak'),
         'middleware' => ['web', 'auth'],
-        'admin_middleware' => ['Internal\\Pasak\\Http\\Middleware\\EnsureSecurityAdmin'],
+        'admin_middleware' => ['Pasak\\SecureMonitor\\Http\\Middleware\\EnsureSecurityAdmin'],
     ],
     ```
 

@@ -1,11 +1,11 @@
 <?php
 
 use Illuminate\Http\UploadedFile;
-use Internal\Pasak\Models\BlockedIp;
-use Internal\Pasak\Models\SecurityLog;
-use Internal\Pasak\Rules\SafeAssetPath;
-use Internal\Pasak\Services\PasakService;
-use Internal\Pasak\Tests\TestUser;
+use Pasak\SecureMonitor\Models\BlockedIp;
+use Pasak\SecureMonitor\Models\SecurityLog;
+use Pasak\SecureMonitor\Rules\SafeAssetPath;
+use Pasak\SecureMonitor\Services\PasakService;
+use Pasak\SecureMonitor\Tests\TestUser;
 
 beforeEach(function () {
     config()->set('pasak.enabled', true);

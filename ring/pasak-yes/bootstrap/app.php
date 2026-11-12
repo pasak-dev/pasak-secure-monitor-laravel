@@ -14,9 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append([
-            \Internal\Pasak\Http\Middleware\PasakBlockIpAddress::class,
-            \Internal\Pasak\Http\Middleware\PasakDetectSecurityThreats::class,
-            \Internal\Pasak\Http\Middleware\PasakInjectAnnouncementBanner::class,
+            \Pasak\SecureMonitor\Http\Middleware\PasakBlockIpAddress::class,
+            \Pasak\SecureMonitor\Http\Middleware\PasakDetectSecurityThreats::class,
+            \Pasak\SecureMonitor\Http\Middleware\PasakInjectAnnouncementBanner::class,
         ]);
 
         

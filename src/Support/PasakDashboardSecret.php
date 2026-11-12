@@ -1,10 +1,10 @@
 <?php
 
-namespace Internal\Pasak\Support;
+namespace Pasak\SecureMonitor\Support;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use Internal\Pasak\Models\PasakSetting;
+use Pasak\SecureMonitor\Models\PasakSetting;
 
 /**
  * Pengelola rahasia URL dashboard acak (`PASAK_DASHBOARD_SECRET`) dan

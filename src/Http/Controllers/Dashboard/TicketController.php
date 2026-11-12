@@ -1,12 +1,12 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Dashboard;
+namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
 
 /**
  * Legacy alias for PasakTicketController.
  */
 class TicketController extends PasakTicketController {}
 
-if (! class_exists('Internal\\Pasak\\Http\\Controllers\\Dashboard\\TicketController', false)) {
-    class_alias(PasakTicketController::class, 'Internal\\Pasak\\Http\\Controllers\\Dashboard\\TicketController');
+if (! class_exists('Pasak\\SecureMonitor\\Http\\Controllers\\Dashboard\\TicketController', false)) {
+    class_alias(PasakTicketController::class, 'Pasak\\SecureMonitor\\Http\\Controllers\\Dashboard\\TicketController');
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Internal\Pasak\Models;
+namespace Pasak\SecureMonitor\Models;
 
 /**
  * @deprecated Use PasakTrustedIp instead.

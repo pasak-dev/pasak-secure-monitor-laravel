@@ -2,7 +2,7 @@
 
 @section('content')
 @php
-    $DV = \Internal\Pasak\Support\DashboardView::class;
+    $DV = \Pasak\SecureMonitor\Support\DashboardView::class;
 
     $trendRange = $trendRange ?? request()->query('trend_range', request()->query('range', 'week'));
     if (! in_array($trendRange, ['week', 'month', 'year'], true)) {
@@ -11,7 +11,7 @@
 
     if (! isset($trend) || ! is_array($trend)) {
         try {
-            $trend = app(\Internal\Pasak\Services\PasakService::class)->attackTrend($trendRange);
+            $trend = app(\Pasak\SecureMonitor\Services\PasakService::class)->attackTrend($trendRange);
         } catch (\Throwable) {
             $trend = [
                 'range' => $trendRange,

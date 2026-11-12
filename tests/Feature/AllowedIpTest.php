@@ -1,8 +1,8 @@
 <?php
 
-use Internal\Pasak\Models\AllowedIp;
-use Internal\Pasak\Services\PasakService;
-use Internal\Pasak\Tests\TestUser;
+use Pasak\SecureMonitor\Models\AllowedIp;
+use Pasak\SecureMonitor\Services\PasakService;
+use Pasak\SecureMonitor\Tests\TestUser;
 
 beforeEach(function () {
     config()->set('pasak.enabled', true);

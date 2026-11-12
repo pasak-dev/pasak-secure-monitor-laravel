@@ -196,7 +196,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem;">
         <div>
             <h3 style="margin: 0;">📜 Riwayat Deteksi WAF Terbaru</h3>
-            <span class="meta">Data langsung dari tabel <code>{{ (new \Internal\Pasak\Models\PasakLog)->getTable() }}</code></span>
+            <span class="meta">Data langsung dari tabel <code>{{ (new \Pasak\SecureMonitor\Models\PasakLog)->getTable() }}</code></span>
         </div>
         <div style="display:flex; gap:.5rem; align-items:center;">
             @if($recentLogs->isNotEmpty())

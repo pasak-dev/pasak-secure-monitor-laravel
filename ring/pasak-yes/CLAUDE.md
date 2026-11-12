@@ -172,13 +172,13 @@ This application is protected by **`pasak-dev/secure-monitor`** (Bulwark), a sta
 - **NEVER modify files in `vendor/pasak-dev/secure-monitor/`**. Any custom dashboard, controller, view, or API endpoint must be built inside the host application (`app/Http/Controllers/`, `resources/views/`, `routes/web.php`, `routes/api.php`).
 
 ### 3. Core Facade & Service Usage
-- Always interact via `Internal\Pasak\Facades\Pasak`:
+- Always interact via `Pasak\SecureMonitor\Facades\Pasak`:
   - `Pasak::isBlocked($ip)` — Check if an IP is currently blocked.
   - `Pasak::blockIp($ip, $reason, $durationHours, $source, $userId, $scope)` — Block an IP or specific device.
   - `Pasak::unblockIp($ip)` — Lift an IP block.
   - `Pasak::stats()` — Retrieve threat and blocking statistics.
   - `Pasak::getSettings()` / `Pasak::updateSettings($array)` — Runtime database settings.
-- Server security audits & SHA-256 integrity: use `Internal\Pasak\Services\PasakServerSecurityService`.
+- Server security audits & SHA-256 integrity: use `Pasak\SecureMonitor\Services\PasakServerSecurityService`.
 
 ### 4. Testing & Verification
 - Test all security endpoints with Pest/PHPUnit. Run `php artisan test` or `./vendor/bin/pest`.

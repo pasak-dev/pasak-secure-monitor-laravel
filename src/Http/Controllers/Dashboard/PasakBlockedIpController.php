@@ -1,6 +1,6 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Dashboard;
+namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
-use Internal\Pasak\Models\PasakBlockedIp;
-use Internal\Pasak\Models\PasakIpUnblockRequest;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Services\PasakSentinelBridge;
-use Internal\Pasak\Services\PasakService;
-use Internal\Pasak\Services\PasakUserLoginService;
+use Pasak\SecureMonitor\Models\PasakBlockedIp;
+use Pasak\SecureMonitor\Models\PasakIpUnblockRequest;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Services\PasakSentinelBridge;
+use Pasak\SecureMonitor\Services\PasakService;
+use Pasak\SecureMonitor\Services\PasakUserLoginService;
 use Throwable;
 
 /**

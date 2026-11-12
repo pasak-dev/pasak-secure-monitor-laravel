@@ -35,7 +35,7 @@ Repositori paket saat ini telah berdiri sendiri secara penuh di direktori paket:
 
 | Komponen                        |     Status      | Catatan Verifikasi                                                                 |
 | :------------------------------ | :-------------: | :--------------------------------------------------------------------------------- |
-| **Pemisahan Kode (Decoupling)** | ✅ 100% Selesai | Seluruh referensi `App\` telah diubah ke `Internal\Pasak\`.              |
+| **Pemisahan Kode (Decoupling)** | ✅ 100% Selesai | Seluruh referensi `App\` telah diubah ke `Pasak\SecureMonitor\`.              |
 | **Model User Dinamis**          | ✅ 100% Selesai | Menggunakan `config('security.user_model')` + Trait `HasSecurityRelations`.        |
 | **Nama Tabel Dinamis**          | ✅ 100% Selesai | Seluruh model membaca nama tabel dari `config('security.table_names.*')`.          |
 | **Bebas Dependensi NPM**        | ✅ 100% Selesai | Murni Composer library (`type: library`), nol ketergantungan build tool frontend.  |
@@ -137,21 +137,21 @@ Berkas `composer.json` telah dikonfigurasi untuk standar katalog Packagist:
     },
     "autoload": {
         "psr-4": {
-            "Internal\\Pasak\\": "src/"
+            "Pasak\\SecureMonitor\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Internal\\Pasak\\Tests\\": "tests/"
+            "Pasak\\SecureMonitor\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Internal\\Pasak\\PasakServiceProvider"
+                "Pasak\\SecureMonitor\\PasakServiceProvider"
             ],
             "aliases": {
-                "Pasak": "Internal\\Pasak\\Facades\\Pasak"
+                "Pasak": "Pasak\\SecureMonitor\\Facades\\Pasak"
             }
         }
     },

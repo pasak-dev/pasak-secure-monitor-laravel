@@ -1,13 +1,13 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Api;
+namespace Pasak\SecureMonitor\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Str;
-use Internal\Pasak\Models\PasakIpUnblockRequest;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Models\PasakIpUnblockRequest;
+use Pasak\SecureMonitor\Services\PasakService;
 
 class PasakIpUnblockRequestApiController extends Controller
 {

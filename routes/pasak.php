@@ -1,13 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Internal\Pasak\Http\Controllers\Api\PasakAllowedIpApiController;
-use Internal\Pasak\Http\Controllers\Api\PasakBlockedIpApiController;
-use Internal\Pasak\Http\Controllers\Api\PasakIpUnblockRequestApiController;
-use Internal\Pasak\Http\Controllers\Api\PasakSecurityLogApiController;
-use Internal\Pasak\Http\Controllers\Api\PasakSecuritySettingApiController;
-use Internal\Pasak\Http\Controllers\Api\PasakServerSecurityApiController;
-use Internal\Pasak\Http\Controllers\Api\PasakUserSessionApiController;
+use Pasak\SecureMonitor\Http\Controllers\Api\PasakAllowedIpApiController;
+use Pasak\SecureMonitor\Http\Controllers\Api\PasakBlockedIpApiController;
+use Pasak\SecureMonitor\Http\Controllers\Api\PasakIpUnblockRequestApiController;
+use Pasak\SecureMonitor\Http\Controllers\Api\PasakSecurityLogApiController;
+use Pasak\SecureMonitor\Http\Controllers\Api\PasakSecuritySettingApiController;
+use Pasak\SecureMonitor\Http\Controllers\Api\PasakServerSecurityApiController;
+use Pasak\SecureMonitor\Http\Controllers\Api\PasakUserSessionApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +19,7 @@ $prefix = config('pasak.routes.prefix', 'api/pasak');
 $middleware = (array) config('pasak.routes.middleware', ['api']);
 $authMiddleware = (array) config('pasak.routes.auth_middleware', ['auth']);
 $adminMiddleware = (array) config('pasak.routes.admin_middleware', [
-    "Internal\Pasak\Http\Middleware\PasakEnsureSecurityAdmin",
+    "Pasak\SecureMonitor\Http\Middleware\PasakEnsureSecurityAdmin",
 ]);
 
 Route::prefix($prefix)

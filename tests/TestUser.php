@@ -1,9 +1,9 @@
 <?php
 
-namespace Internal\Pasak\Tests;
+namespace Pasak\SecureMonitor\Tests;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Internal\Pasak\Concerns\HasSecurityRelations;
+use Pasak\SecureMonitor\Concerns\HasSecurityRelations;
 
 class TestUser extends Authenticatable
 {

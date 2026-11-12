@@ -5,13 +5,13 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ViewErrorBag;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakThreatMapController;
-use Internal\Pasak\Models\PasakSetting;
-use Internal\Pasak\PasakServiceProvider;
-use Internal\Pasak\Services\PasakServerSecurityService;
-use Internal\Pasak\Services\PasakService;
-use Internal\Pasak\Support\PasakDashboardView;
-use Internal\Pasak\Tests\TestUser;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakThreatMapController;
+use Pasak\SecureMonitor\Models\PasakSetting;
+use Pasak\SecureMonitor\PasakServiceProvider;
+use Pasak\SecureMonitor\Services\PasakServerSecurityService;
+use Pasak\SecureMonitor\Services\PasakService;
+use Pasak\SecureMonitor\Support\PasakDashboardView;
+use Pasak\SecureMonitor\Tests\TestUser;
 
 beforeEach(function () {
     Cache::flush();

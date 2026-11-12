@@ -1,6 +1,6 @@
 <?php
 
-namespace Internal\Pasak\Console\Commands;
+namespace Pasak\SecureMonitor\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -227,19 +227,19 @@ class PasakUninstallCommand extends Command
         ];
 
         $markers = [
-            'Internal\\Pasak\\Http\\Middleware\\PasakBlockIpAddress::class',
-            'Internal\\Pasak\\Http\\Middleware\\PasakDetectSecurityThreats::class',
-            'Internal\\Pasak\\Http\\Middleware\\PasakInjectAnnouncementBanner::class',
-            'Internal\\Pasak\\Http\\Middleware\\BlockIpAddress::class',
-            'Internal\\Pasak\\Http\\Middleware\\DetectSecurityThreats::class',
-            'Internal\\Pasak\\Http\\Middleware\\InjectAnnouncementBanner::class',
+            'Pasak\\SecureMonitor\\Http\\Middleware\\PasakBlockIpAddress::class',
+            'Pasak\\SecureMonitor\\Http\\Middleware\\PasakDetectSecurityThreats::class',
+            'Pasak\\SecureMonitor\\Http\\Middleware\\PasakInjectAnnouncementBanner::class',
+            'Pasak\\SecureMonitor\\Http\\Middleware\\BlockIpAddress::class',
+            'Pasak\\SecureMonitor\\Http\\Middleware\\DetectSecurityThreats::class',
+            'Pasak\\SecureMonitor\\Http\\Middleware\\InjectAnnouncementBanner::class',
             // Varian lama (pra-rename namespace).
             'Internal\\SecurityMonitor\\Http\\Middleware\\BlockIpAddress::class',
             'Internal\\SecurityMonitor\\Http\\Middleware\\DetectSecurityThreats::class',
         ];
-        // Gaya import "use Internal\Pasak\...;" (nama pendek tanpa namespace).
+        // Gaya import "use Pasak\SecureMonitor\...;" (nama pendek tanpa namespace).
         $importMarkers = [
-            'use Internal\\Pasak\\Http\\Middleware\\',
+            'use Pasak\\SecureMonitor\\Http\\Middleware\\',
             'use Internal\\SecurityMonitor\\Http\\Middleware\\',
         ];
         // Pemakaian nama pendek ("PasakBlockIpAddress::class," / "BlockIpAddress::class,").
@@ -352,8 +352,8 @@ class PasakUninstallCommand extends Command
 
         $traits = ['HasPasakSecurityRelations', 'HasSecurityRelations'];
         $imports = [
-            'use Internal\\Pasak\\Concerns\\HasPasakSecurityRelations;',
-            'use Internal\\Pasak\\Concerns\\HasSecurityRelations;',
+            'use Pasak\\SecureMonitor\\Concerns\\HasPasakSecurityRelations;',
+            'use Pasak\\SecureMonitor\\Concerns\\HasSecurityRelations;',
             'use Internal\\SecurityMonitor\\Concerns\\HasSecurityRelations;',
         ];
 
@@ -545,7 +545,7 @@ class PasakUninstallCommand extends Command
             if (
                 str_contains(
                     File::get((string) $migration),
-                    'Internal\\Pasak',
+                    'Pasak\\SecureMonitor',
                 ) ||
                 str_contains(
                     File::get((string) $migration),

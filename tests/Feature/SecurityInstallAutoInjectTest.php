@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\File;
-use Internal\Pasak\Console\Commands\PasakInstallCommand;
-use Internal\Pasak\Console\Commands\SecurityInstallCommand;
+use Pasak\SecureMonitor\Console\Commands\PasakInstallCommand;
+use Pasak\SecureMonitor\Console\Commands\SecurityInstallCommand;
 
 $tempDir = '';
 

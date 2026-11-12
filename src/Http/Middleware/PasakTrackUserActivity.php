@@ -1,11 +1,11 @@
 <?php
 
-namespace Internal\Pasak\Http\Middleware;
+namespace Pasak\SecureMonitor\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Internal\Pasak\Services\PasakUserLoginService;
+use Pasak\SecureMonitor\Services\PasakUserLoginService;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 

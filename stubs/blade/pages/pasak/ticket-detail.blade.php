@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-    $DV = \Internal\Pasak\Support\DashboardView::class;
+    $DV = \Pasak\SecureMonitor\Support\DashboardView::class;
 @endphp
 <a href="{{ $urls['index'] }}" class="sec-back-link">← {{ __('Back to appeals') }}</a>
 

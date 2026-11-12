@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Internal\Pasak\Http\Middleware\InjectAnnouncementBanner;
+use Pasak\SecureMonitor\Http\Middleware\InjectAnnouncementBanner;
 
 beforeEach(function () {
     app()->detectEnvironment(fn () => 'local');

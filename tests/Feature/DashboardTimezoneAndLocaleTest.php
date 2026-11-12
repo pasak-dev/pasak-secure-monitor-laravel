@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Carbon;
-use Internal\Pasak\Support\PasakDashboardView;
+use Pasak\SecureMonitor\Support\PasakDashboardView;
 
 test('dashboard view detects server timezone or respects config', function () {
     $tz = PasakDashboardView::timezone();

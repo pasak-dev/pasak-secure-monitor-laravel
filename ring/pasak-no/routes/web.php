@@ -11,7 +11,7 @@ use App\Http\Controllers\TagController;
 use App\Models\Category;
 use App\Models\Post;
 use Illuminate\Support\Facades\Route;
-use Internal\Pasak\PasakServiceProvider;
+use Pasak\SecureMonitor\PasakServiceProvider;
 
 Route::get('/', function () {
     $hits = collect(@file(storage_path('logs/waf-hits.log'), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [])

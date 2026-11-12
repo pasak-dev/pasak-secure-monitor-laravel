@@ -1,9 +1,9 @@
 <?php
 
-namespace Internal\Pasak\Database\Seeders;
+namespace Pasak\SecureMonitor\Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Services\PasakService;
 
 /**
  * Seeds the built-in default security settings into the pasak_settings
@@ -12,7 +12,7 @@ use Internal\Pasak\Services\PasakService;
  *
  * Idempotent: existing setting rows are never overwritten unless $overwrite is true.
  *
- * Manual usage:  php artisan db:seed --class=Internal\Pasak\Database\Seeders\PasakDefaultSettingsSeeder --force
+ * Manual usage:  php artisan db:seed --class=Pasak\SecureMonitor\Database\Seeders\PasakDefaultSettingsSeeder --force
  */
 class PasakDefaultSettingsSeeder extends Seeder
 {

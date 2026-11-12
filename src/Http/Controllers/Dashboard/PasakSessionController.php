@@ -1,16 +1,16 @@
 <?php
 
-namespace Internal\Pasak\Http\Controllers\Dashboard;
+namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
-use Internal\Pasak\Models\PasakTrustedIp;
-use Internal\Pasak\Models\PasakUserLogin;
-use Internal\Pasak\Services\PasakService;
-use Internal\Pasak\Services\PasakUserLoginService;
+use Pasak\SecureMonitor\Models\PasakTrustedIp;
+use Pasak\SecureMonitor\Models\PasakUserLogin;
+use Pasak\SecureMonitor\Services\PasakService;
+use Pasak\SecureMonitor\Services\PasakUserLoginService;
 
 /**
  * User session tracking page for the Blade monitoring dashboard.

@@ -290,7 +290,7 @@
             <h3 class="sec-card-title" style="font-size: 16px;">🔑 {{ __('Kredensial & Pembaruan Password Dasbor Pasak') }}</h3>
             <p class="sec-card-desc" style="margin-top: 6px;">{{ __('Password akses ke dasbor disimpan di database dan di-hash aman menggunakan HMAC SHA-256 berbasis PASAK_DASHBOARD_SECRET.') }}</p>
         </div>
-        @if (\Internal\Pasak\Support\PasakDashboardSecret::isPasswordStoredInDatabase())
+        @if (\Pasak\SecureMonitor\Support\PasakDashboardSecret::isPasswordStoredInDatabase())
             <span class="sec-pill sec-pill-success">✓ {{ __('Password Kustom Aktif') }}</span>
         @else
             <span class="sec-pill sec-pill-warning">⚠ {{ __('Password Bawaan (Admin)') }}</span>
@@ -304,7 +304,7 @@
                 {{ __('Username Dasbor:') }} <span style="font-family: var(--sec-font-mono); color: var(--sec-primary);">{{ config('pasak.dashboard.auth.username', env('PASAK_DASHBOARD_USERNAME', 'admin')) }}</span>
             </div>
             <div style="font-size: 12px; color: var(--sec-text-muted); margin-top: 4px;">
-                @if (\Internal\Pasak\Support\PasakDashboardSecret::isPasswordStoredInDatabase())
+                @if (\Pasak\SecureMonitor\Support\PasakDashboardSecret::isPasswordStoredInDatabase())
                     {{ __('Status: Password telah diperbarui dan di-hash aman di tabel pasak_settings database.') }}
                 @else
                     <span style="color: var(--sec-warning); font-weight: 600;">{{ __('Status: Masih menggunakan password bawaan (Admin). Sangat disarankan segera diperbarui!') }}</span>

@@ -2,11 +2,11 @@
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakBlockedIpController;
-use Internal\Pasak\Http\Controllers\Dashboard\PasakLogController;
-use Internal\Pasak\Models\PasakBlockedIp;
-use Internal\Pasak\Models\PasakLog;
-use Internal\Pasak\Services\PasakService;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakBlockedIpController;
+use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakLogController;
+use Pasak\SecureMonitor\Models\PasakBlockedIp;
+use Pasak\SecureMonitor\Models\PasakLog;
+use Pasak\SecureMonitor\Services\PasakService;
 
 function publishBladeViewsForLogTrend(): void
 {

@@ -50,7 +50,7 @@ metadata:
    - Never hardcode `App\Models\User` or standard table names.
    - User model resolution is always retrieved via `config('security.user_model', 'App\Models\User')`.
    - All database tables are dynamically configured via `config('security.table_names.*')`.
-   - The `HasSecurityRelations` trait (`Internal\Pasak\Concerns\HasSecurityRelations`) is added to the host application's User model to provide Eloquent relations (`logins()`, `trustedIps()`, `securityLogs()`, `blockedIps()`, `resolvedTickets()`).
+   - The `HasSecurityRelations` trait (`Pasak\SecureMonitor\Concerns\HasSecurityRelations`) is added to the host application's User model to provide Eloquent relations (`logins()`, `trustedIps()`, `securityLogs()`, `blockedIps()`, `resolvedTickets()`).
 
 4. **ReDoS Immunity**:
    - Detection signatures must never use unbounded nested quantifiers (e.g., `(a+)+` or `(.*[a-z])+`).
@@ -163,7 +163,7 @@ All endpoints use prefix `/api/security` (configurable in `config/security.php`)
 ## 6. Testing Conventions (Pest & Orchestra Testbench)
 
 - **Test Runner**: `./vendor/bin/pest`
-- **Harness**: `Internal\Pasak\Tests\TestCase` extends `Orchestra\Testbench\TestCase`.
+- **Harness**: `Pasak\SecureMonitor\Tests\TestCase` extends `Orchestra\Testbench\TestCase`.
 - **In-Memory SQLite**: Runs migrations automatically in `:memory:` via `defineDatabaseMigrations()`.
 - **Simulating Attackers**:
   ```php
