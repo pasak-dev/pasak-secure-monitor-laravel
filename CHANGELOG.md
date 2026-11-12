@@ -2,6 +2,15 @@
 
 All notable changes to `pasak-dev/secure-monitor` will be documented in this file.
 
+## [1.1.1] - 2026-11-13
+
+### Fixed
+
+- **Kestabilan Matriks CI GitHub Actions**:
+  - Mengisolasi dependensi developer `larastan/larastan` dan `laravel/pint` dari `require-dev` agar matriks pengujian Pest PHP 8.2 dan Laravel 10 berjalan mulus tanpa konflik resolusi dependensi.
+  - Memperbaiki kompatibilitas konfigurasi PHPStan 2.x (`checkOctaneCompatibility` dan `checkModelProperties`) serta meregenerasi baseline analisis statis.
+  - Menghilangkan *timing race condition* (flake) pada pengujian cooldown login bertingkat (`PasakSteppedLoginCooldownTest`) dengan pembekuan waktu Carbon terisolasi dan toleransi batas pengujian beban tinggi.
+
 ## [1.1.0] - 2026-11-13
 
 ### Changed
