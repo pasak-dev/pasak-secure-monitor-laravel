@@ -107,6 +107,8 @@ $registerPasakDashboard = function () {
     Route::post('server/suspicious-files/verify', [PasakServerController::class, 'verifySuspiciousFile'])->name('server.suspicious-files.verify');
     Route::post('server/suspicious-files/unverify', [PasakServerController::class, 'unverifySuspiciousFile'])->name('server.suspicious-files.unverify');
     Route::post('server/location', [PasakServerController::class, 'updateLocation'])->name('server.location');
+    Route::get('server/report/export', [PasakServerController::class, 'exportReport'])->name('server.report.export');
+    Route::get('reports', [PasakServerController::class, 'reportPage'])->name('reports');
     Route::post('optimize-clear', [PasakServerController::class, 'optimizeClear'])->name('optimize-clear');
     Route::delete('lockouts/{id}', [PasakServerController::class, 'releaseLockout'])->whereNumber('id')->name('lockouts.destroy');
     Route::get('sessions', [PasakSessionController::class, 'index'])->name('sessions');

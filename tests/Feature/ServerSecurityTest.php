@@ -252,6 +252,7 @@ test(
                 'server.suspicious-files.download',
                 'server.suspicious-files.verify',
                 'server.suspicious-files.unverify',
+                'server.report.export',
                 'lockouts.destroy',
                 'sessions',
                 'user-sessions.destroy',

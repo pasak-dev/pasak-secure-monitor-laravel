@@ -13,6 +13,7 @@ use Pasak\SecureMonitor\Http\Controllers\Dashboard\SettingController;
 use Pasak\SecureMonitor\Models\AllowedIp;
 use Pasak\SecureMonitor\Models\SecurityLog;
 use Pasak\SecureMonitor\Models\TrustedIp;
+use Pasak\SecureMonitor\Models\PasakUserLogin;
 use Pasak\SecureMonitor\Services\PasakService;
 use Pasak\SecureMonitor\Services\PasakUserLoginService;
 use Pasak\SecureMonitor\Services\PasakVersionCheckService;
@@ -300,6 +301,213 @@ test('pasak log controller supports bot_filter query parameter', function () {
         $logsCrawler = $resCrawler->getData()['logs'];
         expect($logsCrawler->total())->toBe(1)
             ->and($logsCrawler->first()->ip_address)->toBe('2.2.2.2');
+    } finally {
+        File::deleteDirectory($target);
+    }
+});
+
+test('dashboard sessions page shows modal to trust IP when current IP is not yet trusted', function () {
+    config()->set('pasak.dashboard.driver', 'blade');
+
+    $target = resource_path('views/pages/pasak');
+    if (! File::isDirectory($target)) {
+        File::copyDirectory(
+            dirname(__DIR__, 2).'/stubs/blade/pages/pasak',
+            $target
+        );
+    }
+
+    $user = $this->createAdminUser();
+
+    Route::get('/__pasak_test_sessions_modal', fn () => 'ok')->name('pasak.dashboard.sessions');
+    Route::delete('/__pasak_test_user_sessions/{id}', fn () => 'ok')->name('pasak.dashboard.user-sessions.destroy');
+    Route::delete('/__pasak_test_sessions/{sessionId}', fn () => 'ok')->name('pasak.dashboard.sessions.destroy');
+    Route::delete('/__pasak_test_trusted_ips/{id}', fn () => 'ok')->name('pasak.dashboard.trusted-ips.destroy');
+    Route::post('/__pasak_test_trusted_ips/my-ip', fn () => 'ok')->name('pasak.dashboard.trusted-ips.store-my-ip');
+
+    foreach (['overview', 'logs', 'blocked-ips', 'server', 'tickets', 'settings', 'allowed-ips', 'threat-map'] as $page) {
+        Route::get('/__pasak_test_'.$page, fn () => 'ok')->name('pasak.dashboard.'.$page);
+    }
+    Route::getRoutes()->refreshNameLookups();
+
+    try {
+        $request = Request::create('/__pasak_test_sessions_modal', 'GET', [], [], [], [
+            'REMOTE_ADDR' => '103.20.10.55',
+        ]);
+        $request->setUserResolver(fn () => $user);
+
+        $response = app(PasakSessionController::class)->index($request);
+
+        expect($response)->toBeInstanceOf(View::class)
+            ->and($response->getData()['isCurrentIpTrusted'])->toBeFalse();
+
+        $html = $response->render();
+
+        expect($html)->toContain('id="pasakTrustIpModal"')
+            ->and($html)->toContain('103.20.10.55')
+            ->and($html)->toContain('pasakOpenTrustIpModal')
+            ->and($html)->toContain(route('pasak.dashboard.trusted-ips.store-my-ip'));
+    } finally {
+        File::deleteDirectory($target);
+    }
+});
+
+test('dashboard sessions page skips modal when current IP is already trusted', function () {
+    config()->set('pasak.dashboard.driver', 'blade');
+
+    $target = resource_path('views/pages/pasak');
+    if (! File::isDirectory($target)) {
+        File::copyDirectory(
+            dirname(__DIR__, 2).'/stubs/blade/pages/pasak',
+            $target
+        );
+    }
+
+    $user = $this->createAdminUser();
+
+    // Simpan IP 103.20.10.55 sebagai IP terpercaya
+    TrustedIp::query()->create([
+        'user_id' => $user->id,
+        'ip_address' => '103.20.10.55',
+        'is_active' => true,
+        'verified_at' => now(),
+    ]);
+
+    Route::get('/__pasak_test_sessions_skip', fn () => 'ok')->name('pasak.dashboard.sessions');
+    Route::delete('/__pasak_test_user_sessions/{id}', fn () => 'ok')->name('pasak.dashboard.user-sessions.destroy');
+    Route::delete('/__pasak_test_sessions/{sessionId}', fn () => 'ok')->name('pasak.dashboard.sessions.destroy');
+    Route::delete('/__pasak_test_trusted_ips/{id}', fn () => 'ok')->name('pasak.dashboard.trusted-ips.destroy');
+    Route::post('/__pasak_test_trusted_ips/my-ip', fn () => 'ok')->name('pasak.dashboard.trusted-ips.store-my-ip');
+
+    foreach (['overview', 'logs', 'blocked-ips', 'server', 'tickets', 'settings', 'allowed-ips', 'threat-map'] as $page) {
+        Route::get('/__pasak_test_'.$page, fn () => 'ok')->name('pasak.dashboard.'.$page);
+    }
+    Route::getRoutes()->refreshNameLookups();
+
+    try {
+        $request = Request::create('/__pasak_test_sessions_skip', 'GET', [], [], [], [
+            'REMOTE_ADDR' => '103.20.10.55',
+        ]);
+        $request->setUserResolver(fn () => $user);
+
+        $response = app(PasakSessionController::class)->index($request);
+
+        expect($response)->toBeInstanceOf(View::class)
+            ->and($response->getData()['isCurrentIpTrusted'])->toBeTrue();
+
+        $html = $response->render();
+
+        // Modal dilewati / tidak dirender
+        expect($html)->not->toContain('id="pasakTrustIpModal"')
+            ->and($html)->toContain(route('pasak.dashboard.trusted-ips.destroy', 1));
+    } finally {
+        File::deleteDirectory($target);
+    }
+});
+
+test('dashboard store-my-ip resolves user from pasak dashboard session when laravel user is null', function () {
+    $user = $this->createAdminUser();
+
+    $request = Request::create('/__pasak_test_session_store_my_ip', 'POST', [], [], [], [
+        'REMOTE_ADDR' => '103.20.10.99',
+    ]);
+    // Simulasi sesi auth mandiri Pasak tanpa user guard Laravel
+    $session = app('session.store');
+    $session->put('pasak_dashboard_authenticated', true);
+    $session->put('pasak_dashboard_user', $user->email);
+    $request->setLaravelSession($session);
+
+    $response = app(PasakSessionController::class)->storeMyIp(
+        $request,
+        app(PasakService::class),
+        app(PasakUserLoginService::class),
+    );
+
+    expect($response->isRedirection())->toBeTrue();
+
+    $trusted = TrustedIp::query()
+        ->where('ip_address', '103.20.10.99')
+        ->first();
+
+    expect($trusted)->not->toBeNull()
+        ->and((int) $trusted->user_id)->toBe((int) $user->id);
+});
+
+test('dashboard sessions page only displays users who accessed the pasak dashboard', function () {
+    config()->set('pasak.dashboard.driver', 'blade');
+
+    $target = resource_path('views/pages/pasak');
+    if (! File::isDirectory($target)) {
+        File::copyDirectory(
+            dirname(__DIR__, 2).'/stubs/blade/pages/pasak',
+            $target
+        );
+    }
+
+    $regularUser = $this->createAdminUser(['email' => 'regular@example.com', 'name' => 'Regular User']);
+    $dashboardUser = $this->createAdminUser(['email' => 'admin-pasak@example.com', 'name' => 'Pasak Admin']);
+
+    // 1. Sesi login reguler (bukan dashboard)
+    PasakUserLogin::query()->create([
+        'user_id' => $regularUser->id,
+        'session_id' => 'regular-web-session',
+        'ip_address' => '10.10.10.1',
+        'user_agent' => 'Mozilla/5.0 Regular User',
+        'device_type' => 'desktop',
+        'operating_system' => 'Linux',
+        'browser' => 'Chrome',
+        'login_at' => now(),
+        'last_activity_at' => now(),
+    ]);
+
+    // 2. Sesi login dashboard Pasak
+    PasakUserLogin::query()->create([
+        'user_id' => $dashboardUser->id,
+        'session_id' => 'pasak-dashboard-session',
+        'ip_address' => '10.10.10.2',
+        'user_agent' => 'Mozilla/5.0 Pasak Admin',
+        'device_type' => 'pasak_dashboard',
+        'operating_system' => 'macOS',
+        'browser' => 'Firefox',
+        'login_at' => now(),
+        'last_activity_at' => now(),
+    ]);
+
+    Route::get('/__pasak_test_sessions_filter', fn () => 'ok')->name('pasak.dashboard.sessions');
+    Route::delete('/__pasak_test_user_sessions/{id}', fn () => 'ok')->name('pasak.dashboard.user-sessions.destroy');
+    Route::delete('/__pasak_test_sessions/{sessionId}', fn () => 'ok')->name('pasak.dashboard.sessions.destroy');
+    Route::delete('/__pasak_test_trusted_ips/{id}', fn () => 'ok')->name('pasak.dashboard.trusted-ips.destroy');
+    Route::post('/__pasak_test_trusted_ips/my-ip', fn () => 'ok')->name('pasak.dashboard.trusted-ips.store-my-ip');
+
+    foreach (['overview', 'logs', 'blocked-ips', 'server', 'tickets', 'settings', 'allowed-ips', 'threat-map'] as $page) {
+        Route::get('/__pasak_test_'.$page, fn () => 'ok')->name('pasak.dashboard.'.$page);
+    }
+    Route::getRoutes()->refreshNameLookups();
+
+    try {
+        $request = Request::create('/__pasak_test_sessions_filter', 'GET');
+        $session = app('session.store');
+        $session->setId('pasak-dashboard-session');
+        $session->put('pasak_dashboard_authenticated', true);
+        $request->setLaravelSession($session);
+        $request->setUserResolver(fn () => $dashboardUser);
+
+        $response = app(PasakSessionController::class)->index($request);
+
+        expect($response)->toBeInstanceOf(View::class);
+
+        $logins = $response->getData()['logins'];
+        $loginIps = $logins->pluck('ip_address')->all();
+
+        // Hanya sesi dashboard yang tampil
+        expect($loginIps)->toContain('10.10.10.2')
+            ->and($loginIps)->not->toContain('10.10.10.1');
+
+        $html = $response->render();
+        expect($html)->toContain('10.10.10.2')
+            ->and($html)->toContain('Pasak Admin')
+            ->and($html)->not->toContain('10.10.10.1')
+            ->and($html)->not->toContain('Regular User');
     } finally {
         File::deleteDirectory($target);
     }

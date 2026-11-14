@@ -27,8 +27,12 @@
             <div class="sec-stat-value" style="color: var(--sec-success);">{{ $summary['ok'] ?? 0 }}</div>
         </div>
     </div>
-    <div>
-        <a href="{{ route('pasak.dashboard.server', ['refresh' => 1]) }}" class="sec-btn sec-btn-primary">🔄 {{ __('Refresh') }}</a>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button type="button" class="sec-btn sec-btn-primary" onclick="openReportExportModal()" style="display: inline-flex; align-items: center; gap: 6px;">
+            <span>📥</span>
+            <span>{{ __('Unduh Laporan Audit (.md)') }}</span>
+        </button>
+        <a href="{{ route('pasak.dashboard.server', ['refresh' => 1]) }}" class="sec-btn">🔄 {{ __('Refresh') }}</a>
     </div>
 </div>
 
@@ -163,6 +167,33 @@
 
     <form method="POST" action="{{ $urls['updateLocation'] ?? (Route::has('pasak.dashboard.server.location') ? route('pasak.dashboard.server.location') : (Route::has('pasak.dashboard.server') ? route('pasak.dashboard.server') : '#')) }}" id="serverLocationForm">
         @csrf
+        {{-- Quick Regional Presets --}}
+        <div style="margin-bottom: 14px; padding: 10px 14px; background: var(--sec-card-hover); border: 1px solid var(--sec-border-light); border-radius: 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                <span style="font-size: 12px; font-weight: 700; color: var(--sec-text); display: inline-flex; align-items: center; gap: 5px;">
+                    <span>📍</span>
+                    <span>{{ __('Pilih Preset Cepat Lokasi Kota (Indonesia):') }}</span>
+                </span>
+                <span style="font-size: 11px; color: var(--sec-text-subtle);">{{ __('Klik kota untuk mengisi koordinat secara instan') }}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Pekanbaru, Riau (ID)" data-lat="0.5071" data-lon="101.4478" data-tz="Asia/Jakarta" style="font-size: 11.5px; padding: 3px 9px; font-weight: 600;">⭐ Pekanbaru (Riau)</button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Medan, Sumatra Utara (ID)" data-lat="3.5952" data-lon="98.6722" data-tz="Asia/Jakarta" style="font-size: 11.5px; padding: 3px 9px;">Medan</button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Batam, Kepulauan Riau (ID)" data-lat="1.1301" data-lon="104.0529" data-tz="Asia/Jakarta" style="font-size: 11.5px; padding: 3px 9px;">Batam</button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Padang, Sumatra Barat (ID)" data-lat="-0.9471" data-lon="100.4172" data-tz="Asia/Jakarta" style="font-size: 11.5px; padding: 3px 9px;">Padang</button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Palembang, Sumatra Selatan (ID)" data-lat="-2.9761" data-lon="104.7754" data-tz="Asia/Jakarta" style="font-size: 11.5px; padding: 3px 9px;">Palembang</button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Jakarta Pusat (ID)" data-lat="-6.2088" data-lon="106.8456" data-tz="Asia/Jakarta" style="font-size: 11.5px; padding: 3px 9px;">Jakarta</button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Bandung, Jawa Barat (ID)" data-lat="-6.9175" data-lon="107.6191" data-tz="Asia/Jakarta" style="font-size: 11.5px; padding: 3px 9px;">Bandung</button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Semarang, Jawa Tengah (ID)" data-lat="-6.9667" data-lon="110.4167" data-tz="Asia/Jakarta" style="font-size: 11.5px; padding: 3px 9px;">Semarang</button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Surabaya, Jawa Timur (ID)" data-lat="-7.2575" data-lon="112.7521" data-tz="Asia/Jakarta" style="font-size: 11.5px; padding: 3px 9px;">Surabaya</button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Denpasar, Bali (ID)" data-lat="-8.6705" data-lon="115.2126" data-tz="Asia/Makassar" style="font-size: 11.5px; padding: 3px 9px;">Bali</button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Pontianak, Kalimantan Barat (ID)" data-lat="-0.0263" data-lon="109.3425" data-tz="Asia/Pontianak" style="font-size: 11.5px; padding: 3px 9px;">Pontianak</button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Balikpapan, Kaltim / IKN (ID)" data-lat="-1.2379" data-lon="116.8289" data-tz="Asia/Makassar" style="font-size: 11.5px; padding: 3px 9px;">IKN / Balikpapan</button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Makassar, Sulawesi Selatan (ID)" data-lat="-5.1477" data-lon="119.4327" data-tz="Asia/Makassar" style="font-size: 11.5px; padding: 3px 9px;">Makassar</button>
+                <button type="button" class="sec-btn sec-btn-secondary sec-btn-sm btn-city-preset" data-name="Jayapura, Papua (ID)" data-lat="-2.5489" data-lon="140.7197" data-tz="Asia/Jayapura" style="font-size: 11.5px; padding: 3px 9px;">Jayapura</button>
+            </div>
+        </div>
+
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 16px;">
             <div>
                 <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--sec-text-muted);">
@@ -263,12 +294,10 @@
                     <span>🔄</span>
                     <span>{{ __('Kosongkan / Reset Bawaan') }}</span>
                 </button>
-                @if (!empty($serverLocation['latitude']) && !empty($serverLocation['longitude']))
-                    <a href="https://www.google.com/maps?q={{ $serverLocation['latitude'] }},{{ $serverLocation['longitude'] }}" target="_blank" rel="noopener noreferrer" class="sec-btn sec-btn-secondary sec-btn-sm" style="display: inline-flex; align-items: center; gap: 4px; text-decoration: none;" title="{{ __('Lihat titik koordinat di Google Maps') }}">
-                        <span>🌐</span>
-                        <span>{{ __('Buka di Maps ↗') }}</span>
-                    </a>
-                @endif
+                <a id="btnOpenMaps" href="{{ (!empty($serverLocation['latitude']) && !empty($serverLocation['longitude'])) ? 'https://www.google.com/maps?q='.$serverLocation['latitude'].','.$serverLocation['longitude'] : '#' }}" target="_blank" rel="noopener noreferrer" class="sec-btn sec-btn-secondary sec-btn-sm" style="display: {{ (!empty($serverLocation['latitude']) && !empty($serverLocation['longitude'])) ? 'inline-flex' : 'none' }}; align-items: center; gap: 4px; text-decoration: none;" title="{{ __('Lihat titik koordinat di Google Maps') }}">
+                    <span>🌐</span>
+                    <span>{{ __('Buka di Maps ↗') }}</span>
+                </a>
             </div>
 
             <div style="display: flex; gap: 8px; align-items: center;">
@@ -278,6 +307,10 @@
                     <span>{{ __('Simpan Pengaturan Server') }}</span>
                 </button>
             </div>
+        </div>
+
+        <div style="margin-top: 10px; padding: 8px 12px; background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.25); border-radius: 6px; font-size: 11.5px; color: var(--sec-text-muted); line-height: 1.45;">
+            ℹ️ <strong>{{ __('Catatan GPS Peramban') }}:</strong> {{ __('Di komputer (desktop/laptop), peramban tidak memiliki antena GPS satelit fisik sehingga mengestimasi lokasi berdasarkan gateway ISP internet yang hampir selalu bermuara di Jakarta. Jika server Anda berada di Pekanbaru atau kota lain, gunakan tombol preset di atas atau salin koordinat langsung dari Google Maps, lalu klik Simpan Pengaturan Server.') }}
         </div>
     </form>
 </div>
@@ -878,7 +911,8 @@
                         if (locNameInput && (!locNameInput.value || locNameInput.value.trim() === '')) {
                             locNameInput.value = 'Node Administrator (GPS)';
                         }
-                        showLocStatus('{{ __('Koordinat GPS berhasil diperoleh! Jangan lupa klik Simpan.') }}', false);
+                        updateMapsLink();
+                        showLocStatus('{{ __('Koordinat GPS berhasil diperoleh! Jangan lupa klik Simpan Pengaturan Server.') }}', false);
                     },
                     function(err) {
                         btnDetectGps.disabled = false;
@@ -890,16 +924,151 @@
             });
         }
 
+        function updateMapsLink() {
+            var lat = locLatInput ? locLatInput.value.trim() : '';
+            var lon = locLonInput ? locLonInput.value.trim() : '';
+            var mapsBtn = document.getElementById('btnOpenMaps');
+            if (mapsBtn) {
+                if (lat !== '' && lon !== '' && !isNaN(lat) && !isNaN(lon)) {
+                    mapsBtn.href = 'https://www.google.com/maps?q=' + encodeURIComponent(lat) + ',' + encodeURIComponent(lon);
+                    mapsBtn.style.display = 'inline-flex';
+                } else {
+                    mapsBtn.style.display = 'none';
+                }
+            }
+        }
+        if (locLatInput) locLatInput.addEventListener('input', updateMapsLink);
+        if (locLonInput) locLonInput.addEventListener('input', updateMapsLink);
+
+        document.querySelectorAll('.btn-city-preset').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var d = this.dataset;
+                if (locNameInput) locNameInput.value = d.name || '';
+                if (locLatInput) locLatInput.value = d.lat || '';
+                if (locLonInput) locLonInput.value = d.lon || '';
+                if (locTimezoneSelect && d.tz) {
+                    locTimezoneSelect.value = d.tz;
+                    updateServerClockTicker();
+                }
+                updateMapsLink();
+                showLocStatus('{{ __('Preset ') }}' + d.name + ' {{ __('diterapkan! Klik Simpan Pengaturan Server.') }}', false);
+            });
+        });
+
         if (btnClearLocation) {
             btnClearLocation.addEventListener('click', function() {
                 if (locNameInput) locNameInput.value = '';
                 if (locLatInput) locLatInput.value = '';
                 if (locLonInput) locLonInput.value = '';
+                updateMapsLink();
                 showLocStatus('{{ __('Bidang dikosongkan. Klik Simpan untuk kembali ke deteksi otomatis.') }}', false);
             });
         }
 
     });
+</script>
+
+
+<div id="pasakReportExportModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+    <div style="background: var(--sec-bg-card, #1e222d); border: 1px solid var(--sec-border); border-radius: 12px; width: 100%; max-width: 520px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 22px;">🛡️</span>
+                <div>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--sec-text);">{{ __('Ekspor Laporan Audit Pentest') }}</h3>
+                    <p style="margin: 2px 0 0; font-size: 12px; color: var(--sec-text-muted);">{{ __('Laporan keamanan & pentest server format Markdown (.md)') }}</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeReportExportModal()" style="background: transparent; border: none; font-size: 20px; color: var(--sec-text-muted); cursor: pointer; padding: 4px;">&times;</button>
+        </div>
+
+        <form method="GET" action="{{ $urls['reportExport'] ?? (Route::has('pasak.dashboard.server.report.export') ? route('pasak.dashboard.server.report.export') : '#') }}" target="_blank">
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 12px; font-weight: 600; color: var(--sec-text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">
+                    {{ __('Pilih Periode / Rentang Tanggal Audit') }}
+                </label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+                    <div>
+                        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--sec-text-muted); margin-bottom: 4px;">{{ __('Dari Tanggal:') }}</label>
+                        <input type="date" id="modalStartDate" name="start_date" value="{{ date('Y-m-d') }}" class="sec-input" style="width: 100%; font-size: 13px; padding: 8px 10px;" required>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--sec-text-muted); margin-bottom: 4px;">{{ __('Sampai Tanggal:') }}</label>
+                        <input type="date" id="modalEndDate" name="end_date" value="{{ date('Y-m-d') }}" class="sec-input" style="width: 100%; font-size: 13px; padding: 8px 10px;" required>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
+                    <button type="button" class="sec-btn sec-btn-sm" onclick="setModalRange(0)" style="font-size: 11px; padding: 4px 8px;">{{ __('Hari Ini') }}</button>
+                    <button type="button" class="sec-btn sec-btn-sm" onclick="setModalRange(1)" style="font-size: 11px; padding: 4px 8px;">{{ __('Kemarin') }}</button>
+                    <button type="button" class="sec-btn sec-btn-sm" onclick="setModalRange(7)" style="font-size: 11px; padding: 4px 8px;">{{ __('7 Hari Terakhir') }}</button>
+                    <button type="button" class="sec-btn sec-btn-sm" onclick="setModalRange(30)" style="font-size: 11px; padding: 4px 8px;">{{ __('30 Hari Terakhir') }}</button>
+                </div>
+
+                <small style="display: block; margin-top: 6px; font-size: 11.5px; color: var(--sec-text-subtle);">
+                    {{ __('Laporan akan menyertakan 42 parameter hardening server dan rekapitulasi serangan pada rentang tanggal yang dipilih.') }}
+                </small>
+            </div>
+
+            <div style="margin-bottom: 20px; padding: 12px; background: var(--sec-bg-subtle); border: 1px solid var(--sec-border); border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <div style="font-size: 12px; font-weight: 600; color: var(--sec-text); display: flex; align-items: center; gap: 6px;">
+                        <span>📄</span> {{ __('Format Berkas:') }} <span class="sec-badge sec-badge-info" style="font-size: 11px;">Markdown (.md)</span>
+                    </div>
+                    @if (Route::has('pasak.dashboard.reports'))
+                        <a href="{{ route('pasak.dashboard.reports') }}" style="font-size: 11.5px; color: var(--sec-primary); text-decoration: none; font-weight: 600;">
+                            🖥️ {{ __('Buka Halaman Preview & Rekap &rarr;') }}
+                        </a>
+                    @endif
+                </div>
+                <div style="font-size: 11.5px; color: var(--sec-text-muted); margin-top: 4px;">
+                    {{ __('Format standar industri untuk dokumentasi keamanan, audit GitHub/GitLab, dan laporan tim DevOps/CISO.') }}
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="sec-btn" onclick="closeReportExportModal()">
+                    {{ __('Batal') }}
+                </button>
+                <button type="submit" class="sec-btn sec-btn-primary" onclick="setTimeout(closeReportExportModal, 800)">
+                    📥 {{ __('Unduh Laporan (.md)') }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openReportExportModal() {
+        var m = document.getElementById('pasakReportExportModal');
+        if (m) {
+            m.style.display = 'flex';
+        }
+    }
+    function closeReportExportModal() {
+        var m = document.getElementById('pasakReportExportModal');
+        if (m) {
+            m.style.display = 'none';
+        }
+    }
+    function setModalRange(days) {
+        var today = new Date();
+        var endStr = today.toISOString().split('T')[0];
+        var start = new Date();
+        if (days === 1) {
+            start.setDate(start.getDate() - 1);
+            var sStr = start.toISOString().split('T')[0];
+            document.getElementById('modalStartDate').value = sStr;
+            document.getElementById('modalEndDate').value = sStr;
+            return;
+        }
+        if (days > 1) {
+            start.setDate(start.getDate() - (days - 1));
+        }
+        var sStr = start.toISOString().split('T')[0];
+        document.getElementById('modalStartDate').value = sStr;
+        document.getElementById('modalEndDate').value = endStr;
+    }
 </script>
 
 @endsection

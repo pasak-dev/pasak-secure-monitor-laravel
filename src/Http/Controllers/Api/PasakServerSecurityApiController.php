@@ -213,4 +213,36 @@ class PasakServerSecurityApiController extends Controller
             'output' => $output,
         ]);
     }
+
+    public function exportReport(Request $request): \Illuminate\Http\Response
+    {
+        $startDate = (string) $request->input('start_date', $request->input('date', now()->toDateString()));
+        $endDate = (string) $request->input('end_date', $request->input('date', $startDate));
+
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate)) {
+            $startDate = now()->toDateString();
+        }
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+            $endDate = $startDate;
+        }
+        if ($startDate > $endDate) {
+            [$startDate, $endDate] = [$endDate, $startDate];
+        }
+
+        $force = filter_var(
+            $request->input('refresh', false),
+            FILTER_VALIDATE_BOOLEAN,
+        );
+        $markdown = $this->serverService->exportMarkdownReport($startDate, $endDate, auth()->id(), $force);
+        $filename = ($startDate !== $endDate)
+            ? "PASAK_Server_Security_Audit_Report_{$startDate}_sd_{$endDate}.md"
+            : "PASAK_Server_Security_Audit_Report_{$startDate}.md";
+
+        return response($markdown, 200, [
+            'Content-Type' => 'text/markdown; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
 }

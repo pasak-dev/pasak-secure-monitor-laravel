@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Activity Sync — robyajo-portfolio",
+    "name": "Activity Sync — pasak-dev-portfolio",
     "description": "CRUD kegiatan antar-proyek. Set variable `projectKey` dengan kunci X-project proyek Anda.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },

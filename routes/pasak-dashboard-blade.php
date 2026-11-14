@@ -184,6 +184,14 @@ $registerPasakDashboard = function () {
         PasakServerController::class,
         'updateLocation',
     ])->name('server.location');
+    Route::get('server/report/export', [
+        PasakServerController::class,
+        'exportReport',
+    ])->name('server.report.export');
+    Route::get('reports', [
+        PasakServerController::class,
+        'reportPage',
+    ])->name('reports');
     Route::post('optimize-clear', [
         PasakServerController::class,
         'optimizeClear',

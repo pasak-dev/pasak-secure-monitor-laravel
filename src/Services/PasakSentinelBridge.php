@@ -29,10 +29,34 @@ class PasakSentinelBridge
         $this->enabled = $enabled ?? (bool) config('pasak.sentinel.enabled', true);
         $this->timeoutSeconds = $timeoutSeconds;
 
-        // Fallback to /tmp/pasak/agent.sock if primary socket does not exist but /tmp does (common in macOS / local dev)
-        if (! file_exists($this->socketPath) && file_exists('/tmp/pasak/agent.sock')) {
-            $this->socketPath = '/tmp/pasak/agent.sock';
+        $this->resolveActiveSocketPath();
+    }
+
+    /**
+     * Dynamically resolve reachable Unix socket path (supporting /run/pasak, /tmp/pasak, and /tmp/pasak-agent.sock).
+     */
+    public function resolveActiveSocketPath(): string
+    {
+        if (file_exists($this->socketPath)) {
+            return $this->socketPath;
         }
+
+        $candidates = [
+            $this->socketPath,
+            '/run/pasak/agent.sock',
+            '/tmp/pasak/agent.sock',
+            '/tmp/pasak-agent.sock',
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (file_exists($candidate)) {
+                $this->socketPath = $candidate;
+
+                return $candidate;
+            }
+        }
+
+        return $this->socketPath;
     }
 
     /**
@@ -44,7 +68,9 @@ class PasakSentinelBridge
             return false;
         }
 
-        return file_exists($this->socketPath) && $this->ping();
+        $activePath = $this->resolveActiveSocketPath();
+
+        return file_exists($activePath) && $this->ping();
     }
 
     /**
@@ -112,7 +138,9 @@ class PasakSentinelBridge
      */
     protected function send(array $payload): ?array
     {
-        if (! $this->enabled || ! file_exists($this->socketPath)) {
+        $activePath = $this->resolveActiveSocketPath();
+
+        if (! $this->enabled || ! file_exists($activePath)) {
             return null;
         }
 
@@ -122,7 +150,7 @@ class PasakSentinelBridge
             $errno = 0;
             $errstr = '';
             $fp = @stream_socket_client(
-                'unix://'.$this->socketPath,
+                'unix://'.$activePath,
                 $errno,
                 $errstr,
                 $this->timeoutSeconds
@@ -156,6 +184,6 @@ class PasakSentinelBridge
 
     public function getSocketPath(): string
     {
-        return $this->socketPath;
+        return $this->resolveActiveSocketPath();
     }
 }

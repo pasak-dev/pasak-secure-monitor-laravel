@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Generator presentasi PowerPoint (.pptx) untuk
- * robyajo/pasak (Bulwark).
+ * pasak-dev/secure-monitor (Bulwark).
  *
  * Tanpa dependensi eksternal — hanya memakai ekstensi PHP:
  *   - zip  (ZipArchive)
@@ -304,7 +304,7 @@ $slides = [
         "title" => "Pasak",
         "subtitle" => "Bulwark — WAF & Threat Engine Headless untuk Laravel",
         "footer" =>
-            "robyajo/pasak  ·  v1.0.6  ·  Lisensi MIT",
+            "pasak-dev/secure-monitor  ·  v1.0.6  ·  Lisensi MIT",
     ],
     [
         "kind" => "content",
@@ -449,7 +449,7 @@ $slides = [
         "kind" => "content",
         "title" => "Instalasi Cepat",
         "bullets" => [
-            "`composer require robyajo/pasak`",
+            "`composer require pasak-dev/secure-monitor`",
             "`php artisan pasak:install`",
             "`php artisan migrate`",
             "Tambahkan trait `HasSecurityRelations` ke model `User` dan daftarkan middleware.",
@@ -487,8 +487,8 @@ $slides = [
         "title" => "Tautan",
         "bullets" => [
             "Repositori: `github.com/pasak-dev/pasak-secure-monitor-laravel`",
-            "Packagist: `packagist.org/packages/robyajo/pasak`",
-            "Instalasi: `composer require robyajo/pasak`",
+            "Packagist: `packagist.org/packages/pasak-dev/secure-monitor`",
+            "Instalasi: `composer require pasak-dev/secure-monitor`",
             "Dokumentasi: direktori `documents/` (25 bab) + portal `documents/index.html`",
         ],
     ],
@@ -535,7 +535,7 @@ $appXml =
     '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"' .
     ' xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">' .
     "<Application>Microsoft Office PowerPoint</Application>" .
-    "<Company>robyajo</Company>" .
+    "<Company>pasak-dev</Company>" .
     "<Slides>" .
     $totalSlides .
     "</Slides>" .

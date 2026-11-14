@@ -73,6 +73,9 @@ class PasakServerController extends Controller
                 'threatMap' => Route::has('pasak.dashboard.threat-map')
                     ? route('pasak.dashboard.threat-map')
                     : '#',
+                'reportExport' => Route::has('pasak.dashboard.server.report.export')
+                    ? route('pasak.dashboard.server.report.export')
+                    : '#',
             ],
         ]);
     }
@@ -303,4 +306,100 @@ class PasakServerController extends Controller
             'message' => $message,
         ]);
     }
+
+    /**
+     * Unduh laporan hasil audit pentest & server hardening dalam format Markdown (.md).
+     */
+    public function exportReport(
+        Request $request,
+        PasakServerSecurityService $server,
+    ): \Illuminate\Http\Response {
+        $startDate = (string) $request->input('start_date', $request->input('date', now()->toDateString()));
+        $endDate = (string) $request->input('end_date', $request->input('date', $startDate));
+
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate)) {
+            $startDate = now()->toDateString();
+        }
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+            $endDate = $startDate;
+        }
+        if ($startDate > $endDate) {
+            [$startDate, $endDate] = [$endDate, $startDate];
+        }
+
+        $force = $request->boolean('refresh');
+        $markdown = $server->exportMarkdownReport($startDate, $endDate, auth()->id(), $force);
+        $filename = ($startDate !== $endDate)
+            ? "PASAK_Server_Security_Audit_Report_{$startDate}_sd_{$endDate}.md"
+            : "PASAK_Server_Security_Audit_Report_{$startDate}.md";
+
+        return response($markdown, 200, [
+            'Content-Type' => 'text/markdown; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
+
+    /**
+     * Halaman Laporan Audit Pentest & Server Hardening dengan pemilih tanggal/rentang tanggal dan preview langsung.
+     */
+    public function reportPage(
+        Request $request,
+        PasakServerSecurityService $server,
+    ): View {
+        $startDate = (string) $request->input('start_date', $request->input('date', now()->toDateString()));
+        $endDate = (string) $request->input('end_date', $request->input('date', $startDate));
+
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate)) {
+            $startDate = now()->toDateString();
+        }
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+            $endDate = $startDate;
+        }
+        if ($startDate > $endDate) {
+            [$startDate, $endDate] = [$endDate, $startDate];
+        }
+
+        $isRange = $startDate !== $endDate;
+        $force = $request->boolean('refresh');
+        if ($force) {
+            $server->forget();
+        }
+
+        $markdown = $server->exportMarkdownReport($startDate, $endDate, auth()->id(), $force);
+        $htmlPreview = \Illuminate\Support\Str::markdown($markdown);
+        $scan = $server->scan($force);
+
+        try {
+            $startCarbon = \Illuminate\Support\Carbon::parse($startDate);
+            $endCarbon = \Illuminate\Support\Carbon::parse($endDate);
+            $formattedDate = $isRange
+                ? $startCarbon->translatedFormat('d M Y') . ' s/d ' . $endCarbon->translatedFormat('d M Y')
+                : $startCarbon->translatedFormat('d F Y');
+        } catch (\Throwable) {
+            $formattedDate = $isRange ? "{$startDate} s/d {$endDate}" : $startDate;
+        }
+
+        $urlParams = ['start_date' => $startDate, 'end_date' => $endDate];
+
+        return $this->dashboardResponse('pages.pasak.reports', [
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'selectedDate' => $startDate,
+            'formattedDate' => $formattedDate,
+            'isRange' => $isRange,
+            'markdown' => $markdown,
+            'htmlPreview' => $htmlPreview,
+            'summary' => $scan['summary'] ?? [],
+            'serverLocation' => PasakSetting::getServerLocation(),
+            'urls' => [
+                'index' => route('pasak.dashboard.reports', $urlParams),
+                'refresh' => route('pasak.dashboard.reports', array_merge($urlParams, ['refresh' => 1])),
+                'export' => route('pasak.dashboard.server.report.export', $urlParams),
+                'server' => route('pasak.dashboard.server'),
+            ],
+        ]);
+    }
+
 }

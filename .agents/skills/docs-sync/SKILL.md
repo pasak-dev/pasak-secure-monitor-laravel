@@ -1,26 +1,26 @@
 ---
 name: docs-sync
-description: "ACTIVATE setiap kali selesai mengerjakan perubahan kode, perbaikan bug, atau penambahan fitur di repositori Pasak Suite (pasak, pasak-sentinel, dashboard, pasak-api). Kelola dokumentasi teknis produk via CRUD API /api/v1/docs di Pasak API (Neon Serverless PostgreSQL): baca, tambah, perbarui (update), dan hapus dokumen markdown/mdx secara otomatis agar dokumentasi publik di https://pasak.is-a.dev/docs/pasak-security-monitor selalu akurat dan sinkron."
+description: "ACTIVATE setiap kali selesai mengerjakan perubahan kode, perbaikan bug, atau penambahan fitur di repositori Pasak Suite (pasak, pasak-sentinel, dashboard, pasak-api). Kelola dokumentasi teknis produk via CRUD API /api/v1/docs di Pasak API (Neon Serverless PostgreSQL): baca, tambah, perbarui (update), dan hapus dokumen markdown/mdx secara otomatis agar dokumentasi publik di https://pasak.is-a.dev/docs/pasak-secure-monitor selalu akurat dan sinkron."
 ---
 
 # Docs Sync — Otomasi Pembaruan Dokumentasi Teknis Pasak Suite (Neon PostgreSQL)
 
 Aturan dan panduan alur kerja bagi AI Agent untuk memperbarui atau menambahkan dokumentasi teknis produk secara langsung ke database **Neon PostgreSQL** melalui REST API CRUD di **Pasak Cloud API** (`https://pasak-api.vercel.app/api/v1/docs`). Dokumentasi yang disimpan di database langsung ditampilkan di portal web publik:
 
-- **Pasak Security Monitor**: [https://pasak.is-a.dev/docs/pasak-security-monitor](https://pasak.is-a.dev/docs/pasak-security-monitor)
+- **Pasak Security Monitor**: [https://pasak.is-a.dev/docs/pasak-secure-monitor](https://pasak.is-a.dev/docs/pasak-secure-monitor)
 - **Pasak Sentinel**: [https://pasak.is-a.dev/docs/pasak-sentinel](https://pasak.is-a.dev/docs/pasak-sentinel)
 - **Core Platform**: [https://pasak.is-a.dev/docs/core](https://pasak.is-a.dev/docs/core)
 
 ## Konfigurasi Lingkungan (Wajib Ada)
 
 - **Portal Web Dokumentasi Publik**:
-  - `pasak-security-monitor`: `https://pasak.is-a.dev/docs/pasak-security-monitor`
-  - Dokumen bab spesifik: `https://pasak.is-a.dev/docs/pasak-security-monitor/<SLUG>`
+  - `pasak-secure-monitor`: `https://pasak.is-a.dev/docs/pasak-secure-monitor`
+  - Dokumen bab spesifik: `https://pasak.is-a.dev/docs/pasak-secure-monitor/<SLUG>`
 - **API Endpoint**: `https://pasak-api.vercel.app/api/v1/docs` (atau `http://localhost:3000/api/v1/docs` saat pengembangan lokal `pasak-api`).
 - **Kunci Akses**: Header `X-Docs-Key` — dibaca dari berkas `.DOCS_SYNC_KEY` di folder skill ini (`DOCS_SYNC_KEY=psk_docs_live_sync_key_9f8e7d:...`).
 - **Database Backend**: Neon Serverless PostgreSQL (`docs` table di branch `production`).
 - **Target Produk**:
-  - `pasak-security-monitor`: Dokumentasi paket Laravel WAF (`content/pasak-security-monitor/docs/` -> web: `https://pasak.is-a.dev/docs/pasak-security-monitor`).
+  - `pasak-secure-monitor`: Dokumentasi paket Laravel WAF (`content/pasak-secure-monitor/docs/` -> web: `https://pasak.is-a.dev/docs/pasak-secure-monitor`).
   - `pasak-sentinel`: Dokumentasi daemon Linux Go & kernel nftables (`content/pasak-sentinel/docs/` -> web: `https://pasak.is-a.dev/docs/pasak-sentinel`).
   - `core`: Dokumentasi arsitektur platform suite & cloud console (`content/docs/` -> web: `https://pasak.is-a.dev/docs/core`).
 
@@ -35,7 +35,7 @@ Sebelum mengubah atau menambah dokumen, periksa dulu daftar dokumen yang tersimp
 curl -s "https://pasak-api.vercel.app/api/v1/docs"
 
 # Daftar dokumen spesifik produk:
-curl -s "https://pasak-api.vercel.app/api/v1/docs?product=pasak-security-monitor"
+curl -s "https://pasak-api.vercel.app/api/v1/docs?product=pasak-secure-monitor"
 curl -s "https://pasak-api.vercel.app/api/v1/docs?product=pasak-sentinel"
 curl -s "https://pasak-api.vercel.app/api/v1/docs?product=core"
 ```
@@ -57,7 +57,7 @@ curl -s "https://pasak-api.vercel.app/api/v1/docs?product=<PRODUK>&slug=<SLUG>"
 Contoh membaca dokumen Pasak Security Monitor:
 
 ```bash
-curl -s "https://pasak-api.vercel.app/api/v1/docs/pasak-security-monitor/getting-started/installation"
+curl -s "https://pasak-api.vercel.app/api/v1/docs/pasak-secure-monitor/getting-started/installation"
 ```
 
 Respons:
@@ -67,7 +67,7 @@ Respons:
   "ok": true,
   "doc": {
     "id": "...",
-    "product": "pasak-security-monitor",
+    "product": "pasak-secure-monitor",
     "slug": "getting-started/installation",
     "filePath": "getting-started/installation.md",
     "title": "Panduan Instalasi & Migrasi",
@@ -94,7 +94,7 @@ curl -X POST "https://pasak-api.vercel.app/api/v1/docs" \
   -H "Content-Type: application/json" \
   -H "X-Docs-Key: psk_docs_live_sync_key_9f8e7d:Pasak Dashboard Docs Sync" \
   -d '{
-    "product": "pasak-security-monitor",
+    "product": "pasak-secure-monitor",
     "slug": "security-modules/custom-tripwire",
     "filePath": "security-modules/custom-tripwire.md",
     "title": "Tripwire & Honeypot Detection",
@@ -114,7 +114,7 @@ curl -X POST "https://pasak-api.vercel.app/api/v1/docs" \
   -H "Content-Type: application/json" \
   -H "X-Docs-Key: psk_docs_live_sync_key_9f8e7d:Pasak Dashboard Docs Sync" \
   -d "{
-    \"product\": \"pasak-security-monitor\",
+    \"product\": \"pasak-secure-monitor\",
     \"slug\": \"integration-guides/laravel-filament\",
     \"rawContent\": $(jq -Rs . < /path/ke/berkas.md)
   }"
@@ -139,7 +139,7 @@ curl -X DELETE "https://pasak-api.vercel.app/api/v1/docs?product=<PRODUK>&slug=<
 Contoh:
 
 ```bash
-curl -X DELETE "https://pasak-api.vercel.app/api/v1/docs?product=pasak-security-monitor&slug=deprecated-module" \
+curl -X DELETE "https://pasak-api.vercel.app/api/v1/docs?product=pasak-secure-monitor&slug=deprecated-module" \
   -H "X-Docs-Key: psk_docs_live_sync_key_9f8e7d:Pasak Dashboard Docs Sync"
 ```
 
@@ -157,9 +157,9 @@ Setelah membuat, mengubah, atau menghapus dokumen:
    ```
 2. Pastikan respons berstatus `200 OK` dan data tersimpan di Neon PostgreSQL.
 3. Kunjungi URL halaman web publik:
-   - **Halaman Utama Dokumentasi**: [https://pasak.is-a.dev/docs/pasak-security-monitor](https://pasak.is-a.dev/docs/pasak-security-monitor)
-   - **Dokumen Bab**: `https://pasak.is-a.dev/docs/pasak-security-monitor/<SLUG>`
-     (contoh: `https://pasak.is-a.dev/docs/pasak-security-monitor/getting-started/installation`)
+   - **Halaman Utama Dokumentasi**: [https://pasak.is-a.dev/docs/pasak-secure-monitor](https://pasak.is-a.dev/docs/pasak-secure-monitor)
+   - **Dokumen Bab**: `https://pasak.is-a.dev/docs/pasak-secure-monitor/<SLUG>`
+     (contoh: `https://pasak.is-a.dev/docs/pasak-secure-monitor/getting-started/installation`)
    - Untuk Sentinel: `https://pasak.is-a.dev/docs/pasak-sentinel/<SLUG>`
 
 ---

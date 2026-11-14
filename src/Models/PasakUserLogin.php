@@ -120,6 +120,17 @@ class PasakUserLogin extends Model
     }
 
     /**
+     * Filter hanya sesi login pengguna yang masuk ke dashboard Pasak.
+     *
+     * @param  Builder<PasakUserLogin>  $query
+     * @return Builder<PasakUserLogin>
+     */
+    public function scopeDashboard(Builder $query): Builder
+    {
+        return $query->where('device_type', 'pasak_dashboard');
+    }
+
+    /**
      * Determine if this login is currently considered online.
      */
     public function isOnline(int $minutes = 5): bool

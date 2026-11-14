@@ -139,6 +139,10 @@ Route::prefix($prefix)
                 PasakServerSecurityApiController::class,
                 'updateLocation',
             ])->name('server.location');
+            Route::get('server/report/export', [
+                PasakServerSecurityApiController::class,
+                'exportReport',
+            ])->name('server.report.export');
             Route::post('server/optimize-clear', [
                 PasakServerSecurityApiController::class,
                 'optimizeClear',

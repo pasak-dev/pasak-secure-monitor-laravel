@@ -443,6 +443,10 @@ class PasakServiceProvider extends ServiceProvider
                     PasakServerSecurityApiController::class,
                     'updateLocation',
                 ])->name('server.location');
+                Route::get('server/report/export', [
+                    PasakServerSecurityApiController::class,
+                    'exportReport',
+                ])->name('server.report.export');
             });
     }
 
@@ -497,6 +501,14 @@ class PasakServiceProvider extends ServiceProvider
                 PasakServerController::class,
                 'updateLocation',
             ])->name('server.location');
+            Route::get('server/report/export', [
+                PasakServerController::class,
+                'exportReport',
+            ])->name('server.report.export');
+            Route::get('reports', [
+                PasakServerController::class,
+                'reportPage',
+            ])->name('reports');
         };
 
         if ($rotating) {

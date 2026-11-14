@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Web app pengujian lokal (React + Vite) untuk WAF robyajo/laravel-security-monitor.",
+  "description": "Web app pengujian lokal (React + Vite) untuk WAF pasak-dev/secure-monitor.",
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc --noEmit",

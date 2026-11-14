@@ -1,7 +1,7 @@
-# Rencana & Kebutuhan Publikasi Packagist: `robyajo/pasak`
+# Rencana & Kebutuhan Publikasi Packagist: `pasak-dev/secure-monitor`
 
 > **Dokumen Rencana Rilis Resmi**  
-> **Paket**: `robyajo/pasak` (Bulwark)  
+> **Paket**: `pasak-dev/secure-monitor` (Bulwark)  
 > **Status**: Siap Rilis (100% Decoupled Standalone Library, Pure PHP, Zero NPM)  
 > **Target Lingkungan**: PHP `^8.2 | ^8.3 | ^8.4`, Laravel `^10.0 | ^11.0 | ^12.0 | ^13.0`  
 > **Lisensi**: MIT
@@ -25,7 +25,7 @@
 
 ## 1. Fokus Tunggal: `pasak`
 
-Berdasarkan evaluasi arsitektur final, strategi rilis **difokuskan 100% pada satu paket utama yang utuh**: **`robyajo/pasak`**.
+Berdasarkan evaluasi arsitektur final, strategi rilis **difokuskan 100% pada satu paket utama yang utuh**: **`pasak-dev/secure-monitor`**.
 
 ---
 
@@ -51,7 +51,7 @@ Paket ini menggabungkan 6 kapabilitas keamanan enterprise dalam satu kesatuan ar
 
 ```mermaid
 graph TD
-    UserApp[Aplikasi Laravel Host] --> Composer[composer require robyajo/pasak]
+    UserApp[Aplikasi Laravel Host] --> Composer[composer require pasak-dev/secure-monitor]
     Composer --> Provider[PasakServiceProvider<br/>Auto-Discovery Core Hooks]
 
     subgraph CoreCapabilities ["Kapabilitas Keamanan Terintegrasi"]
@@ -89,7 +89,7 @@ Berkas `composer.json` telah dikonfigurasi untuk standar katalog Packagist:
 
 ```json
 {
-    "name": "robyajo/pasak",
+    "name": "pasak-dev/secure-monitor",
     "description": "Enterprise-grade headless self-hosted WAF, threat detection engine, zero-tolerance blocking, stepped login lockout, and security auditing toolkit for Laravel.",
     "keywords": [
         "laravel",
@@ -202,7 +202,7 @@ git push origin v1.0.0
 2. Masukkan URL repositori:
    `https://github.com/pasak-dev/pasak-secure-monitor-laravel`
 3. Klik **Check**, lalu klik **Submit**.
-4. Paket akan terdaftar dengan nama **`robyajo/pasak`**.
+4. Paket akan terdaftar dengan nama **`pasak-dev/secure-monitor`**.
 
 ### Langkah 4: Aktifkan GitHub Webhook Otomatis
 
@@ -210,7 +210,7 @@ Agar setiap kali Anda melakukan push atau membuat tag baru paket di Packagist ot
 
 1. Buka menu pengaturan repositori di GitHub: **Settings** → **Webhooks** → **Add webhook**.
 2. Masukkan Payload URL dari Packagist:
-   `https://packagist.org/api/github?username=robyajo`
+   `https://packagist.org/api/github?username=pasak-dev`
 3. Pilih Secret sesuai API token Packagist Anda.
 4. Pilih event: **Just the push event** → **Active** → **Add webhook**.
 
@@ -226,7 +226,7 @@ composer create-project laravel/laravel test-security-app
 cd test-security-app
 
 # 2. Pasang paket dari Packagist
-composer require robyajo/pasak
+composer require pasak-dev/secure-monitor
 
 # 3. Jalankan instalasi aset
 php artisan pasak:install

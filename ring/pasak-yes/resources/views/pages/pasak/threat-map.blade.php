@@ -22,6 +22,17 @@
                 <span class="threat-hud-text">NODE:</span>
                 <strong class="threat-target-name" data-map-target>{{ $target['name'] }}</strong>
                 <span class="threat-target-coords">[{{ number_format($target['lat'], 4) }}° N, {{ number_format($target['lon'], 4) }}° E]</span>
+                @if (!empty($target['lat']) && !empty($target['lon']))
+                    <a href="https://www.google.com/maps?q={{ $target['lat'] }},{{ $target['lon'] }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="threat-target-maps-link"
+                        title="{{ __('Buka titik koordinat node target server ini di Google Maps') }}"
+                        style="display: inline-flex; align-items: center; gap: 4px; color: #00f0ff; text-decoration: none; font-size: 11px; margin-left: 6px; padding: 2px 8px; background: rgba(0, 240, 255, 0.12); border: 1px solid rgba(0, 240, 255, 0.35); border-radius: 4px; transition: all 0.15s ease;">
+                        <span>🌐</span>
+                        <span>{{ __('Buka di Maps ↗') }}</span>
+                    </a>
+                @endif
             </div>
             <div class="threat-mode-badge {{ $enforcement ? 'is-enforcing' : 'is-monitoring' }}">
                 <span class="threat-mode-dot">●</span>
@@ -1382,7 +1393,7 @@
             '<div class="threat-entry-body">' +
                 '<div class="threat-entry-meta">' +
                     '<span class="threat-entry-ip">' + esc(entry.ip) + '</span>' +
-                    '<span class="threat-entry-place">📍 ' + esc(placeOf(location)) + '</span>' +
+                    '<span class="threat-entry-place">' + ((location && typeof location.lat === 'number' && typeof location.lon === 'number') ? '<a href="https://www.google.com/maps?q=' + location.lat + ',' + location.lon + '" target="_blank" rel="noopener noreferrer" style="color:#00f0ff; text-decoration:none;" title="{{ __('Buka titik lokasi di Google Maps') }}">📍 ' + esc(placeOf(location)) + ' ↗</a>' : '📍 ' + esc(placeOf(location))) + '</span>' +
                 '</div>' +
                 '<div class="threat-entry-desc">' + esc(entry.desc || entry.event) + '</div>' +
                 '<div class="threat-entry-path">&gt; ' + esc((entry.method || 'GET') + ' ' + (entry.path || '/')) + '</div>' +

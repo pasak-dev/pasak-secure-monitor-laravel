@@ -3,7 +3,7 @@ set -e
 
 # ==============================================================================
 # sync-docs.sh — Pasak Suite Docs Sync Helper
-# Portal: https://pasak.is-a.dev/docs/pasak-security-monitor
+# Portal: https://pasak.is-a.dev/docs/pasak-secure-monitor
 # API:    https://pasak-api.vercel.app/api/v1/docs
 # ==============================================================================
 
@@ -21,7 +21,7 @@ usage() {
     echo "Penggunaan: $(basename "$0") <perintah> [argumen]"
     echo ""
     echo "Perintah:"
-    echo "  list [product]              Daftar dokumen (default: pasak-security-monitor)"
+    echo "  list [product]              Daftar dokumen (default: pasak-secure-monitor)"
     echo "  get <slug> [product]        Baca konten dokumen dari Neon DB"
     echo "  push <file.md> <slug> [prod] [title] [cat] [order]"
     echo "                              Kirim/perbarui dokumen ke Neon DB"
@@ -30,7 +30,7 @@ usage() {
     echo "  delete <slug> [product]     Hapus dokumen dari Neon DB"
     echo ""
     echo "Target Produk:"
-    echo "  - pasak-security-monitor (default) -> https://pasak.is-a.dev/docs/pasak-security-monitor"
+    echo "  - pasak-secure-monitor (default) -> https://pasak.is-a.dev/docs/pasak-secure-monitor"
     echo "  - pasak-sentinel                   -> https://pasak.is-a.dev/docs/pasak-sentinel"
     echo "  - core                             -> https://pasak.is-a.dev/docs/core"
     exit 1
@@ -41,14 +41,14 @@ shift || true
 
 case "$CMD" in
     list)
-        PROD="${1:-pasak-security-monitor}"
+        PROD="${1:-pasak-secure-monitor}"
         echo "==> Mengambil daftar dokumen untuk: $PROD"
         curl -s "$API_URL?product=$PROD" | jq .
         ;;
 
     get)
         SLUG="$1"
-        PROD="${2:-pasak-security-monitor}"
+        PROD="${2:-pasak-secure-monitor}"
         if [ -z "$SLUG" ]; then
             echo "Error: slug wajib disertakan."
             usage
@@ -60,7 +60,7 @@ case "$CMD" in
     push)
         FILE="$1"
         SLUG="$2"
-        PROD="${3:-pasak-security-monitor}"
+        PROD="${3:-pasak-secure-monitor}"
         TITLE="${4:-Dokumentasi Pasak}"
         CATEGORY="${5:-Panduan}"
         ORDER="${6:-10}"
@@ -99,7 +99,7 @@ case "$CMD" in
     raw-push)
         FILE="$1"
         SLUG="$2"
-        PROD="${3:-pasak-security-monitor}"
+        PROD="${3:-pasak-secure-monitor}"
 
         if [ -z "$FILE" ] || [ -z "$SLUG" ] || [ ! -f "$FILE" ]; then
             echo "Error: berkas file.md dan slug wajib disertakan."
@@ -130,7 +130,7 @@ case "$CMD" in
 
     delete)
         SLUG="$1"
-        PROD="${2:-pasak-security-monitor}"
+        PROD="${2:-pasak-secure-monitor}"
         if [ -z "$SLUG" ]; then
             echo "Error: slug wajib disertakan."
             usage

@@ -2,11 +2,13 @@
 
 namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
 
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Pasak\SecureMonitor\Models\PasakSetting;
 use Pasak\SecureMonitor\Services\PasakLoginThrottleService;
+use Pasak\SecureMonitor\Services\PasakUserLoginService;
 use Pasak\SecureMonitor\Support\PasakDashboardSecret;
 
 class PasakAuthController
@@ -149,6 +151,15 @@ class PasakAuthController
             $request->session()->put('pasak_dashboard_user', $inputUser);
             $request->session()->put('pasak_dashboard_login_at', now()->timestamp);
 
+            // Catat sesi login khusus dasbor Pasak
+            $user = $this->resolveUserForDashboardLogin($inputUser);
+            if ($user instanceof Authenticatable) {
+                try {
+                    app(PasakUserLoginService::class)->recordDashboardLogin($user, $request);
+                } catch (\Throwable) {
+                }
+            }
+
             // Jika login menggunakan secret darurat atau password default, minta ganti password
             if (! empty($passResult['is_emergency']) || ! empty($passResult['is_default'])) {
                 $request->session()->put('pasak_dashboard_needs_password_change', true);
@@ -172,6 +183,24 @@ class PasakAuthController
         }
 
         return redirect()->to(url($prefix));
+    }
+
+    /**
+     * Resolusi pengguna untuk mencatat login dasbor Pasak.
+     */
+    protected function resolveUserForDashboardLogin(string $username): ?Authenticatable
+    {
+        $userModel = (string) config('pasak.user_model', 'App\\Models\\User');
+        if (class_exists($userModel)) {
+            $user = $userModel::query()
+                ->where('email', $username)
+                ->orWhere('name', $username)
+                ->first();
+
+            return $user ?? $userModel::query()->first();
+        }
+
+        return null;
     }
 
     /**

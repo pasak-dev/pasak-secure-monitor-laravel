@@ -71,6 +71,7 @@ Route::prefix($prefix)->middleware($middleware)->name('pasak.')->group(function 
         Route::post('server/suspicious-files/unverify', [PasakServerSecurityApiController::class, 'unverifySuspiciousFile'])->name('server.suspicious-files.unverify');
         Route::get('server/location', [PasakServerSecurityApiController::class, 'getLocation'])->name('server.location.get');
         Route::post('server/location', [PasakServerSecurityApiController::class, 'updateLocation'])->name('server.location');
+        Route::get('server/report/export', [PasakServerSecurityApiController::class, 'exportReport'])->name('server.report.export');
         Route::post('server/optimize-clear', [PasakServerSecurityApiController::class, 'optimizeClear'])->name('server.optimize-clear');
         Route::delete('lockouts/{id}', [PasakServerSecurityApiController::class, 'releaseLockout'])->name('lockouts.destroy');
 

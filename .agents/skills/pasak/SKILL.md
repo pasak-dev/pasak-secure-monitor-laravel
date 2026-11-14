@@ -3,26 +3,26 @@ name: pasak
 description: "Comprehensive development, maintenance, and integration guide for the pasak-dev/secure-monitor package. Activate this skill whenever writing, modifying, or testing WAF detection signatures, instant blocking rules, device-level quarantine, stepped login throttle, server security & webshell scanning, access log streaming, headless REST API controllers, Eloquent models, or Pest test cases. Covers package architecture, ReDoS prevention, Orchestra Testbench harnesses, and host app integration rules."
 license: MIT
 metadata:
-  author: robyajo
+  author: pasak-dev
 ---
 
 # Pasak Development & Integration Guide
 
 `pasak-dev/secure-monitor` (Bulwark) is an enterprise-grade, headless self-hosted Web Application Firewall (WAF), threat detection engine, and security auditing toolkit for Laravel applications.
 
-> 📖 **Authoritative Documentation**: Complete 26-chapter guides and interactive portal at [https://pasak.is-a.dev/docs/pasak-security-monitor](https://pasak.is-a.dev/docs/pasak-security-monitor) and offline in [`documents/`](../../documents/) and [`documents/index.html`](../../documents/index.html).
+> 📖 **Authoritative Documentation**: Complete 26-chapter guides and interactive portal at [https://pasak.is-a.dev/docs/pasak-secure-monitor](https://pasak.is-a.dev/docs/pasak-secure-monitor) and offline in [`documents/`](../../documents/) and [`documents/index.html`](../../documents/index.html).
 >
-> **Direct Documentation Chapters (`https://pasak.is-a.dev/docs/pasak-security-monitor`)**:
+> **Direct Documentation Chapters (`https://pasak.is-a.dev/docs/pasak-secure-monitor`)**:
 >
-> - 🚀 [Installation & Quickstart](https://pasak.is-a.dev/docs/pasak-security-monitor/getting-started/installation/)
-> - ⚙️ [Configuration Guide](https://pasak.is-a.dev/docs/pasak-security-monitor/getting-started/configuration/)
-> - 🛡️ [Threat Detection Engine](https://pasak.is-a.dev/docs/pasak-security-monitor/core-architecture/threat-detection-engine/)
-> - 📱 [Device Quarantine & Proxies](https://pasak.is-a.dev/docs/pasak-security-monitor/core-architecture/device-quarantine/)
-> - 🔒 [Server Security & Webshell Scanning](https://pasak.is-a.dev/docs/pasak-security-monitor/security-modules/server-security-and-webshells/)
-> - 📊 [Access Log Streaming](https://pasak.is-a.dev/docs/pasak-security-monitor/security-modules/access-log-streaming/)
-> - 🌐 [REST API Reference](https://pasak.is-a.dev/docs/pasak-security-monitor/api-reference/api-overview/)
-> - 🎨 [Custom Host Dashboard & API (Zero Vendor Edit)](https://pasak.is-a.dev/docs/pasak-security-monitor/integration-guides/custom-dashboard-dan-api-tanpa-ubah-vendor/)
-> - 🧱 [Nginx Hardening](https://pasak.is-a.dev/docs/pasak-security-monitor/webserver-hardening/nginx-hardened-waf/) & [Apache .htaccess Hardening](https://pasak.is-a.dev/docs/pasak-security-monitor/webserver-hardening/apache-htaccess-hardening/)
+> - 🚀 [Installation & Quickstart](https://pasak.is-a.dev/docs/pasak-secure-monitor/getting-started/installation/)
+> - ⚙️ [Configuration Guide](https://pasak.is-a.dev/docs/pasak-secure-monitor/getting-started/configuration/)
+> - 🛡️ [Threat Detection Engine](https://pasak.is-a.dev/docs/pasak-secure-monitor/core-architecture/threat-detection-engine/)
+> - 📱 [Device Quarantine & Proxies](https://pasak.is-a.dev/docs/pasak-secure-monitor/core-architecture/device-quarantine/)
+> - 🔒 [Server Security & Webshell Scanning](https://pasak.is-a.dev/docs/pasak-secure-monitor/security-modules/server-security-and-webshells/)
+> - 📊 [Access Log Streaming](https://pasak.is-a.dev/docs/pasak-secure-monitor/security-modules/access-log-streaming/)
+> - 🌐 [REST API Reference](https://pasak.is-a.dev/docs/pasak-secure-monitor/api-reference/api-overview/)
+> - 🎨 [Custom Host Dashboard & API (Zero Vendor Edit)](https://pasak.is-a.dev/docs/pasak-secure-monitor/integration-guides/custom-dashboard-dan-api-tanpa-ubah-vendor/)
+> - 🧱 [Nginx Hardening](https://pasak.is-a.dev/docs/pasak-secure-monitor/webserver-hardening/nginx-hardened-waf/) & [Apache .htaccess Hardening](https://pasak.is-a.dev/docs/pasak-secure-monitor/webserver-hardening/apache-htaccess-hardening/)
 
 ---
 

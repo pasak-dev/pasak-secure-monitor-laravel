@@ -21,7 +21,15 @@ class PasakSessionController extends Controller
 
     public function index(Request $request): View
     {
-        $query = PasakUserLogin::query()->with('user')->latest('id');
+        $currentUser = $this->resolveCurrentUser($request);
+        if ($currentUser) {
+            try {
+                app(PasakUserLoginService::class)->trackDashboardAccess($request, $currentUser);
+            } catch (\Throwable) {
+            }
+        }
+
+        $query = PasakUserLogin::query()->with('user')->dashboard()->latest('id');
 
         $search = (string) $request->query('search', '');
         $dateFrom = (string) $request->query('date_from', '');
@@ -67,20 +75,21 @@ class PasakSessionController extends Controller
             }
         }
 
-        $currentUser = $request->user();
         $currentIp = app(PasakService::class)->resolveClientIp($request);
-        $currentTrusted = $currentUser ? PasakTrustedIp::query()
-            ->where('user_id', $currentUser->getKey())
+        $currentTrusted = PasakTrustedIp::query()
             ->where('ip_address', $currentIp)
             ->where('is_active', true)
-            ->first() : null;
+            ->when($currentUser, function ($q) use ($currentUser) {
+                $q->where('user_id', $currentUser->getKey());
+            })
+            ->first();
 
         return $this->dashboardResponse(
             'pages.pasak.sessions',
             [
                 'logins' => $query->paginate($perPage)->withQueryString(),
                 'trustedIps' => PasakTrustedIp::query()->with('user')->latest('id')->get(),
-                'onlineCount' => PasakUserLogin::query()->active(5)->count(),
+                'onlineCount' => PasakUserLogin::query()->dashboard()->active(5)->count(),
                 'currentUser' => $currentUser,
                 'currentIp' => $currentIp,
                 'currentTrusted' => $currentTrusted,
@@ -140,12 +149,20 @@ class PasakSessionController extends Controller
         PasakService $security,
         PasakUserLoginService $loginService,
     ): RedirectResponse {
-        $user = $request->user();
+        $user = $this->resolveCurrentUser($request);
+        $isDashboardAuth = $request->hasSession() && $request->session()->get('pasak_dashboard_authenticated') === true;
+
+        if (! $user && ! $isDashboardAuth) {
+            return back()->with('toast', [
+                'type' => 'danger',
+                'message' => __('Anda harus login untuk menyimpan IP terpercaya.'),
+            ]);
+        }
 
         if (! $user) {
             return back()->with('toast', [
                 'type' => 'danger',
-                'message' => __('Anda harus login untuk menyimpan IP terpercaya.'),
+                'message' => __('Tidak ditemukan akun pengguna untuk mengaitkan IP terpercaya.'),
             ]);
         }
 
@@ -167,5 +184,34 @@ class PasakSessionController extends Controller
             'type' => 'success',
             'message' => __('IP :ip saved as trusted.', ['ip' => $ip]),
         ]);
+    }
+
+    /**
+     * Resolusi pengguna aktif, memprioritaskan auth guard Laravel atau akun sesi dashboard Pasak.
+     */
+    protected function resolveCurrentUser(Request $request): mixed
+    {
+        $user = $request->user();
+        if ($user) {
+            return $user;
+        }
+
+        $userModel = (string) config('pasak.user_model', 'App\\Models\\User');
+        if (class_exists($userModel)) {
+            $dashboardUser = session('pasak_dashboard_user');
+            if ($dashboardUser) {
+                $found = $userModel::query()
+                    ->where('email', $dashboardUser)
+                    ->orWhere('name', $dashboardUser)
+                    ->first();
+                if ($found) {
+                    return $found;
+                }
+            }
+
+            return $userModel::query()->first();
+        }
+
+        return null;
     }
 }

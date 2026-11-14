@@ -43,7 +43,7 @@
             <div>
                 <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sec-text-muted); font-weight: 600;">{{ __('Akun Aktif') }}</div>
                 <div style="font-size: 13.5px; font-weight: 600; color: var(--sec-text); margin-top: 2px;">
-                    {{ $currentUser?->name ?? auth()->user()?->name ?? 'User' }}
+                    {{ $currentUser?->name ?? session('pasak_dashboard_user', auth()->user()?->name ?? 'User') }}
                     <span style="font-size: 12px; font-weight: normal; color: var(--sec-text-muted);">({{ $currentUser?->email ?? auth()->user()?->email ?? '-' }})</span>
                 </div>
             </div>
@@ -75,10 +75,7 @@
                     </form>
                 @endif
             @else
-                <form method="POST" action="{{ route('pasak.dashboard.trusted-ips.store-my-ip') }}" data-sec-confirm="{{ __('Simpan IP sesi saat ini (:ip) sebagai IP terpercaya untuk akun Anda? IP login riwayat lain tidak akan terpengaruh.', ['ip' => $currentIp ?? request()->ip()]) }}" data-confirm-title="{{ __('Konfirmasi Simpan IP') }}" data-confirm-type="primary" data-confirm-btn="{{ __('Ya, Simpan IP') }}">
-                    @csrf
-                    <button type="submit" class="sec-btn sec-btn-primary">🛡️ {{ __('Save my IP') }}</button>
-                </form>
+                <button type="button" class="sec-btn sec-btn-primary" onclick="window.pasakOpenTrustIpModal();">🛡️ {{ __('Save my IP') }}</button>
             @endif
         </div>
     </div>
@@ -112,7 +109,10 @@
 
 <div class="sec-card sec-card-flush">
     <div class="sec-card-header">
-        <h3 class="sec-card-title">{{ __('Login history') }} ({{ number_format($logins->total()) }})</h3>
+        <div>
+            <h3 class="sec-card-title">{{ __('Login history') }} ({{ number_format($logins->total()) }})</h3>
+            <p class="sec-card-subtitle" style="margin-top: 4px;">{{ __('Riwayat sesi pengguna yang mengakses dashboard Pasak.') }}</p>
+        </div>
     </div>
     <div class="sec-table-wrap">
         <table class="sec-table">
@@ -160,7 +160,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="text-align: center; color: var(--sec-text-muted); padding: 32px;">{{ __('No sessions recorded.') }}</td>
+                        <td colspan="5" style="text-align: center; color: var(--sec-text-muted); padding: 32px;">{{ __('Belum ada riwayat sesi login dashboard yang tercatat.') }}</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -199,7 +199,7 @@
             <tbody>
                 @forelse (($trustedIps ?? []) as $ip)
                     <tr>
-                        <td>{{ $ip->user?->name ?? $ip->user?->email ?? '-' }}</td>
+                        <td>{{ $ip->user?->name ?? $ip->user?->email ?? session('pasak_dashboard_user', 'Admin') }}</td>
                         <td class="sec-font-mono" style="font-weight: 600;">
                             {{ $ip->ip_address }}
                             @if ($ip->ip_address === ($currentIp ?? request()->ip()))
@@ -224,4 +224,139 @@
         </table>
     </div>
 </div>
+
+@if (! ($isCurrentIpTrusted ?? false))
+<!-- Modal Simpan IP Terpercaya Pasak (Hanya Tampil Saat IP Belum Tersimpan) -->
+<div class="sec-modal-backdrop" id="pasakTrustIpModal" hidden style="position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px;">
+    <div class="sec-modal-box" role="dialog" aria-modal="true" aria-labelledby="pasakTrustIpTitle" style="background: var(--sec-card); border: 1px solid var(--sec-border); border-radius: var(--sec-radius); width: 100%; max-width: 500px; box-shadow: var(--sec-shadow-md); overflow: hidden; display: flex; flex-direction: column; animation: sec-modal-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);">
+        <!-- Modal Header -->
+        <div class="sec-modal-header" style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; background: var(--sec-card-hover); padding: 18px 20px; border-bottom: 1px solid var(--sec-border);">
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(37, 99, 235, 0.12); border: 1px solid rgba(37, 99, 235, 0.25); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                    🛡️
+                </div>
+                <div>
+                    <h3 class="sec-card-title" id="pasakTrustIpTitle" style="font-size: 16px; margin: 0 0 2px 0;">
+                        {{ __('Simpan IP Sebagai IP Terpercaya') }}
+                    </h3>
+                    <p style="font-size: 12px; color: var(--sec-text-muted); margin: 0;">
+                        {{ __('Konfirmasi pendaftaran IP sesi login aktif ke daftar proteksi') }}
+                    </p>
+                </div>
+            </div>
+            <button type="button" class="sec-btn sec-btn-ghost" onclick="window.pasakCloseTrustIpModal();" title="{{ __('Tutup') }}" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; color: var(--sec-text-muted);">
+                ✕
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="sec-modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 14px; font-size: 13px; line-height: 1.5;">
+            <p style="margin: 0; color: var(--sec-text); font-size: 13.5px;">
+                {{ __('Anda berhasil masuk ke Pasak. Alamat IP sesi Anda saat ini belum terdaftar sebagai IP terpercaya akun.') }}
+            </p>
+
+            <div style="padding: 12px 16px; background: var(--sec-bg-subtle, var(--sec-card-hover)); border: 1px solid var(--sec-border); border-radius: var(--sec-radius-sm); display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                    <span style="color: var(--sec-text-muted); font-size: 12px;">{{ __('Akun Aktif') }}:</span>
+                    <span style="font-weight: 600; color: var(--sec-text);">
+                        {{ $currentUser?->name ?? session('pasak_dashboard_user', auth()->user()?->name ?? 'Admin') }}
+                        @if (!empty($currentUser?->email) || !empty(auth()->user()?->email))
+                            <span style="font-size: 12px; font-weight: normal; color: var(--sec-text-muted);">({{ $currentUser?->email ?? auth()->user()?->email }})</span>
+                        @endif
+                    </span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                    <span style="color: var(--sec-text-muted); font-size: 12px;">{{ __('IP Sesi Saat Ini') }}:</span>
+                    <span class="sec-font-mono" style="font-weight: 700; color: var(--sec-primary); font-size: 14px;">
+                        {{ $currentIp ?? request()->ip() }}
+                    </span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                    <span style="color: var(--sec-text-muted); font-size: 12px;">{{ __('Status Perlindungan') }}:</span>
+                    <span class="sec-badge sec-badge-low" style="font-size: 11px; padding: 2px 8px;">
+                        {{ __('Belum Terdaftar') }}
+                    </span>
+                </div>
+            </div>
+
+            <div style="padding: 10px 14px; background: rgba(37, 99, 235, 0.06); border: 1px dashed rgba(37, 99, 235, 0.25); border-radius: var(--sec-radius-sm); font-size: 12px; color: var(--sec-text-muted); line-height: 1.45;">
+                <div style="color: var(--sec-primary); font-weight: 600; margin-bottom: 2px;">
+                    🛡️ {{ __('Keuntungan Menyimpan IP Terpercaya:') }}
+                </div>
+                <div>
+                    {{ __('IP terpercaya dibebaskan dari pembatasan brute-force login throttle, bebas dari karantina otomatis, dan dikenali sebagai IP perangkat resmi Anda.') }}
+                </div>
+            </div>
+
+            <p style="margin: 0; font-size: 11.5px; color: var(--sec-text-subtle);">
+                ℹ️ {{ __('Hanya IP dari sesi login aktif Anda saat ini yang akan disimpan. Riwayat login IP lainnya tidak akan terpengaruh.') }}
+            </p>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="sec-modal-footer" style="padding: 14px 20px; border-top: 1px solid var(--sec-border); background: var(--sec-card-hover); display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="sec-btn sec-btn-secondary" onclick="window.pasakCloseTrustIpModal();">
+                {{ __('Nanti Saja') }}
+            </button>
+            <form method="POST" action="{{ route('pasak.dashboard.trusted-ips.store-my-ip') }}" style="margin: 0;">
+                @csrf
+                <button type="submit" class="sec-btn sec-btn-primary">
+                    🛡️ {{ __('Simpan IP Ini') }}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        window.pasakOpenTrustIpModal = function() {
+            var modal = document.getElementById('pasakTrustIpModal');
+            if (modal) {
+                modal.removeAttribute('hidden');
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        };
+
+        window.pasakCloseTrustIpModal = function() {
+            var modal = document.getElementById('pasakTrustIpModal');
+            if (modal) {
+                modal.setAttribute('hidden', '');
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        };
+
+        // Close on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                var modal = document.getElementById('pasakTrustIpModal');
+                if (modal && !modal.hasAttribute('hidden') && modal.style.display !== 'none') {
+                    window.pasakCloseTrustIpModal();
+                }
+            }
+        });
+
+        // Close on backdrop click
+        var modalEl = document.getElementById('pasakTrustIpModal');
+        if (modalEl) {
+            modalEl.addEventListener('click', function(e) {
+                if (e.target === modalEl) {
+                    window.pasakCloseTrustIpModal();
+                }
+            });
+        }
+
+        // Tampilkan modal secara otomatis karena IP belum terdaftar
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                window.pasakOpenTrustIpModal();
+            });
+        } else {
+            window.pasakOpenTrustIpModal();
+        }
+    })();
+</script>
+@endif
 @endsection

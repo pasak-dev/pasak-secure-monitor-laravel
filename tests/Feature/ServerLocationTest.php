@@ -16,6 +16,13 @@ use Pasak\SecureMonitor\Tests\TestUser;
 
 beforeEach(function () {
     Cache::flush();
+    $target = resource_path('views/pages/pasak');
+    if (! File::isDirectory($target)) {
+        File::copyDirectory(
+            dirname(__DIR__, 2).'/stubs/blade/pages/pasak',
+            $target
+        );
+    }
     PasakSetting::query()
         ->whereIn('key', [
             'server_location_name',

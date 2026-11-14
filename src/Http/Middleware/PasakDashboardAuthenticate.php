@@ -4,6 +4,7 @@ namespace Pasak\SecureMonitor\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Pasak\SecureMonitor\Services\PasakUserLoginService;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -19,16 +20,22 @@ class PasakDashboardAuthenticate
     {
         // Jika autentikasi dashboard dinonaktifkan secara eksplisit
         if (! (bool) config('pasak.dashboard.auth.enabled', true)) {
+            $this->trackDashboardAccess($request);
+
             return $next($request);
         }
 
         // Jika sesi sudah terotentikasi via login Pasak
         if ($request->hasSession() && $request->session()->get('pasak_dashboard_authenticated') === true) {
+            $this->trackDashboardAccess($request);
+
             return $next($request);
         }
 
         // Dukungan untuk unit testing Testbench yang memakai actingAs($admin)
         if (app()->runningUnitTests() && $request->user() !== null && ! $request->attributes->get('force_pasak_auth', false)) {
+            $this->trackDashboardAccess($request);
+
             return $next($request);
         }
 
@@ -46,5 +53,13 @@ class PasakDashboardAuthenticate
         }
 
         return redirect()->guest(route('pasak.dashboard.login'));
+    }
+
+    protected function trackDashboardAccess(Request $request): void
+    {
+        try {
+            app(PasakUserLoginService::class)->trackDashboardAccess($request, $request->user());
+        } catch (\Throwable) {
+        }
     }
 }

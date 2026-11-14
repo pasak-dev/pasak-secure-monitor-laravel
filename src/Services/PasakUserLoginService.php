@@ -22,16 +22,19 @@ class PasakUserLoginService
     public function recordLogin(
         Authenticatable $user,
         Request $request,
+        bool $isDashboard = false,
     ): PasakUserLogin {
         $securityService = app(PasakService::class);
         $ip = $securityService->resolveClientIp($request);
         $deviceId = $securityService->resolveDeviceId($request);
         $localIp = $securityService->resolveLocalIp($request);
         $userAgent = (string) ($request->userAgent() ?? '');
-        $sessionId = session()->getId();
+        $sessionId = $request->hasSession() ? $request->session()->getId() : session()->getId();
 
         $clientInfo = $this->parseUserAgent($userAgent);
         $geo = $this->resolveLocation($ip);
+
+        $deviceType = $isDashboard ? 'pasak_dashboard' : $clientInfo['device'];
 
         return PasakUserLogin::create([
             'user_id' => $user->getAuthIdentifier(),
@@ -40,7 +43,7 @@ class PasakUserLoginService
             'local_ip' => $localIp,
             'device_id' => $deviceId,
             'user_agent' => $userAgent,
-            'device_type' => $clientInfo['device'],
+            'device_type' => $deviceType,
             'operating_system' => Str::limit($clientInfo['os'], 255, ''),
             'browser' => Str::limit($clientInfo['browser'], 255, ''),
             'city' => $geo['city'] ?? null,
@@ -53,6 +56,84 @@ class PasakUserLoginService
             'login_at' => now(),
             'last_activity_at' => now(),
         ]);
+    }
+
+    /**
+     * Catat login khusus untuk pengguna yang berhasil masuk ke dashboard Pasak.
+     */
+    public function recordDashboardLogin(
+        Authenticatable $user,
+        Request $request,
+    ): PasakUserLogin {
+        return $this->recordLogin($user, $request, isDashboard: true);
+    }
+
+    /**
+     * Tandai atau catat sesi akses ke area dashboard Pasak.
+     */
+    public function trackDashboardAccess(Request $request, ?Authenticatable $user = null): void
+    {
+        try {
+            if (! $request->hasSession()) {
+                return;
+            }
+
+            $sessionId = $request->session()->getId();
+            if (! $sessionId) {
+                return;
+            }
+
+            if (! $user) {
+                $user = $request->user();
+            }
+
+            if (! $user && $request->hasSession()) {
+                $dashboardUser = $request->session()->get('pasak_dashboard_user');
+                $userModel = (string) config('pasak.user_model', 'App\\Models\\User');
+                if (class_exists($userModel)) {
+                    if ($dashboardUser) {
+                        $user = $userModel::query()
+                            ->where('email', $dashboardUser)
+                            ->orWhere('name', $dashboardUser)
+                            ->first();
+                    }
+                    if (! $user) {
+                        $user = $userModel::query()->first();
+                    }
+                }
+            }
+
+            $query = PasakUserLogin::query();
+            $existing = $query->where('session_id', $sessionId)->latest('id')->first();
+
+            if (! $existing && $user) {
+                $existing = PasakUserLogin::query()
+                    ->where('user_id', $user->getAuthIdentifier())
+                    ->where('ip_address', $request->ip())
+                    ->whereNull('logout_at')
+                    ->latest('id')
+                    ->first();
+            }
+
+            if ($existing) {
+                $updates = ['last_activity_at' => now()];
+                if ($existing->device_type !== 'pasak_dashboard') {
+                    $updates['device_type'] = 'pasak_dashboard';
+                }
+                if (! $existing->session_id && $sessionId) {
+                    $updates['session_id'] = $sessionId;
+                }
+                $existing->update($updates);
+
+                return;
+            }
+
+            if ($user) {
+                $this->recordDashboardLogin($user, $request);
+            }
+        } catch (Throwable) {
+            // Abaikan kesalahan pencatatan agar navigasi dasbor tidak terganggu
+        }
     }
 
     /**
