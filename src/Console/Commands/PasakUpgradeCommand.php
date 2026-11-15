@@ -985,17 +985,17 @@ MARKDOWN;
         }
 
         $content = File::get($composerPath);
-        $pattern = '/("robyajo\/pasak"\s*:\s*")([^"]+)(")/';
+        $pattern = '/("(?:robyajo\/pasak|pasak-dev\/secure-monitor)"\s*:\s*")([^"]+)(")/';
 
         if (preg_match($pattern, $content, $matches)) {
             $current = $matches[2];
             $target = "^{$version}";
 
-            if ($current !== $target && ! in_array($current, ['@dev', 'dev-main', '*'], true)) {
+            if ($current !== $target && ! in_array($current, ['@dev', 'dev-main'], true)) {
                 $newContent = preg_replace($pattern, '${1}'.$target.'${3}', $content, 1);
                 if ($newContent !== null && $newContent !== $content) {
                     File::put($composerPath, $newContent);
-                    $this->info("  ✓ Versi robyajo/pasak di composer.json diselaraskan ke \"{$target}\".");
+                    $this->info("  ✓ Versi pasak-dev/secure-monitor di composer.json diselaraskan ke \"{$target}\".");
                 }
             }
         }

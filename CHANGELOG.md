@@ -2,6 +2,16 @@
 
 All notable changes to `pasak-dev/secure-monitor` will be documented in this file.
 
+## [1.2.1] - 2026-11-15
+
+### Fixed
+
+- **Penyelarasan Constraint Versi Wildcard `*` di `composer.json` Host** (`src/Console/Commands/PasakInstallCommand.php`, `src/Console/Commands/PasakUpgradeCommand.php`):
+  - Memperbaiki logika `syncComposerConstraint` agar constraint versi wildcard (`*`) yang dihasilkan oleh instalasi awal Composer otomatis diselaraskan ke versi SemVer rilis lengkap terbaru (misal: `"pasak-dev/secure-monitor": "^1.2.1"`).
+  - Menambahkan dukungan nama paket resmi `pasak-dev/secure-monitor` pada perintah `pasak:upgrade` selain alias lama `robyajo/pasak`.
+  - Memperbaiki pesan feedback terminal agar menampilkan nama paket `pasak-dev/secure-monitor` secara konsisten.
+  - Menambahkan pengujian otomatis Pest untuk memastikan constraint wildcard `*` dikonversi sempurna ke SemVer lengkap saat instalasi.
+
 ## [1.2.0] - 2026-11-15
 
 ### Added

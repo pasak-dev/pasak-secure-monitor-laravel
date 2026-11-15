@@ -200,3 +200,34 @@ test('install command aligns composer.json version constraint to full semver', f
         }
     }
 });
+
+
+test('install command aligns wildcard version constraint * to full semver', function () {
+    $composerFile = base_path('composer.json');
+    $hadComposer = File::exists($composerFile);
+    $origComposer = $hadComposer ? File::get($composerFile) : null;
+
+    $dummyComposer = json_encode([
+        'name' => 'test/app',
+        'require' => [
+            'php' => '^8.2',
+            'pasak-dev/secure-monitor' => '*',
+        ],
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+    File::put($composerFile, $dummyComposer);
+
+    try {
+        $this->artisan('pasak:install', ['--force' => true])->assertSuccessful();
+
+        $updated = File::get($composerFile);
+        $expectedVersion = PasakService::VERSION;
+        expect($updated)->toContain("\"pasak-dev/secure-monitor\": \"^{$expectedVersion}\"");
+    } finally {
+        if ($hadComposer) {
+            File::put($composerFile, $origComposer);
+        } else {
+            @unlink($composerFile);
+        }
+    }
+});

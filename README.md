@@ -65,9 +65,9 @@ composer require pasak-dev/secure-monitor
 
 > **Penting — gunakan versi rilis lengkap.** Menjalankan
 > `composer require pasak-dev/secure-monitor` memastikan `composer.json` mencatat rilis
-> patch yang akurat (Composer secara bawaan menyingkat menjadi `^1.6` bila tanpa versi).
-> Perintah `php artisan pasak:install` juga otomatis menyelaraskan constraint di
-> `composer.json` ke versi lengkap terbaru (`^1.6.7`). Jangan gunakan `@dev` di produksi.
+> patch yang akurat. Perintah `php artisan pasak:install` dan `pasak:upgrade` secara otomatis
+> menyelaraskan constraint di `composer.json` dari constraint ringkas atau wildcard (seperti `*` atau `^1.2`)
+> ke versi rilis SemVer lengkap terbaru (`^1.2.1`). Jangan gunakan `@dev` di produksi.
 
 ### 2. Publikasikan Aset Otomatis (`pasak:install`)
 
