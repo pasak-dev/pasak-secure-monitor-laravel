@@ -1,7 +1,7 @@
 # WAF Test Console — Laravel Security Monitor
 
 Aplikasi web **khusus pengujian** untuk memverifikasi WAF
-[`pasax-dev/secure-monitor`](../laravel-security-monitor) (Bulwark).
+[`pasax/secure-monitor`](../laravel-security-monitor) (Bulwark).
 
 Dibangun dengan **React + Vite** (Tailwind CSS v4). Tidak ada database, tidak ada
 backend framework — hanya sebuah konsol uji satu halaman.

@@ -48,9 +48,9 @@
 @if($pasaxInstalled)
 <p class="meta">WAF aktif — signature instant-block, throttle login, dan karantina perangkat berjalan.</p>
 @else
-<p class="meta">Paket <code>pasax-dev/secure-monitor</code> belum terpasang. Pola <code>../</code>, <code>&lt;script&gt;</code>, <code>.env</code>, <code>.php.jpg</code> semuanya lolos <code>200 OK</code>. Detail tiap celah ada di tombol melayang <b>⚠️ Kerentanan</b>.</p>
+<p class="meta">Paket <code>pasax/secure-monitor</code> belum terpasang. Pola <code>../</code>, <code>&lt;script&gt;</code>, <code>.env</code>, <code>.php.jpg</code> semuanya lolos <code>200 OK</code>. Detail tiap celah ada di tombol melayang <b>⚠️ Kerentanan</b>.</p>
 <pre>cd laravel-test/laravel-none
-composer require pasax-dev/secure-monitor
+composer require pasax/secure-monitor
 php artisan pasax:install
 php artisan migrate</pre>
 @endif

@@ -1,6 +1,6 @@
 # 02. Panduan Instalasi & Migrasi
 
-Halaman ini memandu proses instalasi paket **`pasax-dev/secure-monitor`** ke dalam aplikasi Laravel Anda.
+Halaman ini memandu proses instalasi paket **`pasax/secure-monitor`** ke dalam aplikasi Laravel Anda.
 
 > 🌟 **Nol Ketergantungan NPM (Zero NPM)**: Paket ini murni PHP Composer library standar seperti paket Spatie. Anda **tidak perlu** menginstal dependensi npm atau menjalankan build tools frontend.
 
@@ -23,11 +23,11 @@ Pastikan lingkungan server Anda memenuhi spesifikasi minimum berikut:
 Jika paket sudah diterbitkan di Packagist, cantumkan versi lengkap agar `composer.json` mencatat rilis patch yang akurat:
 
 ```bash
-composer require "pasax-dev/secure-monitor:^1.0.0"
+composer require "pasax/secure-monitor:^1.0.0"
 ```
 
 > **Tips Constraint Versi**:
-> Jika Anda menjalankan `composer require pasax-dev/secure-monitor` tanpa versi, Composer secara bawaan menyingkatnya menjadi `^1.6`. Menjalankan `php artisan pasax:install` akan secara otomatis menyelaraskan entri di `composer.json` ke versi lengkap terbaru (`^1.6.7`).
+> Jika Anda menjalankan `composer require pasax/secure-monitor` tanpa versi, Composer secara bawaan menyingkatnya menjadi `^1.6`. Menjalankan `php artisan pasax:install` akan secara otomatis menyelaraskan entri di `composer.json` ke versi lengkap terbaru (`^1.6.7`).
 
 ### Menggunakan Repositori Lokal / Private Git (Monorepo atau Path)
 
@@ -48,7 +48,7 @@ Jika Anda menggunakan paket ini secara internal sebelum publikasi ke Packagist, 
 Kemudian pasang paket:
 
 ```bash
-composer require pasax-dev/secure-monitor:@dev
+composer require pasax/secure-monitor:@dev
 ```
 
 ---
@@ -173,14 +173,14 @@ Perintah ini menyalin tujuh halaman Blade ke `resources/views/pages/pasax/` (CSS
 
 ---
 
-## 4.5. Batas Wilayah & Struktur Berkas di `vendor/pasax-dev/secure-monitor/`
+## 4.5. Batas Wilayah & Struktur Berkas di `vendor/pasax/secure-monitor/`
 
-Paket ini menganut kebijakan **Zero-Vendor-Edit Policy** yang ketat. Ketika pengguna menjalankan `composer require pasax-dev/secure-monitor`, berkas pengujian dan aset internal otomatis dieksklusikan melalui `.gitattributes` sehingga hanya pustaka runtime murni yang diterima di folder `vendor/`.
+Paket ini menganut kebijakan **Zero-Vendor-Edit Policy** yang ketat. Ketika pengguna menjalankan `composer require pasax/secure-monitor`, berkas pengujian dan aset internal otomatis dieksklusikan melalui `.gitattributes` sehingga hanya pustaka runtime murni yang diterima di folder `vendor/`.
 
-### Struktur Lengkap yang Diterima di `vendor/pasax-dev/secure-monitor/`:
+### Struktur Lengkap yang Diterima di `vendor/pasax/secure-monitor/`:
 
 ```text
-vendor/pasax-dev/secure-monitor/
+vendor/pasax/secure-monitor/
 ├── config/
 │   └── pasax.php                          # Sumber konfigurasi bawaan (dipublikasikan ke config/pasax.php)
 ├── database/migrations/

@@ -247,8 +247,8 @@ test('threat map auto detects server location when manual config is not provided
 
 test('upgrade warns when published dashboard layout lacks the threat map menu', function () {
     Http::fake([
-        'https://repo.packagist.org/p2/pasax-dev/secure-monitor.json' => Http::response([
-            'packages' => ['pasax-dev/secure-monitor' => [['version' => 'v99.9.9']]],
+        'https://repo.packagist.org/p2/pasax/secure-monitor.json' => Http::response([
+            'packages' => ['pasax/secure-monitor' => [['version' => 'v99.9.9']]],
         ], 200),
         'https://api.github.com/repos/pasax-dev/pasax-secure-monitor-laravel/tags' => Http::response([], 200),
     ]);

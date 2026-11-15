@@ -2,7 +2,7 @@
 
 # ==============================================================================
 # Git Automated Push & Optional Tagging Script
-# Repository: pasax-dev/secure-monitor
+# Repository: pasax/secure-monitor
 #
 # Setiap kali dijalankan, skrip ini SELALU melakukan pengecekan versi:
 #   - Versi sekarang    : tag rilis semver terakhir (mis. v1.0.3)
@@ -417,7 +417,7 @@ if [ -n "$TAG_NAME" ] && [ "$NO_TAG" -eq 0 ]; then
 
     echo ""
     print_info "🚀 Paket versi ${TAG_NAME} kini siap dideteksi secara otomatis oleh Packagist!"
-    echo -e "   Periksa katalog rilis di: ${BLUE}https://packagist.org/packages/pasax-dev/secure-monitor${NC}"
+    echo -e "   Periksa katalog rilis di: ${BLUE}https://packagist.org/packages/pasax/secure-monitor${NC}"
 fi
 
 echo ""

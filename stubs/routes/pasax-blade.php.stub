@@ -1,149 +1,149 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakAllowedIpController;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakAuthController;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakBlockedIpController;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakDashboardAliasController;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakDashboardEntryController;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakLogController;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakOverviewController;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakServerController;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakSessionController;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakSettingController;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakThreatMapController;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakTicketController;
-use Pasak\SecureMonitor\Http\Middleware\PasakDashboardAuthenticate;
-use Pasak\SecureMonitor\Http\Middleware\PasakRotatingDashboard;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxAllowedIpController;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxAuthController;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxBlockedIpController;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxDashboardAliasController;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxDashboardEntryController;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxLogController;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxOverviewController;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxServerController;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxSessionController;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxSettingController;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxThreatMapController;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxTicketController;
+use Pasax\SecureMonitor\Http\Middleware\PasaxDashboardAuthenticate;
+use Pasax\SecureMonitor\Http\Middleware\PasaxRotatingDashboard;
 
 /*
 |--------------------------------------------------------------------------
-| Pasak Web Dashboard Routes (Plain Blade)
+| Pasax Web Dashboard Routes (Plain Blade)
 |--------------------------------------------------------------------------
 |
-| Rute dashboard Blade murni — satu-satunya dashboard Pasak (100% Pure PHP).
-| Me-render tampilan di resources/views/pages/pasak tanpa dependensi
+| Rute dashboard Blade murni — satu-satunya dashboard Pasax (100% Pure PHP).
+| Me-render tampilan di resources/views/pages/pasax tanpa dependensi
 | frontend sehingga Anda bebas menyesuaikan tampilan, prefix URL,
 | middleware, atau menambah halaman sendiri.
 |
-| Dilindungi oleh middleware autentikasi mandiri Pasak:
-| - Username: PASAK_DASHBOARD_USERNAME (default: admin)
-| - Password: PASAK_DASHBOARD_SECRET (secret password server)
+| Dilindungi oleh middleware autentikasi mandiri Pasax:
+| - Username: PASAX_DASHBOARD_USERNAME (default: admin)
+| - Password: PASAX_DASHBOARD_SECRET (secret password server)
 |
-| Mode URL acak sekali pakai (PASAK_DASHBOARD_ROTATING=true):
-| pintu stabil "/pasak" 302 ke "/pasak-{token}/" milik sesi pengguna.
+| Mode URL acak sekali pakai (PASAX_DASHBOARD_ROTATING=true):
+| pintu stabil "/pasax" 302 ke "/pasax-{token}/" milik sesi pengguna.
 | Token diputar setiap akses HTML sehingga reload selalu berubah,
-| mis. /pasak-95856857476jdhjs5/logs lalu /pasak-634664873647jbdjshf/logs.
+| mis. /pasax-95856857476jdhjs5/logs lalu /pasax-634664873647jbdjshf/logs.
 |
 */
 
-$prefix = trim((string) config('pasak.dashboard.prefix', 'pasak'), '/');
+$prefix = trim((string) config('pasax.dashboard.prefix', 'pasax'), '/');
 if ($prefix === '') {
-    $prefix = 'pasak';
+    $prefix = 'pasax';
 }
 
 $configuredMiddleware = array_filter(
-    (array) config('pasak.dashboard.middleware', ['web', 'auth']),
+    (array) config('pasax.dashboard.middleware', ['web', 'auth']),
 );
-$authEnabled = (bool) config('pasak.dashboard.auth.enabled', true);
+$authEnabled = (bool) config('pasax.dashboard.auth.enabled', true);
 
 $middleware = [];
 foreach ($configuredMiddleware as $m) {
     if ($m === 'auth' && $authEnabled) {
-        $middleware[] = PasakDashboardAuthenticate::class;
+        $middleware[] = PasaxDashboardAuthenticate::class;
     } else {
         $middleware[] = $m;
     }
 }
 
-if ($authEnabled && ! in_array(PasakDashboardAuthenticate::class, $middleware, true)) {
-    $middleware[] = PasakDashboardAuthenticate::class;
+if ($authEnabled && ! in_array(PasaxDashboardAuthenticate::class, $middleware, true)) {
+    $middleware[] = PasaxDashboardAuthenticate::class;
 }
 
 $middleware = array_values(array_unique(array_filter($middleware)));
 
 $adminMiddleware = array_filter(
-    (array) config('pasak.dashboard.admin_middleware', []),
+    (array) config('pasax.dashboard.admin_middleware', []),
 );
-$rotating = (bool) config('pasak.dashboard.rotating', false);
+$rotating = (bool) config('pasax.dashboard.rotating', false);
 
-// Rute Form Login & Logout Mandiri Dashboard Pasak (tanpa proteksi auth)
+// Rute Form Login & Logout Mandiri Dashboard Pasax (tanpa proteksi auth)
 Route::middleware(['web'])
     ->prefix($prefix)
     ->group(function () {
-        Route::get('login', [PasakAuthController::class, 'showLoginForm'])
-            ->name('pasak.dashboard.login');
-        Route::post('login', [PasakAuthController::class, 'login'])
-            ->name('pasak.dashboard.login.submit');
-        Route::post('logout', [PasakAuthController::class, 'logout'])
-            ->name('pasak.dashboard.logout');
-        Route::post('password', [PasakAuthController::class, 'updatePassword'])
-            ->name('pasak.dashboard.password.update');
+        Route::get('login', [PasaxAuthController::class, 'showLoginForm'])
+            ->name('pasax.dashboard.login');
+        Route::post('login', [PasaxAuthController::class, 'login'])
+            ->name('pasax.dashboard.login.submit');
+        Route::post('logout', [PasaxAuthController::class, 'logout'])
+            ->name('pasax.dashboard.logout');
+        Route::post('password', [PasaxAuthController::class, 'updatePassword'])
+            ->name('pasax.dashboard.password.update');
     });
 
-$registerPasakDashboard = function () {
-    Route::get('/', PasakOverviewController::class)->name('overview');
-    Route::get('threat-map', [PasakThreatMapController::class, 'index'])->name('threat-map');
-    Route::get('threat-map/feed', [PasakThreatMapController::class, 'feed'])->name('threat-map.feed');
-    Route::get('logs', [PasakLogController::class, 'index'])->name('logs');
-    Route::get('logs/{id}', [PasakLogController::class, 'show'])->whereNumber('id')->name('logs.show');
-    Route::delete('logs', [PasakLogController::class, 'clear'])->name('logs.clear');
-    Route::delete('logs/{id}', [PasakLogController::class, 'destroy'])->whereNumber('id')->name('logs.destroy');
-    Route::get('blocked-ips', [PasakBlockedIpController::class, 'index'])->name('blocked-ips');
-    Route::get('blocked-ips/{id}', [PasakBlockedIpController::class, 'show'])->whereNumber('id')->name('blocked-ips.show');
-    Route::post('blocked-ips', [PasakBlockedIpController::class, 'store'])->name('blocked-ips.store');
-    Route::patch('blocked-ips/{id}/toggle', [PasakBlockedIpController::class, 'toggle'])->whereNumber('id')->name('blocked-ips.toggle');
-    Route::delete('blocked-ips/{id}', [PasakBlockedIpController::class, 'destroy'])->whereNumber('id')->name('blocked-ips.destroy');
-    Route::get('allowed-ips', [PasakAllowedIpController::class, 'index'])->name('allowed-ips');
-    Route::post('allowed-ips', [PasakAllowedIpController::class, 'store'])->name('allowed-ips.store');
-    Route::patch('allowed-ips/{id}/toggle', [PasakAllowedIpController::class, 'toggle'])->whereNumber('id')->name('allowed-ips.toggle');
-    Route::delete('allowed-ips/{id}', [PasakAllowedIpController::class, 'destroy'])->whereNumber('id')->name('allowed-ips.destroy');
-    Route::get('server', [PasakServerController::class, 'index'])->name('server');
-    Route::post('server/baseline', [PasakServerController::class, 'createBaseline'])->name('server.baseline');
-    Route::delete('server/baseline', [PasakServerController::class, 'deleteBaseline'])->name('server.baseline.destroy');
-    Route::delete('server/suspicious-files', [PasakServerController::class, 'deleteSuspiciousFile'])->name('server.suspicious-files.destroy');
-    Route::get('server/suspicious-files/download', [PasakServerController::class, 'downloadSuspiciousFile'])->name('server.suspicious-files.download');
-    Route::post('server/suspicious-files/verify', [PasakServerController::class, 'verifySuspiciousFile'])->name('server.suspicious-files.verify');
-    Route::post('server/suspicious-files/unverify', [PasakServerController::class, 'unverifySuspiciousFile'])->name('server.suspicious-files.unverify');
-    Route::post('optimize-clear', [PasakServerController::class, 'optimizeClear'])->name('optimize-clear');
-    Route::delete('lockouts/{id}', [PasakServerController::class, 'releaseLockout'])->whereNumber('id')->name('lockouts.destroy');
-    Route::get('sessions', [PasakSessionController::class, 'index'])->name('sessions');
-    Route::delete('user-sessions/{id}', [PasakSessionController::class, 'destroyLogin'])->whereNumber('id')->name('user-sessions.destroy');
-    Route::delete('sessions/{sessionId}', [PasakSessionController::class, 'destroySession'])->name('sessions.destroy');
-    Route::delete('trusted-ips/{id}', [PasakSessionController::class, 'destroyTrusted'])->whereNumber('id')->name('trusted-ips.destroy');
-    Route::post('trusted-ips/my-ip', [PasakSessionController::class, 'storeMyIp'])->name('trusted-ips.store-my-ip');
-    Route::get('tickets', [PasakTicketController::class, 'index'])->name('tickets');
-    Route::get('tickets/{id}', [PasakTicketController::class, 'show'])->whereNumber('id')->name('tickets.show');
-    Route::post('tickets/{id}/respond', [PasakTicketController::class, 'respond'])->whereNumber('id')->name('tickets.respond');
-    Route::delete('tickets/{id}', [PasakTicketController::class, 'destroy'])->whereNumber('id')->name('tickets.destroy');
-    Route::get('settings', [PasakSettingController::class, 'index'])->name('settings');
-    Route::post('settings', [PasakSettingController::class, 'update'])->name('settings.update');
+$registerPasaxDashboard = function () {
+    Route::get('/', PasaxOverviewController::class)->name('overview');
+    Route::get('threat-map', [PasaxThreatMapController::class, 'index'])->name('threat-map');
+    Route::get('threat-map/feed', [PasaxThreatMapController::class, 'feed'])->name('threat-map.feed');
+    Route::get('logs', [PasaxLogController::class, 'index'])->name('logs');
+    Route::get('logs/{id}', [PasaxLogController::class, 'show'])->whereNumber('id')->name('logs.show');
+    Route::delete('logs', [PasaxLogController::class, 'clear'])->name('logs.clear');
+    Route::delete('logs/{id}', [PasaxLogController::class, 'destroy'])->whereNumber('id')->name('logs.destroy');
+    Route::get('blocked-ips', [PasaxBlockedIpController::class, 'index'])->name('blocked-ips');
+    Route::get('blocked-ips/{id}', [PasaxBlockedIpController::class, 'show'])->whereNumber('id')->name('blocked-ips.show');
+    Route::post('blocked-ips', [PasaxBlockedIpController::class, 'store'])->name('blocked-ips.store');
+    Route::patch('blocked-ips/{id}/toggle', [PasaxBlockedIpController::class, 'toggle'])->whereNumber('id')->name('blocked-ips.toggle');
+    Route::delete('blocked-ips/{id}', [PasaxBlockedIpController::class, 'destroy'])->whereNumber('id')->name('blocked-ips.destroy');
+    Route::get('allowed-ips', [PasaxAllowedIpController::class, 'index'])->name('allowed-ips');
+    Route::post('allowed-ips', [PasaxAllowedIpController::class, 'store'])->name('allowed-ips.store');
+    Route::patch('allowed-ips/{id}/toggle', [PasaxAllowedIpController::class, 'toggle'])->whereNumber('id')->name('allowed-ips.toggle');
+    Route::delete('allowed-ips/{id}', [PasaxAllowedIpController::class, 'destroy'])->whereNumber('id')->name('allowed-ips.destroy');
+    Route::get('server', [PasaxServerController::class, 'index'])->name('server');
+    Route::post('server/baseline', [PasaxServerController::class, 'createBaseline'])->name('server.baseline');
+    Route::delete('server/baseline', [PasaxServerController::class, 'deleteBaseline'])->name('server.baseline.destroy');
+    Route::delete('server/suspicious-files', [PasaxServerController::class, 'deleteSuspiciousFile'])->name('server.suspicious-files.destroy');
+    Route::get('server/suspicious-files/download', [PasaxServerController::class, 'downloadSuspiciousFile'])->name('server.suspicious-files.download');
+    Route::post('server/suspicious-files/verify', [PasaxServerController::class, 'verifySuspiciousFile'])->name('server.suspicious-files.verify');
+    Route::post('server/suspicious-files/unverify', [PasaxServerController::class, 'unverifySuspiciousFile'])->name('server.suspicious-files.unverify');
+    Route::post('optimize-clear', [PasaxServerController::class, 'optimizeClear'])->name('optimize-clear');
+    Route::delete('lockouts/{id}', [PasaxServerController::class, 'releaseLockout'])->whereNumber('id')->name('lockouts.destroy');
+    Route::get('sessions', [PasaxSessionController::class, 'index'])->name('sessions');
+    Route::delete('user-sessions/{id}', [PasaxSessionController::class, 'destroyLogin'])->whereNumber('id')->name('user-sessions.destroy');
+    Route::delete('sessions/{sessionId}', [PasaxSessionController::class, 'destroySession'])->name('sessions.destroy');
+    Route::delete('trusted-ips/{id}', [PasaxSessionController::class, 'destroyTrusted'])->whereNumber('id')->name('trusted-ips.destroy');
+    Route::post('trusted-ips/my-ip', [PasaxSessionController::class, 'storeMyIp'])->name('trusted-ips.store-my-ip');
+    Route::get('tickets', [PasaxTicketController::class, 'index'])->name('tickets');
+    Route::get('tickets/{id}', [PasaxTicketController::class, 'show'])->whereNumber('id')->name('tickets.show');
+    Route::post('tickets/{id}/respond', [PasaxTicketController::class, 'respond'])->whereNumber('id')->name('tickets.respond');
+    Route::delete('tickets/{id}', [PasaxTicketController::class, 'destroy'])->whereNumber('id')->name('tickets.destroy');
+    Route::get('settings', [PasaxSettingController::class, 'index'])->name('settings');
+    Route::post('settings', [PasaxSettingController::class, 'update'])->name('settings.update');
 };
 
 if ($rotating) {
-    // Pintu stabil untuk bookmark: /pasak → 302 → /pasak-{token}/
+    // Pintu stabil untuk bookmark: /pasax → 302 → /pasax-{token}/
     Route::middleware(array_merge($middleware, $adminMiddleware))
-        ->get($prefix, PasakDashboardEntryController::class)
-        ->name('pasak.dashboard.entry');
+        ->get($prefix, PasaxDashboardEntryController::class)
+        ->name('pasax.dashboard.entry');
 
     Route::middleware(
         array_merge($middleware, $adminMiddleware, [
-            PasakRotatingDashboard::class,
+            PasaxRotatingDashboard::class,
         ]),
     )
-        ->prefix('{pasakSlug}')
+        ->prefix('{pasaxSlug}')
         ->where([
-            'pasakSlug' => preg_quote($prefix, '/').'-[A-Za-z0-9]{12,32}',
+            'pasaxSlug' => preg_quote($prefix, '/').'-[A-Za-z0-9]{12,32}',
         ])
-        ->name('pasak.dashboard.')
-        ->group($registerPasakDashboard);
+        ->name('pasax.dashboard.')
+        ->group($registerPasaxDashboard);
 
-    // Alias stabil: /pasak/logs → 302 → /pasak-{token}/logs. Menjaga bookmark,
+    // Alias stabil: /pasax/logs → 302 → /pasax-{token}/logs. Menjaga bookmark,
     // link layout host, dan route() di luar dashboard tetap hidup.
     Route::middleware(array_merge($middleware, $adminMiddleware))
         ->prefix($prefix)
         ->group(function () {
-            Route::get('{any}', PasakDashboardAliasController::class)->where(
+            Route::get('{any}', PasaxDashboardAliasController::class)->where(
                 'any',
                 '^(?!login|logout|password).*$',
             );
@@ -151,6 +151,6 @@ if ($rotating) {
 } else {
     Route::middleware(array_merge($middleware, $adminMiddleware))
         ->prefix($prefix)
-        ->name('pasak.dashboard.')
-        ->group($registerPasakDashboard);
+        ->name('pasax.dashboard.')
+        ->group($registerPasaxDashboard);
 }

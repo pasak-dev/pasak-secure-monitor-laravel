@@ -18,7 +18,7 @@ class PasaxVersionCheckService
     /**
      * Endpoint API Packagist v2.
      */
-    public const PACKAGIST_URL = 'https://repo.packagist.org/p2/pasax-dev/secure-monitor.json';
+    public const PACKAGIST_URL = 'https://repo.packagist.org/p2/pasax/secure-monitor.json';
 
     /**
      * Fallback endpoint API GitHub Tags.
@@ -37,8 +37,8 @@ class PasaxVersionCheckService
     {
         try {
             if (class_exists(InstalledVersions::class)) {
-                if (InstalledVersions::isInstalled('pasax-dev/secure-monitor')) {
-                    $pretty = (string) InstalledVersions::getPrettyVersion('pasax-dev/secure-monitor');
+                if (InstalledVersions::isInstalled('pasax/secure-monitor')) {
+                    $pretty = (string) InstalledVersions::getPrettyVersion('pasax/secure-monitor');
                     if (! empty($pretty) && ! str_starts_with($pretty, 'dev-')) {
                         return ltrim($pretty, 'v');
                     }
@@ -113,7 +113,7 @@ class PasaxVersionCheckService
                 return null;
             }
 
-            $packages = $response->json('packages.pasax-dev/secure-monitor')
+            $packages = $response->json('packages.pasax/secure-monitor')
                 ?? $response->json('packages.pasax-dev/pasax-secure-monitor-laravel')
                 ?? $response->json('packages.robyajo/pasax')
                 ?? [];

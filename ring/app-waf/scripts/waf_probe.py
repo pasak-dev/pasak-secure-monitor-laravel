@@ -306,7 +306,7 @@ def main() -> int:
         targets_ok = preflight(args.waf, "WAF") and targets_ok
     if not targets_ok:
         print("BATAL: target ada yang mati/tak terjangkau.")
-        print("  local      → pasak-no :8000 (kontrol) + pasak-yes :8001 (ber-Pasak)")
+        print("  local      → pasax-no :8000 (kontrol) + pasax-yes :8001 (ber-Pasax)")
         print("  production → cek domain + izin audit (atau override via")
         print(
             "                PLAIN_URL=... WAF_URL=... ./start.sh / flag --plain/--waf)"

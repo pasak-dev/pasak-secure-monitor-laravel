@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# install-package.sh — pasang (ulang) pasax-dev/secure-monitor ke app uji ini untuk pengujian.
+# install-package.sh — pasang (ulang) pasax/secure-monitor ke app uji ini untuk pengujian.
 #
 # Konteks: composer memakai path-repository (symlink ke ../../), sehingga
 # `composer require` tidak mengunduh apa pun dari packagist, lalu wizard
@@ -20,10 +20,10 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 echo "== [1/4] Memasang paket via Composer (path-repository, lokal) =="
-if composer show pasax-dev/secure-monitor >/dev/null 2>&1; then
+if composer show pasax/secure-monitor >/dev/null 2>&1; then
     echo "-- paket sudah terpasang, lanjut ke wizard instalasi."
 else
-    composer require "pasax-dev/secure-monitor:@dev" --no-interaction
+    composer require "pasax/secure-monitor:@dev" --no-interaction
 fi
 
 echo "== [2/4] Menjalankan wizard pasax:install =="

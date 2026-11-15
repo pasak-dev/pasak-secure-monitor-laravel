@@ -1,10 +1,10 @@
-# Agent Guidelines for `pasax-dev/secure-monitor`
+# Agent Guidelines for `pasax/secure-monitor`
 
 ## 1. Project Overview & Foundational Context
 
-This repository is **`pasax-dev/secure-monitor`** (Bulwark), an enterprise-grade, standalone, headless self-hosted Web Application Firewall (WAF), threat detection engine, and security auditing library for the Laravel ecosystem.
+This repository is **`pasax/secure-monitor`** (Bulwark), an enterprise-grade, standalone, headless self-hosted Web Application Firewall (WAF), threat detection engine, and security auditing library for the Laravel ecosystem.
 
-- **Package Name**: `pasax-dev/secure-monitor`
+- **Package Name**: `pasax/secure-monitor`
 - **Root Namespace**: `Pasax\SecureMonitor\`
 - **Target Environments**: PHP `^8.2 | ^8.3 | ^8.4 | ^8.5`, Laravel `^10.0 | ^11.0 | ^12.0 | ^13.0`
 - **Package Type**: `library` (Composer only)

@@ -1,8 +1,8 @@
 # Pasax (Bulwark)
 
 [![Run Tests](https://github.com/pasax-dev/pasax-secure-monitor-laravel/actions/workflows/run-tests.yml/badge.svg)](https://github.com/pasax-dev/pasax-secure-monitor-laravel/actions/workflows/run-tests.yml)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/pasax-dev/secure-monitor.svg)](https://packagist.org/packages/pasax-dev/secure-monitor)
-[![Total Downloads](https://img.shields.io/packagist/dt/pasax-dev/secure-monitor.svg)](https://packagist.org/packages/pasax-dev/secure-monitor)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/pasax/secure-monitor.svg)](https://packagist.org/packages/pasax/secure-monitor)
+[![Total Downloads](https://img.shields.io/packagist/dt/pasax/secure-monitor.svg)](https://packagist.org/packages/pasax/secure-monitor)
 [![PHP Version](https://img.shields.io/badge/php-%5E8.2%20%7C%20%5E8.3%20%7C%20%5E8.4%20%7C%20%5E8.5-blue.svg)](https://www.php.net/supported-versions.php)
 [![Laravel Version](https://img.shields.io/badge/laravel-%5E10.0%20%7C%20%5E11.0%20%7C%20%5E12.0%20%7C%20%5E13.0-red.svg)](https://laravel.com/docs/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -60,11 +60,11 @@
 ### 1. Pasang Paket via Composer
 
 ```bash
-composer require pasax-dev/secure-monitor
+composer require pasax/secure-monitor
 ```
 
 > **Penting — gunakan versi rilis lengkap.** Menjalankan
-> `composer require pasax-dev/secure-monitor` memastikan `composer.json` mencatat rilis
+> `composer require pasax/secure-monitor` memastikan `composer.json` mencatat rilis
 > patch yang akurat. Perintah `php artisan pasax:install` dan `pasax:upgrade` secara otomatis
 > menyelaraskan constraint di `composer.json` dari constraint ringkas atau wildcard (seperti `*` atau `^1.2`)
 > ke versi rilis SemVer lengkap terbaru (`^1.2.1`). Jangan gunakan `@dev` di produksi.

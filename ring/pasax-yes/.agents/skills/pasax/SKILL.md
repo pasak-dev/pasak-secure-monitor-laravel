@@ -1,6 +1,6 @@
 ---
 name: pasax
-description: "Comprehensive guide for working with pasax-dev/secure-monitor (Bulwark WAF & Security Toolkit) in this Laravel application. Activate whenever writing controllers, routes, views, APIs, or tests interacting with Pasax WAF, IP blocking, device quarantine, whitelist/allowed IPs, server security audit, user sessions, unblock appeal tickets, or runtime WAF settings."
+description: "Comprehensive guide for working with pasax/secure-monitor (Bulwark WAF & Security Toolkit) in this Laravel application. Activate whenever writing controllers, routes, views, APIs, or tests interacting with Pasax WAF, IP blocking, device quarantine, whitelist/allowed IPs, server security audit, user sessions, unblock appeal tickets, or runtime WAF settings."
 license: MIT
 metadata:
   author: pasax-dev
@@ -8,7 +8,7 @@ metadata:
 
 # Pasax WAF & Security Guide for Host Applications
 
-This application is protected by **`pasax-dev/secure-monitor`** (Bulwark), an enterprise-grade, standalone, headless self-hosted Web Application Firewall (WAF) and security auditing toolkit for Laravel applications.
+This application is protected by **`pasax/secure-monitor`** (Bulwark), an enterprise-grade, standalone, headless self-hosted Web Application Firewall (WAF) and security auditing toolkit for Laravel applications.
 
 > 📖 **Official Online Documentation Portal**: [https://pasax.is-a.dev/](https://pasax.is-a.dev/)  
 > Panduan lengkap 26 bab, diagram arsitektur interaktif, peta ancaman realtime, REST API contract, dan resep produksi.
@@ -29,7 +29,7 @@ This application is protected by **`pasax-dev/secure-monitor`** (Bulwark), an en
 ## 1. Zero-Vendor-Edit Policy
 
 > ⚠️ **CRITICAL INVARIANT**:
-> **NEVER modify, edit, or add files inside `vendor/pasax-dev/secure-monitor/`**.
+> **NEVER modify, edit, or add files inside `vendor/pasax/secure-monitor/`**.
 > Any changes in `vendor/` will be permanently erased by Composer updates and risk breaking WAF ReDoS immunity.
 > All custom controllers, views, API endpoints, and business logic MUST live entirely inside the host application (`app/Http/Controllers/`, `resources/views/`, `routes/web.php`, `routes/api.php`).
 

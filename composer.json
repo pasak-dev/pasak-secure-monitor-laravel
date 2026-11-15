@@ -1,5 +1,5 @@
 {
-  "name": "pasax-dev/secure-monitor",
+  "name": "pasax/secure-monitor",
   "description": "Pasax - enterprise-grade headless self-hosted WAF, threat detection engine, zero-tolerance blocking, stepped login lockout, and security auditing toolkit for Laravel.",
   "keywords": [
     "laravel",

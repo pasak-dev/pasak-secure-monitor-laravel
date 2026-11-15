@@ -1,5 +1,5 @@
 {{--
-    Halaman Rate Limit / Cooldown Login Bertingkat (HTTP 429) untuk pasax-dev/secure-monitor.
+    Halaman Rate Limit / Cooldown Login Bertingkat (HTTP 429) untuk pasax/secure-monitor.
 
     Dipublikasikan oleh:  php artisan vendor:publish --tag=pasax-views
     Tujuan default:       resources/views/errors/pasax-login-throttle.blade.php

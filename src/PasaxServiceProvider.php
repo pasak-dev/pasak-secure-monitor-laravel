@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Pasax\SecureMonitor\Console\Commands\PasaxCommand;
 use Pasax\SecureMonitor\Console\Commands\PasaxBaselineCommand;
 use Pasax\SecureMonitor\Console\Commands\PasaxCloudCommand;
 use Pasax\SecureMonitor\Console\Commands\PasaxDeployCommand;
@@ -330,6 +331,7 @@ class PasaxServiceProvider extends ServiceProvider
         }
 
         $this->commands([
+            PasaxCommand::class,
             PasaxInstallCommand::class,
             PasaxUninstallCommand::class,
             PasaxUpgradeCommand::class,

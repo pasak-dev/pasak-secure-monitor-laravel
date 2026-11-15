@@ -6,7 +6,7 @@
   middleware `LogWafHits`, endpoint `/upload` sengaja rentan, beranda
   "Status Keamanan — TIDAK AMAN" + Monitor Serangan Masuk live.
 - `ring/pasax-yes/` (`:8001`) — Pasax terinstall via path-repo
-  (`pasax-dev/secure-monitor:@dev`), `pasax:install --lang=id`, migrate, mode blokir
+  (`pasax/secure-monitor:@dev`), `pasax:install --lang=id`, migrate, mode blokir
   aktif (`INSTANT_BLOCK`, `BLOCK_SUSPICIOUS`, `AUTO_BLOCK`).
 - `/ring` masuk `.gitignore` + `export-ignore` (tak ikut rilis paket).
 

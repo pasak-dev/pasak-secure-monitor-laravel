@@ -1,5 +1,5 @@
 {{--
-    Default 403 "blocked" page for pasax-dev/secure-monitor.
+    Default 403 "blocked" page for pasax/secure-monitor.
 
     Dipublikasikan oleh:  php artisan vendor:publish --tag=security-views
     Tujuan default:       resources/views/errors/blocked.blade.php

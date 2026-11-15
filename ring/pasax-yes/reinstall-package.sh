@@ -123,7 +123,7 @@ if [ "$MODE" = "local" ]; then
     ]];
     file_put_contents($file, json_encode($c, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
     '
-    composer require "pasax-dev/secure-monitor:@dev" --no-interaction
+    composer require "pasax/secure-monitor:@dev" --no-interaction
 else
     echo "  -> Menghapus path-repository dan mengunduh dari Packagist..."
     php -r '
@@ -133,7 +133,7 @@ else
     file_put_contents($file, json_encode($c, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
     '
     composer clear-cache
-    composer require pasax-dev/secure-monitor --no-interaction
+    composer require pasax/secure-monitor --no-interaction
 fi
 
 echo "== [4/5] Memasang instalasi Pasax baru (pasax:install) =="

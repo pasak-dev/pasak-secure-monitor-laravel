@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# uninstall-package.sh — copot TOTAL pasax-dev/secure-monitor dari app uji ini untuk pengujian.
+# uninstall-package.sh — copot TOTAL pasax/secure-monitor dari app uji ini untuk pengujian.
 #
 # Menghapus: tabel DB + record migrasi Pasax, rute, middleware, trait User,
 # variabel PASAX_* (.env), .htaccess Pasax, file publish (config, view,
@@ -32,8 +32,8 @@ echo "== [3/5] Migrasi database =="
 php artisan migrate --force
 
 echo "== [4/5] Memastikan paket lepas + dependensi utuh =="
-if composer show pasax-dev/secure-monitor >/dev/null 2>&1; then
-    composer remove pasax-dev/secure-monitor --no-interaction || true
+if composer show pasax/secure-monitor >/dev/null 2>&1; then
+    composer remove pasax/secure-monitor --no-interaction || true
 fi
 composer install --no-interaction
 

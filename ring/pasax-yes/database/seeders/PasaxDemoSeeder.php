@@ -25,7 +25,7 @@ class PasaxDemoSeeder extends Seeder
     {
         if (!class_exists(PasaxLog::class)) {
             $this->command->warn(
-                "PasaxDemoSeeder dilewati: paket pasax-dev/secure-monitor belum terpasang.",
+                "PasaxDemoSeeder dilewati: paket pasax/secure-monitor belum terpasang.",
             );
 
             return;

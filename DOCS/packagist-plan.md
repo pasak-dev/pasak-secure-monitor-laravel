@@ -1,7 +1,7 @@
-# Rencana & Kebutuhan Publikasi Packagist: `pasax-dev/secure-monitor`
+# Rencana & Kebutuhan Publikasi Packagist: `pasax/secure-monitor`
 
 > **Dokumen Rencana Rilis Resmi**  
-> **Paket**: `pasax-dev/secure-monitor` (Bulwark)  
+> **Paket**: `pasax/secure-monitor` (Bulwark)  
 > **Status**: Siap Rilis (100% Decoupled Standalone Library, Pure PHP, Zero NPM)  
 > **Target Lingkungan**: PHP `^8.2 | ^8.3 | ^8.4`, Laravel `^10.0 | ^11.0 | ^12.0 | ^13.0`  
 > **Lisensi**: MIT
@@ -25,7 +25,7 @@
 
 ## 1. Fokus Tunggal: `pasax`
 
-Berdasarkan evaluasi arsitektur final, strategi rilis **difokuskan 100% pada satu paket utama yang utuh**: **`pasax-dev/secure-monitor`**.
+Berdasarkan evaluasi arsitektur final, strategi rilis **difokuskan 100% pada satu paket utama yang utuh**: **`pasax/secure-monitor`**.
 
 ---
 
@@ -51,7 +51,7 @@ Paket ini menggabungkan 6 kapabilitas keamanan enterprise dalam satu kesatuan ar
 
 ```mermaid
 graph TD
-    UserApp[Aplikasi Laravel Host] --> Composer[composer require pasax-dev/secure-monitor]
+    UserApp[Aplikasi Laravel Host] --> Composer[composer require pasax/secure-monitor]
     Composer --> Provider[PasaxServiceProvider<br/>Auto-Discovery Core Hooks]
 
     subgraph CoreCapabilities ["Kapabilitas Keamanan Terintegrasi"]
@@ -89,7 +89,7 @@ Berkas `composer.json` telah dikonfigurasi untuk standar katalog Packagist:
 
 ```json
 {
-    "name": "pasax-dev/secure-monitor",
+    "name": "pasax/secure-monitor",
     "description": "Enterprise-grade headless self-hosted WAF, threat detection engine, zero-tolerance blocking, stepped login lockout, and security auditing toolkit for Laravel.",
     "keywords": [
         "laravel",
@@ -202,7 +202,7 @@ git push origin v1.0.0
 2. Masukkan URL repositori:
    `https://github.com/pasax-dev/pasax-secure-monitor-laravel`
 3. Klik **Check**, lalu klik **Submit**.
-4. Paket akan terdaftar dengan nama **`pasax-dev/secure-monitor`**.
+4. Paket akan terdaftar dengan nama **`pasax/secure-monitor`**.
 
 ### Langkah 4: Aktifkan GitHub Webhook Otomatis
 
@@ -226,7 +226,7 @@ composer create-project laravel/laravel test-security-app
 cd test-security-app
 
 # 2. Pasang paket dari Packagist
-composer require pasax-dev/secure-monitor
+composer require pasax/secure-monitor
 
 # 3. Jalankan instalasi aset
 php artisan pasax:install

@@ -912,9 +912,9 @@ class PasaxUpgradeCommand extends Command
 
         $guidelinesBlock = <<<'MARKDOWN'
 <!-- pasax-guidelines:start -->
-## Pasax WAF & Security Guidelines (`pasax-dev/secure-monitor`)
+## Pasax WAF & Security Guidelines (`pasax/secure-monitor`)
 
-This application is protected by **`pasax-dev/secure-monitor`** (Bulwark), a standalone headless Web Application Firewall (WAF) and security toolkit for Laravel.
+This application is protected by **`pasax/secure-monitor`** (Bulwark), a standalone headless Web Application Firewall (WAF) and security toolkit for Laravel.
 
 - **Official Online Documentation**: https://pasax.is-a.dev/
 
@@ -995,7 +995,7 @@ MARKDOWN;
                 $newContent = preg_replace($pattern, '${1}'.$target.'${3}', $content, 1);
                 if ($newContent !== null && $newContent !== $content) {
                     File::put($composerPath, $newContent);
-                    $this->info("  ✓ Versi pasax-dev/secure-monitor di composer.json diselaraskan ke \"{$target}\".");
+                    $this->info("  ✓ Versi pasax/secure-monitor di composer.json diselaraskan ke \"{$target}\".");
                 }
             }
         }
@@ -1291,8 +1291,8 @@ PHP;
         $composerPath = base_path('composer.json');
         if (File::exists($composerPath)) {
             $c = File::get($composerPath);
-            if (str_contains($c, 'pasax-dev/secure-monitor')) {
-                return 'pasax-dev/secure-monitor';
+            if (str_contains($c, 'pasax/secure-monitor')) {
+                return 'pasax/secure-monitor';
             }
             if (str_contains($c, 'pasax-dev/pasax-secure-monitor-laravel')) {
                 return 'pasax-dev/pasax-secure-monitor-laravel';
@@ -1302,6 +1302,6 @@ PHP;
             }
         }
 
-        return 'pasax-dev/secure-monitor';
+        return 'pasax/secure-monitor';
     }
 }

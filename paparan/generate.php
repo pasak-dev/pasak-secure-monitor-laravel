@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Generator presentasi PowerPoint (.pptx) untuk
- * pasax-dev/secure-monitor (Bulwark).
+ * pasax/secure-monitor (Bulwark).
  *
  * Tanpa dependensi eksternal — hanya memakai ekstensi PHP:
  *   - zip  (ZipArchive)
@@ -304,7 +304,7 @@ $slides = [
         "title" => "Pasax",
         "subtitle" => "Bulwark — WAF & Threat Engine Headless untuk Laravel",
         "footer" =>
-            "pasax-dev/secure-monitor  ·  v1.0.6  ·  Lisensi MIT",
+            "pasax/secure-monitor  ·  v1.0.6  ·  Lisensi MIT",
     ],
     [
         "kind" => "content",
@@ -449,7 +449,7 @@ $slides = [
         "kind" => "content",
         "title" => "Instalasi Cepat",
         "bullets" => [
-            "`composer require pasax-dev/secure-monitor`",
+            "`composer require pasax/secure-monitor`",
             "`php artisan pasax:install`",
             "`php artisan migrate`",
             "Tambahkan trait `HasSecurityRelations` ke model `User` dan daftarkan middleware.",
@@ -487,8 +487,8 @@ $slides = [
         "title" => "Tautan",
         "bullets" => [
             "Repositori: `github.com/pasax-dev/pasax-secure-monitor-laravel`",
-            "Packagist: `packagist.org/packages/pasax-dev/secure-monitor`",
-            "Instalasi: `composer require pasax-dev/secure-monitor`",
+            "Packagist: `packagist.org/packages/pasax/secure-monitor`",
+            "Instalasi: `composer require pasax/secure-monitor`",
             "Dokumentasi: direktori `documents/` (25 bab) + portal `documents/index.html`",
         ],
     ],

@@ -1,12 +1,12 @@
 # 03. Konfigurasi Lengkap & Environment Variable
 
-Seluruh perilaku **`pasax-dev/secure-monitor`** dikontrol melalui berkas konfigurasi `config/pasax.php`. Konfigurasi ini dirancang agar dapat disesuaikan tanpa perlu mengubah kode sumber paket, cukup melalui berkas `.env`.
+Seluruh perilaku **`pasax/secure-monitor`** dikontrol melalui berkas konfigurasi `config/pasax.php`. Konfigurasi ini dirancang agar dapat disesuaikan tanpa perlu mengubah kode sumber paket, cukup melalui berkas `.env`.
 
 ---
 
 ## 1. Variabel Inti Lingkungan (`.env`) & Pengaturan Database
 
-Paket **`pasax-dev/secure-monitor`** menerapkan prinsip pemisahan tanggung jawab yang jelas:
+Paket **`pasax/secure-monitor`** menerapkan prinsip pemisahan tanggung jawab yang jelas:
 
 - **Variabel Inti Bootstrap (`.env`)**: Berkas `.env` hanya memuat sakelar bootstrap paling vital (sakelar WAF, IP whitelist awal, dan rute).
 - **Pengaturan Operasional (`pasax_settings`)**: Seluruh perilaku keamanan dinamis (ambang blokir per-tingkat, ambang kombinasi, lingkup karantina `device|ip|auto`, durasi pemblokiran, brute force lockout, dan retensi log) diatur langsung dari **Dashboard Pasax → Pengaturan (`/pasax/settings`)** dan tersimpan di database.

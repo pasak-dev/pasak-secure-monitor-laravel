@@ -1,6 +1,6 @@
 # Skill: pasax-release
 
-Release discipline for `pasax-dev/secure-monitor`. Activate whenever committing, tagging, versioning, writing changelog entries, or pushing this repository.
+Release discipline for `pasax/secure-monitor`. Activate whenever committing, tagging, versioning, writing changelog entries, or pushing this repository.
 
 ## 1. CHANGELOG-first rule (mandatory)
 

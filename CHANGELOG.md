@@ -1,15 +1,15 @@
 # Changelog
 
-All notable changes to `pasax-dev/secure-monitor` will be documented in this file.
+All notable changes to `pasax/secure-monitor` will be documented in this file.
 
 ## [1.2.1] - 2026-11-15
 
 ### Fixed
 
 - **Penyelarasan Constraint Versi Wildcard `*` di `composer.json` Host** (`src/Console/Commands/PasaxInstallCommand.php`, `src/Console/Commands/PasaxUpgradeCommand.php`):
-  - Memperbaiki logika `syncComposerConstraint` agar constraint versi wildcard (`*`) yang dihasilkan oleh instalasi awal Composer otomatis diselaraskan ke versi SemVer rilis lengkap terbaru (misal: `"pasax-dev/secure-monitor": "^1.2.1"`).
-  - Menambahkan dukungan nama paket resmi `pasax-dev/secure-monitor` pada perintah `pasax:upgrade` selain alias lama `robyajo/pasax`.
-  - Memperbaiki pesan feedback terminal agar menampilkan nama paket `pasax-dev/secure-monitor` secara konsisten.
+  - Memperbaiki logika `syncComposerConstraint` agar constraint versi wildcard (`*`) yang dihasilkan oleh instalasi awal Composer otomatis diselaraskan ke versi SemVer rilis lengkap terbaru (misal: `"pasax/secure-monitor": "^1.2.1"`).
+  - Menambahkan dukungan nama paket resmi `pasax/secure-monitor` pada perintah `pasax:upgrade` selain alias lama `robyajo/pasax`.
+  - Memperbaiki pesan feedback terminal agar menampilkan nama paket `pasax/secure-monitor` secara konsisten.
   - Menambahkan pengujian otomatis Pest untuk memastikan constraint wildcard `*` dikonversi sempurna ke SemVer lengkap saat instalasi.
 
 ## [1.2.0] - 2026-11-15
@@ -47,7 +47,7 @@ All notable changes to `pasax-dev/secure-monitor` will be documented in this fil
 ### Changed
 
 - **Refactoring Namespace Resmi ke `Pasax\SecureMonitor\`**:
-  - Mengubah seluruh namespace inti dan impor dari `Internal\Pasax\` menjadi `Pasax\SecureMonitor\` (selaras dengan nama paket `pasax-dev/secure-monitor`).
+  - Mengubah seluruh namespace inti dan impor dari `Internal\Pasax\` menjadi `Pasax\SecureMonitor\` (selaras dengan nama paket `pasax/secure-monitor`).
   - Memperbarui `composer.json` dengan namespace PSR-4 `"Pasax\\SecureMonitor\\": "src/"` dan dev `"Pasax\\SecureMonitor\\Tests\\": "tests/"`.
   - Service Provider didaftarkan ke `Pasax\SecureMonitor\PasaxServiceProvider`, dan Facade ke `Pasax\SecureMonitor\Facades\Pasax`.
   - Mengimplementasikan backward-compatibility aliases dan fallback dynamic autoloader di `src/compat.php` untuk `Internal\Pasax\*` dan `Internal\SecurityMonitor\*` agar aplikasi host lama tetap berfungsi 100% tanpa breaking changes.

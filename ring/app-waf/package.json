@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Web app pengujian lokal (React + Vite) untuk WAF pasax-dev/secure-monitor.",
+  "description": "Web app pengujian lokal (React + Vite) untuk WAF pasax/secure-monitor.",
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc --noEmit",

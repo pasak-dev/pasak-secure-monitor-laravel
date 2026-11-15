@@ -1,6 +1,6 @@
 # 04. Panduan Kustomisasi Penuh (Full Custom Suite: Blade & REST API) Tanpa Mengubah Vendor
 
-Paket **`pasax-dev/secure-monitor`** dirancang mengikuti filosofi **Spatie-Standard & Headless Architecture**. Artinya, setelah paket dipasang melalui `composer require pasax-dev/secure-monitor`, Anda memiliki kebebasan dan kendali 100% penuh untuk membuat tampilan monitoring kustom, alur kerja keamanan sendiri, maupun antarmuka REST API JSON tanpa pernah menyentuh atau merusak berkas inti paket di `vendor/`.
+Paket **`pasax/secure-monitor`** dirancang mengikuti filosofi **Spatie-Standard & Headless Architecture**. Artinya, setelah paket dipasang melalui `composer require pasax/secure-monitor`, Anda memiliki kebebasan dan kendali 100% penuh untuk membuat tampilan monitoring kustom, alur kerja keamanan sendiri, maupun antarmuka REST API JSON tanpa pernah menyentuh atau merusak berkas inti paket di `vendor/`.
 
 Dokumen ini adalah cetak biru (*blueprint*) dan implementasi referensi resmi percontohan menyeluruh bagi pengembang yang ingin membangun dashboard Blade dan REST API kustom mencakup **seluruh 8 modul keamanan Pasax**.
 
@@ -9,7 +9,7 @@ Dokumen ini adalah cetak biru (*blueprint*) dan implementasi referensi resmi per
 ## 1. Aturan Emas: Kebijakan Dilarang Mengubah Vendor (*Zero-Vendor-Edit Policy*)
 
 > ⚠️ **PERINGATAN KRUSIAL**:
-> **JANGAN PERNAH** memodifikasi, mengedit, atau menghapus berkas apapun di dalam folder `vendor/pasax-dev/secure-monitor/`.
+> **JANGAN PERNAH** memodifikasi, mengedit, atau menghapus berkas apapun di dalam folder `vendor/pasax/secure-monitor/`.
 > Segala perubahan di dalam folder `vendor/` bersifat **sementara dan berbahaya**!
 
 ### Mengapa Dilarang Mengubah Folder `vendor/`?
@@ -23,7 +23,7 @@ Dokumen ini adalah cetak biru (*blueprint*) dan implementasi referensi resmi per
 
 Ketika Anda menjalankan:
 ```bash
-composer require pasax-dev/secure-monitor
+composer require pasax/secure-monitor
 php artisan pasax:install
 ```
 
@@ -55,7 +55,7 @@ PROYEK LARAVEL ANDA
 │   ├── pasax.php                           <-- [ZONA ANDA] Rute bawaan paket (bisa disesuaikan)
 │   └── pasax-service.php                       <-- [ZONA ANDA] Rute API bawaan paket
 │
-└── vendor/pasax-dev/secure-monitor/                   <-- [ZONA DILINDUNGI / READ-ONLY]
+└── vendor/pasax/secure-monitor/                   <-- [ZONA DILINDUNGI / READ-ONLY]
     ├── src/                                    (Engine WAF, Service, Middleware, Model)
     │   ├── Facades/Pasax.php                   (Facade resmi untuk dipanggil aplikasi Anda)
     │   ├── Services/PasaxService.php           (Mesin deteksi ancaman & inspeksi payload)
@@ -66,7 +66,7 @@ PROYEK LARAVEL ANDA
     └── stubs/                                  (Template publikasi)
 ```
 
-- **`vendor/pasax-dev/secure-monitor` (Zona Mesin / Engine)**: Layak dilihat hanya untuk referensi audit (*read-only*). Berisi logika inti WAF, parser header reverse-proxy, dan filter keamanan tingkat rendah.
+- **`vendor/pasax/secure-monitor` (Zona Mesin / Engine)**: Layak dilihat hanya untuk referensi audit (*read-only*). Berisi logika inti WAF, parser header reverse-proxy, dan filter keamanan tingkat rendah.
 - **Aplikasi Host Anda (Zona Pengembang)**: Semua penyesuaian tampilan, rute, otorisasi, dan integrasi UI dilakukan di sini.
 
 ---

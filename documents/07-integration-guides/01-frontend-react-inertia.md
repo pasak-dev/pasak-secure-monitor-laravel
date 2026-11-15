@@ -1,6 +1,6 @@
 # 01. Integrasi Frontend React / Inertia
 
-Karena **`pasax-dev/secure-monitor`** dirancang secara **Headless (Pure REST API)**, Anda dapat membangun antarmuka dashboard keamanan dan penanganan error pemblokiran menggunakan React dan Inertia.js sesuai kebutuhan desain aplikasi Anda.
+Karena **`pasax/secure-monitor`** dirancang secara **Headless (Pure REST API)**, Anda dapat membangun antarmuka dashboard keamanan dan penanganan error pemblokiran menggunakan React dan Inertia.js sesuai kebutuhan desain aplikasi Anda.
 
 ---
 

@@ -9,7 +9,7 @@
 
 ## Reporting a Vulnerability
 
-`pasax-dev/secure-monitor` (Bulwark) is a security tool, so every report
+`pasax/secure-monitor` (Bulwark) is a security tool, so every report
 is taken seriously.
 
 **Please do not open a public issue for security vulnerabilities.**

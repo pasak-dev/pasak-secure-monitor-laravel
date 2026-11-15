@@ -1,5 +1,5 @@
 /**
- * Katalog serangan lengkap untuk package `pasax-dev/secure-monitor` (Bulwark).
+ * Katalog serangan lengkap untuk package `pasax/secure-monitor` (Bulwark).
  *
  * Setiap grup di bawah memetakan 1:1 ke signature di `config/pasax.php`:
  *  - instant_block.signatures: webshell_upload, unsafe_filename, webshell_path,

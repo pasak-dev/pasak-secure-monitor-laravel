@@ -1364,9 +1364,9 @@ class PasaxInstallCommand extends Command
     {
         return <<<'MARKDOWN'
 <!-- pasax-guidelines:start -->
-## Pasax WAF & Security Guidelines (`pasax-dev/secure-monitor`)
+## Pasax WAF & Security Guidelines (`pasax/secure-monitor`)
 
-This application is protected by **`pasax-dev/secure-monitor`** (Bulwark), a standalone headless Web Application Firewall (WAF) and security toolkit for Laravel.
+This application is protected by **`pasax/secure-monitor`** (Bulwark), a standalone headless Web Application Firewall (WAF) and security toolkit for Laravel.
 
 - **Official Online Documentation**: https://pasax.is-a.dev/
 
@@ -1466,8 +1466,8 @@ MARKDOWN;
                     File::put($composerPath, $newContent);
                     $this->line(
                         $this->t(
-                            "  ✓ Versi pasax-dev/secure-monitor di composer.json diselaraskan ke \"{$target}\".",
-                            "  ✓ pasax-dev/secure-monitor constraint in composer.json aligned to \"{$target}\".",
+                            "  ✓ Versi pasax/secure-monitor di composer.json diselaraskan ke \"{$target}\".",
+                            "  ✓ pasax/secure-monitor constraint in composer.json aligned to \"{$target}\".",
                         )
                     );
                 }

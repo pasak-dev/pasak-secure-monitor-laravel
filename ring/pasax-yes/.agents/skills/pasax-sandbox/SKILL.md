@@ -1,6 +1,6 @@
 ---
 name: pasax-sandbox
-description: "Use whenever installing, updating, or uninstalling the pasax-dev/secure-monitor package in this test sandbox app (ring/pasax-yes). Covers the install-package.sh, update-package.sh, and uninstall-package.sh helper scripts, the full test cycle (uninstall && install), path-repository composer quirks (@dev flag), and post-run verification. Activate before running or modifying any of those scripts."
+description: "Use whenever installing, updating, or uninstalling the pasax/secure-monitor package in this test sandbox app (ring/pasax-yes). Covers the install-package.sh, update-package.sh, and uninstall-package.sh helper scripts, the full test cycle (uninstall && install), path-repository composer quirks (@dev flag), and post-run verification. Activate before running or modifying any of those scripts."
 license: MIT
 metadata:
   author: pasax-lab
@@ -8,7 +8,7 @@ metadata:
 
 # Pasax Sandbox (ring/pasax-yes)
 
-App ini adalah sandbox pengujian paket `pasax-dev/secure-monitor` (sumber: `../../`, via
+App ini adalah sandbox pengujian paket `pasax/secure-monitor` (sumber: `../../`, via
 Composer path-repository symlink — kode PHP paket selalu live, tanpa unduh
 packagist). Tiga skrip helper mengatur siklus hidup paket. Jangan jalankan
 perintah `pasax:*` / `composer require|remove` manual bila skrip sudah
@@ -32,7 +32,7 @@ Siklus uji standar:
 
 1. **Selalu teruskan `--no-interaction`** ke perintah artisan/composer di skrip
    (sandbox harus bisa jalan tanpa input).
-2. **`composer require` wajib pakai `@dev`** (`composer require "pasax-dev/secure-monitor:@dev"`)
+2. **`composer require` wajib pakai `@dev`** (`composer require "pasax/secure-monitor:@dev"`)
    karena `minimum-stability: stable` — tanpa ini Composer menolak path-repo
    ("packages from the higher priority repository ... not installable").
 3. **`update-package.sh` tidak menyentuh Composer** (`--no-composer`): kode paket

@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for considering a contribution to `pasax-dev/secure-monitor`
+Thanks for considering a contribution to `pasax/secure-monitor`
 (Bulwark). This guide explains how to set up the project and submit changes.
 
 ## Requirements

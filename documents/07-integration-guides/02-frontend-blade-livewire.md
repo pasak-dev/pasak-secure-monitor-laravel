@@ -1,6 +1,6 @@
 # 02. Integrasi Frontend Blade
 
-Jika aplikasi host Anda menggunakan template berbasis Blade, integrasi dengan **`pasax-dev/secure-monitor`** sangat cepat dan intuitif — dashboard paket adalah Blade murni (100% Pure PHP) sehingga jalan di semua aplikasi Laravel tanpa Livewire/Inertia/Vue.
+Jika aplikasi host Anda menggunakan template berbasis Blade, integrasi dengan **`pasax/secure-monitor`** sangat cepat dan intuitif — dashboard paket adalah Blade murni (100% Pure PHP) sehingga jalan di semua aplikasi Laravel tanpa Livewire/Inertia/Vue.
 
 ---
 
