@@ -164,7 +164,7 @@ class PasaxUninstallCommand extends Command
      */
     protected function removeRouteFiles(): void
     {
-        foreach (['routes/pasax.php', 'routes/pasax-service.php'] as $relative) {
+        foreach (['routes/pasax.php', 'routes/pasax-api.php', 'routes/pasax-service.php'] as $relative) {
             $path = base_path($relative);
             if (File::exists($path)) {
                 File::delete($path);
@@ -174,6 +174,7 @@ class PasaxUninstallCommand extends Command
 
         $requireLines = [
             "require __DIR__.'/pasax.php';",
+            "require __DIR__.'/pasax-api.php';",
             "require __DIR__.'/pasax-service.php';",
             // Varian lama yang pernah ditulis installer (sudah diperbaiki).
             "require __DIR__.'/security.php';",
@@ -687,6 +688,7 @@ class PasaxUninstallCommand extends Command
     {
         $patterns = [
             base_path('routes/pasax.php.backup-*'),
+            base_path('routes/pasax-api.php.backup-*'),
             base_path('routes/pasax-service.php.backup-*'),
             resource_path('views/pages/pasax.backup-*'),
             public_path('.htaccess.backup-*'),

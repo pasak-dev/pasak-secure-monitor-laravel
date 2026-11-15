@@ -29,7 +29,7 @@ class PasaxUpgradeCommand extends Command
                             {--no-migrate : Lewati eksekusi migrasi database}
                             {--no-backup : Lewati pencadangan berkas host sebelum ditimpa}
                             {--clean-backups : Hapus semua berkas cadangan (*.backup-*) lama di routes, views, dan config}
-                            {--sync-routes : Paksa sinkronkan ulang berkas routes/pasax.php dan routes/pasax-service.php}
+                            {--sync-routes : Paksa sinkronkan ulang berkas routes/pasax.php dan routes/pasax-api.php}
                             {--sync-views : Paksa sinkronkan ulang berkas tampilan dashboard Blade}';
 
     protected $description = 'Periksa dan perbarui package Pasax (Bulwark) ke versi terbaru serta sinkronkan migrasi, rute, dan tampilan dashboard';
@@ -211,13 +211,14 @@ class PasaxUpgradeCommand extends Command
         $this->migrateLegacyHostFiles();
         $this->migrateLegacyEnvAndConfig();
         $hasWebRoutes = File::exists(base_path('routes/pasax.php'));
-        $hasApiRoutes = File::exists(base_path('routes/pasax-service.php'));
+        $hasApiRoutes = File::exists(base_path('routes/pasax-api.php')) || File::exists(base_path('routes/pasax-service.php'));
         $syncRoutes = (bool) $this->option('sync-routes') || $force;
 
         if ($hasWebRoutes || $hasApiRoutes || $syncRoutes) {
             if ($hasWebRoutes || $hasApiRoutes) {
                 $this->backupHostFiles([
                     base_path('routes/pasax.php'),
+                    base_path('routes/pasax-api.php'),
                     base_path('routes/pasax-service.php'),
                 ]);
             }
@@ -231,13 +232,13 @@ class PasaxUpgradeCommand extends Command
                 if (File::exists($stubDir.'/pasax.php.stub')) {
                     File::copy($stubDir.'/pasax.php.stub', base_path('routes/pasax.php'));
                 }
-                if (File::exists($stubDir.'/pasax-service.php.stub')) {
-                    File::copy($stubDir.'/pasax-service.php.stub', base_path('routes/pasax-service.php'));
+                if (File::exists($stubDir.'/pasax-api.php.stub')) {
+                    File::copy($stubDir.'/pasax-api.php.stub', base_path('routes/pasax-api.php'));
                 }
             }
             $this->ensureMissingRoutesInHostFiles();
             $this->info(
-                '  ✓ Berkas routes/pasax.php dan routes/pasax-service.php telah disinkronkan ke versi terbaru.',
+                '  ✓ Berkas routes/pasax.php dan routes/pasax-api.php telah disinkronkan ke versi terbaru.',
             );
         } else {
             $this->line(
@@ -398,7 +399,7 @@ class PasaxUpgradeCommand extends Command
             }
         }
 
-        $apiRoutePath = base_path('routes/pasax-service.php');
+        $apiRoutePath = File::exists(base_path('routes/pasax-api.php')) ? base_path('routes/pasax-api.php') : base_path('routes/pasax-service.php');
         if (File::exists($apiRoutePath)) {
             $content = File::get($apiRoutePath);
             if (! str_contains($content, "'server.location'")) {
@@ -407,7 +408,7 @@ class PasaxUpgradeCommand extends Command
                     $insert = $search."\n        Route::get('server/location', [PasaxServerSecurityApiController::class, 'getLocation'])->name('server.location.get');\n        Route::post('server/location', [PasaxServerSecurityApiController::class, 'updateLocation'])->name('server.location');";
                     $content = str_replace($search, $insert, $content);
                     File::put($apiRoutePath, $content);
-                    $this->info('  ✓ Rute server/location berhasil disematkan ke routes/pasax-service.php.');
+                    $this->info('  ✓ Rute server/location berhasil disematkan ke routes/pasax-api.php.');
                 }
             }
         }

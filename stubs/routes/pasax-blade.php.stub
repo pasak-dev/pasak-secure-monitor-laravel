@@ -99,12 +99,16 @@ $registerPasaxDashboard = function () {
     Route::patch('allowed-ips/{id}/toggle', [PasaxAllowedIpController::class, 'toggle'])->whereNumber('id')->name('allowed-ips.toggle');
     Route::delete('allowed-ips/{id}', [PasaxAllowedIpController::class, 'destroy'])->whereNumber('id')->name('allowed-ips.destroy');
     Route::get('server', [PasaxServerController::class, 'index'])->name('server');
+    Route::post('server', [PasaxServerController::class, 'updateLocation']);
     Route::post('server/baseline', [PasaxServerController::class, 'createBaseline'])->name('server.baseline');
     Route::delete('server/baseline', [PasaxServerController::class, 'deleteBaseline'])->name('server.baseline.destroy');
     Route::delete('server/suspicious-files', [PasaxServerController::class, 'deleteSuspiciousFile'])->name('server.suspicious-files.destroy');
     Route::get('server/suspicious-files/download', [PasaxServerController::class, 'downloadSuspiciousFile'])->name('server.suspicious-files.download');
     Route::post('server/suspicious-files/verify', [PasaxServerController::class, 'verifySuspiciousFile'])->name('server.suspicious-files.verify');
     Route::post('server/suspicious-files/unverify', [PasaxServerController::class, 'unverifySuspiciousFile'])->name('server.suspicious-files.unverify');
+    Route::post('server/location', [PasaxServerController::class, 'updateLocation'])->name('server.location');
+    Route::get('server/report/export', [PasaxServerController::class, 'exportReport'])->name('server.report.export');
+    Route::get('reports', [PasaxServerController::class, 'reportPage'])->name('reports');
     Route::post('optimize-clear', [PasaxServerController::class, 'optimizeClear'])->name('optimize-clear');
     Route::delete('lockouts/{id}', [PasaxServerController::class, 'releaseLockout'])->whereNumber('id')->name('lockouts.destroy');
     Route::get('sessions', [PasaxSessionController::class, 'index'])->name('sessions');

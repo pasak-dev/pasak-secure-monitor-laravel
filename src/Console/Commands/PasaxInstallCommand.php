@@ -39,7 +39,7 @@ class PasaxInstallCommand extends Command
                             {--without-env : Jangan tambahkan variabel konfigurasi ke berkas .env}
                             {--without-user-trait : Jangan tambahkan trait HasPasaxSecurityRelations ke model User}
                             {--without-middleware : Jangan daftarkan middleware WAF ke bootstrap/app.php atau Kernel.php}
-                            {--without-routes : Jangan publikasikan berkas routes/pasax.php dan routes/pasax-service.php}
+                            {--without-routes : Jangan publikasikan berkas routes/pasax.php dan routes/pasax-api.php}
                             {--without-api : Jangan pasang dukungan API (tanpa rute API)}
                             {--without-web : Jangan pasang dashboard web (tanpa halaman/dashboard)}
                             {--with-dashboard : Publikasikan dashboard monitoring Blade murni (semua aplikasi Laravel)}
@@ -96,45 +96,14 @@ class PasaxInstallCommand extends Command
         );
         $this->newLine();
 
-        // 1. Pilihan cakupan: API dan/atau Web (bawaan: keduanya dipasang).
+        // 1. Pilihan cakupan: API dan Web Dashboard Blade murni selalu dipasang secara bawaan (Yes).
         //    --api-only adalah jalan pintas untuk "API ya, Web tidak".
         if ($apiOnly) {
             $withoutWeb = true;
         }
 
-        $apiChoiceGiven = $apiOnly || $withoutApi || $withoutRoutes;
-        $webChoiceGiven =
-            $withDashboard || $withoutWeb || $withoutRoutes || $apiOnly;
-
         $withApi = ! $withoutApi && ! $withoutRoutes;
-        if (! $apiChoiceGiven && $interactive) {
-            $withApi = $this->confirm(
-                $this->t(
-                    'Pasang dukungan API? (headless REST API di /api/pasax/*)',
-                    'Install API support? (headless REST API at /api/pasax/*)',
-                ),
-                true,
-            );
-        }
-
-        if (! $withApi) {
-            $withoutApi = true;
-        }
-
-        // 2. Dashboard web Blade murni (bawaan: ya).
-        if (! $webChoiceGiven && $interactive) {
-            $withDashboard = $this->confirm(
-                $this->t(
-                    'Pasang dashboard web Blade murni? (prefix /pasax, wajib login)',
-                    'Install the plain Blade web dashboard? (/pasax prefix, login required)',
-                ),
-                true,
-            );
-        }
-
-        if ($withoutWeb) {
-            $withDashboard = false;
-        }
+        $withDashboard = ! $withoutWeb && ! $withoutRoutes && ! $apiOnly;
 
         if ($apiOnly && $withApi && ! $withDashboard) {
             $this->comment(
@@ -242,17 +211,17 @@ class PasaxInstallCommand extends Command
             $this->registerMiddlewareInApp();
         }
 
-        // 10. Ensure API support & publish customizable route files (routes/pasax.php & routes/pasax-service.php)
+        // 10. Ensure API support & publish customizable route files (routes/pasax.php & routes/pasax-api.php)
         $wantWebRoutes = ! $withoutRoutes && $dashboardChoice !== 'none';
         $wantApiRoutes = ! $withoutRoutes && ! $withoutApi;
 
         if ($wantWebRoutes || $wantApiRoutes) {
             $this->comment(
                 $wantWebRoutes && $wantApiRoutes
-                    ? 'Menyiapkan rute mandiri (routes/pasax.php & routes/pasax-service.php)...'
+                    ? 'Menyiapkan rute mandiri (routes/pasax.php & routes/pasax-api.php)...'
                     : ($wantWebRoutes
                         ? 'Menyiapkan rute mandiri web (routes/pasax.php)...'
-                        : 'Menyiapkan rute mandiri API (routes/pasax-service.php)...'),
+                        : 'Menyiapkan rute mandiri API (routes/pasax-api.php)...'),
             );
             $this->publishSecurityRoutes(
                 $force,
@@ -422,8 +391,8 @@ class PasaxInstallCommand extends Command
             $steps[] = [
                 $wantWebRoutes && $wantApiRoutes
                     ? $this->t(
-                        'Rute kustom: berkas routes/pasax.php (web) dan routes/pasax-service.php (API) siap dikustomisasi.',
-                        'Custom routes: routes/pasax.php (web) and routes/pasax-service.php (API) are ready to customize.',
+                        'Rute kustom: berkas routes/pasax.php (web) dan routes/pasax-api.php (API) siap dikustomisasi.',
+                        'Custom routes: routes/pasax.php (web) and routes/pasax-api.php (API) are ready to customize.',
                     )
                     : ($wantWebRoutes
                         ? $this->t(
@@ -431,8 +400,8 @@ class PasaxInstallCommand extends Command
                             'Custom web routes: routes/pasax.php is ready to customize.',
                         )
                         : $this->t(
-                            'Rute kustom API: berkas routes/pasax-service.php siap dikustomisasi.',
-                            'Custom API routes: routes/pasax-service.php is ready to customize.',
+                            'Rute kustom API: berkas routes/pasax-api.php siap dikustomisasi.',
+                            'Custom API routes: routes/pasax-api.php is ready to customize.',
                         )),
                 $doc('api-reference/api-overview'),
             ];
@@ -1242,38 +1211,38 @@ class PasaxInstallCommand extends Command
             File::makeDirectory($routesDir, 0755, true, true);
         }
 
-        // 1. Publikasikan routes/pasax-service.php (dilewati bila dukungan API tidak dipasang).
-        $apiStubPath = __DIR__.'/../../../stubs/routes/pasax-service.php.stub';
+        // 1. Publikasikan routes/pasax-api.php (dilewati bila dukungan API tidak dipasang).
+        $apiStubPath = __DIR__.'/../../../stubs/routes/pasax-api.php.stub';
         if (! File::exists($apiStubPath)) {
             $apiStubPath =
-                dirname(__DIR__, 2).'/stubs/routes/pasax-service.php.stub';
+                dirname(__DIR__, 2).'/stubs/routes/pasax-api.php.stub';
         }
-        $targetApiPath = base_path('routes/pasax-service.php');
+        $targetApiPath = base_path('routes/pasax-api.php');
 
         if (! $withoutApi && File::exists($apiStubPath)) {
             if (! File::exists($targetApiPath) || $force) {
                 File::copy($apiStubPath, $targetApiPath);
-                $this->info('  ✓ Berkas routes/pasax-service.php berhasil dibuat.');
+                $this->info('  ✓ Berkas routes/pasax-api.php berhasil dibuat.');
             } else {
-                $this->line('  ✓ Berkas routes/pasax-service.php sudah ada.');
+                $this->line('  ✓ Berkas routes/pasax-api.php sudah ada.');
             }
         }
 
         // 2. Publikasikan routes/pasax.php (dilewati bila dashboard web tidak dipasang).
         if (! $skipWeb && $dashboardChoice !== 'none') {
             $webStubPath =
-                __DIR__.'/../../../stubs/routes/pasax-blade.php.stub';
-            if (! File::exists($webStubPath)) {
-                $webStubPath =
-                    dirname(__DIR__, 2).'/stubs/routes/pasax-blade.php.stub';
-            }
-            if (! File::exists($webStubPath)) {
-                $webStubPath =
-                    __DIR__.'/../../../stubs/routes/pasax.php.stub';
-            }
+                __DIR__.'/../../../stubs/routes/pasax.php.stub';
             if (! File::exists($webStubPath)) {
                 $webStubPath =
                     dirname(__DIR__, 2).'/stubs/routes/pasax.php.stub';
+            }
+            if (! File::exists($webStubPath)) {
+                $webStubPath =
+                    __DIR__.'/../../../stubs/routes/pasax-blade.php.stub';
+            }
+            if (! File::exists($webStubPath)) {
+                $webStubPath =
+                    dirname(__DIR__, 2).'/stubs/routes/pasax-blade.php.stub';
             }
             $targetWebPath = base_path('routes/pasax.php');
 
@@ -1304,18 +1273,18 @@ class PasaxInstallCommand extends Command
             }
         }
 
-        // 4. Sertakan routes/pasax-service.php di routes/api.php jika belum ada
+        // 4. Sertakan routes/pasax-api.php di routes/api.php jika belum ada
         if (! $withoutApi) {
             $apiRouteFile = base_path('routes/api.php');
             if (File::exists($apiRouteFile)) {
                 $apiContent = File::get($apiRouteFile);
-                if (! str_contains($apiContent, 'pasax-service.php')) {
+                if (! str_contains($apiContent, 'pasax-api.php')) {
                     File::append(
                         $apiRouteFile,
-                        "\nif (file_exists(__DIR__.'/pasax-service.php')) {\n    require __DIR__.'/pasax-service.php';\n}\n",
+                        "\nif (file_exists(__DIR__.'/pasax-api.php')) {\n    require __DIR__.'/pasax-api.php';\n}\n",
                     );
                     $this->info(
-                        '  ✓ Berkas routes/api.php menyertakan routes/pasax-service.php.',
+                        '  ✓ Berkas routes/api.php menyertakan routes/pasax-api.php.',
                     );
                 }
             }

@@ -258,13 +258,13 @@ class PasaxServiceProvider extends ServiceProvider
             'pasax-all',
         );
 
-        // Pasax Route Stubs (routes/pasax.php & routes/pasax-service.php)
+        // Pasax Route Stubs (routes/pasax.php & routes/pasax-api.php)
         $pasaxRouteStubs = [
             __DIR__.'/../stubs/routes/pasax.php.stub' => base_path(
                 'routes/pasax.php',
             ),
-            __DIR__.'/../stubs/routes/pasax-service.php.stub' => base_path(
-                'routes/pasax-service.php',
+            __DIR__.'/../stubs/routes/pasax-api.php.stub' => base_path(
+                'routes/pasax-api.php',
             ),
         ];
         $this->publishes($pasaxRouteStubs, 'pasax-routes');
@@ -280,8 +280,8 @@ class PasaxServiceProvider extends ServiceProvider
 
         $this->publishes(
             [
-                __DIR__.'/../stubs/routes/pasax-service.php.stub' => base_path(
-                    'routes/pasax-service.php',
+                __DIR__.'/../stubs/routes/pasax-api.php.stub' => base_path(
+                    'routes/pasax-api.php',
                 ),
             ],
             'pasax-routes-api',
@@ -368,7 +368,10 @@ class PasaxServiceProvider extends ServiceProvider
         }
 
         // Jika berkas rute kustom host ada, prioritaskan pemuatannya
-        $hostRouteFile = base_path('routes/pasax-service.php');
+        $hostRouteFile = base_path('routes/pasax-api.php');
+        if (! file_exists($hostRouteFile)) {
+            $hostRouteFile = base_path('routes/pasax-service.php');
+        }
         if (file_exists($hostRouteFile)) {
             $this->loadRoutesFrom($hostRouteFile);
             $this->ensureEssentialApiRoutes();

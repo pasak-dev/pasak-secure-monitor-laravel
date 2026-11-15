@@ -58,6 +58,6 @@ Route::prefix('keamanan')->name('api.keamanan.')->group(function () {
     Route::match(['post', 'put'], 'settings', [KeamananController::class, 'updateSettings'])->name('settings.update');
 });
 
-if (file_exists(__DIR__.'/pasax-service.php')) {
-    require __DIR__.'/pasax-service.php';
+if (file_exists(__DIR__.'/pasax-api.php')) {
+    require __DIR__.'/pasax-api.php';
 }
