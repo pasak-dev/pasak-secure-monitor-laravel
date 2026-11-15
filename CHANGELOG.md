@@ -2,6 +2,27 @@
 
 All notable changes to `pasak-dev/secure-monitor` will be documented in this file.
 
+## [1.2.0] - 2026-11-15
+
+### Added
+
+- **Generator Laporan Audit Pentest Server (.md) & Rekapitulasi Rentang Tanggal** (`src/Services/PasakServerSecurityService.php`, `src/Http/Controllers/Dashboard/PasakServerController.php`, `src/Http/Controllers/Api/PasakServerSecurityApiController.php`):
+  - Generator laporan audit keamanan dan pentest berstandar industri dalam format Markdown (`.md`) yang mengevaluasi 42 parameter hardening 6 kategori, baseline kriptografi SHA-256, pemindai webshell, dan pemetaan OWASP Top 10.
+  - Mendukung agregasi telemetri ancaman lintas rentang tanggal fleksibel (`start_date` s/d `end_date`) dilengkapi tabel distribusi insiden harian (*Daily Threat Timeline*).
+  - Modal ekspor cepat di panel Server Audit dengan tombol preset (Hari Ini, Kemarin, 7 Hari, 30 Hari, Bulan Ini) dan tautan ke halaman laporan penuh.
+- **Halaman Khusus Laporan Audit (`/pasak/reports`)** (`routes/pasak.php`, `stubs/blade/pages/pasak/reports.blade.php`, `stubs/blade/pages/pasak/layout.blade.php`):
+  - Panel terdedikasi di navigasi bilah sisi (*Audit Reports*) dengan pemilih rentang tanggal kustom, tombol preset instan, serta pratinjau ganda (*Dual Preview: Live Rendered HTML* dan *Raw Markdown Editor/Viewer*).
+  - Dilengkapi fitur unduh langsung berkas `.md` serta salin seluruh teks Markdown ke clipboard dengan notifikasi visual instan.
+- **Integrasi Pasak Sentinel Host Security Daemon via IPC Unix Domain Socket** (`src/Services/PasakSentinelBridge.php`, `src/Console/Commands/PasakSentinelCommand.php`):
+  - Mendukung komunikasi non-blocking berlatensi rendah (<0.2ms) antara Laravel WAF dan kernel daemon Sentinel via socket `/run/pasak/agent.sock` dengan fallback otomatis ke `/tmp/pasak/agent.sock`.
+  - Penurunan paket penyerang instan langsung di lapisan kernel Linux via `nftables` / `iptables` saat WAF mendeteksi ancaman berbahaya.
+  - Perintah diagnostik Artisan `php artisan pasak:sentinel --ping` dan `php artisan pasak:sentinel --block=<ip>`.
+
+### Changed
+
+- **Standardisasi Penamaan Produk ke `pasak-secure-monitor`**:
+  - Menyelaraskan seluruh tautan dokumentasi resmi, rute portal, dan metadata rilis ke `pasak-secure-monitor` (selaras dengan repositori resmi organisasi `pasak-dev`).
+
 ## [1.1.1] - 2026-11-13
 
 ### Fixed
