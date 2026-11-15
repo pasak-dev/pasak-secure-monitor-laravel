@@ -33,6 +33,9 @@ use Pasax\SecureMonitor\Services\PasaxUserLoginService;
  * @property Carbon|null $logout_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|\Pasax\SecureMonitor\Models\PasaxUserLogin active(int $minutes = 5)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|\Pasax\SecureMonitor\Models\PasaxUserLogin dashboard()
  */
 class PasaxUserLogin extends Model
 {

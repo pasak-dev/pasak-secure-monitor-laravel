@@ -22,7 +22,7 @@ test('install command registers wizard options', function () {
 
 test('install with api-only publishes api routes but no web pages', function () {
     $webRouteFile = base_path('routes/pasax.php');
-    $apiRouteFile = base_path('routes/pasax-service.php');
+    $apiRouteFile = base_path('routes/pasax-api.php');
     @unlink($webRouteFile);
     @unlink($apiRouteFile);
 
@@ -42,7 +42,7 @@ test('install with api-only publishes api routes but no web pages', function () 
 
 test('install with without-web publishes api routes but no web pages', function () {
     $webRouteFile = base_path('routes/pasax.php');
-    $apiRouteFile = base_path('routes/pasax-service.php');
+    $apiRouteFile = base_path('routes/pasax-api.php');
     @unlink($webRouteFile);
     @unlink($apiRouteFile);
 
@@ -62,7 +62,7 @@ test('install with without-web publishes api routes but no web pages', function 
 
 test('install with without-api publishes web pages but no api routes', function () {
     $webRouteFile = base_path('routes/pasax.php');
-    $apiRouteFile = base_path('routes/pasax-service.php');
+    $apiRouteFile = base_path('routes/pasax-api.php');
     @unlink($webRouteFile);
     @unlink($apiRouteFile);
 
@@ -83,7 +83,7 @@ test('install with without-api publishes web pages but no api routes', function 
 });
 test('install prints dashboard access urls after install', function () {
     $webRouteFile = base_path('routes/pasax.php');
-    $apiRouteFile = base_path('routes/pasax-service.php');
+    $apiRouteFile = base_path('routes/pasax-api.php');
     @unlink($webRouteFile);
     @unlink($apiRouteFile);
 
@@ -116,7 +116,7 @@ test('install does not duplicate route require lines on re-run', function () {
 
     // Normalisasi: buang sisa require dari test lain agar mandiri.
     if ($hadApiRoutes) {
-        File::put($apiRoutesFile, str_replace("\nrequire __DIR__.'/pasax-service.php';", '', $original));
+        File::put($apiRoutesFile, str_replace("\nrequire __DIR__.'/pasax-api.php';", '', $original));
     }
 
     try {
@@ -124,7 +124,7 @@ test('install does not duplicate route require lines on re-run', function () {
         $this->artisan('pasax:install', ['--force' => true])->assertSuccessful();
 
         if (File::exists($apiRoutesFile)) {
-            expect(substr_count(File::get($apiRoutesFile), "require __DIR__.'/pasax-service.php';"))->toBe(1);
+            expect(substr_count(File::get($apiRoutesFile), "require __DIR__.'/pasax-api.php';"))->toBe(1);
         }
 
         $webRoutesFile = base_path('routes/web.php');
@@ -138,7 +138,7 @@ test('install does not duplicate route require lines on re-run', function () {
             @unlink($apiRoutesFile);
         }
         @unlink(base_path('routes/pasax.php'));
-        @unlink(base_path('routes/pasax-service.php'));
+        @unlink(base_path('routes/pasax-api.php'));
     }
 });
 
@@ -200,7 +200,6 @@ test('install command aligns composer.json version constraint to full semver', f
         }
     }
 });
-
 
 test('install command aligns wildcard version constraint * to full semver', function () {
     $composerFile = base_path('composer.json');

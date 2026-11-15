@@ -13,6 +13,7 @@ parameters:
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder.*::dashboard\(\)#'
         # Dynamic filesystem / runtime state checks
         - '#Negated boolean expression is always true.#'
         - '#Instanceof between .*Request and .*Request will always evaluate to true.#'

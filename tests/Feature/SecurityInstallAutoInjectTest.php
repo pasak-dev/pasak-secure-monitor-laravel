@@ -72,14 +72,14 @@ PHP
     expect($legacyCommand)->toBeInstanceOf(PasaxInstallCommand::class);
 });
 
-test('pasax routes tag publishes pasax.php and pasax-service.php', function () {
+test('pasax routes tag publishes pasax.php and pasax-api.php', function () {
     $this->artisan('vendor:publish', ['--tag' => 'pasax-routes'])
         ->assertSuccessful();
 
     expect(File::exists(base_path('routes/pasax.php')))->toBeTrue();
-    expect(File::exists(base_path('routes/pasax-service.php')))->toBeTrue();
+    expect(File::exists(base_path('routes/pasax-api.php')))->toBeTrue();
 
     // Clean up
     @unlink(base_path('routes/pasax.php'));
-    @unlink(base_path('routes/pasax-service.php'));
+    @unlink(base_path('routes/pasax-api.php'));
 });

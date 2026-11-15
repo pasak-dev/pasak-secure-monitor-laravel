@@ -5,6 +5,7 @@ namespace Pasax\SecureMonitor\Services;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -3207,7 +3208,7 @@ class PasaxServerSecurityService
         if ($isRange) {
             $daysCount = $startCarbon->diffInDays($endCarbon) + 1;
             $dateString = "{$startDateString} s/d {$endDateString}";
-            $dateFormatted = $startCarbon->translatedFormat('d F Y') . ' s/d ' . $endCarbon->translatedFormat('d F Y') . " ({$daysCount} Hari)";
+            $dateFormatted = $startCarbon->translatedFormat('d F Y').' s/d '.$endCarbon->translatedFormat('d F Y')." ({$daysCount} Hari)";
         } else {
             $dateString = $startDateString;
             $dateFormatted = $startCarbon->translatedFormat('d F Y');
@@ -3230,15 +3231,15 @@ class PasaxServerSecurityService
                 if (is_string($userModel) && class_exists($userModel)) {
                     $admin = $userModel::find($adminId);
                     if ($admin && isset($admin->name)) {
-                        $adminName = $admin->name . ' (' . ($admin->email ?? 'ID: ' . $adminId) . ')';
+                        $adminName = $admin->name.' ('.($admin->email ?? 'ID: '.$adminId).')';
                     }
                 }
             } catch (Throwable) {
                 // Abaikan jika model user tidak dapat diakses
             }
-        } elseif (auth()->check()) {
-            $curr = auth()->user();
-            $adminName = ($curr?->name ?? 'Administrator') . ' (' . ($curr?->email ?? '-') . ')';
+        } elseif (Auth::check()) {
+            $curr = Auth::user();
+            $adminName = ($curr->name ?? 'Administrator').' ('.($curr->email ?? '-').')';
         }
 
         // Ambil data log ancaman pada rentang tanggal audit yang dipilih
@@ -3358,13 +3359,13 @@ class PasaxServerSecurityService
         $md[] = '| Metrik Evaluasi | Nilai | Status Keamanan |';
         $md[] = '| :--- | :--- | :--- |';
         $md[] = "| **Skor Kesehatan Server (Health Score)** | **{$score} / 100** | **{$scoreBadge}** |";
-        $md[] = '| **Total Parameter Diuji** | **' . ($summary['total'] ?? 0) . ' Parameter** | Cakupan: 6 Kategori Server & Web App Hardening |';
-        $md[] = '| **Temuan Kritis (Critical Flaws)** | **' . ($summary['critical'] ?? 0) . '** | ' . (($summary['critical'] ?? 0) > 0 ? '🔴 Tindakan mitigasi darurat diperlukan' : '🟢 Tidak ada kerentanan fatal terdeteksi') . ' |';
-        $md[] = '| **Peringatan (Warnings / Weaknesses)** | **' . ($summary['warning'] ?? 0) . '** | ' . (($summary['warning'] ?? 0) > 0 ? '🟡 Konfigurasi perlu diperkuat (hardening)' : '🟢 Konfigurasi memenuhi standar minimum') . ' |';
-        $md[] = '| **Pemeriksaan Lolos (Passed Checks)** | **' . ($summary['ok'] ?? 0) . '** | 🟢 Parameter aman & terlindungi |';
+        $md[] = '| **Total Parameter Diuji** | **'.($summary['total'] ?? 0).' Parameter** | Cakupan: 6 Kategori Server & Web App Hardening |';
+        $md[] = '| **Temuan Kritis (Critical Flaws)** | **'.($summary['critical'] ?? 0).'** | '.(($summary['critical'] ?? 0) > 0 ? '🔴 Tindakan mitigasi darurat diperlukan' : '🟢 Tidak ada kerentanan fatal terdeteksi').' |';
+        $md[] = '| **Peringatan (Warnings / Weaknesses)** | **'.($summary['warning'] ?? 0).'** | '.(($summary['warning'] ?? 0) > 0 ? '🟡 Konfigurasi perlu diperkuat (hardening)' : '🟢 Konfigurasi memenuhi standar minimum').' |';
+        $md[] = '| **Pemeriksaan Lolos (Passed Checks)** | **'.($summary['ok'] ?? 0).'** | 🟢 Parameter aman & terlindungi |';
         $md[] = "| **Insiden Serangan ({$dateString})** | **{$logStats['total']} Percobaan** | 🛡️ **{$logStats['blocked']}** percobaan berhasil diblokir otomatis oleh WAF |";
-        $md[] = '| **Berkas Mencurigakan (Webshell)** | **' . count($suspicious) . ' Berkas** | ' . (count($suspicious) > 0 ? '⚠️ Memerlukan inspeksi/penghapusan berkas' : '🟢 Bersih dari indikasi backdoor/webshell') . ' |';
-        $md[] = '| **Integritas Berkas Sistem (SHA-256)** | **' . (($baseline['exists'] ?? false) ? 'Terpasang & Dipantau' : 'Belum Ada Baseline') . '** | ' . (($baseline['exists'] ?? false) ? number_format($baseline['files'] ?? 0) . ' berkas tercatat SHA-256' : 'Disarankan segera membuat baseline hash') . ' |';
+        $md[] = '| **Berkas Mencurigakan (Webshell)** | **'.count($suspicious).' Berkas** | '.(count($suspicious) > 0 ? '⚠️ Memerlukan inspeksi/penghapusan berkas' : '🟢 Bersih dari indikasi backdoor/webshell').' |';
+        $md[] = '| **Integritas Berkas Sistem (SHA-256)** | **'.(($baseline['exists'] ?? false) ? 'Terpasang & Dipantau' : 'Belum Ada Baseline').'** | '.(($baseline['exists'] ?? false) ? number_format($baseline['files'] ?? 0).' berkas tercatat SHA-256' : 'Disarankan segera membuat baseline hash').' |';
         $md[] = '';
 
         if (($summary['critical'] ?? 0) > 0) {
@@ -3385,21 +3386,21 @@ class PasaxServerSecurityService
         $md[] = '## 2. 🖥️ Spesifikasi Lingkungan Server Target';
         $md[] = '';
         $locName = $location['name'] ?? '-';
-        $locCoords = (isset($location['latitude'], $location['longitude']) && $location['latitude'] !== null && $location['longitude'] !== null)
+        $locCoords = isset($location['latitude'], $location['longitude'])
             ? "{$location['latitude']}, {$location['longitude']}"
             : 'Belum dikonfigurasi';
 
         $md[] = '| Parameter Lingkungan | Nilai Konfigurasi Terdeteksi | Catatan Keamanan |';
         $md[] = '| :--- | :--- | :--- |';
-        $md[] = "| **Lingkungan Aplikasi (APP_ENV)** | `{$env['app_env']}` | " . ($env['app_env'] === 'production' ? '🟢 Sesuai standar produksi' : '🟡 Non-production environment') . ' |';
-        $md[] = "| **Debug Mode (APP_DEBUG)** | `{$env['debug_mode']}` | " . ($env['debug_mode'] === 'nonaktif' ? '🟢 Aman (stack trace tersembunyi)' : '🔴 Berbahaya (membocorkan kredensial & struktur kode)') . ' |';
-        $md[] = '| **Versi PHP Runtime** | `PHP ' . ($env['php_version'] ?? PHP_VERSION) . '` | ' . (version_compare(PHP_VERSION, '8.2.0', '>=') ? '🟢 Versi didukung aktif' : '🟡 Versi usang / EOL') . ' |';
+        $md[] = "| **Lingkungan Aplikasi (APP_ENV)** | `{$env['app_env']}` | ".($env['app_env'] === 'production' ? '🟢 Sesuai standar produksi' : '🟡 Non-production environment').' |';
+        $md[] = "| **Debug Mode (APP_DEBUG)** | `{$env['debug_mode']}` | ".($env['debug_mode'] === 'nonaktif' ? '🟢 Aman (stack trace tersembunyi)' : '🔴 Berbahaya (membocorkan kredensial & struktur kode)').' |';
+        $md[] = '| **Versi PHP Runtime** | `PHP '.($env['php_version'] ?? PHP_VERSION).'` | '.(version_compare(PHP_VERSION, '8.2.0', '>=') ? '🟢 Versi didukung aktif' : '🟡 Versi usang / EOL').' |';
         $md[] = "| **Versi Laravel Framework** | `v{$env['laravel_version']}` | 🟢 Framework terpasang |";
         $md[] = "| **Sistem Operasi Host** | `{$env['os']}` | Kernel & arsitektur server host |";
         $md[] = "| **Database Driver** | `{$env['database']}` | Koneksi database aplikasi |";
         $md[] = "| **Cache & Session Driver** | `Cache: {$env['cache']}` / `Session: {$env['session']}` | Penyimpanan state aplikasi |";
         $md[] = "| **Queue Worker Driver** | `{$env['queue']}` | Pemrosesan latar belakang |";
-        $md[] = '| **OPcache PHP** | `' . ($env['opcache'] ?? 'nonaktif') . '` | ' . (($env['opcache'] ?? '') === 'aktif' ? '🟢 Aktif (akselerasi performa)' : '⚪ Nonaktif') . ' |';
+        $md[] = '| **OPcache PHP** | `'.($env['opcache'] ?? 'nonaktif').'` | '.(($env['opcache'] ?? '') === 'aktif' ? '🟢 Aktif (akselerasi performa)' : '⚪ Nonaktif').' |';
         $md[] = "| **Lokasi Fisik Server (Target)** | `{$locName}` ({$locCoords}) | Koordinat sinkron dengan Live Threat Map |";
         $md[] = "| **Zona Waktu & Jam Server** | `{$env['timezone']}` (`{$env['server_time']}`) | Terverifikasi sinkron |";
         $md[] = '';
@@ -3414,14 +3415,14 @@ class PasaxServerSecurityService
         $md[] = '';
         $md[] = "Bagian ini menganalisis seluruh telemetri log keamanan, percobaan eksploitasi, dan vektor serangan yang dicegat oleh WAF & Sensor PASAX pada periode audit **{$dateString}**.";
         $md[] = '';
-        $md[] = '### 3.1 Statistik Ancaman' . ($isRange ? ' Selama Periode' : ' Harian');
+        $md[] = '### 3.1 Statistik Ancaman'.($isRange ? ' Selama Periode' : ' Harian');
         $md[] = '';
         $md[] = '| Klasifikasi Tingkat Ancaman | Jumlah Kejadian | Persentase | Tindakan Mitigasi |';
         $md[] = '| :--- | :--- | :--- | :--- |';
-        $md[] = "| 🔴 **Kritis (Critical Threats)** | **{$logStats['critical']}** | " . ($logStats['total'] > 0 ? round(($logStats['critical'] / $logStats['total']) * 100, 1) : 0) . '% | Diblokir seketika & dicatat |';
-        $md[] = "| 🟠 **Tinggi (High Threats)** | **{$logStats['high']}** | " . ($logStats['total'] > 0 ? round(($logStats['high'] / $logStats['total']) * 100, 1) : 0) . '% | Diblokir / Dibatasi |';
-        $md[] = "| 🟡 **Sedang (Medium Threats)** | **{$logStats['medium']}** | " . ($logStats['total'] > 0 ? round(($logStats['medium'] / $logStats['total']) * 100, 1) : 0) . '% | Ditolak / Diberikan HTTP 429/403 |';
-        $md[] = "| 🔵 **Rendah (Low / Probes)** | **{$logStats['low']}** | " . ($logStats['total'] > 0 ? round(($logStats['low'] / $logStats['total']) * 100, 1) : 0) . '% | Dicatat untuk analisis korelasi |';
+        $md[] = "| 🔴 **Kritis (Critical Threats)** | **{$logStats['critical']}** | ".($logStats['total'] > 0 ? round(($logStats['critical'] / $logStats['total']) * 100, 1) : 0).'% | Diblokir seketika & dicatat |';
+        $md[] = "| 🟠 **Tinggi (High Threats)** | **{$logStats['high']}** | ".($logStats['total'] > 0 ? round(($logStats['high'] / $logStats['total']) * 100, 1) : 0).'% | Diblokir / Dibatasi |';
+        $md[] = "| 🟡 **Sedang (Medium Threats)** | **{$logStats['medium']}** | ".($logStats['total'] > 0 ? round(($logStats['medium'] / $logStats['total']) * 100, 1) : 0).'% | Ditolak / Diberikan HTTP 429/403 |';
+        $md[] = "| 🔵 **Rendah (Low / Probes)** | **{$logStats['low']}** | ".($logStats['total'] > 0 ? round(($logStats['low'] / $logStats['total']) * 100, 1) : 0).'% | Dicatat untuk analisis korelasi |';
         $md[] = "| **Total Seluruh Insiden** | **{$logStats['total']}** | 100% | **{$logStats['blocked']} Serangan Berhasil Diblokir Otomatis** |";
         $md[] = '';
 
@@ -3432,7 +3433,7 @@ class PasaxServerSecurityService
             $md[] = '| Tanggal | Total Percobaan | 🔴 Kritis | 🟠 Tinggi | 🟡 Sedang | 🔵 Rendah | 🛡️ Berhasil Diblokir |';
             $md[] = '| :--- | :-: | :-: | :-: | :-: | :-: | :-: |';
             foreach ($logStats['daily'] as $d) {
-                $md[] = "| {$d['formatted']} (`{$d['date']}`) | **" . number_format($d['total']) . "** | {$d['critical']} | {$d['high']} | {$d['medium']} | {$d['low']} | **{$d['blocked']}** |";
+                $md[] = "| {$d['formatted']} (`{$d['date']}`) | **".number_format($d['total'])."** | {$d['critical']} | {$d['high']} | {$d['medium']} | {$d['low']} | **{$d['blocked']}** |";
             }
             $md[] = '';
         }
@@ -3454,7 +3455,7 @@ class PasaxServerSecurityService
                     'medium' => '🟡 Sedang',
                     default => '🔵 Rendah',
                 };
-                $md[] = "| {$idx} | `" . ($evt['event_type'] ?? '-') . "` | **" . number_format($evt['hits'] ?? 0) . "** | {$lvlBadge} | 🛡️ Dicegat oleh Rule Engine WAF |";
+                $md[] = "| {$idx} | `".($evt['event_type'] ?? '-').'` | **'.number_format($evt['hits'] ?? 0)."** | {$lvlBadge} | 🛡️ Dicegat oleh Rule Engine WAF |";
                 $idx++;
             }
         }
@@ -3473,7 +3474,7 @@ class PasaxServerSecurityService
             foreach ($logStats['top_ips'] as $ipItem) {
                 $lastSeen = ! empty($ipItem['last_seen']) ? Carbon::parse($ipItem['last_seen'])->format('d M H:i:s') : '-';
                 $blockedBadge = ($ipItem['blocked_hits'] ?? 0) > 0 ? '🛡️ DIBLOKIR OTOMATIS' : '⚠️ DALAM PANTAUAN';
-                $md[] = "| {$idx} | `{$ipItem['ip_address']}` | " . number_format($ipItem['hits'] ?? 0) . " | " . number_format($ipItem['blocked_hits'] ?? 0) . " | {$lastSeen} | {$blockedBadge} |";
+                $md[] = "| {$idx} | `{$ipItem['ip_address']}` | ".number_format($ipItem['hits'] ?? 0).' | '.number_format($ipItem['blocked_hits'] ?? 0)." | {$lastSeen} | {$blockedBadge} |";
                 $idx++;
             }
         }
@@ -3496,7 +3497,7 @@ class PasaxServerSecurityService
                 };
                 $action = ($rec['was_blocked'] ?? false) ? '🛡️ IP Blocked (403)' : '⚠️ Mitigated';
                 $path = Str::limit($rec['path'] ?? '-', 35);
-                $md[] = "| {$t} | `{$rec['ip_address']}` | {$lvl} | `" . ($rec['event_type'] ?? '-') . "` | `{$path}` | {$action} |";
+                $md[] = "| {$t} | `{$rec['ip_address']}` | {$lvl} | `".($rec['event_type'] ?? '-')."` | `{$path}` | {$action} |";
             }
             $md[] = '';
         }
@@ -3542,13 +3543,13 @@ class PasaxServerSecurityService
 
                 $label = str_replace('|', '\\|', (string) ($item['label'] ?? '-'));
                 $val = (string) ($item['value'] ?? '-');
-                $valDisplay = $val !== '' && $val !== '-' ? '`' . str_replace('|', '\\|', Str::limit($val, 40)) . '`' : '-';
+                $valDisplay = $val !== '' && $val !== '-' ? '`'.str_replace('|', '\\|', Str::limit($val, 40)).'`' : '-';
 
                 $detail = (string) ($item['detail'] ?? '');
                 $rec = (string) ($item['recommendation'] ?? '');
                 $finding = str_replace('|', '\\|', $detail);
                 if ($rec !== '') {
-                    $finding .= ' <br>**Saran:** _' . str_replace('|', '\\|', $rec) . '_';
+                    $finding .= ' <br>**Saran:** _'.str_replace('|', '\\|', $rec).'_';
                 }
 
                 $md[] = "| {$itemNum} | {$label} | {$statusBadge} | {$valDisplay} | {$finding} |";
@@ -3570,13 +3571,13 @@ class PasaxServerSecurityService
         if (empty($suspicious)) {
             $md[] = '🟢 **Hasil Pemindaian:** Tidak ditemukan berkas berbahaya, webshell PHP, backdoor, maupun ekstensi berisiko di direktori publik (`public/`) dan direktori unggahan (`storage/app/public/`).';
         } else {
-            $md[] = '⚠️ **PERINGATAN:** Ditemukan **' . count($suspicious) . ' berkas mencurigakan** yang memerlukan perhatian dan verifikasi segera:';
+            $md[] = '⚠️ **PERINGATAN:** Ditemukan **'.count($suspicious).' berkas mencurigakan** yang memerlukan perhatian dan verifikasi segera:';
             $md[] = '';
             $md[] = '| No | Path Berkas | Alasan / Pola Terdeteksi | Ukuran | Tanggal Modifikasi |';
             $md[] = '| :-: | :--- | :--- | :--- | :--- |';
             $sIdx = 1;
             foreach ($suspicious as $susp) {
-                $sPath = '`' . ($susp['relative_path'] ?? $susp['path'] ?? '-') . '`';
+                $sPath = '`'.($susp['relative_path'] ?? $susp['path'] ?? '-').'`';
                 $sReason = $susp['reason'] ?? $susp['label'] ?? 'Pola mencurigakan terdeteksi';
                 $sSize = isset($susp['size']) ? $this->humanBytes((float) $susp['size']) : '-';
                 $sMtime = isset($susp['modified_at']) ? $this->humanDate($susp['modified_at']) : '-';
@@ -3594,9 +3595,9 @@ class PasaxServerSecurityService
             $md[] = '- **Status Baseline**: 🟢 Terpasang aktif';
             $md[] = "- **Jumlah Berkas Dipantau**: {$trackedFiles} berkas inti (app, config, routes, database, public)";
             $md[] = "- **Waktu Pembuatan Baseline**: {$baselineDate}";
-            $md[] = '- **Berkas Berubah (Hash Mismatch)**: ' . number_format($integrity['modified_count'] ?? 0) . ' berkas';
-            $md[] = '- **Berkas Baru Tidak Dikenal**: ' . number_format($integrity['untracked_count'] ?? 0) . ' berkas';
-            $md[] = '- **Berkas Terverifikasi Aman**: ' . number_format(count($verified)) . ' berkas disetujui admin';
+            $md[] = '- **Berkas Berubah (Hash Mismatch)**: '.number_format($integrity['modified_count'] ?? 0).' berkas';
+            $md[] = '- **Berkas Baru Tidak Dikenal**: '.number_format($integrity['untracked_count'] ?? 0).' berkas';
+            $md[] = '- **Berkas Terverifikasi Aman**: '.number_format(count($verified)).' berkas disetujui admin';
         } else {
             $md[] = '🟡 **Status Baseline**: Belum ada baseline SHA-256 yang dibuat. Sangat disarankan membuat baseline integritas melalui Dashboard PASAX (`/pasax/server`) atau perintah `php artisan pasax:baseline` agar setiap manipulasi atau penyisipan kode asing dapat terdeteksi seketika.';
         }
@@ -3610,10 +3611,10 @@ class PasaxServerSecurityService
         $md[] = '| Kategori OWASP Top 10 | Parameter Pengujian & Mitigasi PASAX | Status Evaluasi | Tingkat Risiko |';
         $md[] = '| :--- | :--- | :-: | :-: |';
         $md[] = '| **A01:2021 — Broken Access Control** | Proteksi rute admin, brute force throttle bertahap, pembatasan sesi IP | 🟢 COMPLIANT | Rendah |';
-        $md[] = '| **A02:2021 — Cryptographic Failures** | Entropi kunci `APP_KEY`, enkripsi cookie, session driver terproteksi, HTTPS enforcement | ' . ($env['app_env'] === 'production' && ($summary['critical'] ?? 0) === 0 ? '🟢 COMPLIANT' : '🟡 ATTENTION') . ' | ' . (($summary['critical'] ?? 0) > 0 ? 'Tinggi' : 'Rendah') . ' |';
+        $md[] = '| **A02:2021 — Cryptographic Failures** | Entropi kunci `APP_KEY`, enkripsi cookie, session driver terproteksi, HTTPS enforcement | '.($env['app_env'] === 'production' && ($summary['critical'] ?? 0) === 0 ? '🟢 COMPLIANT' : '🟡 ATTENTION').' | '.(($summary['critical'] ?? 0) > 0 ? 'Tinggi' : 'Rendah').' |';
         $md[] = '| **A03:2021 — Injection** | WAF payload inspection, pemblokiran payload SQLi, XSS, Command Injection, & PHP eval | 🟢 COMPLIANT | Rendah |';
         $md[] = '| **A04:2021 — Insecure Design** | Rate limiting adaptif, honeypot sensor, isolasi login multi-perangkat | 🟢 COMPLIANT | Rendah |';
-        $md[] = '| **A05:2021 — Security Misconfiguration** | Debug mode check, proteksi file sensitif (`.env`), larangan Ignition leak, directory listing | ' . (($summary['critical'] ?? 0) > 0 ? '🔴 NON-COMPLIANT' : '🟢 COMPLIANT') . ' | ' . (($summary['critical'] ?? 0) > 0 ? 'Kritis' : 'Rendah') . ' |';
+        $md[] = '| **A05:2021 — Security Misconfiguration** | Debug mode check, proteksi file sensitif (`.env`), larangan Ignition leak, directory listing | '.(($summary['critical'] ?? 0) > 0 ? '🔴 NON-COMPLIANT' : '🟢 COMPLIANT').' | '.(($summary['critical'] ?? 0) > 0 ? 'Kritis' : 'Rendah').' |';
         $md[] = '| **A06:2021 — Vulnerable Components** | Pemantauan versi PHP runtime, Laravel framework, dan integritas vendor | 🟢 COMPLIANT | Rendah |';
         $md[] = '| **A07:2021 — Identification & Auth Failures** | Lockout bertingkat (exponential stepped cooldown), proteksi sesi admin, IP terpercaya | 🟢 COMPLIANT | Rendah |';
         $md[] = '| **A08:2021 — Software & Data Integrity** | SHA-256 file baseline monitoring, validasi anti-polyglot upload, webshell scanner | 🟢 COMPLIANT | Rendah |';
@@ -3645,7 +3646,7 @@ class PasaxServerSecurityService
             $md[] = 'Temuan berikut memiliki risiko tinggi yang dapat dieksploitasi penyerang untuk mengambil alih sistem atau mencuri data sensitif:';
             $md[] = '';
             foreach ($criticalItems as $c) {
-                $md[] = '- [ ] **' . ($c['label'] ?? '-') . '**: ' . ($c['detail'] ?? '-');
+                $md[] = '- [ ] **'.($c['label'] ?? '-').'**: '.($c['detail'] ?? '-');
                 if (! empty($c['recommendation'])) {
                     $md[] = "  * *Langkah Perbaikan*: {$c['recommendation']}";
                 }
@@ -3659,7 +3660,7 @@ class PasaxServerSecurityService
             $md[] = 'Temuan berikut merupakan celah hardening yang dianjurkan untuk diperbaiki guna meningkatkan pertahanan berlapis:';
             $md[] = '';
             foreach ($warningItems as $w) {
-                $md[] = '- [ ] **' . ($w['label'] ?? '-') . '**: ' . ($w['detail'] ?? '-');
+                $md[] = '- [ ] **'.($w['label'] ?? '-').'**: '.($w['detail'] ?? '-');
                 if (! empty($w['recommendation'])) {
                     $md[] = "  * *Langkah Perbaikan*: {$w['recommendation']}";
                 }
@@ -3688,7 +3689,6 @@ class PasaxServerSecurityService
         $md[] = '';
         $md[] = "> *Laporan audit keamanan ini digenerate secara kriptografis dan terikat dengan catatan log database serta status runtime server pada periode {$dateFormatted}.*";
 
-        return implode("\n", $md) . "\n";
+        return implode("\n", $md)."\n";
     }
-
 }

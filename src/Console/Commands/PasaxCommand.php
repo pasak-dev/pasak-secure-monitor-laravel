@@ -3,6 +3,7 @@
 namespace Pasax\SecureMonitor\Console\Commands;
 
 use Illuminate\Console\Command;
+use Pasax\SecureMonitor\Services\PasaxService;
 
 class PasaxCommand extends Command
 {
@@ -39,14 +40,14 @@ class PasaxCommand extends Command
         $this->output->writeln('  <fg=yellow;options=bold>██╔═══╝ ██╔══██║╚════██║██╔══██║ ██╔██╗ </>');
         $this->output->writeln('  <fg=yellow;options=bold>██║     ██║  ██║███████║██║  ██║██╔╝ ██╗</>');
         $this->output->writeln('  <fg=yellow;options=bold>╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝</>');
-        $this->output->writeln('  <fg=cyan;options=bold>PASAX DEFENSE SUITE — HEADLESS WAF & SECURITY MONITOR (v'.\Pasax\SecureMonitor\Services\PasaxService::VERSION.')</>');
+        $this->output->writeln('  <fg=cyan;options=bold>PASAX DEFENSE SUITE — HEADLESS WAF & SECURITY MONITOR (v'.PasaxService::VERSION.')</>');
         $this->output->writeln('');
 
         $enabled = config('pasax.enabled', true);
         $statusStr = $enabled ? '<fg=green;options=bold>ACTIVE</>' : '<fg=red;options=bold>DISABLED</>';
         $this->output->writeln("  Status Perlindungan WAF : {$statusStr}");
-        $this->output->writeln("  Table Prefix            : <fg=white>".config('pasax.table_prefix', 'pasax_')."</>");
-        $this->output->writeln("  Dashboard URL Path      : <fg=white>/".config('pasax.dashboard.prefix', 'pasax')."</>");
+        $this->output->writeln('  Table Prefix            : <fg=white>'.config('pasax.table_prefix', 'pasax_').'</>');
+        $this->output->writeln('  Dashboard URL Path      : <fg=white>/'.config('pasax.dashboard.prefix', 'pasax').'</>');
         $this->output->writeln('');
         $this->output->writeln('  <fg=yellow;options=bold>Daftar Perintah Artisan Tersedia:</>');
         $this->output->writeln('  <fg=green>php artisan pasax:install</>         - Wizard instalasi otomatis WAF & dashboard');

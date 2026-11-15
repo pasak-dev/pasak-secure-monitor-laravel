@@ -266,7 +266,7 @@ test(
 
 test('upgrade command injects missing server location route into host routes file', function () {
     $dummyRoute = base_path('routes/pasax.php');
-    $dummyApiRoute = base_path('routes/pasax-service.php');
+    $dummyApiRoute = base_path('routes/pasax-api.php');
 
     File::ensureDirectoryExists(base_path('routes'));
     File::put($dummyRoute, "<?php\nRoute::post('server/suspicious-files/unverify', [PasaxServerController::class, 'unverifySuspiciousFile'])->name('server.suspicious-files.unverify');\n");

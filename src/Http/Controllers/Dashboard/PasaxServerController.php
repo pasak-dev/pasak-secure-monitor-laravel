@@ -6,9 +6,13 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Pasax\SecureMonitor\Models\PasaxLoginAttempt;
 use Pasax\SecureMonitor\Models\PasaxSetting;
 use Pasax\SecureMonitor\Services\PasaxServerSecurityService;
@@ -83,7 +87,7 @@ class PasaxServerController extends Controller
     public function createBaseline(
         PasaxServerSecurityService $server,
     ): RedirectResponse {
-        $server->createBaseline(auth()->id());
+        $server->createBaseline(Auth::id());
 
         return back()->with('toast', [
             'type' => 'success',
@@ -112,7 +116,7 @@ class PasaxServerController extends Controller
 
         $result = $server->deleteSuspiciousFile(
             $validated['file_path'],
-            auth()->id(),
+            Auth::id(),
         );
 
         return back()->with('toast', [
@@ -170,7 +174,7 @@ class PasaxServerController extends Controller
 
         $result = $server->verifySuspiciousFile(
             $validated['file_path'],
-            auth()->id(),
+            Auth::id(),
             $validated['notes'] ?? null,
         );
 
@@ -313,7 +317,7 @@ class PasaxServerController extends Controller
     public function exportReport(
         Request $request,
         PasaxServerSecurityService $server,
-    ): \Illuminate\Http\Response {
+    ): Response {
         $startDate = (string) $request->input('start_date', $request->input('date', now()->toDateString()));
         $endDate = (string) $request->input('end_date', $request->input('date', $startDate));
 
@@ -328,7 +332,7 @@ class PasaxServerController extends Controller
         }
 
         $force = $request->boolean('refresh');
-        $markdown = $server->exportMarkdownReport($startDate, $endDate, auth()->id(), $force);
+        $markdown = $server->exportMarkdownReport($startDate, $endDate, Auth::id(), $force);
         $filename = ($startDate !== $endDate)
             ? "PASAX_Server_Security_Audit_Report_{$startDate}_sd_{$endDate}.md"
             : "PASAX_Server_Security_Audit_Report_{$startDate}.md";
@@ -339,7 +343,6 @@ class PasaxServerController extends Controller
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }
-
 
     /**
      * Halaman Laporan Audit Pentest & Server Hardening dengan pemilih tanggal/rentang tanggal dan preview langsung.
@@ -367,15 +370,15 @@ class PasaxServerController extends Controller
             $server->forget();
         }
 
-        $markdown = $server->exportMarkdownReport($startDate, $endDate, auth()->id(), $force);
-        $htmlPreview = \Illuminate\Support\Str::markdown($markdown);
+        $markdown = $server->exportMarkdownReport($startDate, $endDate, Auth::id(), $force);
+        $htmlPreview = Str::markdown($markdown);
         $scan = $server->scan($force);
 
         try {
-            $startCarbon = \Illuminate\Support\Carbon::parse($startDate);
-            $endCarbon = \Illuminate\Support\Carbon::parse($endDate);
+            $startCarbon = Carbon::parse($startDate);
+            $endCarbon = Carbon::parse($endDate);
             $formattedDate = $isRange
-                ? $startCarbon->translatedFormat('d M Y') . ' s/d ' . $endCarbon->translatedFormat('d M Y')
+                ? $startCarbon->translatedFormat('d M Y').' s/d '.$endCarbon->translatedFormat('d M Y')
                 : $startCarbon->translatedFormat('d F Y');
         } catch (\Throwable) {
             $formattedDate = $isRange ? "{$startDate} s/d {$endDate}" : $startDate;
@@ -401,5 +404,4 @@ class PasaxServerController extends Controller
             ],
         ]);
     }
-
 }

@@ -264,12 +264,14 @@ test('upgrade with sync-routes backs up customized routes before overwriting', f
         foreach (glob($routeFile.'.backup-*') ?: [] as $backup) {
             @unlink($backup);
         }
+        @unlink(base_path('routes/pasax-api.php'));
         @unlink(base_path('routes/pasax-service.php'));
     }
 });
 
 test('upgrade without local route files succeeds using internal routes', function () {
     @unlink(base_path('routes/pasax.php'));
+    @unlink(base_path('routes/pasax-api.php'));
     @unlink(base_path('routes/pasax-service.php'));
 
     Http::fake([

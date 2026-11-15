@@ -4,8 +4,10 @@ namespace Pasax\SecureMonitor\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Pasax\SecureMonitor\Models\PasaxLoginAttempt;
 use Pasax\SecureMonitor\Models\PasaxSetting;
 use Pasax\SecureMonitor\Services\PasaxLoginThrottleService;
@@ -106,7 +108,7 @@ class PasaxServerSecurityApiController extends Controller
 
         $result = $this->serverService->verifySuspiciousFile(
             $validated['file_path'],
-            auth()->id(),
+            Auth::id(),
             $validated['notes'] ?? null,
             $request->ip(),
         );
@@ -214,7 +216,7 @@ class PasaxServerSecurityApiController extends Controller
         ]);
     }
 
-    public function exportReport(Request $request): \Illuminate\Http\Response
+    public function exportReport(Request $request): Response
     {
         $startDate = (string) $request->input('start_date', $request->input('date', now()->toDateString()));
         $endDate = (string) $request->input('end_date', $request->input('date', $startDate));
@@ -233,7 +235,7 @@ class PasaxServerSecurityApiController extends Controller
             $request->input('refresh', false),
             FILTER_VALIDATE_BOOLEAN,
         );
-        $markdown = $this->serverService->exportMarkdownReport($startDate, $endDate, auth()->id(), $force);
+        $markdown = $this->serverService->exportMarkdownReport($startDate, $endDate, Auth::id(), $force);
         $filename = ($startDate !== $endDate)
             ? "PASAX_Server_Security_Audit_Report_{$startDate}_sd_{$endDate}.md"
             : "PASAX_Server_Security_Audit_Report_{$startDate}.md";
@@ -244,5 +246,4 @@ class PasaxServerSecurityApiController extends Controller
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }
-
 }

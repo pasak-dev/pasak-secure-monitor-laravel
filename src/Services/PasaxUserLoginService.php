@@ -87,7 +87,7 @@ class PasaxUserLoginService
                 $user = $request->user();
             }
 
-            if (! $user && $request->hasSession()) {
+            if (! $user) {
                 $dashboardUser = $request->session()->get('pasax_dashboard_user');
                 $userModel = (string) config('pasax.user_model', 'App\\Models\\User');
                 if (class_exists($userModel)) {
@@ -120,7 +120,7 @@ class PasaxUserLoginService
                 if ($existing->device_type !== 'pasax_dashboard') {
                     $updates['device_type'] = 'pasax_dashboard';
                 }
-                if (! $existing->session_id && $sessionId) {
+                if (! $existing->session_id) {
                     $updates['session_id'] = $sessionId;
                 }
                 $existing->update($updates);

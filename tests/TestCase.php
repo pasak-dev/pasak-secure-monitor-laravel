@@ -19,7 +19,7 @@ abstract class TestCase extends OrchestraTestCase
         // pasax:install publishes config/pasax.php into the Testbench skeleton.
         // Left behind, that copy shadows the package config in every later
         // test (and later runs), so edits to config/pasax.php are ignored.
-        foreach (['config/pasax.php', 'routes/pasax.php', 'routes/pasax-service.php'] as $rel) {
+        foreach (['config/pasax.php', 'routes/pasax.php', 'routes/pasax-api.php', 'routes/pasax-service.php'] as $rel) {
             $p = dirname(__DIR__).'/vendor/orchestra/testbench-core/laravel/'.$rel;
             if (is_file($p)) {
                 unlink($p);

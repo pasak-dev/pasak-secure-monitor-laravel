@@ -1423,7 +1423,7 @@ MARKDOWN;
         }
 
         $content = File::get($composerPath);
-        $pattern = '/("(?:robyajo\/pasax|pasax-dev\/secure-monitor)"\s*:\s*")([^"]+)(")/';
+        $pattern = '/("(?:robyajo\/pasax|pasax-dev\/secure-monitor|pasax\/secure-monitor)"\s*:\s*")([^"]+)(")/';
 
         if (preg_match($pattern, $content, $matches)) {
             $current = $matches[2];
