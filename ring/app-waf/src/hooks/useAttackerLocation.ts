@@ -27,7 +27,7 @@ const locationCache = new Map<string, AttackerLocation>();
 
 /**
  * Ambil lokasi IP penyerang dari dev-server sekali per alamat.
- * Dipakai kartu identitas dan kartu penyerang di tab Tanpa-Pasak.
+ * Dipakai kartu identitas dan kartu penyerang di tab Tanpa-Pasax.
  */
 export function useAttackerLocation(ip: string): AttackerLocation | null {
     const key = ip.trim();

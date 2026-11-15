@@ -1,7 +1,7 @@
 # DOCS — Konsol Uji WAF (app-waf)
 
 Konsol uji lokal satu halaman (React 19 + Vite 7 + Tailwind v4) untuk
-membuktikan WAF `pasak-dev/secure-monitor` (Bulwark) bekerja — dan membuktikan aplikasi
+membuktikan WAF `pasax-dev/secure-monitor` (Bulwark) bekerja — dan membuktikan aplikasi
 **tanpa** WAF jebol. Alat pengujian saja: **jangan pernah diekspos ke internet
 publik** (bisa mengirim request ke URL apa pun dengan header IP palsu).
 
@@ -14,11 +14,11 @@ publik** (bisa mengirim request ke URL apa pun dengan header IP palsu).
 
 ## 1. Untuk apa
 
-1. **Audit Tanpa-Pasak (tab ⚠️ Tanpa Pasak = Jebol)** — 4 tahap berurutan
+1. **Audit Tanpa-Pasax (tab ⚠️ Tanpa Pasax = Jebol)** — 4 tahap berurutan
    (baseline → recon → eksploitasi → webshell/RCE) yang membuktikan aplikasi
    tanpa WAF benar-benar jebol, lengkap dengan vonis + laporan JSON.
-2. **Uji Dengan-Pasak (tab Konsol Uji)** — kirim 91+ vektor serangan katalog
-   ke aplikasi ber-Pasak dan pastikan semuanya 403, plus laporan perbandingan.
+2. **Uji Dengan-Pasax (tab Konsol Uji)** — kirim 91+ vektor serangan katalog
+   ke aplikasi ber-Pasax dan pastikan semuanya 403, plus laporan perbandingan.
 3. **Edukasi rantai hacker** — tiap kartu serangan punya metode eksekusi nyata,
    rantai eskalasi (probe ORDER BY otomatis, analisis refleksi XSS, bukti
    evaluasi SSTI, cek delay blind), intel + payload lanjutan yang bisa
@@ -27,8 +27,8 @@ publik** (bisa mengirim request ke URL apa pun dengan header IP palsu).
    penyerang, sehingga halaman blokir 403 ikut terlihat saat identitas itu
    diblokir.
 
-Target lab bawaan: `pasak-no` (`http://localhost:8000`, tanpa WAF) dan
-`pasak-yes` (`http://localhost:8001`, dengan Pasak).
+Target lab bawaan: `pasax-no` (`http://localhost:8000`, tanpa WAF) dan
+`pasax-yes` (`http://localhost:8001`, dengan Pasax).
 
 ## 2. Struktur
 
@@ -42,7 +42,7 @@ app-waf/
     ├── stores/lab.ts       # Zustand: target, IP penyerang, ID perangkat
     ├── lib/
     │   ├── vectors.ts      # katalog serangan (14 grup, ~91 vektor)
-    │   ├── noPasak.ts      # 9 rekomendasi + 4 tahap audit Tanpa-Pasak
+    │   ├── noPasax.ts      # 9 rekomendasi + 4 tahap audit Tanpa-Pasax
     │   ├── vulnInfo.ts     # info kerentanan, metode hacker, rantai eskalasi
     │   ├── surface.ts      # analyzeSurface → fingerprinting
     │   ├── ip.ts           # generator IP publik acak
@@ -51,21 +51,21 @@ app-waf/
         ├── RequestForm.tsx     # form kirim manual + bulk test
         ├── ResultPanel.tsx     # hasil + temuan surface
         ├── HistoryTable.tsx    # riwayat kiriman + ekspor JSON
-        ├── ConsoleReport.tsx   # laporan Dengan-Pasak (diblokir vs lolos)
+        ├── ConsoleReport.tsx   # laporan Dengan-Pasax (diblokir vs lolos)
         └── attack/
             ├── AttackTab.tsx       # pengujian per temuan surface
-            ├── NoPasakTab.tsx      # audit 4 tahap + sheet + laporan
+            ├── NoPasaxTab.tsx      # audit 4 tahap + sheet + laporan
             └── sheet/              # MethodSheet: aksi, hasil, rantai, remedi
 ```
 
 ## 3. Yang bisa dilakukan per tab
 
-### 3.1. Konsol Uji (Dengan-Pasak)
+### 3.1. Konsol Uji (Dengan-Pasax)
 
 - Kirim request manual (method, path, UA, payload, upload multipart sungguhan).
 - Terapkan vektor dari katalog, kirim massal (bulk test N IP acak).
 - Lihat temuan fingerprinting otomatis dari body respons.
-- **Laporan Dengan-Pasak**: ringkasan diblokir vs lolos + vonis
+- **Laporan Dengan-Pasax**: ringkasan diblokir vs lolos + vonis
   (TERLINDUNGI / SEBAGIAN LOLOS / JEBOL) + fingerprinting, preview accordion,
   salin & unduh JSON.
 
@@ -74,7 +74,7 @@ app-waf/
 - Tembak langsung tiap temuan fingerprinting (form/param/endpoint/upload).
 - Badge jumlah temuan di judul tab.
 
-### 3.3. Tanpa Pasak = Jebol (audit 4 tahap)
+### 3.3. Tanpa Pasax = Jebol (audit 4 tahap)
 
 - **Tahap 1 Baseline** — titik acuan respons normal.
 - **Tahap 2 Recon** — scanner UA, probe `.env`, path traversal (tahap
@@ -91,7 +91,7 @@ app-waf/
 - **Preview Korban (live)** — iframe via proxy sebagai IP + perangkat
   penyerang; tombol cek status blokir; ikut menampilkan halaman 403 bila
   identitas itu diblokir.
-- **Laporan Tanpa-Pasak** — LOLOS_TERBUKTI vs tanpa-bukti vs aman, metode,
+- **Laporan Tanpa-Pasax** — LOLOS_TERBUKTI vs tanpa-bukti vs aman, metode,
   rantai, webshell/RCE, pengecualian tahap; salin & unduh JSON.
 - Mode production: aksi rantai/payload/metode minta konfirmasi per tindakan;
   RCE (/shell) khusus lab lokal.
@@ -121,8 +121,8 @@ blokir `device-scope` terlihat konsisten di serangan maupun preview.
 
 ## 6. Alur uji tipikal (banding)
 
-1. `php artisan serve` pasak-no (`:8000`) + pasak-yes (`:8001`).
-2. Tab Tanpa-Pasak → target `:8000` → jalankan tahap 1–4 → vonis JEBOL → unduh JSON.
+1. `php artisan serve` pasax-no (`:8000`) + pasax-yes (`:8001`).
+2. Tab Tanpa-Pasax → target `:8000` → jalankan tahap 1–4 → vonis JEBOL → unduh JSON.
 3. Tab Konsol Uji → target `:8001` → kirim katalog/bulk → semua 403 → laporan TERLINDUNGI.
 4. Bandingkan kedua JSON: bukti sebelum/sesudah WAF.
 

@@ -1,12 +1,12 @@
 <?php
 
-use Pasak\SecureMonitor\Models\AllowedIp;
-use Pasak\SecureMonitor\Services\PasakService;
-use Pasak\SecureMonitor\Tests\TestUser;
+use Pasax\SecureMonitor\Models\AllowedIp;
+use Pasax\SecureMonitor\Services\PasaxService;
+use Pasax\SecureMonitor\Tests\TestUser;
 
 beforeEach(function () {
-    config()->set('pasak.enabled', true);
-    config()->set('pasak.block_enforcement', true);
+    config()->set('pasax.enabled', true);
+    config()->set('pasax.block_enforcement', true);
 });
 
 test('pattern validation accepts ip wildcard and cidr', function () {
@@ -20,7 +20,7 @@ test('pattern validation accepts ip wildcard and cidr', function () {
 });
 
 test('allowed entries bypass threat inspection', function () {
-    $service = app(PasakService::class);
+    $service = app(PasaxService::class);
     $ip = '198.51.100.77';
 
     expect($service->isWhitelisted($ip))->toBeFalse();
@@ -36,7 +36,7 @@ test('allowed entries bypass threat inspection', function () {
 });
 
 test('disabled or expired entries do not whitelist', function () {
-    $service = app(PasakService::class);
+    $service = app(PasaxService::class);
 
     AllowedIp::create(['ip_address' => '198.51.100.78', 'is_active' => false]);
     AllowedIp::create([
@@ -58,46 +58,46 @@ test('admin can manage allowed ips via api', function () {
     ]);
 
     // Invalid pattern rejected.
-    $this->actingAs($admin)->postJson('/api/pasak/allowed-ips', [
+    $this->actingAs($admin)->postJson('/api/pasax/allowed-ips', [
         'ip_address' => 'not-an-ip',
     ])->assertStatus(422);
 
     // Store CIDR + wildcard.
-    $this->actingAs($admin)->postJson('/api/pasak/allowed-ips', [
+    $this->actingAs($admin)->postJson('/api/pasax/allowed-ips', [
         'ip_address' => '10.20.0.0/16',
         'label' => 'Branch office',
     ])->assertCreated()->assertJsonPath('success', true);
 
-    $this->actingAs($admin)->postJson('/api/pasak/allowed-ips', [
+    $this->actingAs($admin)->postJson('/api/pasax/allowed-ips', [
         'ip_address' => '192.168.5.*',
     ])->assertCreated();
 
     expect(AllowedIp::count())->toBe(2);
 
     // Index + show.
-    $this->actingAs($admin)->getJson('/api/pasak/allowed-ips')
+    $this->actingAs($admin)->getJson('/api/pasax/allowed-ips')
         ->assertOk()->assertJsonPath('success', true);
 
     $entry = AllowedIp::where('ip_address', '10.20.0.0/16')->firstOrFail();
-    $this->actingAs($admin)->getJson("/api/pasak/allowed-ips/{$entry->id}")
+    $this->actingAs($admin)->getJson("/api/pasax/allowed-ips/{$entry->id}")
         ->assertOk()->assertJsonPath('data.ip_address', '10.20.0.0/16');
 
     // Toggle off → IP no longer whitelisted.
-    $this->actingAs($admin)->patchJson("/api/pasak/allowed-ips/{$entry->id}/toggle")
+    $this->actingAs($admin)->patchJson("/api/pasax/allowed-ips/{$entry->id}/toggle")
         ->assertOk()->assertJsonPath('data.is_active', false);
-    expect(app(PasakService::class)->isWhitelisted('10.20.99.1'))->toBeFalse();
+    expect(app(PasaxService::class)->isWhitelisted('10.20.99.1'))->toBeFalse();
 
     // Toggle on → whitelisted again.
-    $this->actingAs($admin)->patchJson("/api/pasak/allowed-ips/{$entry->id}/toggle")
+    $this->actingAs($admin)->patchJson("/api/pasax/allowed-ips/{$entry->id}/toggle")
         ->assertOk()->assertJsonPath('data.is_active', true);
-    expect(app(PasakService::class)->isWhitelisted('10.20.99.1'))->toBeTrue();
+    expect(app(PasaxService::class)->isWhitelisted('10.20.99.1'))->toBeTrue();
 
     // Destroy.
-    $this->actingAs($admin)->deleteJson("/api/pasak/allowed-ips/{$entry->id}")->assertOk();
+    $this->actingAs($admin)->deleteJson("/api/pasax/allowed-ips/{$entry->id}")->assertOk();
     expect(AllowedIp::where('ip_address', '10.20.0.0/16')->exists())->toBeFalse();
 
     // Missing id → 404.
-    $this->actingAs($admin)->getJson('/api/pasak/allowed-ips/999999')->assertNotFound();
+    $this->actingAs($admin)->getJson('/api/pasax/allowed-ips/999999')->assertNotFound();
 });
 
 test('regular users cannot access allowed ips api', function () {
@@ -108,8 +108,8 @@ test('regular users cannot access allowed ips api', function () {
         'role' => 'user',
     ]);
 
-    $this->actingAs($user)->getJson('/api/pasak/allowed-ips')->assertForbidden();
-    $this->actingAs($user)->postJson('/api/pasak/allowed-ips', [
+    $this->actingAs($user)->getJson('/api/pasax/allowed-ips')->assertForbidden();
+    $this->actingAs($user)->postJson('/api/pasax/allowed-ips', [
         'ip_address' => '203.0.113.1',
     ])->assertForbidden();
 });

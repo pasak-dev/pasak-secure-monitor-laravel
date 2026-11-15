@@ -21,7 +21,7 @@ const isBlocked = (e: HistoryEntry): boolean =>
     e.blocked || e.status === 403 || e.status === 429;
 
 /**
- * Laporan internal pengujian DENGAN Pasak (tab konsol): ringkasan upaya
+ * Laporan internal pengujian DENGAN Pasax (tab konsol): ringkasan upaya
  * DIBLOKIR vs LOLOS + vonis, preview accordion, salin & unduh JSON.
  */
 export default function ConsoleReport({
@@ -44,7 +44,7 @@ export default function ConsoleReport({
               ? "JEBOL ❌ (tak satu pun ditolak)"
               : "SEBAGIAN LOLOS ⚠️";
     const report = {
-        judul: "Laporan pengujian Dengan-Pasak",
+        judul: "Laporan pengujian Dengan-Pasax",
         target,
         waktu: new Date().toISOString(),
         ringkasan: {
@@ -95,7 +95,7 @@ export default function ConsoleReport({
             .replace(/[-:T]/g, "");
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = `laporan-dengan-pasak-${stamp}.json`;
+        a.download = `laporan-dengan-pasax-${stamp}.json`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -106,7 +106,7 @@ export default function ConsoleReport({
         <Card>
             <CardHeader>
                 <CardTitle className="text-sm">
-                    📋 Laporan Dengan-Pasak — {vonis}
+                    📋 Laporan Dengan-Pasax — {vonis}
                 </CardTitle>
             </CardHeader>
             <CardContent>

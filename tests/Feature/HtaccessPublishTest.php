@@ -34,7 +34,7 @@ test('htaccess configuration stub can be published using vendor publish tag', fu
     }
 
     $this->artisan('vendor:publish', [
-        '--tag' => 'pasak-htaccess',
+        '--tag' => 'pasax-htaccess',
         '--force' => true,
     ])->assertSuccessful();
 
@@ -57,7 +57,7 @@ test('security install command runs and publishes htaccess configuration', funct
         File::delete($publishedPath);
     }
 
-    $this->artisan('pasak:install', [
+    $this->artisan('pasax:install', [
         '--force' => true,
     ])->assertSuccessful();
 
@@ -76,17 +76,17 @@ test('security install command never touches existing htaccess and creates a new
     $publishedPath = public_path('.htaccess');
     File::put($publishedPath, "# Custom User Rewrite Rules\nRewriteEngine On\n");
 
-    $this->artisan('pasak:install')
+    $this->artisan('pasax:install')
         ->assertSuccessful();
 
     // Berkas milik user wajib utuh, tanpa tambahan apa pun.
     expect(File::get($publishedPath))->toBe("# Custom User Rewrite Rules\nRewriteEngine On\n");
 
     // Aturan hardening ditulis ke berkas BARU berdampingan.
-    $pasakPath = public_path('.htaccess.pasak');
-    expect(File::exists($pasakPath))->toBeTrue();
-    expect(File::get($pasakPath))->toContain('Hardening keamanan')
-        ->and(File::get($pasakPath))->toContain('Options -Indexes');
+    $pasaxPath = public_path('.htaccess.pasax');
+    expect(File::exists($pasaxPath))->toBeTrue();
+    expect(File::get($pasaxPath))->toContain('Hardening keamanan')
+        ->and(File::get($pasaxPath))->toContain('Options -Indexes');
 });
 
 test('security install command respects without-htaccess option', function () {
@@ -96,7 +96,7 @@ test('security install command respects without-htaccess option', function () {
         File::delete($publishedPath);
     }
 
-    $this->artisan('pasak:install', [
+    $this->artisan('pasax:install', [
         '--without-htaccess' => true,
     ])->assertSuccessful();
 
@@ -110,26 +110,26 @@ test('security install command appends environment variables to env and env exam
     File::put($envPath, "APP_NAME=Laravel\nAPP_ENV=local\n");
     File::put($envExamplePath, "APP_NAME=Laravel\nAPP_ENV=local\n");
 
-    $this->artisan('pasak:install')
+    $this->artisan('pasax:install')
         ->assertSuccessful();
 
     $envContent = File::get($envPath);
     $exampleContent = File::get($envExamplePath);
 
-    expect($envContent)->toContain('PASAK_MONITOR_ENABLED=true')
+    expect($envContent)->toContain('PASAX_MONITOR_ENABLED=true')
         ->and($envContent)->toContain('Sakelar utama WAF')
-        ->and($envContent)->not->toContain('PASAK_INSTANT_BLOCK_ENABLED')
-        ->and($exampleContent)->toContain('PASAK_MONITOR_ENABLED=true');
+        ->and($envContent)->not->toContain('PASAX_INSTANT_BLOCK_ENABLED')
+        ->and($exampleContent)->toContain('PASAX_MONITOR_ENABLED=true');
 });
 
 test('security install command respects without-env option', function () {
     $envPath = base_path('.env');
     File::put($envPath, "APP_NAME=Laravel\nAPP_ENV=local\n");
 
-    $this->artisan('pasak:install', [
+    $this->artisan('pasax:install', [
         '--without-env' => true,
     ])->assertSuccessful();
 
     $envContent = File::get($envPath);
-    expect($envContent)->not->toContain('PASAK_MONITOR_ENABLED');
+    expect($envContent)->not->toContain('PASAX_MONITOR_ENABLED');
 });

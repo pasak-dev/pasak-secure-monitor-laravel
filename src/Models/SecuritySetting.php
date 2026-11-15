@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Models;
+namespace Pasax\SecureMonitor\Models;
 
 /**
- * @deprecated Use PasakSetting instead.
+ * @deprecated Use PasaxSetting instead.
  *
- * @mixin PasakSetting
+ * @mixin PasaxSetting
  */
 if (! class_exists(SecuritySetting::class, false)) {
-    class_alias(PasakSetting::class, SecuritySetting::class);
+    class_alias(PasaxSetting::class, SecuritySetting::class);
 }

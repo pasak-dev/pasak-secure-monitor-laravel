@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Listeners;
+namespace Pasax\SecureMonitor\Listeners;
 
 /**
- * Legacy alias for PasakRecordUserLogin.
+ * Legacy alias for PasaxRecordUserLogin.
  */
-class RecordUserLogin extends PasakRecordUserLogin {}
+class RecordUserLogin extends PasaxRecordUserLogin {}
 
-if (! class_exists('Pasak\SecureMonitor\Listeners\RecordUserLogin', false)) {
-    class_alias(PasakRecordUserLogin::class, 'Pasak\SecureMonitor\Listeners\RecordUserLogin');
+if (! class_exists('Pasax\SecureMonitor\Listeners\RecordUserLogin', false)) {
+    class_alias(PasaxRecordUserLogin::class, 'Pasax\SecureMonitor\Listeners\RecordUserLogin');
 }

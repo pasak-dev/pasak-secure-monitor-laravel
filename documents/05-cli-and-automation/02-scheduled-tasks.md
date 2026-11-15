@@ -1,28 +1,28 @@
 # 02. Tugas Terjadwal (Cron & Scheduler)
 
-`PasakServiceProvider` menyertakan registrasi otomatis ke sistem scheduler bawaan Laravel (`Illuminate\Console\Scheduling\Schedule`). Tugas-tugas ini beroperasi secara otonom di latar belakang untuk menjaga higienitas basis data dan integritas server.
+`PasaxServiceProvider` menyertakan registrasi otomatis ke sistem scheduler bawaan Laravel (`Illuminate\Console\Scheduling\Schedule`). Tugas-tugas ini beroperasi secara otonom di latar belakang untuk menjaga higienitas basis data dan integritas server.
 
 ---
 
 ## 1. Tugas Terjadwal Bawaan
 
-Jika `PASAK_SCHEDULE_ENABLED=true` (default), tugas berikut otomatis aktif:
+Jika `PASAX_SCHEDULE_ENABLED=true` (default), tugas berikut otomatis aktif:
 
-### A. Pembersihan Log Kedaluwarsa Harian (`pasak:prune-logs`)
-- **Jadwal**: Harian pada jam yang ditentukan oleh `PASAK_PRUNE_SCHEDULE` (default: **02:30 pagi**).
-- **Aksi**: Menghapus entri `pasak_logs` yang lebih tua dari `PASAK_LOG_RETENTION_DAYS` (default: 90 hari) agar ukuran database tidak membengkak seiring waktu.
+### A. Pembersihan Log Kedaluwarsa Harian (`pasax:prune-logs`)
+- **Jadwal**: Harian pada jam yang ditentukan oleh `PASAX_PRUNE_SCHEDULE` (default: **02:30 pagi**).
+- **Aksi**: Menghapus entri `pasax_logs` yang lebih tua dari `PASAX_LOG_RETENTION_DAYS` (default: 90 hari) agar ukuran database tidak membengkak seiring waktu.
 
 ### B. Scheduler Heartbeat (`security-heartbeat`)
 - **Jadwal**: Setiap menit (`everyMinute()`).
 - **Aksi**: Menuliskan stempel waktu ISO-8601 ke cache dengan key `ServerSecurityService::HEARTBEAT_KEY`.
-- **Fungsi**: Laporan audit server (`/api/pasak/server`) menggunakan heartbeat ini untuk mendeteksi apakah cron server Anda berjalan normal atau mati/macet.
+- **Fungsi**: Laporan audit server (`/api/pasax/server`) menggunakan heartbeat ini untuk mendeteksi apakah cron server Anda berjalan normal atau mati/macet.
 
 ### C. Pemindaian Log Akses Web Server Otomatis
 - **Jadwal**: Harian pada pukul **03:00 pagi**.
-- **Aktivasi**: Aktif jika `PASAK_ACCESS_LOG_AUTO_SCAN=true`.
+- **Aktivasi**: Aktif jika `PASAX_ACCESS_LOG_AUTO_SCAN=true`.
 - **Aksi**: Menjalankan:
   ```bash
-  php artisan pasak:scan-logs --import --min-level=high --since="24 hours ago"
+  php artisan pasax:scan-logs --import --min-level=high --since="24 hours ago"
   ```
   Menyerap seluruh temuan ancaman dari log web server ke basis data audit keamanan.
 

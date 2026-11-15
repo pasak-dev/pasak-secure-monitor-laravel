@@ -1,10 +1,10 @@
-# Pasak (Bulwark)
+# Pasax (Bulwark)
 
 ## Dokumentasi Resmi & Panduan Penggunaan Lengkap
 
 > **Versi Paket**: `1.5.0` | **PHP**: `^8.2 | ^8.3 | ^8.4 | ^8.5` | **Laravel**: `^10.0 | ^11.0 | ^12.0 | ^13.0` | **Lisensi**: `MIT`
 
-Selamat datang di dokumentasi resmi **`pasak-dev/secure-monitor`** (Bulwark). Dokumentasi ini dirancang untuk memberikan panduan komprehensif mulai dari konsep arsitektur, instalasi, konfigurasi, integrasi REST API headless, modul keamanan tingkat lanjut, otomasi Artisan CLI, hingga hardening web server Nginx di lingkungan produksi.
+Selamat datang di dokumentasi resmi **`pasax-dev/secure-monitor`** (Bulwark). Dokumentasi ini dirancang untuk memberikan panduan komprehensif mulai dari konsep arsitektur, instalasi, konfigurasi, integrasi REST API headless, modul keamanan tingkat lanjut, otomasi Artisan CLI, hingga hardening web server Nginx di lingkungan produksi.
 
 ---
 
@@ -15,15 +15,15 @@ Dokumentasi ini disusun secara modular ke dalam 7 bagian utama:
 ### 1. [Memulai (Getting Started)](./01-getting-started/)
 
 - [01. Pengenalan & Filosofi Arsitektur](./01-getting-started/01-introduction.md) — Mengapa paket ini dibuat, filosofi headless WAF, ReDoS safety, dan perbandingan dengan paket lain.
-- [02. Panduan Instalasi & Migrasi](./01-getting-started/02-installation.md) — Langkah instalasi Composer, publikasi aset otomatis (`pasak:install`), konfigurasi tag, dan migrasi database.
-- [03. Konfigurasi Lengkap & Environment Variable](./01-getting-started/03-configuration.md) — Variabel inti `.env`, pengelolaan dinamis berbasis tabel `pasak_settings`, dan penjelasan konfigurasi `config/pasak.php`.
+- [02. Panduan Instalasi & Migrasi](./01-getting-started/02-installation.md) — Langkah instalasi Composer, publikasi aset otomatis (`pasax:install`), konfigurasi tag, dan migrasi database.
+- [03. Konfigurasi Lengkap & Environment Variable](./01-getting-started/03-configuration.md) — Variabel inti `.env`, pengelolaan dinamis berbasis tabel `pasax_settings`, dan penjelasan konfigurasi `config/pasax.php`.
 
 ### 2. [Arsitektur Inti (Core Architecture)](./02-core-architecture/)
 
 - [01. Threat Detection Engine & Zero-Tolerance WAF](./02-core-architecture/01-threat-detection-engine.md) — Mekanisme inspeksi HTTP request, ambang per-tingkat ancaman (`critical`, `high`, `medium`, `low`), sanksi kombinasi, blokir instan, dan standar keamanan ReDoS.
 - [02. Karantina Berbasis Perangkat (Device-Level Quarantine)](./02-core-architecture/02-device-quarantine.md) — Solusi isolasi perangkat pada IP publik bersama (kantor/Wi-Fi publik), mode lingkup adaptif `auto`, dan pencegahan *collateral damage*.
 - [03. Resolusi Reverse Proxy & Deteksi IP Klien](./02-core-architecture/03-reverse-proxy-resolution.md) — Resolusi IP di belakang Cloudflare, Nginx reverse proxy, dan AWS ALB tanpa risiko spoofing header.
-- [04. Model Database & Dynamic Decoupling](./02-core-architecture/04-models-and-database.md) — Kustomisasi nama tabel dinamis, model `PasakSetting`, integrasi model `User`, dan penggunaan trait `HasPasakSecurityRelations`.
+- [04. Model Database & Dynamic Decoupling](./02-core-architecture/04-models-and-database.md) — Kustomisasi nama tabel dinamis, model `PasaxSetting`, integrasi model `User`, dan penggunaan trait `HasPasaxSecurityRelations`.
 
 ### 3. [Modul Keamanan (Security Modules)](./03-security-modules/)
 
@@ -42,7 +42,7 @@ Dokumentasi ini disusun secara modular ke dalam 7 bagian utama:
 
 ### 5. [CLI & Otomasi (Artisan & Automation)](./05-cli-and-automation/)
 
-- [01. Referensi Perintah Artisan CLI](./05-cli-and-automation/01-artisan-commands.md) — `pasak:install`, `pasak:scan-logs`, `pasak:baseline`, `pasak:unblock-ip`, `pasak:prune-logs`, `pasak:purge-injected-data`, `pasak:upgrade`, `pasak:uninstall`.
+- [01. Referensi Perintah Artisan CLI](./05-cli-and-automation/01-artisan-commands.md) — `pasax:install`, `pasax:scan-logs`, `pasax:baseline`, `pasax:unblock-ip`, `pasax:prune-logs`, `pasax:purge-injected-data`, `pasax:upgrade`, `pasax:uninstall`.
 - [02. Tugas Terjadwal (Cron & Scheduler)](./05-cli-and-automation/02-scheduled-tasks.md) — Pembersihan log berkala, liveness heartbeat, auto-scan log akses web server, dan konfigurasi crontab.
 - [03. Panduan Upgrade & Uninstall](./05-cli-and-automation/03-upgrade-and-uninstall.md) — Tahapan upgrade instalasi lama, membaca perubahan versi, dan pencopotan bersih.
 
@@ -68,7 +68,7 @@ flowchart TD
     Client([HTTP Request]) --> Nginx[Nginx Hardened WAF<br/>Dual-Zone Rate Limit & FastCGI Filter]
     Nginx -->|Lolos Pemeriksaan| PHP[Laravel Front Controller<br/>public/index.php]
 
-    subgraph LSM ["Pasak (Bulwark)"]
+    subgraph LSM ["Pasax (Bulwark)"]
         PHP --> BlockMW[Middleware: BlockIpAddress]
         BlockMW -->|IP / Device Terdaftar Aktif| Ret403[HTTP 403: Akses Ditolak<br/>+ Reference ID]
         BlockMW -->|Lolos| ThreatMW[Middleware: DetectSecurityThreats]
@@ -83,8 +83,8 @@ flowchart TD
         Inspect -->|Tidak Ada Ancaman / Lolos| AppController[Controller Aplikasi Host]
     end
 
-    Ret403 --> Appeal[Form Tiket Banding<br/>/api/pasak/unblock-tickets/submit]
-    Appeal --> Admin[Admin Review & Unblock API<br/>/api/pasak/unblock-tickets/{id}/respond]
+    Ret403 --> Appeal[Form Tiket Banding<br/>/api/pasax/unblock-tickets/submit]
+    Appeal --> Admin[Admin Review & Unblock API<br/>/api/pasax/unblock-tickets/{id}/respond]
     Admin -->|Disetujui| LiftBlock[Buka Blokir Otomatis]
 ```
 

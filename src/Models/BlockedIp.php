@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Models;
+namespace Pasax\SecureMonitor\Models;
 
 /**
- * @deprecated Use PasakBlockedIp instead.
+ * @deprecated Use PasaxBlockedIp instead.
  *
- * @mixin PasakBlockedIp
+ * @mixin PasaxBlockedIp
  */
 if (! class_exists(BlockedIp::class, false)) {
-    class_alias(PasakBlockedIp::class, BlockedIp::class);
+    class_alias(PasaxBlockedIp::class, BlockedIp::class);
 }

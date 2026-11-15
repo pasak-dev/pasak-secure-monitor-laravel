@@ -1,6 +1,6 @@
 # 04. Endpoint Administrator REST API
 
-Seluruh endpoint pada dokumen ini dilindungi oleh middleware ganda: **`auth`** (pengguna harus login) dan **`pasak.admin`** (`EnsureSecurityAdmin`).
+Seluruh endpoint pada dokumen ini dilindungi oleh middleware ganda: **`auth`** (pengguna harus login) dan **`pasax.admin`** (`EnsureSecurityAdmin`).
 
 ---
 
@@ -10,7 +10,7 @@ Seluruh endpoint pada dokumen ini dilindungi oleh middleware ganda: **`auth`** (
 Mengambil data log terpaginasi lengkap dengan rincian statistik, level breakdown, top attacker, dan tren ancaman.
 
 - **Metode**: `GET`
-- **URI**: `/api/pasak/logs`
+- **URI**: `/api/pasax/logs`
 - **Query Parameters**:
   - `page` *(int)*: Nomor halaman (default: 1).
   - `per_page` *(int)*: Jumlah per halaman (default: 25, maks: 100).
@@ -69,7 +69,7 @@ Mengambil data log terpaginasi lengkap dengan rincian statistik, level breakdown
 
 ### B. Bersihkan Seluruh Log (Clear All Logs)
 - **Metode**: `DELETE`
-- **URI**: `/api/pasak/logs/clear`
+- **URI**: `/api/pasax/logs/clear`
 
 ---
 
@@ -77,7 +77,7 @@ Mengambil data log terpaginasi lengkap dengan rincian statistik, level breakdown
 
 ### A. Ambil Daftar IP yang Diblokir
 - **Metode**: `GET`
-- **URI**: `/api/pasak/blocked-ips`
+- **URI**: `/api/pasax/blocked-ips`
 - **Query Parameters**:
   - `search` *(string)*: Cari IP, device ID, catatan, atau alasan.
   - `status` *(string)*: `active`, `expired`, atau `permanent`.
@@ -85,7 +85,7 @@ Mengambil data log terpaginasi lengkap dengan rincian statistik, level breakdown
 
 ### B. Blokir IP / Perangkat Baru Secara Manual
 - **Metode**: `POST`
-- **URI**: `/api/pasak/blocked-ips`
+- **URI**: `/api/pasax/blocked-ips`
 - **Body JSON**:
   ```json
   {
@@ -105,16 +105,16 @@ Mengambil data log terpaginasi lengkap dengan rincian statistik, level breakdown
 
 ### C. Detail Blokir IP Beserta Log Terkait
 - **Metode**: `GET`
-- **URI**: `/api/pasak/blocked-ips/{id}`
+- **URI**: `/api/pasax/blocked-ips/{id}`
 - Mengembalikan entri `BlockedIp` beserta 20 entri `SecurityLog` terakhir dari IP tersebut.
 
 ### D. Beralih Status Aktif/Nonaktif (Toggle)
 - **Metode**: `PATCH`
-- **URI**: `/api/pasak/blocked-ips/{id}/toggle`
+- **URI**: `/api/pasax/blocked-ips/{id}/toggle`
 
 ### E. Hapus Blokir (Unblock)
 - **Metode**: `DELETE`
-- **URI**: `/api/pasak/blocked-ips/{id}`
+- **URI**: `/api/pasax/blocked-ips/{id}`
 
 ---
 
@@ -124,7 +124,7 @@ Allowlist global yang dikelola admin: IP, wildcard (`192.168.1.*`), atau CIDR (`
 
 ### A. Ambil Daftar Izin
 - **Metode**: `GET`
-- **URI**: `/api/pasak/allowed-ips`
+- **URI**: `/api/pasax/allowed-ips`
 - **Query Parameters**:
   - `search` *(string)*: Cari IP, label, atau catatan.
   - `status` *(string)*: `active`, `expired`, atau `permanent`.
@@ -132,7 +132,7 @@ Allowlist global yang dikelola admin: IP, wildcard (`192.168.1.*`), atau CIDR (`
 
 ### B. Tambah Izin Baru
 - **Metode**: `POST`
-- **URI**: `/api/pasak/allowed-ips`
+- **URI**: `/api/pasax/allowed-ips`
 - **Body JSON**:
   ```json
   {
@@ -149,15 +149,15 @@ Allowlist global yang dikelola admin: IP, wildcard (`192.168.1.*`), atau CIDR (`
 
 ### C. Detail Entri Izin
 - **Metode**: `GET`
-- **URI**: `/api/pasak/allowed-ips/{id}`
+- **URI**: `/api/pasax/allowed-ips/{id}`
 
 ### D. Beralih Status Aktif/Nonaktif (Toggle)
 - **Metode**: `PATCH`
-- **URI**: `/api/pasak/allowed-ips/{id}/toggle`
+- **URI**: `/api/pasax/allowed-ips/{id}/toggle`
 
 ### E. Hapus Entri Izin
 - **Metode**: `DELETE`
-- **URI**: `/api/pasak/allowed-ips/{id}`
+- **URI**: `/api/pasax/allowed-ips/{id}`
 
 ---
 
@@ -165,7 +165,7 @@ Allowlist global yang dikelola admin: IP, wildcard (`192.168.1.*`), atau CIDR (`
 
 ### A. Ambil Laporan Audit Server
 - **Metode**: `GET`
-- **URI**: `/api/pasak/server?refresh=true`
+- **URI**: `/api/pasax/server?refresh=true`
 - **Informasi yang Dikembalikan**:
   - `environment`: Status `APP_DEBUG`, HTTPS enforcement, session secure cookie, disk free space %.
   - `integrity`: Laporan baseline SHA-256 (berkas dimodifikasi, hilang, atau baru).
@@ -175,15 +175,15 @@ Allowlist global yang dikelola admin: IP, wildcard (`192.168.1.*`), atau CIDR (`
 
 ### B. Buat Baseline Integritas Baru (SHA-256)
 - **Metode**: `POST`
-- **URI**: `/api/pasak/server/baseline`
+- **URI**: `/api/pasax/server/baseline`
 
 ### C. Hapus Baseline Integritas
 - **Metode**: `DELETE`
-- **URI**: `/api/pasak/server/baseline`
+- **URI**: `/api/pasax/server/baseline`
 
 ### D. Hapus Berkas Mencurigakan (Safe Deletion)
 - **Metode**: `DELETE`
-- **URI**: `/api/pasak/server/suspicious-files`
+- **URI**: `/api/pasax/server/suspicious-files`
 - **Body JSON**:
   ```json
   {
@@ -194,7 +194,7 @@ Allowlist global yang dikelola admin: IP, wildcard (`192.168.1.*`), atau CIDR (`
 
 ### E. Lepaskan Lockout Login Pengguna
 - **Metode**: `DELETE`
-- **URI**: `/api/pasak/lockouts/{id}`
+- **URI**: `/api/pasax/lockouts/{id}`
 
 ---
 
@@ -202,20 +202,20 @@ Allowlist global yang dikelola admin: IP, wildcard (`192.168.1.*`), atau CIDR (`
 
 ### A. Daftar Sesi Pengguna & Online Count
 - **Metode**: `GET`
-- **URI**: `/api/pasak/user-sessions`
+- **URI**: `/api/pasax/user-sessions`
 - Mengembalikan riwayat login pengguna (`logins`), daftar `trusted_ips`, dan jumlah pengguna aktif saat ini (`online_count`).
 
 ### B. Pemantauan Realtime Pengguna Aktif
 - **Metode**: `GET`
-- **URI**: `/api/pasak/user-sessions/realtime`
+- **URI**: `/api/pasax/user-sessions/realtime`
 
 ### C. Putus Paksa Sesi Pengguna (Force Logout)
 - **Metode**: `DELETE`
-- **URI**: `/api/pasak/user-sessions/session/{sessionId}`
+- **URI**: `/api/pasax/user-sessions/session/{sessionId}`
 
 ### D. Hapus IP Terpercaya
 - **Metode**: `DELETE`
-- **URI**: `/api/pasak/trusted-ips/{id}`
+- **URI**: `/api/pasax/trusted-ips/{id}`
 
 ---
 
@@ -223,11 +223,11 @@ Allowlist global yang dikelola admin: IP, wildcard (`192.168.1.*`), atau CIDR (`
 
 ### A. Daftar Tiket Banding
 - **Metode**: `GET`
-- **URI**: `/api/pasak/unblock-tickets?status=pending`
+- **URI**: `/api/pasax/unblock-tickets?status=pending`
 
 ### B. Tanggapi Tiket (Approve / Reject)
 - **Metode**: `POST`
-- **URI**: `/api/pasak/unblock-tickets/{id}/respond`
+- **URI**: `/api/pasax/unblock-tickets/{id}/respond`
 - **Body JSON**:
   ```json
   {
@@ -239,4 +239,4 @@ Allowlist global yang dikelola admin: IP, wildcard (`192.168.1.*`), atau CIDR (`
 
 ### C. Hapus Arsip Tiket
 - **Metode**: `DELETE`
-- **URI**: `/api/pasak/unblock-tickets/{id}`
+- **URI**: `/api/pasax/unblock-tickets/{id}`

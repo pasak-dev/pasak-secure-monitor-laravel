@@ -9,11 +9,11 @@ Gunakan daftar periksa (*checklist*) ini sebelum meluncurkan aplikasi ke lingkun
 - [ ] `APP_DEBUG=false`: Wajib dimatikan agar pesan stack trace dan kredensial database tidak bocor saat terjadi error.
 - [ ] `APP_ENV=production`.
 - [ ] `SESSION_SECURE_COOKIE=true`: Memastikan cookie sesi hanya dikirim melalui koneksi terenkripsi HTTPS.
-- [ ] `PASAK_MONITOR_ENABLED=true`: Sakelar WAF aktif.
-- [ ] `PASAK_BLOCK_ENFORCEMENT=true`: Penolakan HTTP 403 aktif untuk IP yang terblokir.
-- [ ] `PASAK_INSTANT_BLOCK_ENABLED=true`: Blokir langsung 30 hari untuk zero-tolerance attack.
-- [ ] `PASAK_LOGIN_LOCKOUT_ENABLED=true`: Proteksi stepped brute force aktif.
-- [ ] `PASAK_SUPPORT_EMAIL`: Diisi alamat email resmi helpdesk/keamanan organisasi Anda.
+- [ ] `PASAX_MONITOR_ENABLED=true`: Sakelar WAF aktif.
+- [ ] `PASAX_BLOCK_ENFORCEMENT=true`: Penolakan HTTP 403 aktif untuk IP yang terblokir.
+- [ ] `PASAX_INSTANT_BLOCK_ENABLED=true`: Blokir langsung 30 hari untuk zero-tolerance attack.
+- [ ] `PASAX_LOGIN_LOCKOUT_ENABLED=true`: Proteksi stepped brute force aktif.
+- [ ] `PASAX_SUPPORT_EMAIL`: Diisi alamat email resmi helpdesk/keamanan organisasi Anda.
 
 ---
 
@@ -22,7 +22,7 @@ Gunakan daftar periksa (*checklist*) ini sebelum meluncurkan aplikasi ke lingkun
 - [ ] **Buat Baseline SHA-256 Pertama Kali**:
   Segera setelah deployment rilis selesai dijalankan:
   ```bash
-  php artisan pasak:baseline --force
+  php artisan pasax:baseline --force
   ```
   Ini mengunci hash berkas inti resmi (`app/`, `config/`, `routes/`, `public/index.php`, `bootstrap/app.php`).
 
@@ -52,7 +52,7 @@ chmod -R 775 /var/www/aplikasi-anda/bootstrap/cache
   ```bash
   * * * * * cd /var/www/aplikasi-anda && php artisan schedule:run >> /dev/null 2>&1
   ```
-- [ ] Pastikan cron pembersih log usang harian aktif (`pasak:prune-logs` pada jam 02:30).
+- [ ] Pastikan cron pembersih log usang harian aktif (`pasax:prune-logs` pada jam 02:30).
 
 ---
 
@@ -80,10 +80,10 @@ Jika karena suatu insiden tak terduga, IP kantor pusat atau IP pimpinan terbloki
 1. Hubungkan ke server melalui SSH.
 2. Jalankan perintah unblock instan:
    ```bash
-   php artisan pasak:unblock-ip 103.11.22.33
+   php artisan pasax:unblock-ip 103.11.22.33
    ```
    Atau jika darurat skala luas:
    ```bash
-   php artisan pasak:unblock-ip --all
+   php artisan pasax:unblock-ip --all
    ```
-3. Tambahkan IP tersebut ke variabel `PASAK_IP_WHITELIST` di berkas `.env` agar tidak terulang kembali.
+3. Tambahkan IP tersebut ke variabel `PASAX_IP_WHITELIST` di berkas `.env` agar tidak terulang kembali.

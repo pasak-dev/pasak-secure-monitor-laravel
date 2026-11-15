@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Console\Commands;
+namespace Pasax\SecureMonitor\Console\Commands;
 
 /**
- * Legacy alias for PasakUnblockIpCommand.
+ * Legacy alias for PasaxUnblockIpCommand.
  */
-class UnblockIpAddress extends PasakUnblockIpCommand {}
+class UnblockIpAddress extends PasaxUnblockIpCommand {}
 
-if (! class_exists('Pasak\\SecureMonitor\\Console\\Commands\\UnblockIpAddress', false)) {
-    class_alias(PasakUnblockIpCommand::class, 'Pasak\\SecureMonitor\\Console\\Commands\\UnblockIpAddress');
+if (! class_exists('Pasax\\SecureMonitor\\Console\\Commands\\UnblockIpAddress', false)) {
+    class_alias(PasaxUnblockIpCommand::class, 'Pasax\\SecureMonitor\\Console\\Commands\\UnblockIpAddress');
 }

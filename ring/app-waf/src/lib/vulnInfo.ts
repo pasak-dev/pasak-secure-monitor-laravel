@@ -1,5 +1,5 @@
 /**
- * Informasi kerentanan per vektor audit Tanpa-Pasak: dipakai akordeon
+ * Informasi kerentanan per vektor audit Tanpa-Pasax: dipakai akordeon
  * "hasil + kerentanan + metode hacker" di tiap kartu serangan.
  */
 export interface HackerMethod {
@@ -60,7 +60,7 @@ export interface VulnInfo {
     vuln: string;
     gap: string;
     methods: HackerMethod[];
-    /** Langkah penanganan: generik + konfigurasi Pasak yang relevan. */
+    /** Langkah penanganan: generik + konfigurasi Pasax yang relevan. */
     fix: string;
     /** Rantai eskalasi: langkah berikut setelah metode awal berhasil. */
     chain?: ChainStep[];
@@ -82,7 +82,7 @@ export const VULN_INFO: Record<string, VulnInfo> = {
         cwe: "CWE-200",
         vuln: "Exposure of Sensitive Information (recon tak dibatasi)",
         gap: "Server menjawab ramah ke signature scanner terkenal — penyerang bebas memetakan route, versi, dan celah tanpa jejak penolakan.",
-        fix: "Pasak: signature scanner_ua + scanner_agents menolak UA sqlmap/nikto/nuclei (403). Tambahan: rate-limit + fail2ban untuk IP yang memindai.",
+        fix: "Pasax: signature scanner_ua + scanner_agents menolak UA sqlmap/nikto/nuclei (403). Tambahan: rate-limit + fail2ban untuk IP yang memindai.",
         methods: [
             { title: "Directory enumeration", desc: "gobuster/ffuf + wordlist untuk menemukan /admin, /.git, /backup.zip.", exec: { kind: "vector", path: "/.git/config", method: "GET" } },
             { title: "Version fingerprinting", desc: "nuclei templates memindai ratusan CVE yang cocok dengan versi terdeteksi.", exec: { kind: "vector", path: "/", method: "GET", userAgent: "Nuclei - Open-source vulnerability scanner" } },
@@ -94,7 +94,7 @@ export const VULN_INFO: Record<string, VulnInfo> = {
         cwe: "CWE-538",
         vuln: "File Exposure (.env dapat diakses)",
         gap: "Bila file .env terekspos, APP_KEY + kredensial DB/SMTP/AWS bocor sekaligus — satu request meruntuhkan seluruh rahasia aplikasi.",
-        fix: "Pasak: signature config_probe + sensitive_paths menolak probe .env (403). Wajib juga di server: deny dotfiles di Nginx/Apache, APP_DEBUG=false, dan rotasi kredensial yang pernah terekspos.",
+        fix: "Pasax: signature config_probe + sensitive_paths menolak probe .env (403). Wajib juga di server: deny dotfiles di Nginx/Apache, APP_DEBUG=false, dan rotasi kredensial yang pernah terekspos.",
         methods: [
             { title: "Credential harvesting", desc: "Unduh /.env, ekstrak DB_PASSWORD lalu login langsung ke database.", exec: { kind: "vector", path: "/.env", method: "GET" } },
             { title: "APP_KEY abuse", desc: "Dengan APP_KEY, dekripsi cookie Laravel / buat payload unserialize (CVE pola lama).", exec: { kind: "vector", path: "/?debug=APP_KEY%3Dbase64%3Aabc123", method: "GET" } },
@@ -106,7 +106,7 @@ export const VULN_INFO: Record<string, VulnInfo> = {
         cwe: "CWE-22",
         vuln: "Path Traversal / LFI",
         gap: "Parameter path tidak disanitasi — penyerang keluar dari webroot dan membaca berkas sistem apa pun yang bisa dibaca user web.",
-        fix: "Pasak: instant-block path_traversal_public + rules path_traversal/null_byte (403). Di aplikasi: jangan sertakan input user ke path file; pakai allowlist + basename().",
+        fix: "Pasax: instant-block path_traversal_public + rules path_traversal/null_byte (403). Di aplikasi: jangan sertakan input user ke path file; pakai allowlist + basename().",
         chain: [
             {
                 label: "Baca shadow (uji privilege)",
@@ -147,7 +147,7 @@ export const VULN_INFO: Record<string, VulnInfo> = {
         cwe: "CWE-79",
         vuln: "Reflected Cross-Site Scripting",
         gap: "Input query dicerminkan ke HTML tanpa encoding — browser korban mengeksekusi JavaScript penyerang dalam konteks domain aplikasi.",
-        fix: "Pasak: rules xss mencatat & menolak payload <script> (403 bila block_suspicious_requests aktif). Di aplikasi: escape output dengan {{ }}, tambah header Content-Security-Policy.",
+        fix: "Pasax: rules xss mencatat & menolak payload <script> (403 bila block_suspicious_requests aktif). Di aplikasi: escape output dengan {{ }}, tambah header Content-Security-Policy.",
         chain: [
             {
                 label: "Bypass event handler",
@@ -191,7 +191,7 @@ export const VULN_INFO: Record<string, VulnInfo> = {
         cwe: "CWE-89",
         vuln: "SQL Injection",
         gap: "Input digabung mentah ke query SQL — penyerang mengubah logika WHERE, membaca tabel apa pun, bahkan menulis file via INTO OUTFILE.",
-        fix: "Pasak: rules sql_injection (critical) + auto-block setelah ambang. Di aplikasi: selalu prepared statement / Eloquent binding — jangan gabung string ke SQL.",
+        fix: "Pasax: rules sql_injection (critical) + auto-block setelah ambang. Di aplikasi: selalu prepared statement / Eloquent binding — jangan gabung string ke SQL.",
         chain: [
             {
                 label: "Petakan kolom",
@@ -239,7 +239,7 @@ export const VULN_INFO: Record<string, VulnInfo> = {
         cwe: "CWE-94",
         vuln: "Server-Side Template Injection",
         gap: "Input dievaluasi template engine server — canary {{7*7}}→49 membuktikan eksekusi; objek internal (config, env) bisa diakses lalu RCE.",
-        fix: "Pasak: signature ssti instant-block canary {{7*7}} (403). Di aplikasi: jangan render input user sebagai template; bila perlu, pakai sandbox + denylist sintaks.",
+        fix: "Pasax: signature ssti instant-block canary {{7*7}} (403). Di aplikasi: jangan render input user sebagai template; bila perlu, pakai sandbox + denylist sintaks.",
         chain: [
             {
                 label: "Konfirmasi aritmetika",
@@ -282,7 +282,7 @@ export const VULN_INFO: Record<string, VulnInfo> = {
         cwe: "CWE-94",
         vuln: "Code Injection (PHP)",
         gap: "Tag PHP lolos via parameter — bila aplikasi me-include/eval input, penyerang mengeksekusi kode server-side seketika.",
-        fix: "Pasak: signature php_injection instant-block tag <?php (403). Di aplikasi: jangan eval/include input user dalam kondisi apa pun.",
+        fix: "Pasax: signature php_injection instant-block tag <?php (403). Di aplikasi: jangan eval/include input user dalam kondisi apa pun.",
         methods: [
             { title: "Direct eval", desc: "?name=<?php system($_GET[c]) ?> + include = shell.", exec: { kind: "vector", path: "/?name=%3C%3Fphp%20system(%24_GET%5B%27c%27%5D)%3B%20%3F%3E", method: "GET" } },
             { title: "Base64 smuggling", desc: "eval(base64_decode(...)) menghindari filter string.", exec: { kind: "vector", path: "/", method: "POST", payload: "q=eval(base64_decode(\"cGhwaW5mbygpOw==\"))" } },
@@ -294,7 +294,7 @@ export const VULN_INFO: Record<string, VulnInfo> = {
         cwe: "CWE-434",
         vuln: "Unrestricted File Upload (double extension)",
         gap: "Validasi hanya melihat ekstensi terakhir/MIME — shell.php.jpg lolos lalu dieksekusi via .htaccess AddType atau LFI/include.",
-        fix: "Pasak: unsafe_filename + webshell_upload menolak .php/.phtml/double-extension/null-byte (403). Di aplikasi: validasi MIME + ekstensi di server, simpan di luar webroot, rename acak. Lihat SafeImageFile.",
+        fix: "Pasax: unsafe_filename + webshell_upload menolak .php/.phtml/double-extension/null-byte (403). Di aplikasi: validasi MIME + ekstensi di server, simpan di luar webroot, rename acak. Lihat SafeImageFile.",
         methods: [
             { title: "Double extension", desc: "shell.php.jpg lolos filter naif yang hanya cek akhiran .jpg.", exec: { kind: "reupload" } },
             { title: "HTAccess override", desc: "Unggah .htaccess (AddType application/x-httpd-php .jpg) agar .jpg dieksekusi.", exec: { kind: "htaccess" } },

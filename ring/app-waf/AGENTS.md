@@ -3,7 +3,7 @@
 ## 1. Project Overview
 
 `app-waf/` adalah **konsol uji lokal satu halaman** (React 19 + Vite 7 + Tailwind CSS v4)
-untuk memverifikasi WAF [`pasak-dev/secure-monitor`](../) (Bulwark) — **bukan bagian dari paket
+untuk memverifikasi WAF [`pasax-dev/secure-monitor`](../) (Bulwark) — **bukan bagian dari paket
 rilis** (tidak ikut ke Packagist; tidak ada ketergantungan Composer).
 
 - **Sifat**: alat pengujian lokal saja. **Jangan pernah mengekspos ke internet publik**
@@ -39,10 +39,10 @@ app-waf/
     ├── App.tsx                 # tipis: susun komponen + analisis surface sekali
     ├── hooks/useWafConsole.ts  # SELURUH state + logika jaringan (klien hanya UI)
     ├── components/             # RequestForm, ResultPanel, HistoryTable, ...
-    │   └── attack/             # tab Pengujian Serangan + NoPasakTab (audit 4 tahap, tidak menyentuh result tab 1)
+    │   └── attack/             # tab Pengujian Serangan + NoPasaxTab (audit 4 tahap, tidak menyentuh result tab 1)
     └── lib/
         ├── vectors.ts          # KATALOG SERANGAN (14 grup, ~91 vektor) + UA presets
-        ├── noPasak.ts          # rekomendasi 9 vektor + 4 tahap audit tanpa-Pasak
+        ├── noPasax.ts          # rekomendasi 9 vektor + 4 tahap audit tanpa-Pasax
         ├── surface.ts          # analyzeSurface: body respons → temuan serang
         ├── ip.ts               # generator IP publik acak
         └── http.ts             # statusTone: status → warna badge
@@ -74,7 +74,7 @@ blocked(403/429), duration_ms, size, truncated, content_type,
 request_headers, response_headers, body}`.
 
 Kontrak `GET /api/geo?ip=`: lokasi IP penyerang (negara, provinsi, kota,
-lat/lon, ISP) untuk kartu identitas Tanpa-Pasak — jalankan di dev-server
+lat/lon, ISP) untuk kartu identitas Tanpa-Pasax — jalankan di dev-server
 via service publik ip-api.com (tanpa kunci); IP privat/reserved
 `{lokasi:false}`; di-cache dalam memori dev-server.
 
@@ -84,7 +84,7 @@ timeout 15 dtk, guard SSRF minimal (tolak `169.254.169.254`,
 
 ### 3.2. Katalog serangan (`src/lib/vectors.js`)
 
-Setiap grup memetakan 1:1 ke signature `config/pasak.php` (instant_block ×10,
+Setiap grup memetakan 1:1 ke signature `config/pasax.php` (instant_block ×10,
 rules ×7, sensitive_paths, scanner_agents). Format vektor:
 `{label, path, method, userAgent?, payload?, upload?, advice{reason, expect, steps?}}`.
 Menambah signature baru di paket → **tambah grup/vektor di sini + build**.

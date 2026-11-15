@@ -17,7 +17,7 @@ test('nginx configuration stub can be published using vendor publish tag', funct
     }
 
     $this->artisan('vendor:publish', [
-        '--tag' => 'pasak-nginx',
+        '--tag' => 'pasax-nginx',
         '--force' => true,
     ])->assertSuccessful();
 
@@ -43,7 +43,7 @@ test('security install command runs and publishes nginx configuration', function
         File::delete($publishedPath);
     }
 
-    $this->artisan('pasak:install', [
+    $this->artisan('pasax:install', [
         '--force' => true,
     ])->assertSuccessful();
 

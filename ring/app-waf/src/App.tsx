@@ -10,7 +10,7 @@ import HistoryTable from "@/components/HistoryTable";
 import ConsoleReport from "@/components/ConsoleReport";
 import PreviewModal from "@/components/PreviewModal";
 import AttackTab from "@/components/attack/AttackTab";
-import NoPasakTab from "@/components/attack/NoPasakTab";
+import NoPasaxTab from "@/components/attack/NoPasaxTab";
 import StrixTab from "@/components/strix/StrixTab";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -55,7 +55,7 @@ function baseUrlOf(result: ProxyResult | null | undefined): string {
 
 export default function App() {
     const waf = useWafConsole();
-    const [view, setView] = useState("nopasak");
+    const [view, setView] = useState("nopasax");
     const [mode, setMode] = useState<ConsoleMode>(() => {
         try {
             return window.localStorage.getItem("waf-console-mode") ===
@@ -135,7 +135,7 @@ export default function App() {
     );
 
     const tabs = [
-        { id: "nopasak", label: "⚠️ Tanpa Pasak = Jebol" },
+        { id: "nopasax", label: "⚠️ Tanpa Pasax = Jebol" },
         { id: "console", label: "Konsol Uji" },
         {
             id: "attack",
@@ -151,8 +151,8 @@ export default function App() {
     return (
         <div className={`${theme} min-h-screen bg-background text-foreground`}>
             <AppHeader
-                title="WAF Test PASAK"
-                subtitle="PASAK · Bulwark"
+                title="WAF Test PASAX"
+                subtitle="PASAX · Bulwark"
                 mode={mode}
                 onModeChange={changeMode}
                 theme={theme}
@@ -180,8 +180,8 @@ export default function App() {
                 )}
                 <AppTabs tabs={tabs} active={view} onChange={setView} />
 
-                {view === "nopasak" ? (
-                    <NoPasakTab
+                {view === "nopasax" ? (
+                    <NoPasaxTab
                         sendRaw={waf.sendRaw}
                         target={waf.form.target}
                         onTargetChange={(target) => waf.update({ target })}

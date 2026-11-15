@@ -1,6 +1,6 @@
 <?php
 
-namespace Pasak\SecureMonitor\Tests;
+namespace Pasax\SecureMonitor\Tests;
 
 use Illuminate\Contracts\Http\Kernel as KernelContract;
 use Illuminate\Database\Schema\Blueprint;
@@ -8,18 +8,18 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
-use Pasak\SecureMonitor\Http\Middleware\BlockIpAddress;
-use Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats;
-use Pasak\SecureMonitor\PasakServiceProvider;
+use Pasax\SecureMonitor\Http\Middleware\BlockIpAddress;
+use Pasax\SecureMonitor\Http\Middleware\DetectSecurityThreats;
+use Pasax\SecureMonitor\PasaxServiceProvider;
 
 abstract class TestCase extends OrchestraTestCase
 {
     protected function setUp(): void
     {
-        // pasak:install publishes config/pasak.php into the Testbench skeleton.
+        // pasax:install publishes config/pasax.php into the Testbench skeleton.
         // Left behind, that copy shadows the package config in every later
-        // test (and later runs), so edits to config/pasak.php are ignored.
-        foreach (['config/pasak.php', 'routes/pasak.php', 'routes/pasak-api.php'] as $rel) {
+        // test (and later runs), so edits to config/pasax.php are ignored.
+        foreach (['config/pasax.php', 'routes/pasax.php', 'routes/pasax-service.php'] as $rel) {
             $p = dirname(__DIR__).'/vendor/orchestra/testbench-core/laravel/'.$rel;
             if (is_file($p)) {
                 unlink($p);
@@ -31,7 +31,7 @@ abstract class TestCase extends OrchestraTestCase
 
     protected function getPackageProviders($app): array
     {
-        return [PasakServiceProvider::class];
+        return [PasaxServiceProvider::class];
     }
 
     protected function defineEnvironment($app): void
@@ -44,10 +44,10 @@ abstract class TestCase extends OrchestraTestCase
         ]);
 
         $app['config']->set('auth.providers.users.model', TestUser::class);
-        $app['config']->set('pasak.user_model', TestUser::class);
-        $app['config']->set('pasak.enabled', true);
-        $app['config']->set('pasak.block_enforcement', true);
-        $app['config']->set('pasak.routes.enabled', true);
+        $app['config']->set('pasax.user_model', TestUser::class);
+        $app['config']->set('pasax.enabled', true);
+        $app['config']->set('pasax.block_enforcement', true);
+        $app['config']->set('pasax.routes.enabled', true);
 
         $kernel = $app->make(KernelContract::class);
 

@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Console\Commands;
+namespace Pasax\SecureMonitor\Console\Commands;
 
 /**
- * Legacy alias for PasakInstallCommand.
+ * Legacy alias for PasaxInstallCommand.
  */
-class SecurityInstallCommand extends PasakInstallCommand {}
+class SecurityInstallCommand extends PasaxInstallCommand {}
 
-if (! class_exists('Pasak\\SecureMonitor\\Console\\Commands\\SecurityInstallCommand', false)) {
-    class_alias(PasakInstallCommand::class, 'Pasak\\SecureMonitor\\Console\\Commands\\SecurityInstallCommand');
+if (! class_exists('Pasax\\SecureMonitor\\Console\\Commands\\SecurityInstallCommand', false)) {
+    class_alias(PasaxInstallCommand::class, 'Pasax\\SecureMonitor\\Console\\Commands\\SecurityInstallCommand');
 }

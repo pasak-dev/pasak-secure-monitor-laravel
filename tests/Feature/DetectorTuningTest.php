@@ -1,7 +1,7 @@
 <?php
 
-use Pasak\SecureMonitor\Models\BlockedIp;
-use Pasak\SecureMonitor\Services\PasakService;
+use Pasax\SecureMonitor\Models\BlockedIp;
+use Pasax\SecureMonitor\Services\PasaxService;
 
 /**
  * Penjaga keseimbangan pola deteksi:
@@ -146,9 +146,9 @@ function detectorFormat(array $threats): string
 
 test('lalu lintas nyata tidak pernah memicu blokir instan', function () {
     // Signature instan hanya dievaluasi bila blokir instan aktif.
-    config()->set('pasak.instant_block.enabled', true);
+    config()->set('pasax.instant_block.enabled', true);
 
-    $service = app(PasakService::class);
+    $service = app(PasaxService::class);
 
     foreach (detectorLegitCases() as $label => $haystacks) {
         $threats = $service->inspectHaystacks($haystacks);
@@ -158,14 +158,14 @@ test('lalu lintas nyata tidak pernah memicu blokir instan', function () {
         expect($instant)->toBe([], sprintf(
             'Input nyata "%s" memicu blokir instan %d hari: %s',
             $label,
-            (int) config('pasak.instant_block.duration_hours'),
+            (int) config('pasax.instant_block.duration_hours'),
             detectorFormat($instant)
         ));
     }
 });
 
 test('konten admin sehari-hari tidak terdeteksi sama sekali', function () {
-    $service = app(PasakService::class);
+    $service = app(PasaxService::class);
     $cases = detectorLegitCases();
 
     foreach (detectorMustBeCleanCases() as $label) {
@@ -181,9 +181,9 @@ test('konten admin sehari-hari tidak terdeteksi sama sekali', function () {
 
 test('pola serangan tetap terdeteksi setelah pola dirapatkan', function () {
     // Opt-in eksplisit: default instalasi adalah monitoring saja.
-    config()->set('pasak.instant_block.enabled', true);
+    config()->set('pasax.instant_block.enabled', true);
 
-    $service = app(PasakService::class);
+    $service = app(PasaxService::class);
 
     foreach (detectorAttackCases() as $label => [$haystacks, $expectsInstant]) {
         $threats = $service->inspectHaystacks($haystacks);
@@ -199,8 +199,8 @@ test('pola serangan tetap terdeteksi setelah pola dirapatkan', function () {
 });
 
 test('pola deteksi tidak rawan ReDoS', function () {
-    $service = app(PasakService::class);
-    $max = max(500, (int) config('pasak.max_inspect_length', 4000));
+    $service = app(PasaxService::class);
+    $max = max(500, (int) config('pasax.max_inspect_length', 4000));
 
     $payloads = [
         'php + spasi' => '.php'.str_repeat(' ', $max),
@@ -232,8 +232,8 @@ test('pola deteksi tidak rawan ReDoS', function () {
 
 test('blokir instan aktif pada percobaan pertama lewat request sungguhan', function () {
     // Opt-in eksplisit: default instalasi adalah monitoring saja.
-    config()->set('pasak.instant_block.enabled', true);
-    config()->set('pasak.whitelist', []);
+    config()->set('pasax.instant_block.enabled', true);
+    config()->set('pasax.whitelist', []);
 
     $this->withServerVariables(['REMOTE_ADDR' => '198.51.100.70']);
 

@@ -1,6 +1,6 @@
 # 01. Threat Detection Engine & Zero-Tolerance WAF
 
-Mesin deteksi ancaman (`PasakService::inspect()`) adalah jantung dari Web Application Firewall (WAF) mandiri di dalam paket ini. Mesin ini bertugas menganalisis seluruh lalu lintas HTTP yang masuk dan menentukan apakah suatu request bersifat berbahaya, mencurigakan, atau sah.
+Mesin deteksi ancaman (`PasaxService::inspect()`) adalah jantung dari Web Application Firewall (WAF) mandiri di dalam paket ini. Mesin ini bertugas menganalisis seluruh lalu lintas HTTP yang masuk dan menentukan apakah suatu request bersifat berbahaya, mencurigakan, atau sah.
 
 ---
 
@@ -16,7 +16,7 @@ Setiap request diuraikan ke dalam beberapa area inspeksi spesifik (`target`):
 6. **`user_agent`**: String identifikasi browser/klien (`User-Agent` HTTP header).
 7. **`any`**: Seluruh target di atas digabungkan menjadi satu kesatuan inspeksi.
 
-> **Proteksi Batas Ukuran (`max_inspect_length`)**: Untuk mencegah serangan DoS berbasis konsumsi memori, teks yang diinspeksi dibatasi sepanjang maksimal `PASAK_MAX_INSPECT_LENGTH` (default: 4000 karakter). Jika ukuran body melebihi batas ini, pemotongan dilakukan secara aman tanpa merusak keabsahan regex.
+> **Proteksi Batas Ukuran (`max_inspect_length`)**: Untuk mencegah serangan DoS berbasis konsumsi memori, teks yang diinspeksi dibatasi sepanjang maksimal `PASAX_MAX_INSPECT_LENGTH` (default: 4000 karakter). Jika ukuran body melebihi batas ini, pemotongan dilakukan secara aman tanpa merusak keabsahan regex.
 
 ---
 
@@ -55,11 +55,11 @@ Sebagian payload serangan **tidak pernah muncul dalam lalu lintas manusia normal
 Serangan lain seperti dugaan SQL Injection samar (`' or 1=1--`), pola XSS (`<script>`), atau path scanning biasa bisa saja terjadi akibat kesalahan ketik atau input data pengguna yang valid.
 
 Oleh karena itu, pola-pola ini dimasukkan ke dalam mekanisme **Progressive Sliding Window**:
-1. Setiap kali terjadi ancaman berlevel `high` atau `critical`, catatan disimpan di tabel `pasak_logs`.
+1. Setiap kali terjadi ancaman berlevel `high` atau `critical`, catatan disimpan di tabel `pasax_logs`.
 2. Sistem memeriksa berapa kali IP/perangkat tersebut memicu ancaman dalam kurun waktu `window_minutes` (default: 10 menit).
 3. Jika jumlah kejadian mencapai ambang, IP/perangkat secara otomatis diblokir selama `auto_block.duration` (default: 24 jam).
 
-> **Ambang per Tingkat (DB-backed)**: Ambang blokir kini ditentukan **per tingkat ancaman** — `auto_block.level_thresholds` default `{critical: 1, high: 2, medium: 3, low: 5}`. Blokir dipicu saat `COUNT(level) ≥ threshold(level)` untuk tingkat mana pun dalam jendela. Nilainya dapat diubah langsung dari dashboard pengaturan (disimpan pada tabel `pasak_settings`, disemai oleh seeder default); kunci env lama (`PASAK_AUTO_BLOCK_*`) tetap didukung sebagai fallback senyap namun tidak lagi menguasai perilaku setelah sebaris settings tersedia.
+> **Ambang per Tingkat (DB-backed)**: Ambang blokir kini ditentukan **per tingkat ancaman** — `auto_block.level_thresholds` default `{critical: 1, high: 2, medium: 3, low: 5}`. Blokir dipicu saat `COUNT(level) ≥ threshold(level)` untuk tingkat mana pun dalam jendela. Nilainya dapat diubah langsung dari dashboard pengaturan (disimpan pada tabel `pasax_settings`, disemai oleh seeder default); kunci env lama (`PASAX_AUTO_BLOCK_*`) tetap didukung sebagai fallback senyap namun tidak lagi menguasai perilaku setelah sebaris settings tersedia.
 >
 > **Sanksi Kombinasi**: Kegagalan "gabungan" hanya dihitung bila ancaman berasal dari **minimal 2 tingkat berbeda** dan total kejadian melampaui `auto_block.combined_threshold` (default 3) — serangan satu jenis berfrekuensi rendah tidak tersapu oleh aturan kombinasi.
 >

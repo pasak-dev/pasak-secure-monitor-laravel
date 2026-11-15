@@ -2,7 +2,7 @@
 
 # ==============================================================================
 # Git Automated Push & Optional Tagging Script
-# Repository: pasak-dev/secure-monitor
+# Repository: pasax-dev/secure-monitor
 #
 # Setiap kali dijalankan, skrip ini SELALU melakukan pengecekan versi:
 #   - Versi sekarang    : tag rilis semver terakhir (mis. v1.0.3)
@@ -28,7 +28,7 @@ NC='\033[0m' # No Color
 # Helper Functions
 print_header() {
     echo -e "${BLUE}======================================================================${NC}"
-    echo -e "${BOLD}${CYAN}  🛡️  Pasak — Git Push & Tagging Helper${NC}"
+    echo -e "${BOLD}${CYAN}  🛡️  Pasax — Git Push & Tagging Helper${NC}"
     echo -e "${BLUE}======================================================================${NC}"
 }
 
@@ -283,13 +283,13 @@ if [ "$TAG_NAME" != "auto" ] && [ -n "$TAG_NAME" ]; then
 elif [ "$BUMP_TYPE" != "none" ]; then
     PENDING_TAG="$RECOMMENDED_TAG"
 fi
-if [ -n "$PENDING_TAG" ] && [ -f "src/Services/PasakService.php" ]; then
+if [ -n "$PENDING_TAG" ] && [ -f "src/Services/PasaxService.php" ]; then
     PENDING_VERSION="${PENDING_TAG#v}"
-    if grep -q "public const VERSION = '${PENDING_VERSION}';" src/Services/PasakService.php 2>/dev/null; then
+    if grep -q "public const VERSION = '${PENDING_VERSION}';" src/Services/PasaxService.php 2>/dev/null; then
         print_info "Konstanta VERSION sudah selaras (${PENDING_VERSION})."
     else
-        sed -i '' "s/public const VERSION = '[^']*';/public const VERSION = '${PENDING_VERSION}';/" src/Services/PasakService.php 2>/dev/null \
-        || sed -i "s/public const VERSION = '[^']*';/public const VERSION = '${PENDING_VERSION}';/" src/Services/PasakService.php
+        sed -i '' "s/public const VERSION = '[^']*';/public const VERSION = '${PENDING_VERSION}';/" src/Services/PasaxService.php 2>/dev/null \
+        || sed -i "s/public const VERSION = '[^']*';/public const VERSION = '${PENDING_VERSION}';/" src/Services/PasaxService.php
         print_success "Konstanta VERSION diselaraskan ke ${PENDING_VERSION}."
     fi
 fi
@@ -417,7 +417,7 @@ if [ -n "$TAG_NAME" ] && [ "$NO_TAG" -eq 0 ]; then
 
     echo ""
     print_info "🚀 Paket versi ${TAG_NAME} kini siap dideteksi secara otomatis oleh Packagist!"
-    echo -e "   Periksa katalog rilis di: ${BLUE}https://packagist.org/packages/pasak-dev/secure-monitor${NC}"
+    echo -e "   Periksa katalog rilis di: ${BLUE}https://packagist.org/packages/pasax-dev/secure-monitor${NC}"
 fi
 
 echo ""

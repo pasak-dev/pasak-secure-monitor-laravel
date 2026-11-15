@@ -17,7 +17,7 @@ test('apache2 configuration stub can be published using vendor publish tag', fun
     }
 
     $this->artisan('vendor:publish', [
-        '--tag' => 'pasak-apache',
+        '--tag' => 'pasax-apache',
         '--force' => true,
     ])->assertSuccessful();
 
@@ -44,7 +44,7 @@ test('security install command runs and publishes apache2 configuration', functi
         File::delete($publishedPath);
     }
 
-    $this->artisan('pasak:install', [
+    $this->artisan('pasax:install', [
         '--force' => true,
     ])->assertSuccessful();
 
@@ -59,7 +59,7 @@ test('security install command respects without-apache option', function () {
         File::delete($publishedPath);
     }
 
-    $this->artisan('pasak:install', [
+    $this->artisan('pasax:install', [
         '--without-apache' => true,
         '--force' => true,
     ])->assertSuccessful();

@@ -16,7 +16,7 @@ Bayangkan skenario berikut:
 
 ## 2. Solusi: Isolasi Tingkat Perangkat
 
-**`pasak-dev/secure-monitor`** memecahkan masalah ini dengan memperkenalkan konsep **Device-Level Quarantine**.
+**`pasax-dev/secure-monitor`** memecahkan masalah ini dengan memperkenalkan konsep **Device-Level Quarantine**.
 
 Selain alamat IP publik, sistem mengekstrak dua penanda unik perangkat:
 1. **`device_id`**: Fingerprint perangkat unik (berbasis WebRTC candidate hash, persistent cookie UUID, atau header `X-Device-Id`).
@@ -87,4 +87,4 @@ graph TD
 
 Ketika seorang pengguna yang terisolasi mengajukan tiket permohonan buka blokir, tiket tersebut secara otomatis mencatat `device_id` dan `local_ip` miliknya. 
 
-Saat administrator menyetujui tiket melalui REST API `/api/pasak/unblock-tickets/{id}/respond`, fungsi `PasakService::unblockIp($ip, $deviceId)` hanya akan mencabut status blokir milik perangkat tersebut, menjaga status keamanan perangkat lain jika ada.
+Saat administrator menyetujui tiket melalui REST API `/api/pasax/unblock-tickets/{id}/respond`, fungsi `PasaxService::unblockIp($ip, $deviceId)` hanya akan mencabut status blokir milik perangkat tersebut, menjaga status keamanan perangkat lain jika ada.

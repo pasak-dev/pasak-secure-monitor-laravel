@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Console\Commands;
+namespace Pasax\SecureMonitor\Console\Commands;
 
 /**
- * Legacy alias for PasakScanAccessLogsCommand.
+ * Legacy alias for PasaxScanAccessLogsCommand.
  */
-class SecurityScanAccessLogs extends PasakScanAccessLogsCommand {}
+class SecurityScanAccessLogs extends PasaxScanAccessLogsCommand {}
 
-if (! class_exists('Pasak\\SecureMonitor\\Console\\Commands\\SecurityScanAccessLogs', false)) {
-    class_alias(PasakScanAccessLogsCommand::class, 'Pasak\\SecureMonitor\\Console\\Commands\\SecurityScanAccessLogs');
+if (! class_exists('Pasax\\SecureMonitor\\Console\\Commands\\SecurityScanAccessLogs', false)) {
+    class_alias(PasaxScanAccessLogsCommand::class, 'Pasax\\SecureMonitor\\Console\\Commands\\SecurityScanAccessLogs');
 }

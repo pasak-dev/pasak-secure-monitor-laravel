@@ -1,7 +1,7 @@
 <?php
 
-use Pasak\SecureMonitor\Models\BlockedIp;
-use Pasak\SecureMonitor\Models\SecurityLog;
+use Pasax\SecureMonitor\Models\BlockedIp;
+use Pasax\SecureMonitor\Models\SecurityLog;
 
 function attackFrom(string $ip = '198.51.100.7'): void
 {
@@ -9,13 +9,13 @@ function attackFrom(string $ip = '198.51.100.7'): void
 }
 
 beforeEach(function () {
-    config()->set('pasak.enabled', true);
-    config()->set('pasak.block_enforcement', true);
-    config()->set('pasak.auto_block.enabled', true);
-    config()->set('pasak.auto_block.threshold', 3);
-    config()->set('pasak.auto_block.window_minutes', 10);
-    config()->set('pasak.auto_block.combined_threshold', 3);
-    config()->set('pasak.auto_block.level_thresholds', ['critical' => 1, 'high' => 3, 'medium' => 3, 'low' => 5]);
+    config()->set('pasax.enabled', true);
+    config()->set('pasax.block_enforcement', true);
+    config()->set('pasax.auto_block.enabled', true);
+    config()->set('pasax.auto_block.threshold', 3);
+    config()->set('pasax.auto_block.window_minutes', 10);
+    config()->set('pasax.auto_block.combined_threshold', 3);
+    config()->set('pasax.auto_block.level_thresholds', ['critical' => 1, 'high' => 3, 'medium' => 3, 'low' => 5]);
 });
 
 test('ip that is blocked receives a 403 response', function () {
@@ -47,7 +47,7 @@ test('expired blocks do not reject requests', function () {
 });
 
 test('ip on whitelist is never blocked even after threshold is exceeded', function () {
-    config()->set('pasak.whitelist', ['198.51.100.7']);
+    config()->set('pasax.whitelist', ['198.51.100.7']);
     attackFrom();
 
     for ($i = 0; $i < 5; $i++) {
@@ -97,7 +97,7 @@ test('prune command removes logs older than the retention period', function () {
         'threat_level' => 'critical',
     ]);
 
-    $this->artisan('pasak:prune-logs', ['--days' => 30])->assertSuccessful();
+    $this->artisan('pasax:prune-logs', ['--days' => 30])->assertSuccessful();
 
     expect(SecurityLog::query()->count())->toBe(1)
         ->and(SecurityLog::query()->first()->ip_address)->toBe('198.51.100.22');

@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Http\Controllers\Api;
+namespace Pasax\SecureMonitor\Http\Controllers\Api;
 
 /**
- * Legacy alias for PasakServerSecurityApiController.
+ * Legacy alias for PasaxServerSecurityApiController.
  */
-class ServerSecurityApiController extends PasakServerSecurityApiController {}
+class ServerSecurityApiController extends PasaxServerSecurityApiController {}
 
-if (! class_exists('Pasak\\SecureMonitor\\Http\\Controllers\\Api\\ServerSecurityApiController', false)) {
-    class_alias(PasakServerSecurityApiController::class, 'Pasak\\SecureMonitor\\Http\\Controllers\\Api\\ServerSecurityApiController');
+if (! class_exists('Pasax\\SecureMonitor\\Http\\Controllers\\Api\\ServerSecurityApiController', false)) {
+    class_alias(PasaxServerSecurityApiController::class, 'Pasax\\SecureMonitor\\Http\\Controllers\\Api\\ServerSecurityApiController');
 }

@@ -2,19 +2,19 @@
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use Pasak\SecureMonitor\Models\BlockedIp;
-use Pasak\SecureMonitor\Models\SecurityLog;
-use Pasak\SecureMonitor\Services\PasakService;
-use Pasak\SecureMonitor\Tests\TestUser;
+use Pasax\SecureMonitor\Models\BlockedIp;
+use Pasax\SecureMonitor\Models\SecurityLog;
+use Pasax\SecureMonitor\Services\PasaxService;
+use Pasax\SecureMonitor\Tests\TestUser;
 
 beforeEach(function () {
-    config()->set('pasak.enabled', true);
-    config()->set('pasak.block_enforcement', true);
-    config()->set('pasak.auto_block.enabled', true);
-    config()->set('pasak.auto_block.threshold', 3);
-    config()->set('pasak.auto_block.scope', 'device');
-    config()->set('pasak.instant_block.enabled', true);
-    config()->set('pasak.instant_block.scope', 'device');
+    config()->set('pasax.enabled', true);
+    config()->set('pasax.block_enforcement', true);
+    config()->set('pasax.auto_block.enabled', true);
+    config()->set('pasax.auto_block.threshold', 3);
+    config()->set('pasax.auto_block.scope', 'device');
+    config()->set('pasax.instant_block.enabled', true);
+    config()->set('pasax.instant_block.scope', 'device');
 });
 
 test('admin can retrieve current security settings via api', function () {
@@ -25,7 +25,7 @@ test('admin can retrieve current security settings via api', function () {
         'role' => 'admin',
     ]);
 
-    $response = $this->actingAs($admin)->getJson('/api/pasak/settings');
+    $response = $this->actingAs($admin)->getJson('/api/pasax/settings');
 
     $response->assertSuccessful();
     $response->assertJson([
@@ -40,9 +40,9 @@ test('admin can retrieve current security settings via api', function () {
 });
 
 test('auto-block honors user-configured threat levels', function () {
-    config()->set('pasak.auto_block.scope', 'ip');
+    config()->set('pasax.auto_block.scope', 'ip');
 
-    $service = app(PasakService::class);
+    $service = app(PasaxService::class);
 
     // Default: high + critical dihitung.
     expect($service->autoBlockLevels())->toBe(['high', 'critical']);
@@ -80,10 +80,10 @@ test('admin can update settings to switch between device and ip scope', function
         'role' => 'admin',
     ]);
 
-    $service = app(PasakService::class);
+    $service = app(PasaxService::class);
 
     // 1. Update to IP scope
-    $response = $this->actingAs($admin)->postJson('/api/pasak/settings', [
+    $response = $this->actingAs($admin)->postJson('/api/pasax/settings', [
         'auto_block_scope' => 'ip',
         'instant_block_scope' => 'ip',
         'auto_block_threshold' => 5,
@@ -104,7 +104,7 @@ test('admin can update settings to switch between device and ip scope', function
     expect($service->getSetting('auto_block.threshold'))->toBe(5);
 
     // 2. Switch back to device scope
-    $response2 = $this->actingAs($admin)->postJson('/api/pasak/settings', [
+    $response2 = $this->actingAs($admin)->postJson('/api/pasax/settings', [
         'auto_block_scope' => 'device',
         'instant_block_scope' => 'device',
         'auto_block_threshold' => 3,
@@ -125,7 +125,7 @@ test('admin can update settings to switch between device and ip scope', function
 });
 
 test('dynamic setting switches auto block behavior from device isolation to entire router ip', function () {
-    $service = app(PasakService::class);
+    $service = app(PasaxService::class);
     $sharedRouterIp = '103.247.10.99';
     $attackerDeviceId = 'attacker-device-99';
     $innocentDeviceId = 'innocent-device-99';
@@ -179,13 +179,13 @@ test('dynamic setting switches auto block behavior from device isolation to enti
 });
 
 test('dashboard back url defaults to slash and falls back properly', function () {
-    $service = app(PasakService::class);
+    $service = app(PasaxService::class);
 
     // Default configuration
     expect($service->getDashboardBackUrl())->toBe('/');
 
     // If config changes
-    config()->set('pasak.dashboard.back_url', '/admin/overview');
+    config()->set('pasax.dashboard.back_url', '/admin/overview');
     expect($service->getDashboardBackUrl())->toBe('/admin/overview');
 
     // Setting in DB overrides config
@@ -205,10 +205,10 @@ test('admin can update dashboard back url via api and settings form', function (
         'role' => 'admin',
     ]);
 
-    $service = app(PasakService::class);
+    $service = app(PasaxService::class);
 
     // 1. Update via JSON API
-    $response = $this->actingAs($admin)->postJson('/api/pasak/settings', [
+    $response = $this->actingAs($admin)->postJson('/api/pasax/settings', [
         'back_url' => '/custom-admin-dashboard',
     ]);
 
@@ -222,17 +222,17 @@ test('admin can update dashboard back url via api and settings form', function (
     expect($service->getDashboardBackUrl())->toBe('/custom-admin-dashboard');
 
     // Ensure dashboard views and routes are loaded
-    $viewsTarget = resource_path('views/pages/pasak');
+    $viewsTarget = resource_path('views/pages/pasax');
     File::ensureDirectoryExists($viewsTarget);
     File::copyDirectory(
-        dirname(__DIR__, 2).'/stubs/blade/pages/pasak',
+        dirname(__DIR__, 2).'/stubs/blade/pages/pasax',
         $viewsTarget,
     );
-    require dirname(__DIR__, 2).'/routes/pasak-dashboard-blade.php';
+    require dirname(__DIR__, 2).'/routes/pasax-web-blade.php';
     Route::getRoutes()->refreshNameLookups();
 
     // 2. Settings blade page renders the updated back url and test button
-    $page = $this->actingAs($admin)->get(route('pasak.dashboard.settings'));
+    $page = $this->actingAs($admin)->get(route('pasax.dashboard.settings'));
     $page->assertSuccessful();
     $page->assertSee('/custom-admin-dashboard');
     $page->assertSee(__('Integrasi Navigasi: URL Kembali ke Dashboard Aplikasi Host'));

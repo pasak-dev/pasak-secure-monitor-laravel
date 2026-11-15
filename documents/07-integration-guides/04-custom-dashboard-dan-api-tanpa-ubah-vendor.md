@@ -1,21 +1,21 @@
 # 04. Panduan Kustomisasi Penuh (Full Custom Suite: Blade & REST API) Tanpa Mengubah Vendor
 
-Paket **`pasak-dev/secure-monitor`** dirancang mengikuti filosofi **Spatie-Standard & Headless Architecture**. Artinya, setelah paket dipasang melalui `composer require pasak-dev/secure-monitor`, Anda memiliki kebebasan dan kendali 100% penuh untuk membuat tampilan monitoring kustom, alur kerja keamanan sendiri, maupun antarmuka REST API JSON tanpa pernah menyentuh atau merusak berkas inti paket di `vendor/`.
+Paket **`pasax-dev/secure-monitor`** dirancang mengikuti filosofi **Spatie-Standard & Headless Architecture**. Artinya, setelah paket dipasang melalui `composer require pasax-dev/secure-monitor`, Anda memiliki kebebasan dan kendali 100% penuh untuk membuat tampilan monitoring kustom, alur kerja keamanan sendiri, maupun antarmuka REST API JSON tanpa pernah menyentuh atau merusak berkas inti paket di `vendor/`.
 
-Dokumen ini adalah cetak biru (*blueprint*) dan implementasi referensi resmi percontohan menyeluruh bagi pengembang yang ingin membangun dashboard Blade dan REST API kustom mencakup **seluruh 8 modul keamanan Pasak**.
+Dokumen ini adalah cetak biru (*blueprint*) dan implementasi referensi resmi percontohan menyeluruh bagi pengembang yang ingin membangun dashboard Blade dan REST API kustom mencakup **seluruh 8 modul keamanan Pasax**.
 
 ---
 
 ## 1. Aturan Emas: Kebijakan Dilarang Mengubah Vendor (*Zero-Vendor-Edit Policy*)
 
 > ⚠️ **PERINGATAN KRUSIAL**:
-> **JANGAN PERNAH** memodifikasi, mengedit, atau menghapus berkas apapun di dalam folder `vendor/pasak-dev/secure-monitor/`.
+> **JANGAN PERNAH** memodifikasi, mengedit, atau menghapus berkas apapun di dalam folder `vendor/pasax-dev/secure-monitor/`.
 > Segala perubahan di dalam folder `vendor/` bersifat **sementara dan berbahaya**!
 
 ### Mengapa Dilarang Mengubah Folder `vendor/`?
 1. **Pembaruan Composer Menimpa Perubahan**: Setiap kali Anda menjalankan `composer update` atau men-deploy proyek ke server produksi via CI/CD, Composer akan menghapus dan mengunduh ulang folder `vendor/`. Seluruh modifikasi kustom yang Anda tulis di sana akan **hilang permanen**.
-2. **Integritas Deteksi & ReDoS Immunity**: Berkas regex WAF di `src/Services/PasakService.php` telah dirancang secara matematis untuk kebal terhadap serangan *Regular Expression Denial of Service* (ReDoS). Mengubah pola regex langsung di vendor dapat membuat server Anda lumpuh akibat *catastrophic backtracking*.
-3. **Integritas Signature & Baseline**: Modul server audit Pasak memeriksa SHA-256 dan integritas pustaka. Modifikasi internal akan memicu peringatan manipulasi berkas sistem.
+2. **Integritas Deteksi & ReDoS Immunity**: Berkas regex WAF di `src/Services/PasaxService.php` telah dirancang secara matematis untuk kebal terhadap serangan *Regular Expression Denial of Service* (ReDoS). Mengubah pola regex langsung di vendor dapat membuat server Anda lumpuh akibat *catastrophic backtracking*.
+3. **Integritas Signature & Baseline**: Modul server audit Pasax memeriksa SHA-256 dan integritas pustaka. Modifikasi internal akan memicu peringatan manipulasi berkas sistem.
 
 ---
 
@@ -23,8 +23,8 @@ Dokumen ini adalah cetak biru (*blueprint*) dan implementasi referensi resmi per
 
 Ketika Anda menjalankan:
 ```bash
-composer require pasak-dev/secure-monitor
-php artisan pasak:install
+composer require pasax-dev/secure-monitor
+php artisan pasax:install
 ```
 
 Berikut adalah pemisahan peran yang tegas antara pustaka inti dan aplikasi Anda:
@@ -36,7 +36,7 @@ PROYEK LARAVEL ANDA
 │       ├── KeamananController.php          <-- [ZONA ANDA] Controller Blade kustom (8 Modul)
 │       └── Api/KeamananController.php      <-- [ZONA ANDA] REST API JSON kustom (8 Modul)
 ├── config/
-│   └── pasak.php                           <-- [ZONA ANDA] Konfigurasi aman diubah
+│   └── pasax.php                           <-- [ZONA ANDA] Konfigurasi aman diubah
 ├── resources/views/
 │   ├── layouts/app.blade.php               <-- [ZONA ANDA] Template induk aplikasi Anda
 │   ├── keamanan/                           <-- [ZONA ANDA] Suite Tampilan Kustom Penuh:
@@ -52,21 +52,21 @@ PROYEK LARAVEL ANDA
 ├── routes/
 │   ├── web.php                             <-- [ZONA ANDA] Rute web kustom (/keamanan/*)
 │   ├── api.php                             <-- [ZONA ANDA] Rute API kustom (/api/keamanan/*)
-│   ├── pasak.php                           <-- [ZONA ANDA] Rute bawaan paket (bisa disesuaikan)
-│   └── pasak-api.php                       <-- [ZONA ANDA] Rute API bawaan paket
+│   ├── pasax.php                           <-- [ZONA ANDA] Rute bawaan paket (bisa disesuaikan)
+│   └── pasax-service.php                       <-- [ZONA ANDA] Rute API bawaan paket
 │
-└── vendor/pasak-dev/secure-monitor/                   <-- [ZONA DILINDUNGI / READ-ONLY]
+└── vendor/pasax-dev/secure-monitor/                   <-- [ZONA DILINDUNGI / READ-ONLY]
     ├── src/                                    (Engine WAF, Service, Middleware, Model)
-    │   ├── Facades/Pasak.php                   (Facade resmi untuk dipanggil aplikasi Anda)
-    │   ├── Services/PasakService.php           (Mesin deteksi ancaman & inspeksi payload)
-    │   ├── Services/PasakServerSecurityService.php (Engine audit server & baseline SHA-256)
+    │   ├── Facades/Pasax.php                   (Facade resmi untuk dipanggil aplikasi Anda)
+    │   ├── Services/PasaxService.php           (Mesin deteksi ancaman & inspeksi payload)
+    │   ├── Services/PasaxServerSecurityService.php (Engine audit server & baseline SHA-256)
     │   ├── Http/Middleware/                    (Middleware pemblokir & penganalisis ancaman)
-    │   └── Models/                             (Model Eloquent: PasakLog, PasakBlockedIp, dll.)
+    │   └── Models/                             (Model Eloquent: PasaxLog, PasaxBlockedIp, dll.)
     ├── database/migrations/                    (Definisi skema tabel migrasi)
     └── stubs/                                  (Template publikasi)
 ```
 
-- **`vendor/pasak-dev/secure-monitor` (Zona Mesin / Engine)**: Layak dilihat hanya untuk referensi audit (*read-only*). Berisi logika inti WAF, parser header reverse-proxy, dan filter keamanan tingkat rendah.
+- **`vendor/pasax-dev/secure-monitor` (Zona Mesin / Engine)**: Layak dilihat hanya untuk referensi audit (*read-only*). Berisi logika inti WAF, parser header reverse-proxy, dan filter keamanan tingkat rendah.
 - **Aplikasi Host Anda (Zona Pengembang)**: Semua penyesuaian tampilan, rute, otorisasi, dan integrasi UI dilakukan di sini.
 
 ---
@@ -77,15 +77,15 @@ Aplikasi Anda cukup memanggil komponen resmi berikut:
 
 | Komponen | Namespace / FQCN | Peran & Fungsi |
 |---|---|---|
-| **Facade Pasak** | `Pasak\SecureMonitor\Facades\Pasak` | Akses statistik (`stats()`), cek blokir (`isBlocked()`), blokir IP (`blockIp()`), unblock (`unblockIp()`), runtime settings (`getSettings()`, `updateSettings()`). |
-| **Server Security Service** | `Pasak\SecureMonitor\Services\PasakServerSecurityService` | Audit konfigurasi PHP/DB/Storage (`scan()`), buat baseline SHA-256 (`createBaseline()`), hapus berkas mencurigakan defensif (`deleteSuspiciousFile()`). |
-| **Model Log Ancaman** | `Pasak\SecureMonitor\Models\PasakLog` | Query Eloquent ke riwayat ancaman WAF (`threat_level`, `ip_address`, `path`, `payload`). |
-| **Model IP Terblokir** | `Pasak\SecureMonitor\Models\PasakBlockedIp` | Manajemen IP & device terisolasi (`ip_address`, `device_id`, `block_scope`, `is_active`). |
-| **Model Whitelist** | `Pasak\SecureMonitor\Models\PasakAllowedIp` | Daftar pengecualian IP/CIDR yang kebal deteksi WAF. |
-| **Model Percobaan Login** | `Pasak\SecureMonitor\Models\PasakLoginAttempt` | Pelacakan mitigasi brute-force bertingkat (*stepped throttling*). |
-| **Model Sesi Pengguna** | `Pasak\SecureMonitor\Models\PasakUserLogin` | Riwayat sesi aktif pengguna, heartbeat, dan data perangkat login. |
-| **Model IP Terpercaya** | `Pasak\SecureMonitor\Models\PasakTrustedIp` | Alamat IP admin/staf yang diverifikasi sah. |
-| **Model Tiket Banding** | `Pasak\SecureMonitor\Models\PasakIpUnblockRequest` | Alur *self-service appeal* bagi pengguna yang terblokir tidak sengaja. |
+| **Facade Pasax** | `Pasax\SecureMonitor\Facades\Pasax` | Akses statistik (`stats()`), cek blokir (`isBlocked()`), blokir IP (`blockIp()`), unblock (`unblockIp()`), runtime settings (`getSettings()`, `updateSettings()`). |
+| **Server Security Service** | `Pasax\SecureMonitor\Services\PasaxServerSecurityService` | Audit konfigurasi PHP/DB/Storage (`scan()`), buat baseline SHA-256 (`createBaseline()`), hapus berkas mencurigakan defensif (`deleteSuspiciousFile()`). |
+| **Model Log Ancaman** | `Pasax\SecureMonitor\Models\PasaxLog` | Query Eloquent ke riwayat ancaman WAF (`threat_level`, `ip_address`, `path`, `payload`). |
+| **Model IP Terblokir** | `Pasax\SecureMonitor\Models\PasaxBlockedIp` | Manajemen IP & device terisolasi (`ip_address`, `device_id`, `block_scope`, `is_active`). |
+| **Model Whitelist** | `Pasax\SecureMonitor\Models\PasaxAllowedIp` | Daftar pengecualian IP/CIDR yang kebal deteksi WAF. |
+| **Model Percobaan Login** | `Pasax\SecureMonitor\Models\PasaxLoginAttempt` | Pelacakan mitigasi brute-force bertingkat (*stepped throttling*). |
+| **Model Sesi Pengguna** | `Pasax\SecureMonitor\Models\PasaxUserLogin` | Riwayat sesi aktif pengguna, heartbeat, dan data perangkat login. |
+| **Model IP Terpercaya** | `Pasax\SecureMonitor\Models\PasaxTrustedIp` | Alamat IP admin/staf yang diverifikasi sah. |
+| **Model Tiket Banding** | `Pasax\SecureMonitor\Models\PasaxIpUnblockRequest` | Alur *self-service appeal* bagi pengguna yang terblokir tidak sengaja. |
 
 ---
 
@@ -101,15 +101,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Pasak\SecureMonitor\Facades\Pasak;
-use Pasak\SecureMonitor\Models\PasakAllowedIp;
-use Pasak\SecureMonitor\Models\PasakBlockedIp;
-use Pasak\SecureMonitor\Models\PasakIpUnblockRequest;
-use Pasak\SecureMonitor\Models\PasakLog;
-use Pasak\SecureMonitor\Models\PasakLoginAttempt;
-use Pasak\SecureMonitor\Models\PasakTrustedIp;
-use Pasak\SecureMonitor\Models\PasakUserLogin;
-use Pasak\SecureMonitor\Services\PasakServerSecurityService;
+use Pasax\SecureMonitor\Facades\Pasax;
+use Pasax\SecureMonitor\Models\PasaxAllowedIp;
+use Pasax\SecureMonitor\Models\PasaxBlockedIp;
+use Pasax\SecureMonitor\Models\PasaxIpUnblockRequest;
+use Pasax\SecureMonitor\Models\PasaxLog;
+use Pasax\SecureMonitor\Models\PasaxLoginAttempt;
+use Pasax\SecureMonitor\Models\PasaxTrustedIp;
+use Pasax\SecureMonitor\Models\PasaxUserLogin;
+use Pasax\SecureMonitor\Services\PasaxServerSecurityService;
 
 class KeamananController extends Controller
 {
@@ -117,20 +117,20 @@ class KeamananController extends Controller
     public function index(Request $request): View
     {
         return view('keamanan.index', [
-            'stats' => Pasak::stats(),
-            'levelBreakdown' => Pasak::levelBreakdown(24),
-            'topAttackers' => Pasak::topAttackers(5),
-            'recentLogs' => PasakLog::query()->latest('id')->limit(8)->get(),
-            'recentBlocks' => PasakBlockedIp::query()->active()->latest('id')->limit(5)->get(),
-            'wafEnabled' => Pasak::isEnabled(),
-            'enforcementEnabled' => Pasak::isBlockEnforcementEnabled(),
+            'stats' => Pasax::stats(),
+            'levelBreakdown' => Pasax::levelBreakdown(24),
+            'topAttackers' => Pasax::topAttackers(5),
+            'recentLogs' => PasaxLog::query()->latest('id')->limit(8)->get(),
+            'recentBlocks' => PasaxBlockedIp::query()->active()->latest('id')->limit(5)->get(),
+            'wafEnabled' => Pasax::isEnabled(),
+            'enforcementEnabled' => Pasax::isBlockEnforcementEnabled(),
         ]);
     }
 
     // 2. LOG ANCAMAN WAF
     public function logs(Request $request): View
     {
-        $logs = PasakLog::query()
+        $logs = PasaxLog::query()
             ->when($request->filled('level'), fn ($q) => $q->where('threat_level', $request->query('level')))
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = $request->query('search');
@@ -151,20 +151,20 @@ class KeamananController extends Controller
 
     public function destroyLog(int $id): RedirectResponse
     {
-        PasakLog::destroy($id);
+        PasaxLog::destroy($id);
         return back()->with('status', "Log ancaman #{$id} berhasil dihapus.");
     }
 
     public function clearLogs(): RedirectResponse
     {
-        PasakLog::truncate();
+        PasaxLog::truncate();
         return back()->with('status', 'Semua riwayat log ancaman WAF berhasil dibersihkan.');
     }
 
     // 3. IP DIBLOKIR & DEVICE QUARANTINE
     public function blockedIps(Request $request): View
     {
-        $blockedIps = PasakBlockedIp::query()
+        $blockedIps = PasaxBlockedIp::query()
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->query('search');
                 $q->where(fn ($sub) => $sub->where('ip_address', 'like', "%{$search}%")
@@ -189,7 +189,7 @@ class KeamananController extends Controller
             'scope' => ['nullable', 'string', 'in:ip,device'],
         ]);
 
-        Pasak::blockIp(
+        Pasax::blockIp(
             ip: $validated['ip'],
             reason: $validated['reason'] ?: 'Diblokir manual dari Dashboard Keamanan Kustom',
             durationHours: ! empty($validated['hours']) ? (int) $validated['hours'] : null,
@@ -203,13 +203,13 @@ class KeamananController extends Controller
 
     public function unblockIp(string $ip): RedirectResponse
     {
-        Pasak::unblockIp($ip);
+        Pasax::unblockIp($ip);
         return back()->with('status', "Blokir untuk IP {$ip} berhasil dibuka.");
     }
 
     public function toggleBlockedIp(int $id): RedirectResponse
     {
-        $item = PasakBlockedIp::findOrFail($id);
+        $item = PasaxBlockedIp::findOrFail($id);
         $item->update(['is_active' => ! $item->is_active]);
         $status = $item->is_active ? 'diaktifkan kembali' : 'dinonaktifkan';
 
@@ -218,7 +218,7 @@ class KeamananController extends Controller
 
     public function destroyBlockedIp(int $id): RedirectResponse
     {
-        $item = PasakBlockedIp::findOrFail($id);
+        $item = PasaxBlockedIp::findOrFail($id);
         $ip = $item->ip_address;
         $item->delete();
 
@@ -228,7 +228,7 @@ class KeamananController extends Controller
     // 4. WHITELIST IP (ALLOWED IPS)
     public function allowedIps(Request $request): View
     {
-        $allowedIps = PasakAllowedIp::query()->latest('id')->paginate(15);
+        $allowedIps = PasaxAllowedIp::query()->latest('id')->paginate(15);
         return view('keamanan.allowed-ips', ['allowedIps' => $allowedIps]);
     }
 
@@ -240,7 +240,7 @@ class KeamananController extends Controller
             'notes' => ['nullable', 'string', 'max:255'],
         ]);
 
-        PasakAllowedIp::create([
+        PasaxAllowedIp::create([
             'ip_address' => $validated['ip_address'],
             'label' => $validated['label'] ?: 'Whitelist Manual',
             'notes' => $validated['notes'] ?? null,
@@ -253,7 +253,7 @@ class KeamananController extends Controller
 
     public function toggleAllowedIp(int $id): RedirectResponse
     {
-        $item = PasakAllowedIp::findOrFail($id);
+        $item = PasaxAllowedIp::findOrFail($id);
         $item->update(['is_active' => ! $item->is_active]);
         $status = $item->is_active ? 'diaktifkan' : 'dinonaktifkan';
 
@@ -262,36 +262,36 @@ class KeamananController extends Controller
 
     public function destroyAllowedIp(int $id): RedirectResponse
     {
-        $item = PasakAllowedIp::findOrFail($id);
+        $item = PasaxAllowedIp::findOrFail($id);
         $item->delete();
         return back()->with('status', 'Alamat whitelist berhasil dihapus.');
     }
 
     // 5. AUDIT SERVER & WEBSHELL SCANNER
-    public function server(Request $request, PasakServerSecurityService $service): View
+    public function server(Request $request, PasaxServerSecurityService $service): View
     {
         $force = $request->boolean('refresh', false);
         return view('keamanan.server', [
             'report' => $service->scan($force),
             'baseline' => $service->baselineSummary(),
-            'lockouts' => PasakLoginAttempt::query()->where('is_locked', true)->latest('id')->get(),
+            'lockouts' => PasaxLoginAttempt::query()->where('is_locked', true)->latest('id')->get(),
         ]);
     }
 
-    public function serverBaseline(PasakServerSecurityService $service): RedirectResponse
+    public function serverBaseline(PasaxServerSecurityService $service): RedirectResponse
     {
         $result = $service->createBaseline();
         $total = count($result['files'] ?? []);
         return back()->with('status', "Baseline SHA-256 berhasil dibuat ({$total} berkas dipindai).");
     }
 
-    public function serverBaselineDestroy(PasakServerSecurityService $service): RedirectResponse
+    public function serverBaselineDestroy(PasaxServerSecurityService $service): RedirectResponse
     {
         $service->deleteBaseline();
         return back()->with('status', 'Baseline SHA-256 berhasil dihapus.');
     }
 
-    public function deleteSuspiciousFile(Request $request, PasakServerSecurityService $service): RedirectResponse
+    public function deleteSuspiciousFile(Request $request, PasaxServerSecurityService $service): RedirectResponse
     {
         $request->validate(['path' => ['required', 'string']]);
         $res = $service->deleteSuspiciousFile($request->input('path'));
@@ -303,7 +303,7 @@ class KeamananController extends Controller
 
     public function releaseLockout(int $id): RedirectResponse
     {
-        PasakLoginAttempt::where('id', $id)->delete();
+        PasaxLoginAttempt::where('id', $id)->delete();
         return back()->with('status', 'Kunci akun login berhasil dibuka kembali.');
     }
 
@@ -311,14 +311,14 @@ class KeamananController extends Controller
     public function sessions(Request $request): View
     {
         return view('keamanan.sessions', [
-            'sessions' => PasakUserLogin::query()->latest('id')->paginate(15),
-            'trustedIps' => PasakTrustedIp::query()->latest('id')->get(),
+            'sessions' => PasaxUserLogin::query()->latest('id')->paginate(15),
+            'trustedIps' => PasaxTrustedIp::query()->latest('id')->get(),
         ]);
     }
 
     public function destroySession(int $id): RedirectResponse
     {
-        $session = PasakUserLogin::findOrFail($id);
+        $session = PasaxUserLogin::findOrFail($id);
         $session->update(['logout_at' => now()]);
         return back()->with('status', "Sesi pengguna #{$id} berhasil diputus.");
     }
@@ -326,7 +326,7 @@ class KeamananController extends Controller
     public function storeTrustedIp(Request $request): RedirectResponse
     {
         $ip = $request->ip() ?: '127.0.0.1';
-        PasakTrustedIp::firstOrCreate([
+        PasaxTrustedIp::firstOrCreate([
             'user_id' => $request->user()?->id,
             'ip_address' => $ip,
         ], [
@@ -338,14 +338,14 @@ class KeamananController extends Controller
 
     public function destroyTrustedIp(int $id): RedirectResponse
     {
-        PasakTrustedIp::destroy($id);
+        PasaxTrustedIp::destroy($id);
         return back()->with('status', 'IP Terpercaya berhasil dihapus.');
     }
 
     // 7. TIKET PERMOHONAN BANDING UNBLOCK
     public function tickets(Request $request): View
     {
-        $tickets = PasakIpUnblockRequest::query()
+        $tickets = PasaxIpUnblockRequest::query()
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->query('status')))
             ->latest('id')
             ->paginate(15)
@@ -364,7 +364,7 @@ class KeamananController extends Controller
             'admin_notes' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $ticket = PasakIpUnblockRequest::findOrFail($id);
+        $ticket = PasaxIpUnblockRequest::findOrFail($id);
         $ticket->update([
             'status' => $validated['status'],
             'admin_notes' => $validated['admin_notes'] ?? null,
@@ -373,7 +373,7 @@ class KeamananController extends Controller
         ]);
 
         if ($validated['status'] === 'approved') {
-            Pasak::unblockIp($ticket->ip_address, $ticket->device_id);
+            Pasax::unblockIp($ticket->ip_address, $ticket->device_id);
         }
 
         $action = $validated['status'] === 'approved' ? 'disetujui dan blokir telah dibuka' : 'ditolak';
@@ -382,14 +382,14 @@ class KeamananController extends Controller
 
     public function destroyTicket(int $id): RedirectResponse
     {
-        PasakIpUnblockRequest::destroy($id);
+        PasaxIpUnblockRequest::destroy($id);
         return back()->with('status', 'Tiket permohonan berhasil dihapus.');
     }
 
     // 8. PENGATURAN WAF DINAMIS
     public function settings(Request $request): View
     {
-        return view('keamanan.settings', ['settings' => Pasak::getSettings()]);
+        return view('keamanan.settings', ['settings' => Pasax::getSettings()]);
     }
 
     public function updateSettings(Request $request): RedirectResponse
@@ -403,7 +403,7 @@ class KeamananController extends Controller
             'block_enforcement' => ['nullable', 'boolean'],
         ]);
 
-        Pasak::updateSettings($validated);
+        Pasax::updateSettings($validated);
         return back()->with('status', 'Pengaturan WAF berhasil diperbarui.');
     }
 }
@@ -423,15 +423,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Pasak\SecureMonitor\Facades\Pasak;
-use Pasak\SecureMonitor\Models\PasakAllowedIp;
-use Pasak\SecureMonitor\Models\PasakBlockedIp;
-use Pasak\SecureMonitor\Models\PasakIpUnblockRequest;
-use Pasak\SecureMonitor\Models\PasakLog;
-use Pasak\SecureMonitor\Models\PasakLoginAttempt;
-use Pasak\SecureMonitor\Models\PasakTrustedIp;
-use Pasak\SecureMonitor\Models\PasakUserLogin;
-use Pasak\SecureMonitor\Services\PasakServerSecurityService;
+use Pasax\SecureMonitor\Facades\Pasax;
+use Pasax\SecureMonitor\Models\PasaxAllowedIp;
+use Pasax\SecureMonitor\Models\PasaxBlockedIp;
+use Pasax\SecureMonitor\Models\PasaxIpUnblockRequest;
+use Pasax\SecureMonitor\Models\PasaxLog;
+use Pasax\SecureMonitor\Models\PasaxLoginAttempt;
+use Pasax\SecureMonitor\Models\PasaxTrustedIp;
+use Pasax\SecureMonitor\Models\PasaxUserLogin;
+use Pasax\SecureMonitor\Services\PasaxServerSecurityService;
 
 class KeamananController extends Controller
 {
@@ -443,12 +443,12 @@ class KeamananController extends Controller
             'message' => 'Status dan statistik operasional WAF.',
             'data' => [
                 'waf' => [
-                    'enabled' => Pasak::isEnabled(),
-                    'block_enforcement' => Pasak::isBlockEnforcementEnabled(),
+                    'enabled' => Pasax::isEnabled(),
+                    'block_enforcement' => Pasax::isBlockEnforcementEnabled(),
                 ],
-                'stats' => Pasak::stats(),
-                'level_breakdown' => Pasak::levelBreakdown(24),
-                'top_attackers' => Pasak::topAttackers(5),
+                'stats' => Pasax::stats(),
+                'level_breakdown' => Pasax::levelBreakdown(24),
+                'top_attackers' => Pasax::topAttackers(5),
             ],
         ]);
     }
@@ -456,7 +456,7 @@ class KeamananController extends Controller
     // 2. Logs
     public function logs(Request $request): JsonResponse
     {
-        $logs = PasakLog::query()
+        $logs = PasaxLog::query()
             ->when($request->query('level'), fn ($q, $l) => $q->where('threat_level', $l))
             ->latest('id')
             ->paginate($request->integer('per_page', 20));
@@ -466,14 +466,14 @@ class KeamananController extends Controller
 
     public function clearLogs(): JsonResponse
     {
-        PasakLog::truncate();
+        PasaxLog::truncate();
         return response()->json(['success' => true, 'message' => 'Semua riwayat log ancaman WAF berhasil dibersihkan.']);
     }
 
     // 3. Blocked IPs
     public function blockedIps(): JsonResponse
     {
-        $items = PasakBlockedIp::query()->active()->latest('id')->get();
+        $items = PasaxBlockedIp::query()->active()->latest('id')->get();
         return response()->json(['success' => true, 'count' => $items->count(), 'data' => $items]);
     }
 
@@ -481,7 +481,7 @@ class KeamananController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => ['ip_address' => $ip, 'is_blocked' => Pasak::isBlocked($ip)],
+            'data' => ['ip_address' => $ip, 'is_blocked' => Pasax::isBlocked($ip)],
         ]);
     }
 
@@ -494,7 +494,7 @@ class KeamananController extends Controller
             'scope' => ['nullable', 'string', 'in:ip,device'],
         ]);
 
-        Pasak::blockIp(
+        Pasax::blockIp(
             ip: $validated['ip'],
             reason: $validated['reason'] ?? 'Diblokir manual via REST API',
             durationHours: ! empty($validated['hours']) ? (int) $validated['hours'] : null,
@@ -508,18 +508,18 @@ class KeamananController extends Controller
 
     public function unblockIp(string $ip): JsonResponse
     {
-        $unblocked = Pasak::unblockIp($ip);
+        $unblocked = Pasax::unblockIp($ip);
         return response()->json([
             'success' => true,
             'message' => $unblocked ? "Blokir untuk IP {$ip} berhasil dibuka." : 'IP tidak ditemukan.',
-            'data' => ['is_blocked' => Pasak::isBlocked($ip)],
+            'data' => ['is_blocked' => Pasax::isBlocked($ip)],
         ]);
     }
 
     // 4. Allowed IPs (Whitelist)
     public function allowedIps(): JsonResponse
     {
-        $items = PasakAllowedIp::query()->latest('id')->get();
+        $items = PasaxAllowedIp::query()->latest('id')->get();
         return response()->json(['success' => true, 'count' => $items->count(), 'data' => $items]);
     }
 
@@ -531,7 +531,7 @@ class KeamananController extends Controller
             'notes' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $item = PasakAllowedIp::create([
+        $item = PasaxAllowedIp::create([
             'ip_address' => $validated['ip_address'],
             'label' => $validated['label'] ?: 'Whitelist API',
             'notes' => $validated['notes'] ?? null,
@@ -544,12 +544,12 @@ class KeamananController extends Controller
 
     public function destroyAllowedIp(int $id): JsonResponse
     {
-        PasakAllowedIp::destroy($id);
+        PasaxAllowedIp::destroy($id);
         return response()->json(['success' => true, 'message' => "Whitelist #{$id} berhasil dihapus."]);
     }
 
     // 5. Server Security
-    public function serverReport(Request $request, PasakServerSecurityService $service): JsonResponse
+    public function serverReport(Request $request, PasaxServerSecurityService $service): JsonResponse
     {
         $force = $request->boolean('refresh', false);
         return response()->json([
@@ -561,7 +561,7 @@ class KeamananController extends Controller
         ]);
     }
 
-    public function createBaseline(PasakServerSecurityService $service): JsonResponse
+    public function createBaseline(PasaxServerSecurityService $service): JsonResponse
     {
         $result = $service->createBaseline();
         return response()->json([
@@ -581,8 +581,8 @@ class KeamananController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'sessions' => PasakUserLogin::query()->latest('id')->limit(50)->get(),
-                'trusted_ips' => PasakTrustedIp::query()->latest('id')->get(),
+                'sessions' => PasaxUserLogin::query()->latest('id')->limit(50)->get(),
+                'trusted_ips' => PasaxTrustedIp::query()->latest('id')->get(),
             ],
         ]);
     }
@@ -590,7 +590,7 @@ class KeamananController extends Controller
     public function storeTrustedIp(Request $request): JsonResponse
     {
         $ip = $request->ip() ?: '127.0.0.1';
-        $trusted = PasakTrustedIp::firstOrCreate([
+        $trusted = PasaxTrustedIp::firstOrCreate([
             'user_id' => $request->user()?->id,
             'ip_address' => $ip,
         ], [
@@ -603,7 +603,7 @@ class KeamananController extends Controller
     // 7. Tickets
     public function tickets(Request $request): JsonResponse
     {
-        $tickets = PasakIpUnblockRequest::query()
+        $tickets = PasaxIpUnblockRequest::query()
             ->when($request->query('status'), fn ($q, $s) => $q->where('status', $s))
             ->latest('id')
             ->paginate(15);
@@ -618,7 +618,7 @@ class KeamananController extends Controller
             'admin_notes' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $ticket = PasakIpUnblockRequest::findOrFail($id);
+        $ticket = PasaxIpUnblockRequest::findOrFail($id);
         $ticket->update([
             'status' => $validated['status'],
             'admin_notes' => $validated['admin_notes'] ?? null,
@@ -627,7 +627,7 @@ class KeamananController extends Controller
         ]);
 
         if ($validated['status'] === 'approved') {
-            Pasak::unblockIp($ticket->ip_address, $ticket->device_id);
+            Pasax::unblockIp($ticket->ip_address, $ticket->device_id);
         }
 
         return response()->json(['success' => true, 'message' => "Tiket #{$ticket->ticket_number} diperbarui.", 'data' => $ticket]);
@@ -636,7 +636,7 @@ class KeamananController extends Controller
     // 8. Settings
     public function settings(): JsonResponse
     {
-        return response()->json(['success' => true, 'data' => Pasak::getSettings()]);
+        return response()->json(['success' => true, 'data' => Pasax::getSettings()]);
     }
 
     public function updateSettings(Request $request): JsonResponse
@@ -650,7 +650,7 @@ class KeamananController extends Controller
             'block_enforcement' => ['nullable', 'boolean'],
         ]);
 
-        $updated = Pasak::updateSettings($validated);
+        $updated = Pasax::updateSettings($validated);
         return response()->json(['success' => true, 'message' => 'Pengaturan WAF berhasil diperbarui.', 'data' => $updated]);
     }
 }

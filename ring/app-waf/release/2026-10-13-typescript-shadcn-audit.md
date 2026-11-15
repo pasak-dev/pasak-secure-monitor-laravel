@@ -12,7 +12,7 @@
 - Varian lokal `outline/ghost/destructive/link/secondary` dipertahankan di
   `button.tsx`/`badge.tsx` (ditandai AWAS + aturan AGENTS.md).
 
-## Audit 4 tahap "Tanpa Pasak = Jebol"
+## Audit 4 tahap "Tanpa Pasax = Jebol"
 - Tahap 1 baseline → 2 recon → 3 injeksi → 4 webshell & vonis, dengan gerbang
   berurutan, stepper, skor, dan vonis final.
 - Simulasi IP penyerang (acak/tetap 🎲), preview live korban di kanan
@@ -38,7 +38,7 @@
 - Perbaikan CWD `DemoShellController` (`chdir(base_path())`) agar perintah
   jalan dari root aplikasi.
 - Perbaikan port: preview duplikat di `:5176` dimatikan (dev `:5175` tunggal).
-- Penanganan Sheet: `WrenchIcon`, penanganan per kerentanan (Pasak + aplikasi).
+- Penanganan Sheet: `WrenchIcon`, penanganan per kerentanan (Pasax + aplikasi).
 - AGENTS.md diselaraskan (struktur `.tsx`, aturan shadcn, AWAS overwrite).
 
 ## Verifikasi akhir

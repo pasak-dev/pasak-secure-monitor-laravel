@@ -1,42 +1,42 @@
 # 04. Model Database & Dynamic Decoupling
 
-Salah satu prinsip desain fundamental dari **`pasak-dev/secure-monitor`** adalah **Loose Coupling** (keterikatan longgar). Paket ini tidak pernah mengasumsikan model `User` bawaan Laravel atau nama tabel yang paten, melainkan menyelesaikan semuanya secara dinamis melalui konfigurasi.
+Salah satu prinsip desain fundamental dari **`pasax-dev/secure-monitor`** adalah **Loose Coupling** (keterikatan longgar). Paket ini tidak pernah mengasumsikan model `User` bawaan Laravel atau nama tabel yang paten, melainkan menyelesaikan semuanya secara dinamis melalui konfigurasi.
 
 ---
 
 ## 1. Konvensi Nama Tabel Dinamis
 
-Semua model Eloquent paket meng-override metode `getTable()` untuk membaca nama tabel dari konfigurasi `config/pasak.php` dengan default berawalan `pasak_`:
+Semua model Eloquent paket meng-override metode `getTable()` untuk membaca nama tabel dari konfigurasi `config/pasax.php` dengan default berawalan `pasax_`:
 
 ```php
 public function getTable(): string
 {
-    $configured = config('pasak.table_names.blocked_ips', 'pasak_blocked_ips');
+    $configured = config('pasax.table_names.blocked_ips', 'pasax_blocked_ips');
 
-    return static::resolvePasakTable('blocked_ips', $configured, 'blocked_ips', 'pasak_blocked_ips');
+    return static::resolvePasaxTable('blocked_ips', $configured, 'blocked_ips', 'pasax_blocked_ips');
 }
 ```
 
 Hal ini memungkinkan Anda mengubah nama tabel di berkas `.env` jika terdapat benturan nama (*table name conflict*) dengan aplikasi eksisting Anda:
 
 ```dotenv
-PASAK_BLOCKED_IPS_TABLE=pasak_blocked_ips
-PASAK_LOGS_TABLE=pasak_logs
-PASAK_LOGIN_ATTEMPTS_TABLE=pasak_login_attempts
-PASAK_IP_UNBLOCK_REQUESTS_TABLE=pasak_ip_unblock_requests
-PASAK_USER_LOGINS_TABLE=pasak_user_logins
-PASAK_TRUSTED_IPS_TABLE=pasak_trusted_ips
-PASAK_ALLOWED_IPS_TABLE=pasak_allowed_ips
+PASAX_BLOCKED_IPS_TABLE=pasax_blocked_ips
+PASAX_LOGS_TABLE=pasax_logs
+PASAX_LOGIN_ATTEMPTS_TABLE=pasax_login_attempts
+PASAX_IP_UNBLOCK_REQUESTS_TABLE=pasax_ip_unblock_requests
+PASAX_USER_LOGINS_TABLE=pasax_user_logins
+PASAX_TRUSTED_IPS_TABLE=pasax_trusted_ips
+PASAX_ALLOWED_IPS_TABLE=pasax_allowed_ips
 ```
 
 ---
 
 ## 2. Rincian Model Eloquent
 
-> **Kompatibilitas Penuh**: Model baru bernama `Pasak*` (`PasakBlockedIp`, `PasakLog`, `PasakLoginAttempt`, `PasakIpUnblockRequest`, `PasakUserLogin`, `PasakTrustedIp`, `PasakAllowedIp`, `PasakSetting`). Nama model lama (`BlockedIp`, `SecurityLog`, `LoginAttempt`, dll.) tetap disediakan sebagai class alias transparan sehingga proyek lama tidak terganggu.
+> **Kompatibilitas Penuh**: Model baru bernama `Pasax*` (`PasaxBlockedIp`, `PasaxLog`, `PasaxLoginAttempt`, `PasaxIpUnblockRequest`, `PasaxUserLogin`, `PasaxTrustedIp`, `PasaxAllowedIp`, `PasaxSetting`). Nama model lama (`BlockedIp`, `SecurityLog`, `LoginAttempt`, dll.) tetap disediakan sebagai class alias transparan sehingga proyek lama tidak terganggu.
 
-### A. `PasakBlockedIp` (Alias: `BlockedIp`) (`Pasak\SecureMonitor\Models\PasakBlockedIp`)
-Menyimpan data entitas yang sedang diblokir atau pernah diblokir. Default tabel: `pasak_blocked_ips`.
+### A. `PasaxBlockedIp` (Alias: `BlockedIp`) (`Pasax\SecureMonitor\Models\PasaxBlockedIp`)
+Menyimpan data entitas yang sedang diblokir atau pernah diblokir. Default tabel: `pasax_blocked_ips`.
 
 | Kolom | Tipe Data | Deskripsi |
 | :--- | :--- | :--- |
@@ -62,7 +62,7 @@ Menyimpan data entitas yang sedang diblokir atau pernah diblokir. Default tabel:
 
 ---
 
-### B. `SecurityLog` (`Pasak\SecureMonitor\Models\SecurityLog`)
+### B. `SecurityLog` (`Pasax\SecureMonitor\Models\SecurityLog`)
 Menyimpan rekam jejak setiap ancaman keamanan yang terdeteksi oleh WAF.
 
 | Kolom | Tipe Data | Deskripsi |
@@ -87,7 +87,7 @@ Menyimpan rekam jejak setiap ancaman keamanan yang terdeteksi oleh WAF.
 
 ---
 
-### C. `LoginAttempt` (`Pasak\SecureMonitor\Models\LoginAttempt`)
+### C. `LoginAttempt` (`Pasax\SecureMonitor\Models\LoginAttempt`)
 Melacak kegagalan otentikasi untuk mitigasi brute force bertingkat (*stepped lockout*).
 
 | Kolom | Tipe Data | Deskripsi |
@@ -103,7 +103,7 @@ Melacak kegagalan otentikasi untuk mitigasi brute force bertingkat (*stepped loc
 
 ---
 
-### D. `IpUnblockRequest` (`Pasak\SecureMonitor\Models\IpUnblockRequest`)
+### D. `IpUnblockRequest` (`Pasax\SecureMonitor\Models\IpUnblockRequest`)
 Menyimpan tiket banding yang diajukan oleh pengguna publik yang terblokir.
 
 | Kolom | Tipe Data | Deskripsi |
@@ -134,8 +134,8 @@ Menyimpan tiket banding yang diajukan oleh pengguna publik yang terblokir.
 
 ---
 
-### F. `PasakSetting` (`Pasak\SecureMonitor\Models\PasakSetting`)
-Menyimpan konfigurasi dinamis yang dikelola via **Dashboard Pasak → Pengaturan** (`/pasak/settings`) maupun API Admin. Default tabel: `pasak_settings`.
+### F. `PasaxSetting` (`Pasax\SecureMonitor\Models\PasaxSetting`)
+Menyimpan konfigurasi dinamis yang dikelola via **Dashboard Pasax → Pengaturan** (`/pasax/settings`) maupun API Admin. Default tabel: `pasax_settings`.
 
 | Kolom | Tipe Data | Deskripsi |
 | :--- | :--- | :--- |
@@ -146,23 +146,23 @@ Menyimpan konfigurasi dinamis yang dikelola via **Dashboard Pasak → Pengaturan
 | `created_at` | DateTime | Waktu pembuatan entri |
 | `updated_at` | DateTime | Waktu pembaruan terakhir |
 
-Entri default diisi otomatis oleh `PasakDefaultSettingsSeeder` saat `pasak:install --migrate` atau `pasak:upgrade`.
+Entri default diisi otomatis oleh `PasaxDefaultSettingsSeeder` saat `pasax:install --migrate` atau `pasax:upgrade`.
 
 ---
 
-## 3. Integrasi Trait `HasPasakSecurityRelations`
+## 3. Integrasi Trait `HasPasaxSecurityRelations`
 
-Untuk menghubungkan model `User` aplikasi Anda dengan model-model di atas, cukup gunakan trait `Pasak\SecureMonitor\Concerns\HasPasakSecurityRelations`:
+Untuk menghubungkan model `User` aplikasi Anda dengan model-model di atas, cukup gunakan trait `Pasax\SecureMonitor\Concerns\HasPasaxSecurityRelations`:
 
 ```php
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Pasak\SecureMonitor\Concerns\HasPasakSecurityRelations;
+use Pasax\SecureMonitor\Concerns\HasPasaxSecurityRelations;
 
 class User extends Authenticatable
 {
-    use HasPasakSecurityRelations;
+    use HasPasaxSecurityRelations;
 }
 ```
 
@@ -172,17 +172,17 @@ Metode yang tersedia:
 ```php
 $user = User::find(1);
 
-// Riwayat sesi login (HasMany ke PasakUserLogin)
+// Riwayat sesi login (HasMany ke PasaxUserLogin)
 $logins = $user->logins;
 
-// Daftar IP terpercaya (HasMany ke PasakTrustedIp)
+// Daftar IP terpercaya (HasMany ke PasaxTrustedIp)
 $trustedIps = $user->trustedIps;
 
-// Log keamanan yang terkait (HasMany ke PasakLog)
-$pasakLogs = $user->pasakLogs;
+// Log keamanan yang terkait (HasMany ke PasaxLog)
+$pasaxLogs = $user->pasaxLogs;
 $securityLogs = $user->securityLogs; // alias kompatibilitas
 
-// Allowlist IP yang didaftarkan (HasMany ke PasakAllowedIp)
+// Allowlist IP yang didaftarkan (HasMany ke PasaxAllowedIp)
 $allowedIps = $user->allowedIps;
 
 // Entri IP yang diblokir oleh admin ini

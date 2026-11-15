@@ -1,8 +1,8 @@
 <?php
 
-namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
+namespace Pasax\SecureMonitor\Http\Controllers\Dashboard;
 
 /**
- * Legacy alias for PasakThreatMapController.
+ * Legacy alias for PasaxThreatMapController.
  */
-class ThreatMapController extends PasakThreatMapController {}
+class ThreatMapController extends PasaxThreatMapController {}

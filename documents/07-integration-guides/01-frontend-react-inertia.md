@@ -1,6 +1,6 @@
 # 01. Integrasi Frontend React / Inertia
 
-Karena **`pasak-dev/secure-monitor`** dirancang secara **Headless (Pure REST API)**, Anda dapat membangun antarmuka dashboard keamanan dan penanganan error pemblokiran menggunakan React dan Inertia.js sesuai kebutuhan desain aplikasi Anda.
+Karena **`pasax-dev/secure-monitor`** dirancang secara **Headless (Pure REST API)**, Anda dapat membangun antarmuka dashboard keamanan dan penanganan error pemblokiran menggunakan React dan Inertia.js sesuai kebutuhan desain aplikasi Anda.
 
 ---
 
@@ -86,7 +86,7 @@ export const AppealTicketModal: React.FC<{
 
         try {
             const res = await axios.post(
-                "/api/pasak/unblock-tickets/submit",
+                "/api/pasax/unblock-tickets/submit",
                 {
                     ...form,
                     reason: `[Ref: ${data.reference_id}] ${form.reason}`,
@@ -204,7 +204,7 @@ export const AppealTicketModal: React.FC<{
 
 ## 3. Membangun Dashboard React Kustom via Headless REST API
 
-Dashboard bawaan Pasak adalah **Blade murni**. Bila aplikasi host Anda memakai React/Inertia dan membutuhkan panel monitoring dalam stack tersebut, bangun halaman kustom yang mengonsumsi **headless REST API** (`/api/security/*`) — seluruh operasi admin (logs, blocked-ips, server audit, sessions, tickets) tersedia sebagai endpoint JSON yang didokumentasikan di [REST API Reference](../../04-rest-api-reference/01-api-overview.md).
+Dashboard bawaan Pasax adalah **Blade murni**. Bila aplikasi host Anda memakai React/Inertia dan membutuhkan panel monitoring dalam stack tersebut, bangun halaman kustom yang mengonsumsi **headless REST API** (`/api/security/*`) — seluruh operasi admin (logs, blocked-ips, server audit, sessions, tickets) tersedia sebagai endpoint JSON yang didokumentasikan di [REST API Reference](../../04-rest-api-reference/01-api-overview.md).
 
 Contoh kerangka fetch (admin, memakai cookie sesi Laravel):
 
@@ -215,18 +215,18 @@ const res = await fetch('/api/security/logs?per_page=15', {
 const { data } = await res.json();
 ```
 
-> 🔒 Endpoint admin dilindungi middleware `auth` + `pasak.admin` (Gate `manage-pasak`).
+> 🔒 Endpoint admin dilindungi middleware `auth` + `pasax.admin` (Gate `manage-pasax`).
 
 ### Menambahkan Tautan di Sidebar
 
-Untuk memunculkan tautan ke panel Blade bawaan (`/pasak`) atau dashboard React kustom Anda, tambahkan item berikut ke `mainNavItems` pada `resources/js/components/app-sidebar.tsx`:
+Untuk memunculkan tautan ke panel Blade bawaan (`/pasax`) atau dashboard React kustom Anda, tambahkan item berikut ke `mainNavItems` pada `resources/js/components/app-sidebar.tsx`:
 
 ```tsx
 import { ShieldCheck } from 'lucide-react';
 
 {
     title: 'Security Monitor',
-    href: '/pasak',
+    href: '/pasax',
     icon: ShieldCheck,
 },
 ```

@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Services;
+namespace Pasax\SecureMonitor\Services;
 
 /**
- * Legacy alias for PasakServerSecurityService.
+ * Legacy alias for PasaxServerSecurityService.
  */
-class ServerSecurityService extends PasakServerSecurityService {}
+class ServerSecurityService extends PasaxServerSecurityService {}
 
-if (! class_exists('Pasak\SecureMonitor\Services\ServerSecurityService', false)) {
-    class_alias(PasakServerSecurityService::class, 'Pasak\SecureMonitor\Services\ServerSecurityService');
+if (! class_exists('Pasax\SecureMonitor\Services\ServerSecurityService', false)) {
+    class_alias(PasaxServerSecurityService::class, 'Pasax\SecureMonitor\Services\ServerSecurityService');
 }

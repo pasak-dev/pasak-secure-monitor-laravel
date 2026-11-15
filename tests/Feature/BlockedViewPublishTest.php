@@ -32,7 +32,7 @@ test('blocked view stub can be published using vendor publish tag', function () 
     }
 
     $this->artisan('vendor:publish', [
-        '--tag' => 'pasak-views',
+        '--tag' => 'pasax-views',
         '--force' => true,
     ])->assertSuccessful();
 
@@ -52,7 +52,7 @@ test('security install command publishes the default blocked view', function () 
         File::delete($path);
     }
 
-    $this->artisan('pasak:install', [
+    $this->artisan('pasax:install', [
         '--force' => true,
     ])->assertSuccessful();
 
@@ -66,7 +66,7 @@ test('security install command respects without-views option', function () {
         File::delete($path);
     }
 
-    $this->artisan('pasak:install', [
+    $this->artisan('pasax:install', [
         '--without-views' => true,
     ])->assertSuccessful();
 

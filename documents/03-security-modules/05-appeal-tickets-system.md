@@ -18,14 +18,14 @@ sequenceDiagram
 
     User->>WAF: Mengakses Aplikasi
     WAF-->>User: HTTP 403 (Menyertakan Reference ID & Link Banding)
-    User->>API: POST /api/pasak/unblock-tickets/submit (Nama, Email, Alasan)
+    User->>API: POST /api/pasax/unblock-tickets/submit (Nama, Email, Alasan)
     API-->>User: HTTP 201 (Nomor Tiket: TKT-XXXXXXXX)
     Note over User,API: Rate-limit: 1 tiket per IP per 30 menit
-    User->>API: GET /api/pasak/unblock-tickets/check/TKT-XXXXXXXX
+    User->>API: GET /api/pasax/unblock-tickets/check/TKT-XXXXXXXX
     API-->>User: Status: "pending"
-    Admin->>API: POST /api/pasak/unblock-tickets/{id}/respond (Action: approve)
+    Admin->>API: POST /api/pasax/unblock-tickets/{id}/respond (Action: approve)
     API->>WAF: Panggil unblockIp(ip, device_id)
-    User->>API: GET /api/pasak/unblock-tickets/check/TKT-XXXXXXXX
+    User->>API: GET /api/pasax/unblock-tickets/check/TKT-XXXXXXXX
     API-->>User: Status: "approved"
     User->>WAF: Mengakses Aplikasi Kembali (Sukses 200 OK)
 ```
@@ -50,9 +50,9 @@ Untuk mencegah formulir banding dijadikan sasaran spam atau DoS oleh bot penyera
 Administrator dapat mengelola tiket melalui panel admin atau API REST:
 
 1. **Melihat Antrean Tiket**:
-   `GET /api/pasak/unblock-tickets?status=pending`
+   `GET /api/pasax/unblock-tickets?status=pending`
 2. **Menyetujui Permohonan (Approve)**:
-   `POST /api/pasak/unblock-tickets/{id}/respond` dengan body:
+   `POST /api/pasax/unblock-tickets/{id}/respond` dengan body:
    ```json
    {
        "action": "approve",
@@ -62,6 +62,6 @@ Administrator dapat mengelola tiket melalui panel admin atau API REST:
    **Otomasi Sistem**:
    - Status tiket berubah menjadi `approved`.
    - Kolom `resolved_by` diisi ID administrator dan `resolved_at` dicatat.
-   - Sistem **secara otomatis memanggil `PasakService::unblockIp()`** untuk mencabut blokir pada IP/perangkat yang bersangkutan tanpa perlu tindakan manual tambahan.
+   - Sistem **secara otomatis memanggil `PasaxService::unblockIp()`** untuk mencabut blokir pada IP/perangkat yang bersangkutan tanpa perlu tindakan manual tambahan.
 3. **Menolak Permohonan (Reject)**:
    Body dengan `"action": "reject"` dan catatan penolakan. Blokir tetap aktif.

@@ -5,9 +5,9 @@ use Illuminate\Support\Facades\Route;
 
 afterEach(function () {
     $directories = [
-        resource_path('views/pages/pasak'),
-        resource_path('js/pages/pasak'),
-        resource_path('js/components/pasak'),
+        resource_path('views/pages/pasax'),
+        resource_path('js/pages/pasax'),
+        resource_path('js/components/pasax'),
     ];
 
     foreach ($directories as $directory) {
@@ -20,13 +20,13 @@ afterEach(function () {
 test(
     'dashboard is disabled by default so the package stays headless',
     function () {
-        expect(config('pasak.dashboard.enabled'))
+        expect(config('pasax.dashboard.enabled'))
             ->toBeFalse()
-            ->and(config('pasak.dashboard.driver'))
+            ->and(config('pasax.dashboard.driver'))
             ->toBe('blade')
-            ->and(config('pasak.dashboard.prefix'))
-            ->toBe('pasak')
-            ->and(config('pasak.dashboard.middleware'))
+            ->and(config('pasax.dashboard.prefix'))
+            ->toBe('pasax')
+            ->and(config('pasax.dashboard.middleware'))
             ->toContain('auth');
     },
 );
@@ -34,7 +34,7 @@ test(
 test(
     'plain views tag publishes the blade monitoring views',
     function () {
-        $directory = resource_path('views/pages/pasak');
+        $directory = resource_path('views/pages/pasax');
 
         if (File::isDirectory($directory)) {
             File::deleteDirectory($directory);
@@ -67,16 +67,16 @@ test(
 );
 
 test(
-    'pasak dashboard tag publishes the blade views and configuration',
+    'pasax dashboard tag publishes the blade views and configuration',
     function () {
-        $directory = resource_path('views/pages/pasak');
+        $directory = resource_path('views/pages/pasax');
 
         if (File::isDirectory($directory)) {
             File::deleteDirectory($directory);
         }
 
         $this->artisan('vendor:publish', [
-            '--tag' => 'pasak-dashboard',
+            '--tag' => 'pasax-web',
             '--force' => true,
         ])->assertSuccessful();
 
@@ -87,29 +87,29 @@ test(
 test(
     'blade dashboard routes are gated behind authentication',
     function () {
-        $routes = File::get(__DIR__.'/../../routes/pasak-dashboard-blade.php');
+        $routes = File::get(__DIR__.'/../../routes/pasax-web-blade.php');
 
         expect($routes)
-            ->toContain('pasak.dashboard.middleware')
+            ->toContain('pasax.dashboard.middleware')
             ->and($routes)
             ->toContain('OverviewController::class')
             ->and($routes)
-            ->toContain('pasak.dashboard.');
+            ->toContain('pasax.dashboard.');
 
-        expect(Route::has('pasak.dashboard.overview'))->toBeFalse();
+        expect(Route::has('pasax.dashboard.overview'))->toBeFalse();
     },
 );
 
 test(
     'security install command can publish the dashboard with the with-dashboard flag',
     function () {
-        $directory = resource_path('views/pages/pasak');
+        $directory = resource_path('views/pages/pasax');
 
         if (File::isDirectory($directory)) {
             File::deleteDirectory($directory);
         }
 
-        $this->artisan('pasak:install', [
+        $this->artisan('pasax:install', [
             '--force' => true,
             '--with-dashboard' => true,
             '--without-nginx' => true,
@@ -124,16 +124,16 @@ test(
 test(
     'install with dashboard removes react leftovers so only blade exists',
     function () {
-        $bladeDir = resource_path('views/pages/pasak');
-        $tsxDir = resource_path('js/pages/pasak');
-        $componentsDir = resource_path('js/components/pasak');
+        $bladeDir = resource_path('views/pages/pasax');
+        $tsxDir = resource_path('js/pages/pasax');
+        $componentsDir = resource_path('js/components/pasax');
 
         File::makeDirectory($tsxDir, 0755, true, true);
         File::makeDirectory($componentsDir, 0755, true, true);
         File::put($tsxDir.'/stale.tsx', 'stale');
         File::put($componentsDir.'/stale.tsx', 'stale');
 
-        $this->artisan('pasak:install', [
+        $this->artisan('pasax:install', [
             '--force' => true,
             '--with-dashboard' => true,
             '--without-nginx' => true,
@@ -150,15 +150,15 @@ test(
 test(
     'install with api-only removes the dashboard views',
     function () {
-        $bladeDir = resource_path('views/pages/pasak');
-        $tsxDir = resource_path('js/pages/pasak');
+        $bladeDir = resource_path('views/pages/pasax');
+        $tsxDir = resource_path('js/pages/pasax');
 
         File::makeDirectory($bladeDir, 0755, true, true);
         File::makeDirectory($tsxDir, 0755, true, true);
         File::put($bladeDir.'/stale.blade.php', 'stale');
         File::put($tsxDir.'/stale.tsx', 'stale');
 
-        $this->artisan('pasak:install', [
+        $this->artisan('pasax:install', [
             '--force' => true,
             '--api-only' => true,
             '--without-nginx' => true,
@@ -174,11 +174,11 @@ test(
 test(
     'install with dashboard publishes blade-only web routes without inertia or livewire',
     function () {
-        $webRouteFile = base_path('routes/pasak.php');
+        $webRouteFile = base_path('routes/pasax.php');
         @unlink($webRouteFile);
 
         try {
-            $this->artisan('pasak:install', [
+            $this->artisan('pasax:install', [
                 '--force' => true,
                 '--with-dashboard' => true,
                 '--without-nginx' => true,
@@ -189,7 +189,7 @@ test(
             $routes = File::get($webRouteFile);
 
             expect($routes)->toContain('OverviewController::class')
-                ->and($routes)->toContain('resources/views/pages/pasak')
+                ->and($routes)->toContain('resources/views/pages/pasax')
                 ->and($routes)->not->toContain('Inertia\Inertia::class')
                 ->and($routes)->not->toContain('Livewire\Livewire::class')
                 ->and($routes)->not->toContain('Route::livewire');

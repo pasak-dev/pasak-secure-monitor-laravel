@@ -1,13 +1,13 @@
-# Pasak (Bulwark)
+# Pasax (Bulwark)
 
-[![Run Tests](https://github.com/pasak-dev/pasak-secure-monitor-laravel/actions/workflows/run-tests.yml/badge.svg)](https://github.com/pasak-dev/pasak-secure-monitor-laravel/actions/workflows/run-tests.yml)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/pasak-dev/secure-monitor.svg)](https://packagist.org/packages/pasak-dev/secure-monitor)
-[![Total Downloads](https://img.shields.io/packagist/dt/pasak-dev/secure-monitor.svg)](https://packagist.org/packages/pasak-dev/secure-monitor)
+[![Run Tests](https://github.com/pasax-dev/pasax-secure-monitor-laravel/actions/workflows/run-tests.yml/badge.svg)](https://github.com/pasax-dev/pasax-secure-monitor-laravel/actions/workflows/run-tests.yml)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/pasax-dev/secure-monitor.svg)](https://packagist.org/packages/pasax-dev/secure-monitor)
+[![Total Downloads](https://img.shields.io/packagist/dt/pasax-dev/secure-monitor.svg)](https://packagist.org/packages/pasax-dev/secure-monitor)
 [![PHP Version](https://img.shields.io/badge/php-%5E8.2%20%7C%20%5E8.3%20%7C%20%5E8.4%20%7C%20%5E8.5-blue.svg)](https://www.php.net/supported-versions.php)
 [![Laravel Version](https://img.shields.io/badge/laravel-%5E10.0%20%7C%20%5E11.0%20%7C%20%5E12.0%20%7C%20%5E13.0-red.svg)](https://laravel.com/docs/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**Pasak** (Bulwark) adalah paket keamanan komprehensif (_Self-Hosted WAF & Threat Engine_) berbasis **Headless REST API** untuk ekosistem Laravel. Paket ini murni PHP Composer library (Zero-NPM / standar Spatie) yang dirancang khusus untuk memproteksi aplikasi web internal dari serangan siber tingkat lanjut, injeksi payload pentest, eksploitasi webshell, dan brute force tanpa mengikat aplikasi ke template frontend tertentu.
+**Pasax** (Bulwark) adalah paket keamanan komprehensif (_Self-Hosted WAF & Threat Engine_) berbasis **Headless REST API** untuk ekosistem Laravel. Paket ini murni PHP Composer library (Zero-NPM / standar Spatie) yang dirancang khusus untuk memproteksi aplikasi web internal dari serangan siber tingkat lanjut, injeksi payload pentest, eksploitasi webshell, dan brute force tanpa mengikat aplikasi ke template frontend tertentu.
 
 > 📚 **Portal Dokumentasi Resmi Lengkap**: Tersedia 25 bab dokumentasi mendalam di direktori [`documents/`](./documents/README.md) serta portal interaktif offline [`documents/index.html`](./documents/index.html).
 
@@ -43,7 +43,7 @@
 
 7. **Headless & Arsitektur Terkopel Longgar**:
     - 100% REST API JSON murni.
-    - Model `User` dan nama tabel database sepenuhnya dapat dikonfigurasi melalui `config/pasak.php`.
+    - Model `User` dan nama tabel database sepenuhnya dapat dikonfigurasi melalui `config/pasax.php`.
     - Trait `HasSecurityRelations` untuk kemudahan integrasi relasi Eloquent.
 
 ---
@@ -60,35 +60,35 @@
 ### 1. Pasang Paket via Composer
 
 ```bash
-composer require pasak-dev/secure-monitor
+composer require pasax-dev/secure-monitor
 ```
 
 > **Penting — gunakan versi rilis lengkap.** Menjalankan
-> `composer require pasak-dev/secure-monitor` memastikan `composer.json` mencatat rilis
-> patch yang akurat. Perintah `php artisan pasak:install` dan `pasak:upgrade` secara otomatis
+> `composer require pasax-dev/secure-monitor` memastikan `composer.json` mencatat rilis
+> patch yang akurat. Perintah `php artisan pasax:install` dan `pasax:upgrade` secara otomatis
 > menyelaraskan constraint di `composer.json` dari constraint ringkas atau wildcard (seperti `*` atau `^1.2`)
 > ke versi rilis SemVer lengkap terbaru (`^1.2.1`). Jangan gunakan `@dev` di produksi.
 
-### 2. Publikasikan Aset Otomatis (`pasak:install`)
+### 2. Publikasikan Aset Otomatis (`pasax:install`)
 
 Gunakan perintah satu langkah untuk mempublikasikan dan menerapkan seluruh aset keamanan secara otomatis:
 
 ```bash
-php artisan pasak:install
+php artisan pasax:install
 ```
 
 #### Aset yang Didapat Pengguna Setelah Menjalankan Perintah Ini:
 
-1. 📄 **`config/pasak.php`**: Konfigurasi lengkap WAF, ambang batas blokir, IP whitelist, stepped login lockout, dan log scanner.
-2. 🗄️ **`database/migrations/` (migrasi konsolidasi + tambahan)**: Menyiapkan tabel `blocked_ips`, `pasak_logs`, `login_attempts`, `ip_unblock_requests`, `user_logins`, `trusted_ips`, `settings`, dan `allowed_ips` (otomatis memindahkan data dari tabel lama `security_logs`/`security_settings` bila ada).
+1. 📄 **`config/pasax.php`**: Konfigurasi lengkap WAF, ambang batas blokir, IP whitelist, stepped login lockout, dan log scanner.
+2. 🗄️ **`database/migrations/` (migrasi konsolidasi + tambahan)**: Menyiapkan tabel `blocked_ips`, `pasax_logs`, `login_attempts`, `ip_unblock_requests`, `user_logins`, `trusted_ips`, `settings`, dan `allowed_ips` (otomatis memindahkan data dari tabel lama `security_logs`/`security_settings` bila ada).
 3. 🌐 **`nginx.conf`**: Konfigurasi produksi Nginx Hardened WAF (Dual-zone rate limit, single-PHP execution `/index.php`, storage sandboxing).
 4. 🛡️ **`public/.htaccess`**: Hardening web server Apache & LiteSpeed (Blokir dotfiles, double extension `.php.jpg`, file backup dump `.sql`, dan matikan directory listing).
     > _Catatan Keamanan_: Jika `public/.htaccess` lama sudah ada, installer otomatis membuat cadangan `public/.htaccess.backup-YYYYMMDD_HHMMSS` dan menyisipkan aturan keamanan di bawah tanpa merusak rewrite rules aplikasi Anda.
 5. 🚫 **`resources/views/errors/blocked.blade.php`**: Halaman 403 default yang menampilkan alasan blokir, kode referensi, dan **formulir banding** yang terhubung langsung ke endpoint publik tiket banding. Dapat disesuaikan sesuai branding aplikasi Anda.
-6. ⚙️ **Penyematan Variabel ke `.env` & `.env.example`**: Installer secara otomatis menambahkan blok konfigurasi lengkap disertai **penjelasan fungsi berbahasa Indonesia** untuk setiap variabel (`PASAK_*`) langsung ke berkas `.env` dan `.env.example` aplikasi Anda.
-7. 📊 **(Opsional) Dashboard monitoring Blade murni**: Tampilan monitoring `resources/views/pages/pasak/` (100% Pure PHP, jalan di semua aplikasi Laravel tanpa Livewire/Inertia/Vue), wajib login. Dipublikasikan bila Anda menambahkan opsi `--with-dashboard` (alias: `--with-plain`, `--with-blade`).
+6. ⚙️ **Penyematan Variabel ke `.env` & `.env.example`**: Installer secara otomatis menambahkan blok konfigurasi lengkap disertai **penjelasan fungsi berbahasa Indonesia** untuk setiap variabel (`PASAX_*`) langsung ke berkas `.env` dan `.env.example` aplikasi Anda.
+7. 📊 **(Opsional) Dashboard monitoring Blade murni**: Tampilan monitoring `resources/views/pages/pasax/` (100% Pure PHP, jalan di semua aplikasi Laravel tanpa Livewire/Inertia/Vue), wajib login. Dipublikasikan bila Anda menambahkan opsi `--with-dashboard` (alias: `--with-plain`, `--with-blade`).
 
-#### Opsi Perintah `pasak:install`:
+#### Opsi Perintah `pasax:install`:
 
 | Opsi                     | Keterangan                                                                                         |
 | :----------------------- | :------------------------------------------------------------------------------------------------- |
@@ -100,7 +100,7 @@ php artisan pasak:install
 | `--without-env`          | Melewatkan penyematan variabel konfigurasi ke berkas `.env` dan `.env.example`.                    |
 | `--without-user-trait`   | Melewatkan penyematan trait `HasSecurityRelations` ke model User.                                  |
 | `--without-middleware`   | Melewatkan pendaftaran middleware WAF ke `bootstrap/app.php` / Kernel.                             |
-| `--without-routes`       | Melewatkan publikasi berkas `routes/pasak.php` dan `routes/pasak-api.php`.                          |
+| `--without-routes`       | Melewatkan publikasi berkas `routes/pasax.php` dan `routes/pasax-service.php`.                          |
 | `--without-api`          | Melewatkan pemasangan dukungan API (tanpa rute API).                                               |
 | `--without-web`          | Melewatkan pemasangan dashboard web (tanpa halaman/dashboard).                                     |
 | `--api-only`             | Jalan pintas: API ya, Web tidak (inti + keamanan saja).                                            |
@@ -113,25 +113,25 @@ php artisan pasak:install
 
 ```bash
 # 1. Konfigurasi saja
-php artisan vendor:publish --tag=pasak-config
+php artisan vendor:publish --tag=pasax-config
 
 # 2. Migrasi database saja
-php artisan vendor:publish --tag=pasak-migrations
+php artisan vendor:publish --tag=pasax-migrations
 
 # 3. Konfigurasi server Nginx saja
-php artisan vendor:publish --tag=pasak-nginx
+php artisan vendor:publish --tag=pasax-nginx
 
 # 4. Aturan hardening Apache .htaccess saja
-php artisan vendor:publish --tag=pasak-htaccess --force
+php artisan vendor:publish --tag=pasax-htaccess --force
 
 # 5. Halaman blokir default saja
-php artisan vendor:publish --tag=pasak-views --force
+php artisan vendor:publish --tag=pasax-views --force
 
 # 6. Dashboard monitoring Blade murni
 php artisan vendor:publish --tag=plain-views --force
 
 # 7. Seluruh aset sekaligus
-php artisan vendor:publish --tag=pasak-all --force
+php artisan vendor:publish --tag=pasax-all --force
 ```
 
 Jalankan migrasi database:
@@ -142,29 +142,29 @@ php artisan migrate
 
 ### 3. Dashboard Monitoring Blade Murni
 
-Paket ini menyediakan panel monitoring siap pakai **Blade murni (100% Pure PHP, tanpa Livewire/Inertia/Vue)** yang dapat dipublikasikan langsung ke dalam aplikasi host di prefix **`/pasak`** — berjalan di semua aplikasi Laravel:
+Paket ini menyediakan panel monitoring siap pakai **Blade murni (100% Pure PHP, tanpa Livewire/Inertia/Vue)** yang dapat dipublikasikan langsung ke dalam aplikasi host di prefix **`/pasax`** — berjalan di semua aplikasi Laravel:
 
 ```bash
-php artisan pasak:install --with-dashboard
+php artisan pasax:install --with-dashboard
 # atau: php artisan vendor:publish --tag=plain-views
 ```
 
-Perintah tersebut menyalin **`resources/views/pages/pasak/*.blade.php`** (tujuh halaman + layout dengan CSS/JS mandiri, tanpa build step) beserta konfigurasi `dashboard` pada `config/pasak.php`.
+Perintah tersebut menyalin **`resources/views/pages/pasax/*.blade.php`** (tujuh halaman + layout dengan CSS/JS mandiri, tanpa build step) beserta konfigurasi `dashboard` pada `config/pasax.php`.
 
 #### Mengaktifkan Dashboard & Wajib Login
 
 Konfigurasi di `.env`:
 
 ```dotenv
-PASAK_DASHBOARD_ENABLED=true
-PASAK_DASHBOARD_PREFIX=pasak
+PASAX_DASHBOARD_ENABLED=true
+PASAX_DASHBOARD_PREFIX=pasax
 # Batasi hanya role admin (default: false, cukup login pengguna)
-PASAK_DASHBOARD_ADMIN_ONLY=false
+PASAX_DASHBOARD_ADMIN_ONLY=false
 ```
 
-Setelah diaktifkan, panel dapat diakses pada **`/pasak`**.
+Setelah diaktifkan, panel dapat diakses pada **`/pasax`**.
 
-> 🔒 **Wajib Login**: Seluruh halaman dashboard di prefix `/pasak` dilindungi oleh middleware `web` + `auth`. Pengguna yang belum login otomatis diarahkan ke halaman login. Jika Anda ingin membatasi dashboard khusus untuk administrator, set `PASAK_DASHBOARD_ADMIN_ONLY=true` di berkas `.env`.
+> 🔒 **Wajib Login**: Seluruh halaman dashboard di prefix `/pasax` dilindungi oleh middleware `web` + `auth`. Pengguna yang belum login otomatis diarahkan ke halaman login. Jika Anda ingin membatasi dashboard khusus untuk administrator, set `PASAX_DASHBOARD_ADMIN_ONLY=true` di berkas `.env`.
 
 ---
 
@@ -178,7 +178,7 @@ Buka model `App\Models\User.php` dan tambahkan trait `HasSecurityRelations`:
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Pasak\SecureMonitor\Concerns\HasSecurityRelations;
+use Pasax\SecureMonitor\Concerns\HasSecurityRelations;
 
 class User extends Authenticatable
 {
@@ -213,20 +213,20 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         // Daftarkan penegakan WAF dan blokir IP secara global
-        $middleware->append(\Pasak\SecureMonitor\Http\Middleware\BlockIpAddress::class);
-        $middleware->append(\Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats::class);
+        $middleware->append(\Pasax\SecureMonitor\Http\Middleware\BlockIpAddress::class);
+        $middleware->append(\Pasax\SecureMonitor\Http\Middleware\DetectSecurityThreats::class);
 
         // Lacak aktivitas sesi pengguna di grup web
         $middleware->web(append: [
-            \Pasak\SecureMonitor\Http\Middleware\TrackUserActivity::class,
+            \Pasax\SecureMonitor\Http\Middleware\TrackUserActivity::class,
         ]);
 
         // Alias middleware keamanan
         $middleware->alias([
-            'pasak.block' => \Pasak\SecureMonitor\Http\Middleware\BlockIpAddress::class,
-            'pasak.detect' => \Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats::class,
-            'pasak.admin' => \Pasak\SecureMonitor\Http\Middleware\EnsureSecurityAdmin::class,
-            'pasak.activity' => \Pasak\SecureMonitor\Http\Middleware\TrackUserActivity::class,
+            'pasax.block' => \Pasax\SecureMonitor\Http\Middleware\BlockIpAddress::class,
+            'pasax.detect' => \Pasax\SecureMonitor\Http\Middleware\DetectSecurityThreats::class,
+            'pasax.admin' => \Pasax\SecureMonitor\Http\Middleware\EnsureSecurityAdmin::class,
+            'pasax.activity' => \Pasax\SecureMonitor\Http\Middleware\TrackUserActivity::class,
         ]);
     })
     ->create();
@@ -237,22 +237,22 @@ return Application::configure(basePath: dirname(__DIR__))
 ```php
 protected $middleware = [
     // ...
-    \Pasak\SecureMonitor\Http\Middleware\BlockIpAddress::class,
-    \Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats::class,
+    \Pasax\SecureMonitor\Http\Middleware\BlockIpAddress::class,
+    \Pasax\SecureMonitor\Http\Middleware\DetectSecurityThreats::class,
 ];
 
 protected $middlewareGroups = [
     'web' => [
         // ...
-        \Pasak\SecureMonitor\Http\Middleware\TrackUserActivity::class,
+        \Pasax\SecureMonitor\Http\Middleware\TrackUserActivity::class,
     ],
 ];
 
 protected $middlewareAliases = [
-    'pasak.block' => \Pasak\SecureMonitor\Http\Middleware\BlockIpAddress::class,
-    'pasak.detect' => \Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats::class,
-    'pasak.admin' => \Pasak\SecureMonitor\Http\Middleware\EnsureSecurityAdmin::class,
-    'pasak.activity' => \Pasak\SecureMonitor\Http\Middleware\TrackUserActivity::class,
+    'pasax.block' => \Pasax\SecureMonitor\Http\Middleware\BlockIpAddress::class,
+    'pasax.detect' => \Pasax\SecureMonitor\Http\Middleware\DetectSecurityThreats::class,
+    'pasax.admin' => \Pasax\SecureMonitor\Http\Middleware\EnsureSecurityAdmin::class,
+    'pasax.activity' => \Pasax\SecureMonitor\Http\Middleware\TrackUserActivity::class,
 ];
 ```
 
@@ -260,19 +260,19 @@ protected $middlewareAliases = [
 
 ## 📡 Headless REST API Reference
 
-Semua rute REST API didaftarkan secara default dengan prefix `/api/pasak` (dapat diubah melalui `config('pasak.routes.prefix')`).
+Semua rute REST API didaftarkan secara default dengan prefix `/api/pasax` (dapat diubah melalui `config('pasax.routes.prefix')`).
 
 ### 1. Endpoint Publik
 
 | Metode | URI                                                  | Deskripsi                                                                                   |
 | :----- | :--------------------------------------------------- | :------------------------------------------------------------------------------------------ |
-| `POST` | `/api/pasak/unblock-tickets/submit`               | Mengirim permohonan banding pembukaan blokir IP/perangkat                                   |
-| `GET`  | `/api/pasak/unblock-tickets/check/{ticketNumber}` | Memeriksa status tiket permohonan banding                                                   |
+| `POST` | `/api/pasax/unblock-tickets/submit`               | Mengirim permohonan banding pembukaan blokir IP/perangkat                                   |
+| `GET`  | `/api/pasax/unblock-tickets/check/{ticketNumber}` | Memeriksa status tiket permohonan banding                                                   |
 
 #### Contoh Payload Pengajuan Tiket:
 
 ```json
-POST /api/pasak/unblock-tickets/submit
+POST /api/pasax/unblock-tickets/submit
 {
   "name": "Budi Santoso",
   "email": "budi@example.com",
@@ -287,55 +287,55 @@ POST /api/pasak/unblock-tickets/submit
 
 | Metode | URI                                    | Deskripsi                                                   |
 | :----- | :------------------------------------- | :---------------------------------------------------------- |
-| `POST` | `/api/pasak/trusted-ips/save-my-ip` | Menyimpan alamat IP saat ini sebagai IP terpercaya pengguna |
+| `POST` | `/api/pasax/trusted-ips/save-my-ip` | Menyimpan alamat IP saat ini sebagai IP terpercaya pengguna |
 
-### 3. Endpoint Manajemen Admin (`auth` + `pasak.admin`)
+### 3. Endpoint Manajemen Admin (`auth` + `pasax.admin`)
 
 #### Log Keamanan & Analitik Serangan
 
 | Metode   | URI                        | Deskripsi                                                                                     |
 | :------- | :------------------------- | :-------------------------------------------------------------------------------------------- |
-| `GET`    | `/api/pasak/logs`       | Mendapatkan log ancaman (paginasi, filter event/level/tanggal, statistik, tren 24 jam/7 hari) |
-| `DELETE` | `/api/pasak/logs/clear` | Mengosongkan seluruh log audit keamanan                                                       |
-| `DELETE` | `/api/pasak/logs/{id}`  | Menghapus satu entri log keamanan tertentu                                                    |
+| `GET`    | `/api/pasax/logs`       | Mendapatkan log ancaman (paginasi, filter event/level/tanggal, statistik, tren 24 jam/7 hari) |
+| `DELETE` | `/api/pasax/logs/clear` | Mengosongkan seluruh log audit keamanan                                                       |
+| `DELETE` | `/api/pasax/logs/{id}`  | Menghapus satu entri log keamanan tertentu                                                    |
 
 #### Daftar Blokir IP & Perangkat
 
 | Metode   | URI                                     | Deskripsi                                                 |
 | :------- | :-------------------------------------- | :-------------------------------------------------------- |
-| `GET`    | `/api/pasak/blocked-ips`             | Mendapatkan daftar IP yang diblokir (aktif & kedaluwarsa) |
-| `POST`   | `/api/pasak/blocked-ips`             | Memblokir IP atau perangkat secara manual                 |
-| `GET`    | `/api/pasak/blocked-ips/{id}`        | Melihat detail data pemblokiran                           |
-| `PATCH`  | `/api/pasak/blocked-ips/{id}/toggle` | Mengaktifkan / menonaktifkan status blokir                |
-| `DELETE` | `/api/pasak/blocked-ips/{id}`        | Mencabut blokir dan menghapus entri                       |
+| `GET`    | `/api/pasax/blocked-ips`             | Mendapatkan daftar IP yang diblokir (aktif & kedaluwarsa) |
+| `POST`   | `/api/pasax/blocked-ips`             | Memblokir IP atau perangkat secara manual                 |
+| `GET`    | `/api/pasax/blocked-ips/{id}`        | Melihat detail data pemblokiran                           |
+| `PATCH`  | `/api/pasax/blocked-ips/{id}/toggle` | Mengaktifkan / menonaktifkan status blokir                |
+| `DELETE` | `/api/pasax/blocked-ips/{id}`        | Mencabut blokir dan menghapus entri                       |
 
 #### Audit Server & Integritas Berkas
 
 | Metode   | URI                                     | Deskripsi                                                      |
 | :------- | :-------------------------------------- | :------------------------------------------------------------- |
-| `GET`    | `/api/pasak/server`                  | Laporan komprehensif audit keamanan server & integritas berkas |
-| `POST`   | `/api/pasak/server/baseline`         | Membuat baseline hash SHA-256 berkas aplikasi baru             |
-| `DELETE` | `/api/pasak/server/baseline`         | Menghapus baseline integritas                                  |
-| `DELETE` | `/api/pasak/server/suspicious-files` | Menghapus berkas mencurigakan/webshell yang terdeteksi         |
-| `DELETE` | `/api/pasak/lockouts/{id}`           | Membuka kunci akun yang terkena lockout login berjenjang       |
+| `GET`    | `/api/pasax/server`                  | Laporan komprehensif audit keamanan server & integritas berkas |
+| `POST`   | `/api/pasax/server/baseline`         | Membuat baseline hash SHA-256 berkas aplikasi baru             |
+| `DELETE` | `/api/pasax/server/baseline`         | Menghapus baseline integritas                                  |
+| `DELETE` | `/api/pasax/server/suspicious-files` | Menghapus berkas mencurigakan/webshell yang terdeteksi         |
+| `DELETE` | `/api/pasax/lockouts/{id}`           | Membuka kunci akun yang terkena lockout login berjenjang       |
 
 #### Sesi Pengguna & IP Terpercaya
 
 | Metode   | URI                                               | Deskripsi                                       |
 | :------- | :------------------------------------------------ | :---------------------------------------------- |
-| `GET`    | `/api/pasak/user-sessions`                     | Riwayat sesi login seluruh pengguna             |
-| `GET`    | `/api/pasak/user-sessions/realtime`            | Daftar pengguna yang aktif secara real-time     |
-| `DELETE` | `/api/pasak/user-sessions/{id}`                | Menghapus log sesi pengguna                     |
-| `DELETE` | `/api/pasak/user-sessions/session/{sessionId}` | Memutus sesi pengguna tertentu (_force logout_) |
-| `DELETE` | `/api/pasak/trusted-ips/{id}`                  | Menghapus IP dari daftar terpercaya             |
+| `GET`    | `/api/pasax/user-sessions`                     | Riwayat sesi login seluruh pengguna             |
+| `GET`    | `/api/pasax/user-sessions/realtime`            | Daftar pengguna yang aktif secara real-time     |
+| `DELETE` | `/api/pasax/user-sessions/{id}`                | Menghapus log sesi pengguna                     |
+| `DELETE` | `/api/pasax/user-sessions/session/{sessionId}` | Memutus sesi pengguna tertentu (_force logout_) |
+| `DELETE` | `/api/pasax/trusted-ips/{id}`                  | Menghapus IP dari daftar terpercaya             |
 
 #### Pengelolaan Tiket Banding
 
 | Metode   | URI                                          | Deskripsi                                               |
 | :------- | :------------------------------------------- | :------------------------------------------------------ |
-| `GET`    | `/api/pasak/unblock-tickets`              | Daftar seluruh tiket permohonan banding                 |
-| `POST`   | `/api/pasak/unblock-tickets/{id}/respond` | Menyetujui atau menolak tiket (buka blokir & whitelist) |
-| `DELETE` | `/api/pasak/unblock-tickets/{id}`         | Menghapus arsip tiket                                   |
+| `GET`    | `/api/pasax/unblock-tickets`              | Daftar seluruh tiket permohonan banding                 |
+| `POST`   | `/api/pasax/unblock-tickets/{id}/respond` | Menyetujui atau menolak tiket (buka blokir & whitelist) |
+| `DELETE` | `/api/pasax/unblock-tickets/{id}`         | Menghapus arsip tiket                                   |
 
 ---
 
@@ -348,7 +348,7 @@ Paket menyediakan aturan validasi siap pakai untuk request form aplikasi Anda:
 Memvalidasi unggahan gambar dan mencegah serangan _polyglot image_ (gambar JPEG/PNG sah yang diinjeksi kode `<?php`), ekstensi ganda berbahaya, dan SVG bereksekusi JavaScript/XSS:
 
 ```php
-use Pasak\SecureMonitor\Rules\SafeImageFile;
+use Pasax\SecureMonitor\Rules\SafeImageFile;
 
 $request->validate([
     'avatar' => ['required', 'file', new SafeImageFile(maxKilobytes: 2048)],
@@ -360,7 +360,7 @@ $request->validate([
 Memvalidasi string path aset gambar/ikon agar terbebas dari path traversal, probe direktori sensitif, dan file `.htaccess`:
 
 ```php
-use Pasak\SecureMonitor\Rules\SafeAssetPath;
+use Pasax\SecureMonitor\Rules\SafeAssetPath;
 
 $request->validate([
     'icon_path' => ['required', 'string', new SafeAssetPath],
@@ -373,72 +373,72 @@ $request->validate([
 
 Paket ini menyertakan perintah Artisan lengkap untuk otomasi di server produksi:
 
-### 1. Pemindaian Log Akses Web Server (`pasak:scan-logs`)
+### 1. Pemindaian Log Akses Web Server (`pasax:scan-logs`)
 
 Memindai berkas log Apache atau Nginx, mendeteksi pola serangan, dan memblokir IP penyerang secara otomatis:
 
 ```bash
 # Pratinjau temuan tanpa memodifikasi database (dry-run)
-php artisan pasak:scan-logs --file=/var/log/nginx/access.log --dry-run
+php artisan pasax:scan-logs --file=/var/log/nginx/access.log --dry-run
 
 # Pindai, impor ke log keamanan, dan blokir IP penyerang zero-tolerance
-php artisan pasak:scan-logs --file=/var/log/nginx/access.log --import --block
+php artisan pasax:scan-logs --file=/var/log/nginx/access.log --import --block
 ```
 
-### 2. Manajemen Baseline Integritas Berkas (`pasak:baseline`)
+### 2. Manajemen Baseline Integritas Berkas (`pasax:baseline`)
 
 ```bash
 # Menampilkan status verifikasi integritas berkas
-php artisan pasak:baseline
+php artisan pasax:baseline
 
 # Membuat baseline baru
-php artisan pasak:baseline --create
+php artisan pasax:baseline --create
 
 # Menghapus baseline
-php artisan pasak:baseline --destroy
+php artisan pasax:baseline --destroy
 ```
 
-### 3. Membuka Blokir IP (`pasak:unblock-ip`)
+### 3. Membuka Blokir IP (`pasax:unblock-ip`)
 
 ```bash
-php artisan pasak:unblock-ip 198.51.100.50
+php artisan pasax:unblock-ip 198.51.100.50
 ```
 
-### 4. Pembersihan Log Kedaluwarsa (`pasak:prune-logs`)
+### 4. Pembersihan Log Kedaluwarsa (`pasax:prune-logs`)
 
 ```bash
 # Menghapus log lebih tua dari durasi retensi terkonfigurasi (default: 90 hari)
-php artisan pasak:prune-logs
+php artisan pasax:prune-logs
 
 # Menghapus log lebih tua dari 30 hari
-php artisan pasak:prune-logs --days=30
+php artisan pasax:prune-logs --days=30
 ```
 
-### 5. Pembersihan Data Residu Pentest (`pasak:purge-injected-data`)
+### 5. Pembersihan Data Residu Pentest (`pasax:purge-injected-data`)
 
 Mendeteksi dan menghapus payload injeksi sisa pengujian keamanan (seperti `{{7*7}}`, `.htaccess`, path traversal) dari tabel aplikasi:
 
 ```bash
 # Mode simulasi (hanya mendeteksi data tercemar)
-php artisan pasak:purge-injected-data
+php artisan pasax:purge-injected-data
 
 # Hapus data yang terindikasi
-php artisan pasak:purge-injected-data --force
+php artisan pasax:purge-injected-data --force
 ```
 
-### 6. Pembaruan Otomatis & Sinkronisasi Komponen (`pasak:upgrade`)
+### 6. Pembaruan Otomatis & Sinkronisasi Komponen (`pasax:upgrade`)
 
 Periksa rilis terbaru dan perbarui package sekaligus sinkronkan migrasi database, rute kustom, dan tampilan dashboard monitoring:
 
 ```bash
 # Periksa apakah ada versi baru yang tersedia
-php artisan pasak:upgrade --check
+php artisan pasax:upgrade --check
 
 # Jalankan proses upgrade dan sinkronisasi otomatis
-php artisan pasak:upgrade
+php artisan pasax:upgrade
 
 # Sinkronkan aset lokal tanpa composer update
-php artisan pasak:upgrade --no-composer --force
+php artisan pasax:upgrade --no-composer --force
 ```
 
 > **Notifikasi Otomatis**: Saat menjalankan `php artisan serve` atau `composer run dev`, sistem akan secara otomatis memeriksa versi terbaru dari Packagist/GitHub secara non-blocking dan menampilkan notifikasi di terminal konsol bila versi baru telah dirilis.
@@ -451,7 +451,7 @@ Paket ini menyertakan template konfigurasi hardened siap pakai untuk web server 
 
 ### 1. Nginx Hardened WAF (`nginx.conf`)
 
-Diterbitkan via `php artisan vendor:publish --tag=pasak-nginx`:
+Diterbitkan via `php artisan vendor:publish --tag=pasax-nginx`:
 
 1. **Dua Zona Rate Limiting Terpisah**:
     - `auth_limit`: 5 request/menit (burst 5) untuk endpoint sensitif (`/login`, `/register`, `/forgot-password`, `/reset-password`, dll.).
@@ -469,7 +469,7 @@ Diterbitkan via `php artisan vendor:publish --tag=pasak-nginx`:
 
 ### 2. Apache & LiteSpeed Hardened (`public/.htaccess`)
 
-Diterapkan otomatis via `php artisan pasak:install` atau `php artisan vendor:publish --tag=pasak-htaccess`:
+Diterapkan otomatis via `php artisan pasax:install` atau `php artisan vendor:publish --tag=pasax-htaccess`:
 
 1. **Front Controller & Authorization Header**: Routing Laravel standar, pemeliharaan header `Authorization` dan `X-XSRF-Token`.
 2. **Blokir Akses ke Dotfile (`<FilesMatch "^\.">`)**:
@@ -503,7 +503,7 @@ Hasil uji: **115 passed (478 assertions)** 100% Passed mencakup:
 - `DeviceLevelBlockingTest`: Uji isolasi perangkat pada IP publik bersama.
 - `ServerSecurityTest`: Audit keamanan lingkungan, baseline SHA-256, dan webshell sanitizer.
 - `AccessLogScanTest`: Uji parser streaming log akses web server.
-- `PasakTest`: Uji ambang batas auto-blocking dan rotasi log.
+- `PasaxTest`: Uji ambang batas auto-blocking dan rotasi log.
 - `NginxPublishTest`: Verifikasi publikasi konfigurasi hardened virtual host Nginx.
 - `HtaccessPublishTest`: Verifikasi publikasi, penambahan aturan otomatis, dan pencadangan `.htaccess` Apache.
 

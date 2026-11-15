@@ -1,14 +1,14 @@
 <?php
 
-namespace Pasak\SecureMonitor\Tests\Feature;
+namespace Pasax\SecureMonitor\Tests\Feature;
 
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
-use Pasak\SecureMonitor\Services\VersionCheckService;
-use Pasak\SecureMonitor\Tests\TestCase;
+use Pasax\SecureMonitor\Services\VersionCheckService;
+use Pasax\SecureMonitor\Tests\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -33,9 +33,9 @@ class SecurityVersionCheckTest extends TestCase
     public function test_can_fetch_and_cache_latest_version_from_packagist(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'https://repo.packagist.org/p2/pasax-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/secure-monitor' => [
+                    'pasax-dev/secure-monitor' => [
                         ['version' => 'v99.0.0'],
                         ['version' => 'v2.0.7'],
                     ],
@@ -54,8 +54,8 @@ class SecurityVersionCheckTest extends TestCase
     public function test_fallback_to_github_if_packagist_fails(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response(null, 500),
-            'https://api.github.com/repos/pasak-dev/pasak-secure-monitor-laravel/tags' => Http::response([
+            'https://repo.packagist.org/p2/pasax-dev/secure-monitor.json' => Http::response(null, 500),
+            'https://api.github.com/repos/pasax-dev/pasax-secure-monitor-laravel/tags' => Http::response([
                 ['name' => 'v98.5.1'],
                 ['name' => 'v2.0.7'],
             ], 200),
@@ -71,9 +71,9 @@ class SecurityVersionCheckTest extends TestCase
     public function test_notifies_user_in_terminal_when_update_available(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'https://repo.packagist.org/p2/pasax-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/secure-monitor' => [
+                    'pasax-dev/secure-monitor' => [
                         ['version' => 'v99.9.9'],
                     ],
                 ],
@@ -88,7 +88,7 @@ class SecurityVersionCheckTest extends TestCase
 
         $this->assertStringContainsString('Pembaruan Tersedia', $content);
         $this->assertStringContainsString('v99.9.9', $content);
-        $this->assertStringContainsString('php artisan pasak:upgrade', $content);
+        $this->assertStringContainsString('php artisan pasax:upgrade', $content);
 
         // Notifikasi hanya dicetak satu kali per proses
         $secondOutput = new BufferedOutput;
@@ -98,12 +98,12 @@ class SecurityVersionCheckTest extends TestCase
 
     public function test_respects_version_check_disabled_configuration(): void
     {
-        config(['pasak.version_check.enabled' => false]);
+        config(['pasax.version_check.enabled' => false]);
 
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'https://repo.packagist.org/p2/pasax-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/secure-monitor' => [
+                    'pasax-dev/secure-monitor' => [
                         ['version' => 'v99.9.9'],
                     ],
                 ],
@@ -120,9 +120,9 @@ class SecurityVersionCheckTest extends TestCase
     public function test_command_starting_triggers_notice_on_serve_and_dev(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'https://repo.packagist.org/p2/pasax-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/secure-monitor' => [
+                    'pasax-dev/secure-monitor' => [
                         ['version' => 'v99.0.0'],
                     ],
                 ],
@@ -136,15 +136,15 @@ class SecurityVersionCheckTest extends TestCase
 
         $content = $output->fetch();
         $this->assertStringContainsString('Pembaruan Tersedia', $content);
-        $this->assertStringContainsString('php artisan pasak:upgrade', $content);
+        $this->assertStringContainsString('php artisan pasax:upgrade', $content);
     }
 
     public function test_command_starting_does_not_trigger_notice_on_other_commands(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'https://repo.packagist.org/p2/pasax-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/secure-monitor' => [
+                    'pasax-dev/secure-monitor' => [
                         ['version' => 'v99.0.0'],
                     ],
                 ],
@@ -162,35 +162,35 @@ class SecurityVersionCheckTest extends TestCase
     public function test_upgrade_command_check_option(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'https://repo.packagist.org/p2/pasax-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/secure-monitor' => [
+                    'pasax-dev/secure-monitor' => [
                         ['version' => 'v99.1.0'],
                     ],
                 ],
             ], 200),
         ]);
 
-        $this->artisan('pasak:upgrade', ['--check' => true])
+        $this->artisan('pasax:upgrade', ['--check' => true])
             ->expectsOutputToContain('Tersedia pembaruan: v')
             ->expectsOutputToContain('v99.1.0')
-            ->expectsOutputToContain('php artisan pasak:upgrade')
+            ->expectsOutputToContain('php artisan pasax:upgrade')
             ->assertExitCode(0);
     }
 
     public function test_upgrade_command_sync_only_with_no_composer(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'https://repo.packagist.org/p2/pasax-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/secure-monitor' => [
+                    'pasax-dev/secure-monitor' => [
                         ['version' => 'v2.0.8'],
                     ],
                 ],
             ], 200),
         ]);
 
-        $this->artisan('pasak:upgrade', [
+        $this->artisan('pasax:upgrade', [
             '--force' => true,
             '--no-composer' => true,
         ])
@@ -203,16 +203,16 @@ class SecurityVersionCheckTest extends TestCase
     public function test_upgrade_command_alias_upgrae_works(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'https://repo.packagist.org/p2/pasax-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/secure-monitor' => [
+                    'pasax-dev/secure-monitor' => [
                         ['version' => 'v2.0.8'],
                     ],
                 ],
             ], 200),
         ]);
 
-        $this->artisan('pasak:upgrae', [
+        $this->artisan('pasax:upgrae', [
             '--force' => true,
             '--no-composer' => true,
             '--no-migrate' => true,
@@ -224,25 +224,25 @@ class SecurityVersionCheckTest extends TestCase
 
     public function test_upgrade_force_cleans_obsolete_files_and_injects_sentinel_config(): void
     {
-        $tempDir = sys_get_temp_dir().'/pasak_test_upgrade_clean_'.uniqid();
+        $tempDir = sys_get_temp_dir().'/pasax_test_upgrade_clean_'.uniqid();
         File::makeDirectory($tempDir.'/config', 0755, true);
         File::makeDirectory($tempDir.'/routes', 0755, true);
         File::makeDirectory($tempDir.'/resources/views/pages/security', 0755, true);
         $this->app->setBasePath($tempDir);
 
-        File::put($tempDir.'/routes/pasak.php', '<?php // current');
+        File::put($tempDir.'/routes/pasax.php', '<?php // current');
         File::put($tempDir.'/routes/security.php', '<?php // obsolete');
-        File::put($tempDir.'/config/pasak.php', "<?php
+        File::put($tempDir.'/config/pasax.php', "<?php
 
 return [
     'dashboard' => [
-        'prefix' => 'pasak',
+        'prefix' => 'pasax',
     ],
 ];
 ");
         File::put($tempDir.'/config/security.php', '<?php // obsolete');
 
-        $this->artisan('pasak:upgrade', [
+        $this->artisan('pasax:upgrade', [
             '--force' => true,
             '--no-composer' => true,
             '--no-migrate' => true,
@@ -250,9 +250,9 @@ return [
 
         $this->assertFileDoesNotExist($tempDir.'/routes/security.php');
         $this->assertFileDoesNotExist($tempDir.'/config/security.php');
-        $this->assertFileExists($tempDir.'/routes/pasak.php');
+        $this->assertFileExists($tempDir.'/routes/pasax.php');
 
-        $configContent = File::get($tempDir.'/config/pasak.php');
+        $configContent = File::get($tempDir.'/config/pasax.php');
         $this->assertStringContainsString("'sentinel' =>", $configContent);
         $this->assertStringContainsString("'threat_map' =>", $configContent);
 
@@ -262,9 +262,9 @@ return [
     public function test_upgrade_notifies_user_to_run_php_artisan_migrate_when_new_migration_exists(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'https://repo.packagist.org/p2/pasax-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/secure-monitor' => [
+                    'pasax-dev/secure-monitor' => [
                         ['version' => 'v2.0.8'],
                     ],
                 ],
@@ -276,7 +276,7 @@ return [
         File::put($dummyMigration, '<?php use Illuminate\\Database\\Migrations\\Migration; return new class extends Migration {};');
 
         try {
-            $this->artisan('pasak:upgrade', [
+            $this->artisan('pasax:upgrade', [
                 '--force' => true,
                 '--no-composer' => true,
                 '--no-migrate' => true,
@@ -293,9 +293,9 @@ return [
     public function test_upgrade_notifies_user_to_run_php_artisan_migrate_after_migrations_applied(): void
     {
         Http::fake([
-            'https://repo.packagist.org/p2/pasak-dev/secure-monitor.json' => Http::response([
+            'https://repo.packagist.org/p2/pasax-dev/secure-monitor.json' => Http::response([
                 'packages' => [
-                    'pasak-dev/secure-monitor' => [
+                    'pasax-dev/secure-monitor' => [
                         ['version' => 'v2.0.8'],
                     ],
                 ],
@@ -307,7 +307,7 @@ return [
         File::put($dummyMigration, '<?php use Illuminate\\Database\\Migrations\\Migration; return new class extends Migration { public function up(): void {} public function down(): void {} };');
 
         try {
-            $this->artisan('pasak:upgrade', [
+            $this->artisan('pasax:upgrade', [
                 '--force' => true,
                 '--no-composer' => true,
             ])

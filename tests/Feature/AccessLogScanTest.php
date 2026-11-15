@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\File;
-use Pasak\SecureMonitor\Models\BlockedIp;
-use Pasak\SecureMonitor\Models\SecurityLog;
+use Pasax\SecureMonitor\Models\BlockedIp;
+use Pasax\SecureMonitor\Models\SecurityLog;
 
 function accessLogLine(
     string $ip = '104.207.74.38',
@@ -24,8 +24,8 @@ function sampleLogFile(array $lines): string
 }
 
 beforeEach(function () {
-    config()->set('pasak.enabled', true);
-    config()->set('pasak.block_enforcement', true);
+    config()->set('pasax.enabled', true);
+    config()->set('pasax.block_enforcement', true);
 });
 
 test('scanner detects zero tolerance signatures and path traversals in access logs', function () {
@@ -34,7 +34,7 @@ test('scanner detects zero tolerance signatures and path traversals in access lo
         accessLogLine(request: 'POST /login HTTP/1.1', status: 200),
     ]);
 
-    $this->artisan('pasak:scan-logs', [
+    $this->artisan('pasax:scan-logs', [
         '--file' => [$file],
         '--import' => true,
         '--block' => true,
@@ -56,7 +56,7 @@ test('scanner detects zero tolerance signatures and path traversals in access lo
 test('the dry run changes nothing', function () {
     $file = sampleLogFile([accessLogLine(request: 'GET /.env HTTP/1.1', status: 403)]);
 
-    $this->artisan('pasak:scan-logs', [
+    $this->artisan('pasax:scan-logs', [
         '--file' => [$file],
         '--import' => true,
         '--block' => true,
@@ -70,7 +70,7 @@ test('the dry run changes nothing', function () {
 test('json output contains the parsed findings', function () {
     $file = sampleLogFile([accessLogLine(request: 'GET /.git/config HTTP/1.1', status: 403)]);
 
-    $this->artisan('pasak:scan-logs', ['--file' => [$file], '--json' => true])
+    $this->artisan('pasax:scan-logs', ['--file' => [$file], '--json' => true])
         ->expectsOutputToContain('"ip": "104.207.74.38"')
         ->assertSuccessful();
 });

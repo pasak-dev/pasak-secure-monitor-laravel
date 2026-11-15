@@ -1,12 +1,12 @@
 # 03. Pembuatan Aturan Kustom & Whitelist Subnet
 
-Setiap aplikasi memiliki karakteristik lalu lintas data dan kebutuhan bisnis yang unik. Anda dapat memperluas aturan deteksi WAF bawaan dan mengonfigurasi pengecualian subnet (CIDR) secara fleksibel melalui `config/pasak.php`.
+Setiap aplikasi memiliki karakteristik lalu lintas data dan kebutuhan bisnis yang unik. Anda dapat memperluas aturan deteksi WAF bawaan dan mengonfigurasi pengecualian subnet (CIDR) secara fleksibel melalui `config/pasax.php`.
 
 ---
 
 ## 1. Mendaftarkan Signature Zero-Tolerance Kustom
 
-Jika aplikasi Anda memiliki endpoint khusus yang kerap diserang atau Anda ingin langsung memblokir percobaan pencarian berkas tertentu (misalnya probe terhadap `/wp-login.php` atau `/actuator/health`), tambahkan ke array `instant_block.signatures` di `config/pasak.php`:
+Jika aplikasi Anda memiliki endpoint khusus yang kerap diserang atau Anda ingin langsung memblokir percobaan pencarian berkas tertentu (misalnya probe terhadap `/wp-login.php` atau `/actuator/health`), tambahkan ke array `instant_block.signatures` di `config/pasax.php`:
 
 ```php
 'instant_block' => [
@@ -67,11 +67,11 @@ Untuk memastikan bahwa alamat IP jaringan kantor lokal, VPN kantor, atau subnet 
 ### Pada Berkas `.env`:
 Pisahkan beberapa IP atau subnet dengan tanda koma:
 ```dotenv
-PASAK_IP_WHITELIST="127.0.0.1,::1,192.168.1.0/24,10.10.0.0/16,103.11.22.33"
+PASAX_IP_WHITELIST="127.0.0.1,::1,192.168.1.0/24,10.10.0.0/16,103.11.22.33"
 ```
 
 ### Logika Pemeriksaan Subnet:
-Metode `PasakService::isWhitelisted()` secara otomatis mendukung:
+Metode `PasaxService::isWhitelisted()` secara otomatis mendukung:
 1. **Pencocokan Alamat IPv4 / IPv6 Tunggal**: (misal `127.0.0.1`, `::1`).
 2. **Pencocokan Notasi CIDR Subnet**: (misal `192.168.1.0/24` atau `10.0.0.0/8`).
 3. **Pencocokan Wildcard Sederhana**: (misal `192.168.*.*`).

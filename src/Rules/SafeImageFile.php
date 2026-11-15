@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Rules;
+namespace Pasax\SecureMonitor\Rules;
 
 /**
- * Legacy alias for PasakSafeImageFile.
+ * Legacy alias for PasaxSafeImageFile.
  */
-class SafeImageFile extends PasakSafeImageFile {}
+class SafeImageFile extends PasaxSafeImageFile {}
 
-if (! class_exists('Pasak\SecureMonitor\Rules\SafeImageFile', false)) {
-    class_alias(PasakSafeImageFile::class, 'Pasak\SecureMonitor\Rules\SafeImageFile');
+if (! class_exists('Pasax\SecureMonitor\Rules\SafeImageFile', false)) {
+    class_alias(PasaxSafeImageFile::class, 'Pasax\SecureMonitor\Rules\SafeImageFile');
 }

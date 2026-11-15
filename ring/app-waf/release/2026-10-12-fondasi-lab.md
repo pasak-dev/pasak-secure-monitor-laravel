@@ -2,21 +2,21 @@
 
 ## Lab pengujian (`ring/`)
 - `ring/app-waf/` — konsol uji (pindahan utuh berikut semua kerja sebelumnya).
-- `ring/pasak-no/` (`:8000`) — Laravel murni + harness demo: `trustProxies`,
+- `ring/pasax-no/` (`:8000`) — Laravel murni + harness demo: `trustProxies`,
   middleware `LogWafHits`, endpoint `/upload` sengaja rentan, beranda
   "Status Keamanan — TIDAK AMAN" + Monitor Serangan Masuk live.
-- `ring/pasak-yes/` (`:8001`) — Pasak terinstall via path-repo
-  (`pasak-dev/secure-monitor:@dev`), `pasak:install --lang=id`, migrate, mode blokir
+- `ring/pasax-yes/` (`:8001`) — Pasax terinstall via path-repo
+  (`pasax-dev/secure-monitor:@dev`), `pasax:install --lang=id`, migrate, mode blokir
   aktif (`INSTANT_BLOCK`, `BLOCK_SUSPICIOUS`, `AUTO_BLOCK`).
 - `/ring` masuk `.gitignore` + `export-ignore` (tak ikut rilis paket).
 
-## Tab "⚠️ Tanpa Pasak = Jebol" (awal)
-- 8 rekomendasi serangan 100% lolos tanpa Pasak + badge LOLOS/DIBLOKIR.
+## Tab "⚠️ Tanpa Pasax = Jebol" (awal)
+- 8 rekomendasi serangan 100% lolos tanpa Pasax + badge LOLOS/DIBLOKIR.
 - Kolom URL target (default `http://localhost:8000`), badge method GET/POST.
 - Tombol "Buktikan" per kartu: dampak + bukti dari body respons asli.
 - Panel verifikasi skor X/8 + saran tindak lanjut.
 
-## Demo & konten (pasak-no/pasak-yes)
+## Demo & konten (pasax-no/pasax-yes)
 - Seeder user (`admin@demo.test`/`password` + 5 factory) + CRUD kontak
   lengkap (migrasi, model, controller, Blade, avatar upload 2MB).
 - Endpoint `/shell/{name}` (lab saja): eksekusi berkas unggahan (?cmd=)

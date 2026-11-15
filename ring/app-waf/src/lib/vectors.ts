@@ -1,7 +1,7 @@
 /**
- * Katalog serangan lengkap untuk package `pasak-dev/secure-monitor` (Bulwark).
+ * Katalog serangan lengkap untuk package `pasax-dev/secure-monitor` (Bulwark).
  *
- * Setiap grup di bawah memetakan 1:1 ke signature di `config/pasak.php`:
+ * Setiap grup di bawah memetakan 1:1 ke signature di `config/pasax.php`:
  *  - instant_block.signatures: webshell_upload, unsafe_filename, webshell_path,
  *    path_traversal_public, config_probe, ssti, php_injection, scanner_ua,
  *    secret_exposure, log4shell_jndi
@@ -51,7 +51,7 @@ export interface AttackVector {
   advice: AttackAdvice;
 }
 
-/** Kelompok vektor yang memetakan 1:1 ke signature config/pasak.php. */
+/** Kelompok vektor yang memetakan 1:1 ke signature config/pasax.php. */
 export interface AttackVectorGroup {
   group: string;
   items: AttackVector[];

@@ -12,7 +12,7 @@
 | Styling | Tailwind CSS | v4 | Utility-first; komponen `@/components/ui` (shadcn/base-ui) |
 | Ikon | lucide-react | v1 | Seluruh ikon UI |
 | State lab | Zustand | v5 (+ `persist`) | `src/stores/lab.ts`: target, IP penyerang, ID perangkat |
-| Target lab | Laravel 13 / PHP 8.5 | — | `pasak-no` (:8000, rentan) & `pasak-yes` (:8001, ber-WAF) |
+| Target lab | Laravel 13 / PHP 8.5 | — | `pasax-no` (:8000, rentan) & `pasax-yes` (:8001, ber-WAF) |
 
 Alur data: **React → `POST /api/proxy` (Vite middleware, `server/proxy.js`,
 `node:http` langsung) → target Laravel** dengan header IP/perangkat virtual.

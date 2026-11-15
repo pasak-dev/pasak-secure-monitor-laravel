@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Models;
+namespace Pasax\SecureMonitor\Models;
 
 /**
- * @deprecated Use PasakTrustedIp instead.
+ * @deprecated Use PasaxTrustedIp instead.
  *
- * @mixin PasakTrustedIp
+ * @mixin PasaxTrustedIp
  */
 if (! class_exists(TrustedIp::class, false)) {
-    class_alias(PasakTrustedIp::class, TrustedIp::class);
+    class_alias(PasaxTrustedIp::class, TrustedIp::class);
 }

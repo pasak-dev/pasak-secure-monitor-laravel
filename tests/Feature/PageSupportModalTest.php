@@ -8,19 +8,19 @@ use Illuminate\Support\ViewErrorBag;
 
 function publishBladeSupportModal(): string
 {
-    $target = resource_path('views/pages/pasak');
+    $target = resource_path('views/pages/pasax');
     if (! File::isDirectory($target)) {
         File::copyDirectory(
-            dirname(__DIR__, 2).'/stubs/blade/pages/pasak',
+            dirname(__DIR__, 2).'/stubs/blade/pages/pasax',
             $target
         );
     } else {
         File::copy(
-            dirname(__DIR__, 2).'/stubs/blade/pages/pasak/page-support-modal.blade.php',
+            dirname(__DIR__, 2).'/stubs/blade/pages/pasax/page-support-modal.blade.php',
             $target.'/page-support-modal.blade.php'
         );
         File::copy(
-            dirname(__DIR__, 2).'/stubs/blade/pages/pasak/blocked-ips.blade.php',
+            dirname(__DIR__, 2).'/stubs/blade/pages/pasax/blocked-ips.blade.php',
             $target.'/blocked-ips.blade.php'
         );
     }
@@ -40,7 +40,7 @@ function registerSupportModalDummyRoutes(): void
         'settings', 'settings.update',
         'threat-map', 'threat-map.feed',
     ] as $name) {
-        Route::any('/__pasak_support_'.$name, fn () => 'ok')->name('pasak.dashboard.'.$name);
+        Route::any('/__pasax_support_'.$name, fn () => 'ok')->name('pasax.dashboard.'.$name);
     }
 
     Route::getRoutes()->refreshNameLookups();
@@ -48,24 +48,24 @@ function registerSupportModalDummyRoutes(): void
 
 beforeEach(function () {
     app()->setLocale('id');
-    config()->set('pasak.dashboard.driver', 'blade');
+    config()->set('pasax.dashboard.driver', 'blade');
     publishBladeSupportModal();
     registerSupportModalDummyRoutes();
 });
 
 test('every registered page guide in support modal has complete bilingual sections', function () {
     $html = Blade::render(
-        '@extends("pages.pasak.layout") @section("page_support_key", "overview") @section("content") Test @endsection',
+        '@extends("pages.pasax.layout") @section("page_support_key", "overview") @section("content") Test @endsection',
         ['errors' => new ViewErrorBag]
     );
 
-    expect($html)->toContain('pasakPageSupportModal');
-    expect($html)->toContain('pasakSupportModalTitle');
-    expect($html)->toContain('pasakSwitchGuideLang');
+    expect($html)->toContain('pasaxPageSupportModal');
+    expect($html)->toContain('pasaxSupportModalTitle');
+    expect($html)->toContain('pasaxSwitchGuideLang');
 });
 
 test('support modal on blocked-ips page displays comprehensive purpose, metrics, and actions', function () {
-    $view = view('pages.pasak.blocked-ips', [
+    $view = view('pages.pasax.blocked-ips', [
         'stats' => ['total' => 25, 'active' => 7, 'permanent' => 3, 'hits' => 142],
         'filters' => [],
         'blocks' => new LengthAwarePaginator([], 0, 25),
@@ -103,14 +103,14 @@ test('support modal on blocked-ips page displays comprehensive purpose, metrics,
 test('support modal dynamically detects page from page_support_key section or url path', function () {
     // 1. Overview
     $htmlOverview = Blade::render(
-        '@extends("pages.pasak.layout") @section("page_support_key", "overview") @section("content") Test @endsection',
+        '@extends("pages.pasax.layout") @section("page_support_key", "overview") @section("content") Test @endsection',
         ['errors' => new ViewErrorBag]
     );
     expect($htmlOverview)->toContain('Ringkasan Keamanan (Security Overview)');
 
     // 2. Server Audit
     $htmlServer = Blade::render(
-        '@extends("pages.pasak.layout") @section("page_support_key", "server") @section("content") Test @endsection',
+        '@extends("pages.pasax.layout") @section("page_support_key", "server") @section("content") Test @endsection',
         ['errors' => new ViewErrorBag]
     );
     expect(str_contains($htmlServer, 'Keamanan Server &amp; Integritas Berkas') || str_contains($htmlServer, 'Keamanan Server & Integritas Berkas'))->toBeTrue();
@@ -118,7 +118,7 @@ test('support modal dynamically detects page from page_support_key section or ur
 
     // 3. User Sessions
     $htmlSessions = Blade::render(
-        '@extends("pages.pasak.layout") @section("page_support_key", "sessions") @section("content") Test @endsection',
+        '@extends("pages.pasax.layout") @section("page_support_key", "sessions") @section("content") Test @endsection',
         ['errors' => new ViewErrorBag]
     );
     expect(str_contains($htmlSessions, 'Sesi Pengguna &amp; Riwayat Login') || str_contains($htmlSessions, 'Sesi Pengguna & Riwayat Login'))->toBeTrue();
@@ -126,21 +126,21 @@ test('support modal dynamically detects page from page_support_key section or ur
 
     // 4. Allowed IPs
     $htmlAllowed = Blade::render(
-        '@extends("pages.pasak.layout") @section("page_support_key", "allowed-ips") @section("content") Test @endsection',
+        '@extends("pages.pasax.layout") @section("page_support_key", "allowed-ips") @section("content") Test @endsection',
         ['errors' => new ViewErrorBag]
     );
     expect($htmlAllowed)->toContain('Daftar IP Diizinkan (Allowlist / Whitelist)');
 
     // 5. Threat Map
     $htmlThreatMap = Blade::render(
-        '@extends("pages.pasak.layout") @section("page_support_key", "threat-map") @section("content") Test @endsection',
+        '@extends("pages.pasax.layout") @section("page_support_key", "threat-map") @section("content") Test @endsection',
         ['errors' => new ViewErrorBag]
     );
     expect($htmlThreatMap)->toContain('Peta Ancaman Siber Real-Time');
 
     // 6. Settings
     $htmlSettings = Blade::render(
-        '@extends("pages.pasak.layout") @section("page_support_key", "settings") @section("content") Test @endsection',
+        '@extends("pages.pasax.layout") @section("page_support_key", "settings") @section("content") Test @endsection',
         ['errors' => new ViewErrorBag]
     );
     expect(str_contains($htmlSettings, 'Pengaturan WAF &amp; Sensor Keamanan') || str_contains($htmlSettings, 'Pengaturan WAF & Sensor Keamanan'))->toBeTrue();

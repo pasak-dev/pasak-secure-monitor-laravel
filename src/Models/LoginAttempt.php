@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Models;
+namespace Pasax\SecureMonitor\Models;
 
 /**
- * @deprecated Use PasakLoginAttempt instead.
+ * @deprecated Use PasaxLoginAttempt instead.
  *
- * @mixin PasakLoginAttempt
+ * @mixin PasaxLoginAttempt
  */
 if (! class_exists(LoginAttempt::class, false)) {
-    class_alias(PasakLoginAttempt::class, LoginAttempt::class);
+    class_alias(PasaxLoginAttempt::class, LoginAttempt::class);
 }

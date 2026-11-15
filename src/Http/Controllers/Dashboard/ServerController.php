@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Http\Controllers\Dashboard;
+namespace Pasax\SecureMonitor\Http\Controllers\Dashboard;
 
 /**
- * Legacy alias for PasakServerController.
+ * Legacy alias for PasaxServerController.
  */
-class ServerController extends PasakServerController {}
+class ServerController extends PasaxServerController {}
 
-if (! class_exists('Pasak\\SecureMonitor\\Http\\Controllers\\Dashboard\\ServerController', false)) {
-    class_alias(PasakServerController::class, 'Pasak\\SecureMonitor\\Http\\Controllers\\Dashboard\\ServerController');
+if (! class_exists('Pasax\\SecureMonitor\\Http\\Controllers\\Dashboard\\ServerController', false)) {
+    class_alias(PasaxServerController::class, 'Pasax\\SecureMonitor\\Http\\Controllers\\Dashboard\\ServerController');
 }

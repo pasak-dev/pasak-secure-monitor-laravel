@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Support;
+namespace Pasax\SecureMonitor\Support;
 
 /**
- * Legacy alias for PasakTableResolver.
+ * Legacy alias for PasaxTableResolver.
  */
-class TableResolver extends PasakTableResolver {}
+class TableResolver extends PasaxTableResolver {}
 
-if (! class_exists('Pasak\SecureMonitor\Support\TableResolver', false)) {
-    class_alias(PasakTableResolver::class, 'Pasak\SecureMonitor\Support\TableResolver');
+if (! class_exists('Pasax\SecureMonitor\Support\TableResolver', false)) {
+    class_alias(PasaxTableResolver::class, 'Pasax\SecureMonitor\Support\TableResolver');
 }

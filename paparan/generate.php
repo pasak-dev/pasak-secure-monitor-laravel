@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Generator presentasi PowerPoint (.pptx) untuk
- * pasak-dev/secure-monitor (Bulwark).
+ * pasax-dev/secure-monitor (Bulwark).
  *
  * Tanpa dependensi eksternal — hanya memakai ekstensi PHP:
  *   - zip  (ZipArchive)
@@ -14,7 +14,7 @@ declare(strict_types=1);
  *   php paparan/generate.php
  */
 
-$outFile = __DIR__ . "/Pasak-Bulwark.pptx";
+$outFile = __DIR__ . "/Pasax-Bulwark.pptx";
 
 const SLIDE_W = 12192000; // 13.333 in (16:9)
 const SLIDE_H = 6858000; // 7.5 in
@@ -301,10 +301,10 @@ function contentSlide(array $s): string
 $slides = [
     [
         "kind" => "title",
-        "title" => "Pasak",
+        "title" => "Pasax",
         "subtitle" => "Bulwark — WAF & Threat Engine Headless untuk Laravel",
         "footer" =>
-            "pasak-dev/secure-monitor  ·  v1.0.6  ·  Lisensi MIT",
+            "pasax-dev/secure-monitor  ·  v1.0.6  ·  Lisensi MIT",
     ],
     [
         "kind" => "content",
@@ -405,12 +405,12 @@ $slides = [
         "kind" => "content",
         "title" => "Arsitektur & Integrasi",
         "bullets" => [
-            "Auto-discovery: `PasakServiceProvider` + Facade `Pasak`.",
+            "Auto-discovery: `PasaxServiceProvider` + Facade `Pasax`.",
             "Trait `HasSecurityRelations` pada model `User` host.",
             "Middleware teraliasing: `security.block`, `security.detect`, `security.admin`, `security.activity`.",
-            "Gate `manage-pasak` untuk otorisasi admin.",
+            "Gate `manage-pasax` untuk otorisasi admin.",
             "Model & nama tabel dinamis via config — tidak ada `User` atau tabel yang di-hardcode.",
-            "Zero-touch opsional: PASAK_AUTO_REGISTER_MIDDLEWARE=true.",
+            "Zero-touch opsional: PASAX_AUTO_REGISTER_MIDDLEWARE=true.",
         ],
     ],
     [
@@ -427,12 +427,12 @@ $slides = [
         "kind" => "content",
         "title" => "CLI Artisan & Automation",
         "bullets" => [
-            "`pasak:install` — publikasi aset + hardening interaktif.",
-            "`pasak:scan-logs` — pindai log akses dan auto-block.",
-            "`pasak:baseline` — audit, buat, atau hapus baseline SHA-256.",
-            "`pasak:unblock-ip` — cabut blokir darurat.",
-            "`pasak:prune-logs` — bersihkan log kedaluwarsa (default 90 hari).",
-            "`pasak:purge-injected-data` — bersihkan residu payload pentest dari database.",
+            "`pasax:install` — publikasi aset + hardening interaktif.",
+            "`pasax:scan-logs` — pindai log akses dan auto-block.",
+            "`pasax:baseline` — audit, buat, atau hapus baseline SHA-256.",
+            "`pasax:unblock-ip` — cabut blokir darurat.",
+            "`pasax:prune-logs` — bersihkan log kedaluwarsa (default 90 hari).",
+            "`pasax:purge-injected-data` — bersihkan residu payload pentest dari database.",
             "Scheduler: prune log, heartbeat, dan pemindaian log harian.",
         ],
     ],
@@ -442,19 +442,19 @@ $slides = [
         "bullets" => [
             "Nginx: dual rate-limit zone, eksekusi PHP hanya lewat `/index.php`, sandbox storage, blokir ekstensi ganda.",
             "Apache/LiteSpeed: proteksi dotfile, blokir ekstensi ganda, kunci berkas backup/log, matikan directory indexing.",
-            "Publikasi template: `vendor:publish --tag=pasak-nginx` / `pasak-htaccess` / `pasak-all`.",
+            "Publikasi template: `vendor:publish --tag=pasax-nginx` / `pasax-htaccess` / `pasax-all`.",
         ],
     ],
     [
         "kind" => "content",
         "title" => "Instalasi Cepat",
         "bullets" => [
-            "`composer require pasak-dev/secure-monitor`",
-            "`php artisan pasak:install`",
+            "`composer require pasax-dev/secure-monitor`",
+            "`php artisan pasax:install`",
             "`php artisan migrate`",
             "Tambahkan trait `HasSecurityRelations` ke model `User` dan daftarkan middleware.",
-            "Opsional: `PASAK_AUTO_REGISTER_MIDDLEWARE=true`. ",
-            "`php artisan pasak:baseline --create`",
+            "Opsional: `PASAX_AUTO_REGISTER_MIDDLEWARE=true`. ",
+            "`php artisan pasax:baseline --create`",
         ],
     ],
     [
@@ -486,9 +486,9 @@ $slides = [
         "kind" => "content",
         "title" => "Tautan",
         "bullets" => [
-            "Repositori: `github.com/pasak-dev/pasak-secure-monitor-laravel`",
-            "Packagist: `packagist.org/packages/pasak-dev/secure-monitor`",
-            "Instalasi: `composer require pasak-dev/secure-monitor`",
+            "Repositori: `github.com/pasax-dev/pasax-secure-monitor-laravel`",
+            "Packagist: `packagist.org/packages/pasax-dev/secure-monitor`",
+            "Instalasi: `composer require pasax-dev/secure-monitor`",
             "Dokumentasi: direktori `documents/` (25 bab) + portal `documents/index.html`",
         ],
     ],
@@ -525,7 +525,7 @@ XML;
 
 $coreXml = <<<'XML'
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>Pasak (Bulwark)</dc:title><dc:subject>WAF &amp; Threat Engine Headless untuk Laravel</dc:subject><dc:creator>Roby</dc:creator><cp:lastModifiedBy>Roby</cp:lastModifiedBy><dcterms:created xsi:type="dcterms:W3CDTF">2026-10-02T00:00:00Z</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">2026-10-02T00:00:00Z</dcterms:modified></cp:coreProperties>
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>Pasax (Bulwark)</dc:title><dc:subject>WAF &amp; Threat Engine Headless untuk Laravel</dc:subject><dc:creator>Roby</dc:creator><cp:lastModifiedBy>Roby</cp:lastModifiedBy><dcterms:created xsi:type="dcterms:W3CDTF">2026-10-02T00:00:00Z</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">2026-10-02T00:00:00Z</dcterms:modified></cp:coreProperties>
 XML;
 
 $totalSlides = count($slides);
@@ -535,7 +535,7 @@ $appXml =
     '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"' .
     ' xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">' .
     "<Application>Microsoft Office PowerPoint</Application>" .
-    "<Company>pasak-dev</Company>" .
+    "<Company>pasax-dev</Company>" .
     "<Slides>" .
     $totalSlides .
     "</Slides>" .

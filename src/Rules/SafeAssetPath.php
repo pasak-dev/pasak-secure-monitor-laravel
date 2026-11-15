@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Rules;
+namespace Pasax\SecureMonitor\Rules;
 
 /**
- * Legacy alias for PasakSafeAssetPath.
+ * Legacy alias for PasaxSafeAssetPath.
  */
-class SafeAssetPath extends PasakSafeAssetPath {}
+class SafeAssetPath extends PasaxSafeAssetPath {}
 
-if (! class_exists('Pasak\SecureMonitor\Rules\SafeAssetPath', false)) {
-    class_alias(PasakSafeAssetPath::class, 'Pasak\SecureMonitor\Rules\SafeAssetPath');
+if (! class_exists('Pasax\SecureMonitor\Rules\SafeAssetPath', false)) {
+    class_alias(PasaxSafeAssetPath::class, 'Pasax\SecureMonitor\Rules\SafeAssetPath');
 }

@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Listeners;
+namespace Pasax\SecureMonitor\Listeners;
 
 /**
- * Legacy alias for PasakLogFailedLoginAttempt.
+ * Legacy alias for PasaxLogFailedLoginAttempt.
  */
-class LogFailedLoginAttempt extends PasakLogFailedLoginAttempt {}
+class LogFailedLoginAttempt extends PasaxLogFailedLoginAttempt {}
 
-if (! class_exists('Pasak\SecureMonitor\Listeners\LogFailedLoginAttempt', false)) {
-    class_alias(PasakLogFailedLoginAttempt::class, 'Pasak\SecureMonitor\Listeners\LogFailedLoginAttempt');
+if (! class_exists('Pasax\SecureMonitor\Listeners\LogFailedLoginAttempt', false)) {
+    class_alias(PasaxLogFailedLoginAttempt::class, 'Pasax\SecureMonitor\Listeners\LogFailedLoginAttempt');
 }

@@ -1,5 +1,5 @@
 {{--
-    Default 403 "blocked" page for pasak-dev/secure-monitor.
+    Default 403 "blocked" page for pasax-dev/secure-monitor.
 
     Dipublikasikan oleh:  php artisan vendor:publish --tag=security-views
     Tujuan default:       resources/views/errors/blocked.blade.php
@@ -131,7 +131,7 @@
         var result = document.getElementById('security-appeal-result');
         if (!form || !result) { return; }
 
-        var endpoint = @json(url(config('pasak.routes.prefix', 'api/pasak') . '/unblock-tickets/submit'));
+        var endpoint = @json(url(config('pasax.routes.prefix', 'api/pasax') . '/unblock-tickets/submit'));
         var button = form.querySelector('button[type="submit"]');
 
         form.addEventListener('submit', function (event) {

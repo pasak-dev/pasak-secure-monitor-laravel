@@ -1,4 +1,4 @@
-import type { NoPasakRecommendation } from "@/lib/noPasak";
+import type { NoPasaxRecommendation } from "@/lib/noPasax";
 import type { ChainStep } from "@/lib/vulnInfo";
 
 export type ProofGrade = "proven" | "passed" | "blocked";
@@ -30,7 +30,7 @@ export interface SheetMethodState {
 
 export interface PendingMethodState {
     cardIndex: number;
-    item: NoPasakRecommendation;
+    item: NoPasaxRecommendation;
     mi: number;
     label: string;
 }

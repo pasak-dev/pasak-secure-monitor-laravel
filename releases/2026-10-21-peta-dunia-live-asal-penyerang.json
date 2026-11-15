@@ -6,8 +6,8 @@
         "en": "Live world map: trace attacker origins straight to the watched server"
     },
     "body": {
-        "id": "Dasbor pemantauan Pasak kini punya halaman Peta Ancaman: bola dunia yang menggambar lintasan serangan dari kota asal penyerang (diambil dari alamat riil 24 jam terakhir) menuju titik server yang dilindungi, lengkap dengan gelombang kejut saat kena dan panel catatan serangan yang menyala setiap serangan baru masuk — tanpa muat ulang halaman.",
-        "en": "The Pasak monitoring dashboard now has a Threat Map page: a world globe drawing attack trajectories from each attacker's origin city (resolved from real addresses of the last 24 hours) toward the protected server point, complete with impact ripples and a real-time attack log panel that lights up whenever a new attack arrives — no page reload needed."
+        "id": "Dasbor pemantauan Pasax kini punya halaman Peta Ancaman: bola dunia yang menggambar lintasan serangan dari kota asal penyerang (diambil dari alamat riil 24 jam terakhir) menuju titik server yang dilindungi, lengkap dengan gelombang kejut saat kena dan panel catatan serangan yang menyala setiap serangan baru masuk — tanpa muat ulang halaman.",
+        "en": "The Pasax monitoring dashboard now has a Threat Map page: a world globe drawing attack trajectories from each attacker's origin city (resolved from real addresses of the last 24 hours) toward the protected server point, complete with impact ripples and a real-time attack log panel that lights up whenever a new attack arrives — no page reload needed."
     },
     "items": [
         {
@@ -52,6 +52,6 @@
         }
     ],
     "project": {
-        "name": "Pasak Security Monitor Laravel Packagist"
+        "name": "Pasax Security Monitor Laravel Packagist"
     }
 }

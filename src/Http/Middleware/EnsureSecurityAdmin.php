@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Http\Middleware;
+namespace Pasax\SecureMonitor\Http\Middleware;
 
 /**
- * Legacy alias for PasakEnsureSecurityAdmin.
+ * Legacy alias for PasaxEnsureSecurityAdmin.
  */
-class EnsureSecurityAdmin extends PasakEnsureSecurityAdmin {}
+class EnsureSecurityAdmin extends PasaxEnsureSecurityAdmin {}
 
-if (! class_exists('Pasak\SecureMonitor\Http\Middleware\EnsureSecurityAdmin', false)) {
-    class_alias(PasakEnsureSecurityAdmin::class, 'Pasak\SecureMonitor\Http\Middleware\EnsureSecurityAdmin');
+if (! class_exists('Pasax\SecureMonitor\Http\Middleware\EnsureSecurityAdmin', false)) {
+    class_alias(PasaxEnsureSecurityAdmin::class, 'Pasax\SecureMonitor\Http\Middleware\EnsureSecurityAdmin');
 }

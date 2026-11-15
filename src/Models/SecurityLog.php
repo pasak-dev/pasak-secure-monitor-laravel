@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Models;
+namespace Pasax\SecureMonitor\Models;
 
 /**
- * @deprecated Use PasakLog instead.
+ * @deprecated Use PasaxLog instead.
  *
- * @mixin PasakLog
+ * @mixin PasaxLog
  */
 if (! class_exists(SecurityLog::class, false)) {
-    class_alias(PasakLog::class, SecurityLog::class);
+    class_alias(PasaxLog::class, SecurityLog::class);
 }

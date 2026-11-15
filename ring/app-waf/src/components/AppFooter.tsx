@@ -29,20 +29,20 @@ export default function AppFooter({ children }: AppFooterProps) {
                 <span className="text-muted-foreground/40">•</span>
 
                 <a
-                    href="https://pasak.is-a.dev"
+                    href="https://pasax.is-a.dev"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 hover:text-primary transition-colors underline-offset-4 hover:underline"
                 >
                     <Globe className="size-3" />
-                    <span>Dokumentasi Resmi (pasak.is-a.dev)</span>
+                    <span>Dokumentasi Resmi (pasax.is-a.dev)</span>
                     <ExternalLink className="size-2.5 opacity-60" />
                 </a>
 
                 <span className="text-muted-foreground/40">•</span>
 
                 <a
-                    href="https://github.com/pasak-dev/pasak-secure-monitor-laravel"
+                    href="https://github.com/pasax-dev/pasax-secure-monitor-laravel"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 hover:text-primary transition-colors underline-offset-4 hover:underline"

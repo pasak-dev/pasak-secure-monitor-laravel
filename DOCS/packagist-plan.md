@@ -1,7 +1,7 @@
-# Rencana & Kebutuhan Publikasi Packagist: `pasak-dev/secure-monitor`
+# Rencana & Kebutuhan Publikasi Packagist: `pasax-dev/secure-monitor`
 
 > **Dokumen Rencana Rilis Resmi**  
-> **Paket**: `pasak-dev/secure-monitor` (Bulwark)  
+> **Paket**: `pasax-dev/secure-monitor` (Bulwark)  
 > **Status**: Siap Rilis (100% Decoupled Standalone Library, Pure PHP, Zero NPM)  
 > **Target Lingkungan**: PHP `^8.2 | ^8.3 | ^8.4`, Laravel `^10.0 | ^11.0 | ^12.0 | ^13.0`  
 > **Lisensi**: MIT
@@ -10,7 +10,7 @@
 
 ## Daftar Isi
 
-1. [Fokus Tunggal: `pasak`](#1-fokus-tunggal-pasak)
+1. [Fokus Tunggal: `pasax`](#1-fokus-tunggal-pasax)
 2. [Status Kesiapan Repositori Saat Ini](#2-status-kesiapan-repositori-saat-ini)
 3. [Arsitektur Terintegrasi & Dekopling Penuh](#3-arsitektur-terintegrasi--dekopling-penuh)
 4. [Standar Desain Spatie (100% Pure PHP & Zero NPM)](#4-standar-desain-spatie-100-pure-php--zero-npm)
@@ -23,9 +23,9 @@
 
 ---
 
-## 1. Fokus Tunggal: `pasak`
+## 1. Fokus Tunggal: `pasax`
 
-Berdasarkan evaluasi arsitektur final, strategi rilis **difokuskan 100% pada satu paket utama yang utuh**: **`pasak-dev/secure-monitor`**.
+Berdasarkan evaluasi arsitektur final, strategi rilis **difokuskan 100% pada satu paket utama yang utuh**: **`pasax-dev/secure-monitor`**.
 
 ---
 
@@ -35,7 +35,7 @@ Repositori paket saat ini telah berdiri sendiri secara penuh di direktori paket:
 
 | Komponen                        |     Status      | Catatan Verifikasi                                                                 |
 | :------------------------------ | :-------------: | :--------------------------------------------------------------------------------- |
-| **Pemisahan Kode (Decoupling)** | ✅ 100% Selesai | Seluruh referensi `App\` telah diubah ke `Pasak\SecureMonitor\`.              |
+| **Pemisahan Kode (Decoupling)** | ✅ 100% Selesai | Seluruh referensi `App\` telah diubah ke `Pasax\SecureMonitor\`.              |
 | **Model User Dinamis**          | ✅ 100% Selesai | Menggunakan `config('security.user_model')` + Trait `HasSecurityRelations`.        |
 | **Nama Tabel Dinamis**          | ✅ 100% Selesai | Seluruh model membaca nama tabel dari `config('security.table_names.*')`.          |
 | **Bebas Dependensi NPM**        | ✅ 100% Selesai | Murni Composer library (`type: library`), nol ketergantungan build tool frontend.  |
@@ -51,8 +51,8 @@ Paket ini menggabungkan 6 kapabilitas keamanan enterprise dalam satu kesatuan ar
 
 ```mermaid
 graph TD
-    UserApp[Aplikasi Laravel Host] --> Composer[composer require pasak-dev/secure-monitor]
-    Composer --> Provider[PasakServiceProvider<br/>Auto-Discovery Core Hooks]
+    UserApp[Aplikasi Laravel Host] --> Composer[composer require pasax-dev/secure-monitor]
+    Composer --> Provider[PasaxServiceProvider<br/>Auto-Discovery Core Hooks]
 
     subgraph CoreCapabilities ["Kapabilitas Keamanan Terintegrasi"]
         Provider --> WAF[1. WAF & Zero-Tolerance Engine<br/>Instant 30d block & sliding window]
@@ -71,7 +71,7 @@ graph TD
 Paket ini mengikuti standar konvensi paket ekosistem Spatie (`spatie/laravel-permission`):
 
 1. **Auto-Discovery Tanpa Konfigurasi Manual**:
-   Laravel otomatis mendeteksi `PasakServiceProvider` dan Facade `Pasak`.
+   Laravel otomatis mendeteksi `PasaxServiceProvider` dan Facade `Pasax`.
 2. **Satu Baris Trait Eloquent**:
    Pengguna cukup menambahkan `use HasSecurityRelations;` pada model `App\Models\User`.
 3. **Core Event Listeners Otomatis**:
@@ -89,7 +89,7 @@ Berkas `composer.json` telah dikonfigurasi untuk standar katalog Packagist:
 
 ```json
 {
-    "name": "pasak-dev/secure-monitor",
+    "name": "pasax-dev/secure-monitor",
     "description": "Enterprise-grade headless self-hosted WAF, threat detection engine, zero-tolerance blocking, stepped login lockout, and security auditing toolkit for Laravel.",
     "keywords": [
         "laravel",
@@ -104,11 +104,11 @@ Berkas `composer.json` telah dikonfigurasi untuk standar katalog Packagist:
         "security-audit",
         "headless"
     ],
-    "homepage": "https://github.com/pasak-dev/pasak-secure-monitor-laravel",
+    "homepage": "https://github.com/pasax-dev/pasax-secure-monitor-laravel",
     "support": {
-        "issues": "https://github.com/pasak-dev/pasak-secure-monitor-laravel/issues",
-        "source": "https://github.com/pasak-dev/pasak-secure-monitor-laravel",
-        "docs": "https://github.com/pasak-dev/pasak-secure-monitor-laravel#readme"
+        "issues": "https://github.com/pasax-dev/pasax-secure-monitor-laravel/issues",
+        "source": "https://github.com/pasax-dev/pasax-secure-monitor-laravel",
+        "docs": "https://github.com/pasax-dev/pasax-secure-monitor-laravel#readme"
     },
     "type": "library",
     "license": "MIT",
@@ -137,21 +137,21 @@ Berkas `composer.json` telah dikonfigurasi untuk standar katalog Packagist:
     },
     "autoload": {
         "psr-4": {
-            "Pasak\\SecureMonitor\\": "src/"
+            "Pasax\\SecureMonitor\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Pasak\\SecureMonitor\\Tests\\": "tests/"
+            "Pasax\\SecureMonitor\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Pasak\\SecureMonitor\\PasakServiceProvider"
+                "Pasax\\SecureMonitor\\PasaxServiceProvider"
             ],
             "aliases": {
-                "Pasak": "Pasak\\SecureMonitor\\Facades\\Pasak"
+                "Pasax": "Pasax\\SecureMonitor\\Facades\\Pasax"
             }
         }
     },
@@ -178,11 +178,11 @@ Berkas `.github/workflows/run-tests.yml` telah dipasang untuk menguji kompatibil
 
 ### Langkah 1: Inisialisasi & Push ke GitHub Publik
 
-1. Buat repositori baru di GitHub: `https://github.com/pasak-dev/pasak-secure-monitor-laravel`.
+1. Buat repositori baru di GitHub: `https://github.com/pasax-dev/pasax-secure-monitor-laravel`.
 2. Pastikan visibility disetel **Public**.
 3. Push seluruh berkas paket ke branch `main`:
     ```bash
-    git remote add origin https://github.com/pasak-dev/pasak-secure-monitor-laravel.git
+    git remote add origin https://github.com/pasax-dev/pasax-secure-monitor-laravel.git
     git branch -M main
     git push -u origin main
     ```
@@ -200,9 +200,9 @@ git push origin v1.0.0
 
 1. Buka [https://packagist.org/packages/submit](https://packagist.org/packages/submit) dan login menggunakan akun GitHub Anda.
 2. Masukkan URL repositori:
-   `https://github.com/pasak-dev/pasak-secure-monitor-laravel`
+   `https://github.com/pasax-dev/pasax-secure-monitor-laravel`
 3. Klik **Check**, lalu klik **Submit**.
-4. Paket akan terdaftar dengan nama **`pasak-dev/secure-monitor`**.
+4. Paket akan terdaftar dengan nama **`pasax-dev/secure-monitor`**.
 
 ### Langkah 4: Aktifkan GitHub Webhook Otomatis
 
@@ -210,7 +210,7 @@ Agar setiap kali Anda melakukan push atau membuat tag baru paket di Packagist ot
 
 1. Buka menu pengaturan repositori di GitHub: **Settings** → **Webhooks** → **Add webhook**.
 2. Masukkan Payload URL dari Packagist:
-   `https://packagist.org/api/github?username=pasak-dev`
+   `https://packagist.org/api/github?username=pasax-dev`
 3. Pilih Secret sesuai API token Packagist Anda.
 4. Pilih event: **Just the push event** → **Active** → **Add webhook**.
 
@@ -226,17 +226,17 @@ composer create-project laravel/laravel test-security-app
 cd test-security-app
 
 # 2. Pasang paket dari Packagist
-composer require pasak-dev/secure-monitor
+composer require pasax-dev/secure-monitor
 
 # 3. Jalankan instalasi aset
-php artisan pasak:install
+php artisan pasax:install
 
 # 4. Jalankan migrasi
 php artisan migrate
 
 # 5. Uji perintah Artisan
-php artisan pasak:baseline
-php artisan pasak:scan-logs --dry-run
+php artisan pasax:baseline
+php artisan pasax:scan-logs --dry-run
 ```
 
 ---
@@ -260,8 +260,8 @@ Daftar lengkap variabel `.env` yang dapat disetel di aplikasi host:
 
 | Variabel `.env`                   |        Default         | Deskripsi                                     |
 | :-------------------------------- | :--------------------: | :-------------------------------------------- |
-| `PASAK_MONITOR_ENABLED`        |         `true`         | Sakelar utama WAF                             |
-| `PASAK_BLOCK_ENFORCEMENT`      |         `true`         | Penolakan HTTP 403 untuk IP terblokir         |
+| `PASAX_MONITOR_ENABLED`        |         `true`         | Sakelar utama WAF                             |
+| `PASAX_BLOCK_ENFORCEMENT`      |         `true`         | Penolakan HTTP 403 untuk IP terblokir         |
 | `SECURITY_AUTO_BLOCK_ENABLED`     |         `true`         | Auto-block akumulasi ancaman berulang         |
 | `SECURITY_AUTO_BLOCK_THRESHOLD`   |          `3`           | Ambang batas kejadian (default: 3 kali)       |
 | `SECURITY_AUTO_BLOCK_WINDOW`      |          `10`          | Jendela evaluasi waktu (menit)                |
@@ -269,6 +269,6 @@ Daftar lengkap variabel `.env` yang dapat disetel di aplikasi host:
 | `SECURITY_INSTANT_BLOCK_ENABLED`  |         `true`         | Blokir instan pada percobaan pertama untuk ZT |
 | `SECURITY_INSTANT_BLOCK_DURATION` |         `720`          | Durasi blokir instan (jam; 720 jam = 30 hari) |
 | `SECURITY_LOGIN_LOCKOUT_ENABLED`  |         `true`         | Proteksi brute force bertingkat (1m - 24h)    |
-| `PASAK_LOG_RETENTION_DAYS`     |          `90`          | Masa retensi log (hari)                       |
+| `PASAX_LOG_RETENTION_DAYS`     |          `90`          | Masa retensi log (hari)                       |
 | `SECURITY_SCHEDULE_ENABLED`       |         `true`         | Otomasi tugas scheduler (prune & heartbeat)   |
-| `PASAK_SUPPORT_EMAIL`          | `security@example.com` | Email helpdesk di halaman penolakan 403       |
+| `PASAX_SUPPORT_EMAIL`          | `security@example.com` | Email helpdesk di halaman penolakan 403       |

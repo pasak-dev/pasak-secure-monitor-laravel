@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Http\Middleware;
+namespace Pasax\SecureMonitor\Http\Middleware;
 
 /**
- * Legacy alias for PasakDetectSecurityThreats.
+ * Legacy alias for PasaxDetectSecurityThreats.
  */
-class DetectSecurityThreats extends PasakDetectSecurityThreats {}
+class DetectSecurityThreats extends PasaxDetectSecurityThreats {}
 
-if (! class_exists('Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats', false)) {
-    class_alias(PasakDetectSecurityThreats::class, 'Pasak\SecureMonitor\Http\Middleware\DetectSecurityThreats');
+if (! class_exists('Pasax\SecureMonitor\Http\Middleware\DetectSecurityThreats', false)) {
+    class_alias(PasaxDetectSecurityThreats::class, 'Pasax\SecureMonitor\Http\Middleware\DetectSecurityThreats');
 }

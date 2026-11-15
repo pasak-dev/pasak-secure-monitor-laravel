@@ -9,8 +9,8 @@ dist/
 
 # Sandbox aplikasi Laravel uji (tidak ikut rilis paket)
 /laravel-test
-/ring/pasak-yes/public/assets/
-/ring/pasak-no/public/assets/
+/ring/pasax-yes/public/assets/
+/ring/pasax-no/public/assets/
 # Alias direktori skills sistem ACP (diarahkan ke .agents/skills)
 /skills
 /build/

@@ -3,9 +3,9 @@
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakServerController;
-use Pasak\SecureMonitor\Services\ServerSecurityService;
-use Pasak\SecureMonitor\Tests\TestUser;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxServerController;
+use Pasax\SecureMonitor\Services\ServerSecurityService;
+use Pasax\SecureMonitor\Tests\TestUser;
 
 beforeEach(function () {
     Cache::flush();
@@ -69,7 +69,7 @@ test('admin can retrieve server scan report via api', function () {
         'role' => 'admin',
     ]);
 
-    $response = $this->actingAs($admin)->getJson('/api/pasak/server');
+    $response = $this->actingAs($admin)->getJson('/api/pasax/server');
 
     $response->assertSuccessful();
     $response->assertJsonStructure([
@@ -88,7 +88,7 @@ test('admin can create and delete baseline via api', function () {
 
     // Create baseline
     $postResponse = $this->actingAs($admin)->postJson(
-        '/api/pasak/server/baseline',
+        '/api/pasax/server/baseline',
     );
 
     $postResponse->assertSuccessful();
@@ -96,7 +96,7 @@ test('admin can create and delete baseline via api', function () {
 
     // Delete baseline
     $delResponse = $this->actingAs($admin)->deleteJson(
-        '/api/pasak/server/baseline',
+        '/api/pasax/server/baseline',
     );
 
     $delResponse->assertSuccessful();
@@ -141,7 +141,7 @@ test(
         try {
             // 1. Download berkas valid
             $response = $this->actingAs($admin)->get(
-                '/api/pasak/server/suspicious-files/download?file_path=public/test-suspicious.txt',
+                '/api/pasax/server/suspicious-files/download?file_path=public/test-suspicious.txt',
             );
 
             $response->assertSuccessful();
@@ -150,7 +150,7 @@ test(
 
             // 2. Tolak upaya path traversal
             $badResponse = $this->actingAs($admin)->get(
-                '/api/pasak/server/suspicious-files/download?file_path=../../etc/passwd',
+                '/api/pasax/server/suspicious-files/download?file_path=../../etc/passwd',
             );
 
             $badResponse->assertStatus(404);
@@ -187,7 +187,7 @@ test(
 
             // Admin memverifikasi berkas aman via API
             $verifyResponse = $this->actingAs($admin)->postJson(
-                '/api/pasak/server/suspicious-files/verify',
+                '/api/pasax/server/suspicious-files/verify',
                 [
                     'file_path' => 'public/eval-test.php',
                     'notes' => 'False positive terverifikasi oleh Tim Keamanan',
@@ -222,10 +222,10 @@ test(
 test(
     'server audit blade view renders download button and verify alert modal',
     function () {
-        $target = resource_path('views/pages/pasak');
+        $target = resource_path('views/pages/pasax');
         File::ensureDirectoryExists($target);
         File::copyDirectory(
-            dirname(__DIR__, 2).'/stubs/blade/pages/pasak',
+            dirname(__DIR__, 2).'/stubs/blade/pages/pasax',
             $target,
         );
 
@@ -270,9 +270,9 @@ test(
             ] as $name
         ) {
             Route::get(
-                '/__pasak_test_'.$name,
+                '/__pasax_test_'.$name,
                 fn () => 'ok',
-            )->name('pasak.dashboard.'.$name);
+            )->name('pasax.dashboard.'.$name);
         }
         Route::getRoutes()->refreshNameLookups();
 
@@ -281,7 +281,7 @@ test(
 
         try {
             $controller = app(
-                PasakServerController::class,
+                PasaxServerController::class,
             );
             $request = request()->create('/server', 'GET', ['refresh' => 1]);
             $html = $controller
@@ -290,14 +290,14 @@ test(
 
             // Verifikasi tombol unduh & verifikasi ada di tabel dan modal
             expect($html)->toContain(
-                '__pasak_test_server.suspicious-files.download',
+                '__pasax_test_server.suspicious-files.download',
             );
             expect($html)->toContain(__('Unduh'));
             expect($html)->toContain(__('Verifikasi'));
             expect($html)->toContain('id="verifySafeModal"');
             expect($html)->toContain('Verifikasi Berkas Aman');
             expect($html)->toContain(
-                '__pasak_test_server.suspicious-files.verify',
+                '__pasax_test_server.suspicious-files.verify',
             );
         } finally {
             if (File::exists($testFile)) {
@@ -308,12 +308,12 @@ test(
 );
 
 test('admin can trigger optimize-clear via dashboard and api', function () {
-    config()->set('pasak.dashboard.enabled', true);
-    config()->set('pasak.dashboard.driver', 'blade');
+    config()->set('pasax.dashboard.enabled', true);
+    config()->set('pasax.dashboard.driver', 'blade');
 
     // Register blade dashboard routes if not already present
-    if (! Route::has('pasak.dashboard.optimize-clear')) {
-        require __DIR__.'/../../routes/pasak-dashboard-blade.php';
+    if (! Route::has('pasax.dashboard.optimize-clear')) {
+        require __DIR__.'/../../routes/pasax-web-blade.php';
         Route::getRoutes()->refreshNameLookups();
     }
 
@@ -325,12 +325,12 @@ test('admin can trigger optimize-clear via dashboard and api', function () {
     ]);
 
     // Dashboard JSON request
-    $dashResponse = $this->actingAs($admin)->postJson(route('pasak.dashboard.optimize-clear'));
+    $dashResponse = $this->actingAs($admin)->postJson(route('pasax.dashboard.optimize-clear'));
     $dashResponse->assertOk()
         ->assertJson(['ok' => true]);
 
     // API JSON request
-    $apiResponse = $this->actingAs($admin)->postJson('/api/pasak/server/optimize-clear');
+    $apiResponse = $this->actingAs($admin)->postJson('/api/pasax/server/optimize-clear');
     $apiResponse->assertOk()
         ->assertJson(['ok' => true]);
 });

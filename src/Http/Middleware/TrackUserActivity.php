@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Http\Middleware;
+namespace Pasax\SecureMonitor\Http\Middleware;
 
 /**
- * Legacy alias for PasakTrackUserActivity.
+ * Legacy alias for PasaxTrackUserActivity.
  */
-class TrackUserActivity extends PasakTrackUserActivity {}
+class TrackUserActivity extends PasaxTrackUserActivity {}
 
-if (! class_exists('Pasak\SecureMonitor\Http\Middleware\TrackUserActivity', false)) {
-    class_alias(PasakTrackUserActivity::class, 'Pasak\SecureMonitor\Http\Middleware\TrackUserActivity');
+if (! class_exists('Pasax\SecureMonitor\Http\Middleware\TrackUserActivity', false)) {
+    class_alias(PasaxTrackUserActivity::class, 'Pasax\SecureMonitor\Http\Middleware\TrackUserActivity');
 }

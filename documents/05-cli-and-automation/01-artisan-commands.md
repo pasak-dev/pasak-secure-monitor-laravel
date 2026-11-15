@@ -4,14 +4,14 @@ Paket menyertakan kumpulan perintah Artisan CLI untuk administrasi, otomasi pemi
 
 ---
 
-## 1. `pasak:install`
+## 1. `pasax:install`
 
 Wizard instalasi terpandu bilingual (Indonesia default / English via `--lang=en`): pilihan mode API-only (`--api-only`), tawaran dashboard Blade murni, cek kelengkapan lingkungan, tawaran migrasi langsung, dan saran langkah berikutnya beserta tautan dokumentasi.
 
 Menginisialisasi paket, mempublikasikan konfigurasi, migrasi database, konfigurasi Nginx hardened WAF, serta menerapkan aturan **Apache `.htaccess` Hardened** di folder `public/`.
 
 ```bash
-php artisan pasak:install [options]
+php artisan pasax:install [options]
 ```
 
 ### Mekanisme Pembaruan `.htaccess`:
@@ -22,13 +22,13 @@ php artisan pasak:install [options]
 
 ### Mekanisme Penyematan Variabel `.env` & `.env.example`:
 
-- Installer secara otomatis memeriksa apakah blok konfigurasi `PASAK_*` sudah ada di `.env` dan `.env.example`.
+- Installer secara otomatis memeriksa apakah blok konfigurasi `PASAX_*` sudah ada di `.env` dan `.env.example`.
 - Jika belum ada, installer menyematkan blok variabel lingkungan lengkap dengan komentar dokumentasi berbahasa Indonesia di akhir berkas.
 - Opsi `--without-env` dapat digunakan untuk melewati langkah ini jika Anda ingin mengonfigurasi variabel lingkungan secara manual.
 
 ### Opsi:
 
-- `--migrate`: Menjalankan migrasi database dan menyemai pengaturan bawaan ke `pasak_settings` secara otomatis (cocok untuk alur otomatis/CI).
+- `--migrate`: Menjalankan migrasi database dan menyemai pengaturan bawaan ke `pasax_settings` secara otomatis (cocok untuk alur otomatis/CI).
 - `--force`: Menimpa seluruh berkas konfigurasi, migrasi, `nginx.conf`, dan `public/.htaccess` dengan template bawaan.
 - `--lang=`: Bahasa wizard (`id` | `en`).
 - `--api-only`: Jalan pintas — API ya, Web tidak (inti + keamanan saja, tanpa halaman/dashboard).
@@ -42,12 +42,12 @@ php artisan pasak:install [options]
 
 ---
 
-## 2. `pasak:scan-logs`
+## 2. `pasax:scan-logs`
 
 Memindai berkas log web server (Apache/Nginx) secara streaming, mendeteksi serangan yang ditolak di level web server, mengimpor ke tabel log keamanan, atau langsung memblokir IP penyerang zero-tolerance.
 
 ```bash
-php artisan pasak:scan-logs [options]
+php artisan pasax:scan-logs [options]
 ```
 
 ### Opsi:
@@ -60,7 +60,7 @@ php artisan pasak:scan-logs [options]
 - `--top=20`: Jumlah IP penyerang teratas yang ditampilkan di tabel ringkasan.
 - `--samples`: Menampilkan contoh URI request yang mencurigakan untuk setiap IP.
 - `--json`: Mengeluarkan hasil analisis dalam format JSON murni (cocok untuk pipeline SIEM / alerting).
-- `--import`: Menyimpan temuan ke tabel database `pasak_logs`.
+- `--import`: Menyimpan temuan ke tabel database `pasax_logs`.
 - `--block`: Memblokir otomatis IP yang memicu signature zero-tolerance.
 - `--dry-run`: Mode simulasi: menampilkan apa saja yang akan diblokir/diimpor tanpa mengubah data apa pun di database.
 
@@ -68,20 +68,20 @@ php artisan pasak:scan-logs [options]
 
 ```bash
 # 1. Analisis cepat 24 jam terakhir tanpa ubah database
-php artisan pasak:scan-logs --since="24 hours ago" --samples
+php artisan pasax:scan-logs --since="24 hours ago" --samples
 
 # 2. Tangkap penyerang dan blokir langsung di database
-php artisan pasak:scan-logs --since="6 hours ago" --import --block
+php artisan pasax:scan-logs --since="6 hours ago" --import --block
 ```
 
 ---
 
-## 3. `pasak:baseline`
+## 3. `pasax:baseline`
 
 Membuat, mengaudit, atau menghapus baseline hash SHA-256 integritas berkas aplikasi.
 
 ```bash
-php artisan pasak:baseline [options]
+php artisan pasax:baseline [options]
 ```
 
 ### Opsi:
@@ -103,12 +103,12 @@ Status Audit:
 
 ---
 
-## 4. `pasak:unblock-ip`
+## 4. `pasax:unblock-ip`
 
 Membuka blokir alamat IP yang terkena karantina WAF. Berfungsi sebagai **Escape Hatch** darurat jika administrator tidak sengaja memblokir IP mereka sendiri.
 
 ```bash
-php artisan pasak:unblock-ip [ip] [options]
+php artisan pasax:unblock-ip [ip] [options]
 ```
 
 ### Argumen & Opsi:
@@ -121,44 +121,44 @@ php artisan pasak:unblock-ip [ip] [options]
 
 ```bash
 # Buka blokir satu IP
-php artisan pasak:unblock-ip 198.51.100.50
+php artisan pasax:unblock-ip 198.51.100.50
 
 # Lihat siapa saja yang sedang diblokir
-php artisan pasak:unblock-ip --list
+php artisan pasax:unblock-ip --list
 
 # Buka seluruh blokir saat insiden darurat
-php artisan pasak:unblock-ip --all
+php artisan pasax:unblock-ip --all
 ```
 
 ---
 
-## 5. `pasak:prune-logs`
+## 5. `pasax:prune-logs`
 
 Membersihkan riwayat log keamanan yang telah melewati batas retensi waktu.
 
 ```bash
-php artisan pasak:prune-logs [options]
+php artisan pasax:prune-logs [options]
 ```
 
 ### Opsi:
 
-- `--days=`: Mengesampingkan konfigurasi retensi hari (default: `PASAK_LOG_RETENTION_DAYS`, biasanya 90 hari).
+- `--days=`: Mengesampingkan konfigurasi retensi hari (default: `PASAX_LOG_RETENTION_DAYS`, biasanya 90 hari).
 
 ### Contoh:
 
 ```bash
 # Bersihkan log yang lebih tua dari 30 hari
-php artisan pasak:prune-logs --days=30
+php artisan pasax:prune-logs --days=30
 ```
 
 ---
 
-## 6. `pasak:purge-injected-data`
+## 6. `pasax:purge-injected-data`
 
 Mendeteksi dan menghapus residu payload pentest atau injeksi yang tersimpan di dalam tabel aplikasi (misal `{{7*7}}`, `.htaccess`, `../../../public/`).
 
 ```bash
-php artisan pasak:purge-injected-data [options]
+php artisan pasax:purge-injected-data [options]
 ```
 
 ### Opsi:
@@ -170,27 +170,27 @@ php artisan pasak:purge-injected-data [options]
 
 ---
 
-## 7. `pasak:upgrade` (Alias: `pasak:upgrae`)
+## 7. `pasax:upgrade` (Alias: `pasax:upgrae`)
 
 Memperbarui paket ke versi terbaru secara menyeluruh. Opsi `--force` menjalankan seluruh proses secara otomatis tanpa perlu menambahkan parameter `--sync-views` lagi.
 
 ```bash
 # Upgrade otomatis penuh (disarankan):
-php artisan pasak:upgrade --force
+php artisan pasax:upgrade --force
 
 # Alias resmi (bila typo):
-php artisan pasak:upgrae --force
+php artisan pasax:upgrae --force
 
 # Varian opsional:
-php artisan pasak:upgrade --check
-php artisan pasak:upgrade --force --no-composer --no-migrate
-php artisan pasak:upgrade --force --clean-backups
+php artisan pasax:upgrade --check
+php artisan pasax:upgrade --force --no-composer --no-migrate
+php artisan pasax:upgrade --force --clean-backups
 ```
 
 ### Opsi:
 
 - `--check`: Hanya memeriksa ketersediaan versi terbaru tanpa mengubah berkas apa pun.
-- `--force`: Jalankan pembaruan menyeluruh otomatis: cek versi, composer update, deteksi & jalankan migrasi baru, sisipkan konfigurasi baru ke `config/pasak.php`, sinkronkan Blade views & rute, bersihkan berkas usang, dan clear cache.
+- `--force`: Jalankan pembaruan menyeluruh otomatis: cek versi, composer update, deteksi & jalankan migrasi baru, sisipkan konfigurasi baru ke `config/pasax.php`, sinkronkan Blade views & rute, bersihkan berkas usang, dan clear cache.
 - `--no-composer`: Lewati `composer update` (sinkronisasi aset lokal saja).
 - `--no-migrate`: Lewati eksekusi `php artisan migrate`.
 - `--no-backup`: Timpa langsung berkas tampilan/rute tanpa membuat arsip cadangan `*.backup-*`.
@@ -199,12 +199,12 @@ php artisan pasak:upgrade --force --clean-backups
 
 ---
 
-## 8. `pasak:uninstall`
+## 8. `pasax:uninstall`
 
-Mencopot seluruh jejak paket dari aplikasi host tanpa merusaknya: menghapus 8 tabel Pasak (+ record migrasinya), rute publikasi, middleware, trait User, variabel `PASAK_*`, mengembalikan `.htaccess` dari cadangan, menghapus berkas publikasi, dan menjalankan `composer remove`.
+Mencopot seluruh jejak paket dari aplikasi host tanpa merusaknya: menghapus 8 tabel Pasax (+ record migrasinya), rute publikasi, middleware, trait User, variabel `PASAX_*`, mengembalikan `.htaccess` dari cadangan, menghapus berkas publikasi, dan menjalankan `composer remove`.
 
 ```bash
-php artisan pasak:uninstall --force
+php artisan pasax:uninstall --force
 ```
 
 ### Opsi:
@@ -215,54 +215,54 @@ php artisan pasak:uninstall --force
 
 ---
 
-## 9. `pasak:secret`
+## 9. `pasax:secret`
 
-Membuat atau membuat ulang `PASAK_DASHBOARD_SECRET` pada berkas `.env`. Rahasia ini menandatangani token URL dashboard acak per aplikasi; `.env.example` sengaja dibiarkan kosong agar nilai rahasia tidak ikut ter-commit.
+Membuat atau membuat ulang `PASAX_DASHBOARD_SECRET` pada berkas `.env`. Rahasia ini menandatangani token URL dashboard acak per aplikasi; `.env.example` sengaja dibiarkan kosong agar nilai rahasia tidak ikut ter-commit.
 
 Jalankan sekali setelah deploy atau `git clone` di server baru, lalu bersihkan cache konfigurasi:
 
 ```bash
-php artisan pasak:secret
+php artisan pasax:secret
 php artisan config:clear
 ```
 
 ### Opsi:
 
-- `--force`: Buat ulang (regenerate) meskipun secret sudah terisi. Token dashboard lama otomatis ditandatangani ulang saat pengguna membuka `/pasak` (tidak ada 404).
+- `--force`: Buat ulang (regenerate) meskipun secret sudah terisi. Token dashboard lama otomatis ditandatangani ulang saat pengguna membuka `/pasax` (tidak ada 404).
 - `--show`: Tampilkan nilai secret aktif di keluaran terminal.
 - `--path=`: Berkas env tujuan selain `.env` (mis. `.env.production`).
 
 ---
 
-## 10. `pasak:deploy`
+## 10. `pasax:deploy`
 
 Perintah satu langkah untuk otomasi deployment di server VPS / produksi atau dalam pipeline CI/CD.
 
-Perintah ini dirancang agar **aman dijalankan berulang kali (idempotent)** dan **hanya berfokus pada tabel khusus paket Pasak** (`pasak_*`), sehingga tidak akan menduplikasi data (_no double data_) dan sama sekali tidak menyentuh tabel pengguna (`users`) atau data aplikasi utama Anda.
+Perintah ini dirancang agar **aman dijalankan berulang kali (idempotent)** dan **hanya berfokus pada tabel khusus paket Pasax** (`pasax_*`), sehingga tidak akan menduplikasi data (_no double data_) dan sama sekali tidak menyentuh tabel pengguna (`users`) atau data aplikasi utama Anda.
 
 ```bash
-php artisan pasak:deploy [options]
+php artisan pasax:deploy [options]
 ```
 
 ### Alur Eksekusi Otomatis:
 
-1. **Memastikan `PASAK_DASHBOARD_SECRET`**:
-   - Membaca berkas `.env` dan memastikan baris `PASAK_DASHBOARD_SECRET` terisi string rahasia 48 karakter acak kriptografis.
+1. **Memastikan `PASAX_DASHBOARD_SECRET`**:
+   - Membaca berkas `.env` dan memastikan baris `PASAX_DASHBOARD_SECRET` terisi string rahasia 48 karakter acak kriptografis.
    - Jika sudah terisi, nilai dipertahankan agar token sesi aktif tidak terputus (kecuali diberikan `--force-secret`).
-   - Memastikan berkas `.env.example` memiliki baris kosong `PASAK_DASHBOARD_SECRET=` agar aman saat di-clone ke server lain.
-2. **Sinkronisasi Migrasi Khusus Pasak**:
+   - Memastikan berkas `.env.example` memiliki baris kosong `PASAX_DASHBOARD_SECRET=` agar aman saat di-clone ke server lain.
+2. **Sinkronisasi Migrasi Khusus Pasax**:
    - Mempublikasikan berkas migrasi paket dan mengeksekusi `migrate --force`.
-3. **Seeder Pengaturan Bawaan (`PasakDefaultSettingsSeeder`)**:
-   - Menanam pengaturan keamanan bawaan ke tabel `pasak_settings` secara aman tanpa menduplikasi data.
+3. **Seeder Pengaturan Bawaan (`PasaxDefaultSettingsSeeder`)**:
+   - Menanam pengaturan keamanan bawaan ke tabel `pasax_settings` secara aman tanpa menduplikasi data.
 4. **Pembersihan Cache Framework**:
    - Menjalankan penyegaran cache framework (`config:clear`, `route:clear`, `view:clear`) dan membersihkan cache versi paket.
 
 ### Opsi:
 
-- _(tanpa opsi)_: Deployment standar aman (cek secret, migrasi pasak, seeder bawaan tanpa duplikasi data, dan bersihkan cache).
-- `--reset-settings`: Menyetel ulang seluruh pengaturan di tabel `pasak_settings` kembali ke nilai bawaan pabrik tanpa menghapus riwayat log atau blokir.
-- `--reset-tables`: Mengosongkan (_truncate/delete_) seluruh tabel khusus paket Pasak untuk memulai status bersih di VPS, **tetap membiarkan tabel host seperti `users` 100% aman**.
-- `--force-secret`: Memaksa membuat ulang nilai `PASAK_DASHBOARD_SECRET` di berkas `.env`.
+- _(tanpa opsi)_: Deployment standar aman (cek secret, migrasi pasax, seeder bawaan tanpa duplikasi data, dan bersihkan cache).
+- `--reset-settings`: Menyetel ulang seluruh pengaturan di tabel `pasax_settings` kembali ke nilai bawaan pabrik tanpa menghapus riwayat log atau blokir.
+- `--reset-tables`: Mengosongkan (_truncate/delete_) seluruh tabel khusus paket Pasax untuk memulai status bersih di VPS, **tetap membiarkan tabel host seperti `users` 100% aman**.
+- `--force-secret`: Memaksa membuat ulang nilai `PASAX_DASHBOARD_SECRET` di berkas `.env`.
 - `--no-migrate`: Melewati eksekusi migrasi database (misalnya jika migrasi dijalankan terpisah di alur CI/CD).
 - `--no-cache-clear`: Melewati pembersihan cache framework.
 - `--force`: Menjalankan proses tanpa meminta konfirmasi interaktif (wajib untuk script otomatis / CI/CD).
@@ -270,17 +270,17 @@ php artisan pasak:deploy [options]
 
 ---
 
-## 11. `pasak:sentinel`
+## 11. `pasax:sentinel`
 
-Perintah utilitas diagnostik untuk menguji dan memantau konektivitas socket Unix domain ke daemon host Linux **Pasak Sentinel** (`pasak-sentinel`), serta menguji instruksi delegasi pemblokiran IP ke kernel firewall (`nftables` / `iptables`).
+Perintah utilitas diagnostik untuk menguji dan memantau konektivitas socket Unix domain ke daemon host Linux **Pasax Sentinel** (`pasax-sentinel`), serta menguji instruksi delegasi pemblokiran IP ke kernel firewall (`nftables` / `iptables`).
 
 ```bash
-php artisan pasak:sentinel [options]
+php artisan pasax:sentinel [options]
 ```
 
 ### Opsi:
 
-- `--ping`: Mengirim probe ping ke socket daemon (`/run/pasak/agent.sock` atau `/tmp/pasak/agent.sock`) untuk memastikan koneksi IPC aktif (< 0.2ms).
+- `--ping`: Mengirim probe ping ke socket daemon (`/run/pasax/agent.sock` atau `/tmp/pasax/agent.sock`) untuk memastikan koneksi IPC aktif (< 0.2ms).
 - `--status`: Menampilkan ringkasan status daemon Sentinel, waktu aktif (uptime), versi daemon, dan jumlah aturan firewall kernel yang sedang aktif.
 - `--block=IP`: Menguji instruksi pemblokiran alamat IP langsung ke kernel firewall host melalui daemon Sentinel.
 - `--unblock=IP`: Menguji pencabutan blokir alamat IP dari kernel firewall host melalui daemon Sentinel.
@@ -289,11 +289,11 @@ php artisan pasak:sentinel [options]
 
 ```bash
 # Uji koneksi IPC ke daemon Sentinel
-php artisan pasak:sentinel --ping
+php artisan pasax:sentinel --ping
 
 # Cek status runtime Sentinel & firewall kernel
-php artisan pasak:sentinel --status
+php artisan pasax:sentinel --status
 
 # Uji blokir langsung ke nftables/iptables
-php artisan pasak:sentinel --block=198.51.100.99
+php artisan pasax:sentinel --block=198.51.100.99
 ```

@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\File;
-use Pasak\SecureMonitor\Console\Commands\PasakInstallCommand;
-use Pasak\SecureMonitor\Console\Commands\SecurityInstallCommand;
+use Pasax\SecureMonitor\Console\Commands\PasaxInstallCommand;
+use Pasax\SecureMonitor\Console\Commands\SecurityInstallCommand;
 
 $tempDir = '';
 
@@ -53,15 +53,15 @@ PHP
 
     // Mock app_path and base_path behavior by running targeted methods or verifying regex transformations
     $userContent = File::get($userFile);
-    expect($userContent)->not->toContain('HasPasakSecurityRelations')
+    expect($userContent)->not->toContain('HasPasaxSecurityRelations')
         ->and($userContent)->not->toContain('HasSecurityRelations');
 
     $bootstrapContent = File::get($bootstrapFile);
-    expect($bootstrapContent)->not->toContain('PasakBlockIpAddress')
+    expect($bootstrapContent)->not->toContain('PasaxBlockIpAddress')
         ->and($bootstrapContent)->not->toContain('BlockIpAddress');
 
-    // Test install options are registered in command (supports both PasakInstallCommand & SecurityInstallCommand)
-    $command = $this->app->make(PasakInstallCommand::class);
+    // Test install options are registered in command (supports both PasaxInstallCommand & SecurityInstallCommand)
+    $command = $this->app->make(PasaxInstallCommand::class);
     $definition = $command->getDefinition();
     expect($definition->hasOption('without-user-trait'))->toBeTrue()
         ->and($definition->hasOption('without-middleware'))->toBeTrue()
@@ -69,17 +69,17 @@ PHP
         ->and($definition->hasOption('without-api'))->toBeTrue();
 
     $legacyCommand = $this->app->make(SecurityInstallCommand::class);
-    expect($legacyCommand)->toBeInstanceOf(PasakInstallCommand::class);
+    expect($legacyCommand)->toBeInstanceOf(PasaxInstallCommand::class);
 });
 
-test('pasak routes tag publishes pasak.php and pasak-api.php', function () {
-    $this->artisan('vendor:publish', ['--tag' => 'pasak-routes'])
+test('pasax routes tag publishes pasax.php and pasax-service.php', function () {
+    $this->artisan('vendor:publish', ['--tag' => 'pasax-routes'])
         ->assertSuccessful();
 
-    expect(File::exists(base_path('routes/pasak.php')))->toBeTrue();
-    expect(File::exists(base_path('routes/pasak-api.php')))->toBeTrue();
+    expect(File::exists(base_path('routes/pasax.php')))->toBeTrue();
+    expect(File::exists(base_path('routes/pasax-service.php')))->toBeTrue();
 
     // Clean up
-    @unlink(base_path('routes/pasak.php'));
-    @unlink(base_path('routes/pasak-api.php'));
+    @unlink(base_path('routes/pasax.php'));
+    @unlink(base_path('routes/pasax-service.php'));
 });

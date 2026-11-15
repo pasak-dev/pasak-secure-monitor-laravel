@@ -1,11 +1,11 @@
-# Agent Guidelines for `pasak-dev/secure-monitor`
+# Agent Guidelines for `pasax-dev/secure-monitor`
 
 ## 1. Project Overview & Foundational Context
 
-This repository is **`pasak-dev/secure-monitor`** (Bulwark), an enterprise-grade, standalone, headless self-hosted Web Application Firewall (WAF), threat detection engine, and security auditing library for the Laravel ecosystem.
+This repository is **`pasax-dev/secure-monitor`** (Bulwark), an enterprise-grade, standalone, headless self-hosted Web Application Firewall (WAF), threat detection engine, and security auditing library for the Laravel ecosystem.
 
-- **Package Name**: `pasak-dev/secure-monitor`
-- **Root Namespace**: `Pasak\SecureMonitor\`
+- **Package Name**: `pasax-dev/secure-monitor`
+- **Root Namespace**: `Pasax\SecureMonitor\`
 - **Target Environments**: PHP `^8.2 | ^8.3 | ^8.4 | ^8.5`, Laravel `^10.0 | ^11.0 | ^12.0 | ^13.0`
 - **Package Type**: `library` (Composer only)
 
@@ -13,12 +13,12 @@ This repository is **`pasak-dev/secure-monitor`** (Bulwark), an enterprise-grade
 
 - **100% Pure PHP**: This package MUST NOT introduce any NPM, Node.js, or frontend build step dependency.
 - **Spatie-Style Core Integration**: Like popular Spatie packages (`spatie/laravel-permission`, `spatie/laravel-activitylog`, `spatie/laravel-honeypot`), once installed via `composer require`, the package hooks directly and cleanly into Laravel Core:
-  1. **Package Auto-Discovery**: `PasakServiceProvider` & `Pasak` Facade.
+  1. **Package Auto-Discovery**: `PasaxServiceProvider` & `Pasax` Facade.
   2. **Eloquent Model Trait**: `HasSecurityRelations` trait on the host `User` model (analogous to Spatie's `HasRoles`).
   3. **Core Auth Event Hooks**: Listens to native `\Illuminate\Auth\Events\Failed` and `Login` events automatically.
-  4. **Core HTTP Kernel & Middleware**: Aliased as `'pasak.block'`, `'pasak.detect'`, `'pasak.admin'`, `'pasak.activity'`, with optional zero-touch auto-registration (`PASAK_AUTO_REGISTER_MIDDLEWARE=true`).
-  5. **Core Authorization Gate**: Registers `Gate::define('manage-pasak')`.
-  6. **Core Artisan Commands**: 10 commands automatically available under `php artisan pasak:*` (`install`, `scan-logs`, `baseline`, `unblock-ip`, `prune-logs`, `purge-injected-data`, `upgrade`, `uninstall`, `secret`, `deploy`).
+  4. **Core HTTP Kernel & Middleware**: Aliased as `'pasax.block'`, `'pasax.detect'`, `'pasax.admin'`, `'pasax.activity'`, with optional zero-touch auto-registration (`PASAX_AUTO_REGISTER_MIDDLEWARE=true`).
+  5. **Core Authorization Gate**: Registers `Gate::define('manage-pasax')`.
+  6. **Core Artisan Commands**: 10 commands automatically available under `php artisan pasax:*` (`install`, `scan-logs`, `baseline`, `unblock-ip`, `prune-logs`, `purge-injected-data`, `upgrade`, `uninstall`, `secret`, `deploy`).
   7. **Core Task Scheduler**: Hooks daily log pruning and heartbeat directly into `Schedule`.
   8. **Core Validation Rules**: Implements `ValidationRule` (`SafeImageFile`, `SafeAssetPath`).
 - **Universal Applicability**: Once installed, developers are free to apply it anywhere across their application: pure Blade views, headless APIs, Livewire, Filament/Nova admin panels, Inertia/React/Vue, or console microservices without restriction.
@@ -35,7 +35,7 @@ The repository contains an authoritative, 25-chapter documentation suite located
   1. `documents/01-getting-started/`:
      - `01-introduction.md` — Philosophy, Spatie-standard core integration, headless architecture, ReDoS safety.
      - `02-installation.md` — Zero-NPM Composer setup, bilingual install wizard, tag publishing, and migrations.
-     - `03-configuration.md` — Complete breakdown of every key in `config/pasak.php` and `PASAK_*` `.env` variables.
+     - `03-configuration.md` — Complete breakdown of every key in `config/pasax.php` and `PASAX_*` `.env` variables.
   2. `documents/02-core-architecture/`:
      - `01-threat-detection-engine.md` — Inspection targets, instant vs auto-block, threat levels, ReDoS immunity rules.
      - `02-device-quarantine.md` — Shared IP/NAT mitigation, `X-Device-Id` and `X-Local-Ip` isolation, `block_scope`.
@@ -70,17 +70,17 @@ The repository contains an authoritative, 25-chapter documentation suite located
 
 ## 3. Directory Structure Standards
 
-Source files reside under `src/` conforming strictly to PSR-4 (`Pasak\SecureMonitor\`):
+Source files reside under `src/` conforming strictly to PSR-4 (`Pasax\SecureMonitor\`):
 
 ```
 src/
-├── Commands/              # Artisan CLI commands (Pasak*Command)
+├── Commands/              # Artisan CLI commands (Pasax*Command)
 ├── Contracts/             # Interface contracts (WafDriverInterface, ThreatDetectorInterface, StorageInterface)
 ├── Drivers/               # Pluggable driver implementations (DatabaseStorageDriver, CacheStorageDriver)
 ├── Enums/                 # PHP 8.1+ backed enums (ThreatLevel, BlockAction, QuarantineScope)
 ├── Events/                # Domain events (ThreatDetected, IpBlocked, DeviceQuarantined)
 ├── Exceptions/            # Domain-specific exceptions
-├── Facades/               # Laravel Facades (Pasak, SecurityMonitor)
+├── Facades/               # Laravel Facades (Pasax, SecurityMonitor)
 ├── Http/
 │   ├── Controllers/       # Headless REST API & Blade controllers
 │   ├── Requests/          # Form request validators
@@ -91,25 +91,25 @@ src/
 ├── Services/              # Core security engines & business logic
 ├── Support/               # Shared helpers (DashboardView)
 ├── compat.php             # Backward-compat aliases for the pre-rename namespace
-└── PasakServiceProvider.php # Package bootstrapping & registration
+└── PasaxServiceProvider.php # Package bootstrapping & registration
 
 config/
-└── pasak.php             # Full signature definitions & default options (PASAK_* env)
+└── pasax.php             # Full signature definitions & default options (PASAX_* env)
 
-database/migrations/       # Single consolidated migration (create_pasak_tables)
+database/migrations/       # Single consolidated migration (create_pasax_tables)
 
 routes/
-├── pasak.php             # Headless REST API routes
-└── pasak-dashboard-blade.php # Blade dashboard routes (auth + pasak.admin)
+├── pasax.php             # Headless REST API routes
+└── pasax-web-blade.php # Blade dashboard routes (auth + pasax.admin)
 
 stubs/
 ├── nginx.conf.stub        # Hardened Nginx WAF configuration template
 ├── apache2.conf.stub      # Hardened Apache 2 VirtualHost configuration template
 ├── htaccess.stub          # Hardened Apache .htaccess template
 ├── blocked.blade.php      # Default 403 "blocked" page
-├── env.stub               # Documented PASAK_* environment block
-├── routes/               # Publishable route stubs (pasak-blade, pasak, pasak-api)
-└── blade/pages/pasak/     # Dashboard monitoring Blade murni (tag: plain-views)
+├── env.stub               # Documented PASAX_* environment block
+├── routes/               # Publishable route stubs (pasax-blade, pasax, pasax-service)
+└── blade/pages/pasax/     # Dashboard monitoring Blade murni (tag: plain-views)
 
 push.sh                    # Commit + auto-tag helper (patch caps at .10, majors manual-only)
 ```
@@ -122,15 +122,15 @@ push.sh                    # Commit + auto-tag helper (patch caps at .10, majors
 - Use PHP 8 constructor property promotion:
   ```php
   public function __construct(
-      protected PasakService $security,
+      protected PasaxService $security,
   ) {}
   ```
 - Prefer PHPDoc blocks with array shape type definitions for complex array structures.
 - Always use curly braces for all control structures.
 - **Pint-clean**: `./vendor/bin/pint --test` must pass. Host files edited by installer/uninstaller must also stay Pint-clean (single trailing newline, max one blank line between blocks).
-- **CHANGELOG-first**: every user-facing change gets a `CHANGELOG.md` entry before push (see `pasak-release` skill).
-- **Naming invariant**: no user-visible `security.*` / `SECURITY_*` / `SecurityMonitor` identifiers remain — only `pasak` / `PASAK_*`. Legacy names survive solely as silent fallbacks (env, config keys, table renames, class aliases). Grep before release.
-- **Docs sync**: `README.md` ↔ `documents/` ↔ `https://pasak.is-a.dev/docs` (via `docs-sync` skill) must agree on install flow, publish tags, flags, route names, and middleware aliases.
+- **CHANGELOG-first**: every user-facing change gets a `CHANGELOG.md` entry before push (see `pasax-release` skill).
+- **Naming invariant**: no user-visible `security.*` / `SECURITY_*` / `SecurityMonitor` identifiers remain — only `pasax` / `PASAX_*`. Legacy names survive solely as silent fallbacks (env, config keys, table renames, class aliases). Grep before release.
+- **Docs sync**: `README.md` ↔ `documents/` ↔ `https://pasax.is-a.dev/docs` (via `docs-sync` skill) must agree on install flow, publish tags, flags, route names, and middleware aliases.
 
 ---
 
@@ -146,7 +146,7 @@ perbaikan bug, perubahan perilaku, rilis, deploy, hapus fitur), AI WAJIB:
 2. Muat skill `activity-sync` (`.agents/skills/activity-sync/SKILL.md`) dan
    ikuti alur CRUD di sana: cek proyek (`GET /api/projects?key=`), kirim isi
    berkas rilis apa adanya lewat `POST https://ajoroby.is-a.dev/api/activities`
-   (tambah `"project": {"name": "Pasak Security Monitor Laravel Packagist"}`),
+   (tambah `"project": {"name": "Pasax Security Monitor Laravel Packagist"}`),
    lalu verifikasi (`GET /api/activities?slug=…` + pastikan tidak dobel).
 3. Kunci `X-project`: baca dari `.ACTIVITY_PROJECT_KEYS` di folder skill
    `activity-sync` — JANGAN commit berkas kunci, JANGAN menampilkannya ke user

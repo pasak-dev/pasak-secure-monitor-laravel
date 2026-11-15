@@ -459,7 +459,7 @@ async function handleProxyRequest(req, res) {
     const payload = String(input.payload ?? "");
     const upload = normalizeUpload(input.upload);
     const contentTypeOverride = String(input.content_type ?? "").trim();
-    // Identitas perangkat lab: bila dikirim, Pasak mengikat blokir device-scope
+    // Identitas perangkat lab: bila dikirim, Pasax mengikat blokir device-scope
     // ke ID ini sehingga serangan + preview (identitas sama) konsisten.
     const deviceId = String(input.device_id ?? "").trim();
     const localIp = String(input.local_ip ?? "").trim();
@@ -581,7 +581,7 @@ async function handleProxyRequest(req, res) {
  * Mengambil halaman target sisi server dengan header IP virtual yang sama
  * seperti /api/proxy, menyuntik `<base href>` agar aset relatif tetap
  * termuat, lalu menyajikannya dari origin yang sama (bebas X-Frame-Options).
- * Akibatnya blokir per-IP (mis. halaman 403 Pasak) ikut TERLIHAT di iframe.
+ * Akibatnya blokir per-IP (mis. halaman 403 Pasax) ikut TERLIHAT di iframe.
  *
  * HANYA UNTUK PENGUJIAN LOKAL.
  */

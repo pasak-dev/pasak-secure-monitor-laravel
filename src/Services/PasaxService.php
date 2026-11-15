@@ -1,0 +1,2249 @@
+<?php
+
+namespace Pasax\SecureMonitor\Services;
+
+use Carbon\CarbonInterface;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Cookie\CookieValuePrefix;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
+use Pasax\SecureMonitor\Models\PasaxAllowedIp;
+use Pasax\SecureMonitor\Models\PasaxBlockedIp;
+use Pasax\SecureMonitor\Models\PasaxLog;
+use Pasax\SecureMonitor\Models\PasaxSetting;
+use Throwable;
+
+/**
+ * Central place for threat detection, security logging and IP blocking.
+ *
+ * The service is intentionally defensive: every database interaction is
+ * wrapped so that a broken/missing table can never take the application
+ * down or expose an error to the attacker.
+ */
+class PasaxService
+{
+    /**
+     * Versi paket Pasax (Bulwark).
+     */
+    public const VERSION = '1.2.1';
+
+    /**
+     * Rentang waktu yang didukung grafik tren serangan.
+     *
+     * @var array<int, string>
+     */
+    public const TREND_RANGES = ['week', 'month', 'year'];
+
+    /**
+     * Block state memoized for the current request lifecycle.
+     *
+     * @var array<string, PasaxBlockedIp|null>
+     */
+    protected array $blockCache = [];
+
+    /**
+     * Patterns already validated by PCRE during this process.
+     *
+     * @var array<string, bool>
+     */
+    protected static array $patternCache = [];
+
+    /**
+     * Cache array for dynamic settings in memory during the request.
+     *
+     * @var array<string, mixed>
+     */
+    protected array $settingsMemoryCache = [];
+
+    public function enabled(): bool
+    {
+        return (bool) $this->getSetting('enabled', config('pasax.enabled', true));
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->enabled();
+    }
+
+    public function enforcementEnabled(): bool
+    {
+        return $this->enabled() && (bool) $this->getSetting('block_enforcement', config('pasax.block_enforcement', true));
+    }
+
+    public function isBlockEnforcementEnabled(): bool
+    {
+        return $this->enforcementEnabled();
+    }
+
+    /**
+     * Retrieve a dynamic security setting with fallback to config.
+     */
+    public function getSetting(string $key, mixed $default = null): mixed
+    {
+        if (array_key_exists($key, $this->settingsMemoryCache)) {
+            return $this->settingsMemoryCache[$key];
+        }
+
+        try {
+            if (Cache::has("sec_cfg.{$key}")) {
+                return $this->settingsMemoryCache[$key] = Cache::get("sec_cfg.{$key}");
+            }
+
+            if (Schema::hasTable((new PasaxSetting)->getTable())) {
+                $record = PasaxSetting::query()->where('key', $key)->first();
+                if ($record !== null) {
+                    $val = unserialize($record->value);
+                    Cache::put("sec_cfg.{$key}", $val, 86400);
+
+                    return $this->settingsMemoryCache[$key] = $val;
+                }
+            }
+        } catch (Throwable) {
+            // Fallback gracefully
+        }
+
+        return $default ?? config("pasax.{$key}");
+    }
+
+    /**
+     * Flush memory and persistent cache for dynamic security settings.
+     */
+    public function flushSettingsCache(?string $key = null): void
+    {
+        if ($key !== null) {
+            unset($this->settingsMemoryCache[$key]);
+
+            try {
+                Cache::forget("sec_cfg.{$key}");
+            } catch (Throwable) {
+            }
+        } else {
+            $this->settingsMemoryCache = [];
+        }
+    }
+
+    /**
+     * Threat levels that count toward the auto-block threshold,
+     * honoring the user's settings first.
+     *
+     * @return array<int, string>
+     */
+    public function autoBlockLevels(): array
+    {
+        $levels = $this->getSetting('auto_block.levels', config('pasax.auto_block.levels', ['high', 'critical']));
+
+        if (! is_array($levels)) {
+            $levels = [$levels];
+        }
+
+        $levels = array_values(array_intersect(
+            array_map('strtolower', array_map('trim', array_map('strval', $levels))),
+            PasaxLog::LEVELS
+        ));
+
+        return $levels !== [] ? $levels : ['high', 'critical'];
+    }
+
+    /**
+     * Persist a dynamic security setting.
+     */
+    public function setSetting(string $key, mixed $value): void
+    {
+        $this->settingsMemoryCache[$key] = $value;
+
+        try {
+            Cache::forever("sec_cfg.{$key}", $value);
+
+            if (Schema::hasTable((new PasaxSetting)->getTable())) {
+                PasaxSetting::query()->updateOrCreate(
+                    ['key' => $key],
+                    ['value' => serialize($value)]
+                );
+            }
+        } catch (Throwable) {
+            // Ignore if cache or database is unavailable
+        }
+    }
+
+    /**
+     * Get all structured dashboard settings.
+     *
+     * @return array<string, mixed>
+     */
+    public function getSettings(): array
+    {
+        return [
+            'auto_block_scope' => (string) $this->getSetting('auto_block.scope', config('pasax.auto_block.scope', 'device')),
+            'instant_block_scope' => (string) $this->getSetting('instant_block.scope', config('pasax.instant_block.scope', 'device')),
+            'auto_block_enabled' => (bool) $this->getSetting('auto_block.enabled', config('pasax.auto_block.enabled', false)),
+            'auto_block_threshold' => (int) $this->getSetting('auto_block.threshold', config('pasax.auto_block.threshold', 3)),
+            'auto_block_window' => (int) $this->getSetting('auto_block.window_minutes', config('pasax.auto_block.window_minutes', 10)),
+            'auto_block_duration' => (int) $this->getSetting('auto_block.duration_hours', config('pasax.auto_block.duration_hours', 24)),
+            'auto_block_levels' => $this->autoBlockLevels(),
+            'auto_block_level_thresholds' => $this->autoBlockLevelThresholds(),
+            'auto_block_combined_threshold' => (int) $this->getSetting('auto_block.combined_threshold', config('pasax.auto_block.combined_threshold', 3)),
+            'instant_block_enabled' => (bool) $this->getSetting('instant_block.enabled', config('pasax.instant_block.enabled', false)),
+            'instant_block_duration' => (int) $this->getSetting('instant_block.duration_hours', config('pasax.instant_block.duration_hours', 720)),
+            'block_enforcement' => (bool) $this->getSetting('block_enforcement', config('pasax.block_enforcement', true)),
+            'login_lockout_enabled' => (bool) $this->getSetting('login_lockout.enabled', config('pasax.login_lockout.enabled', true)),
+            'login_lockout_threshold' => (int) $this->getSetting('login_lockout.threshold', config('pasax.login_lockout.threshold', 3)),
+            'login_lockout_step1_seconds' => (int) $this->getSetting('login_lockout.step1_seconds', config('pasax.login_lockout.step1_seconds', 30)),
+            'login_lockout_step2_seconds' => (int) $this->getSetting('login_lockout.step2_seconds', config('pasax.login_lockout.step2_seconds', 60)),
+            'login_lockout_step3_seconds' => (int) $this->getSetting('login_lockout.step3_seconds', config('pasax.login_lockout.step3_seconds', 120)),
+            'login_lockout_max_seconds' => (int) $this->getSetting('login_lockout.max_seconds', config('pasax.login_lockout.max_seconds', 3600)),
+            'login_lockout_base_minutes' => (int) $this->getSetting('login_lockout.base_minutes', config('pasax.login_lockout.base_minutes', 1)),
+            'login_lockout_max_minutes' => (int) $this->getSetting('login_lockout.max_minutes', config('pasax.login_lockout.max_minutes', 30)),
+            'login_lockout_decay_minutes' => (int) $this->getSetting('login_lockout.decay_minutes', config('pasax.login_lockout.decay_minutes', 360)),
+            'log_retention_days' => (int) $this->getSetting('log_retention_days', config('pasax.retention_days', 90)),
+            'back_url' => (string) $this->getSetting('dashboard.back_url', config('pasax.dashboard.back_url', '/')),
+        ];
+    }
+
+    /**
+     * Dapatkan URL kembali ke dashboard admin/aplikasi utama host.
+     * Diambil dari database (pasax_settings: dashboard.back_url) dengan
+     * fallback ke konfigurasi config('pasax.dashboard.back_url', '/').
+     */
+    public function getDashboardBackUrl(): string
+    {
+        $url = (string) $this->getSetting('dashboard.back_url', config('pasax.dashboard.back_url', '/'));
+
+        return $url !== '' ? $url : '/';
+    }
+
+    /**
+     * Built-in default security settings that are seeded into the database
+     * (pasax_settings) so the admin can tune everything from the dashboard
+     * without touching .env.
+     *
+     * @return array<string, mixed>
+     */
+    public function defaultSettings(): array
+    {
+        return [
+            'block_enforcement' => (bool) config('pasax.block_enforcement', true),
+
+            'auto_block.enabled' => (bool) config('pasax.auto_block.enabled', false),
+            'auto_block.threshold' => (int) config('pasax.auto_block.threshold', 3),
+            'auto_block.window_minutes' => (int) config('pasax.auto_block.window_minutes', 10),
+            'auto_block.duration_hours' => (int) config('pasax.auto_block.duration_hours', 24),
+            'auto_block.levels' => $this->autoBlockLevels() === [] ? ['high', 'critical'] : $this->autoBlockLevels(),
+            'auto_block.scope' => config('pasax.auto_block.scope', 'device'),
+            'auto_block.level_thresholds' => $this->autoBlockLevelThresholds(),
+            'auto_block.combined_threshold' => (int) config('pasax.auto_block.combined_threshold', 3),
+
+            'instant_block.enabled' => (bool) config('pasax.instant_block.enabled', false),
+            'instant_block.duration_hours' => (int) config('pasax.instant_block.duration_hours', 720),
+            'instant_block.scope' => config('pasax.instant_block.scope', 'device'),
+
+            'login_lockout.enabled' => (bool) config('pasax.login_lockout.enabled', true),
+            'login_lockout.threshold' => (int) config('pasax.login_lockout.threshold', 3),
+            'login_lockout.step1_seconds' => (int) config('pasax.login_lockout.step1_seconds', 30),
+            'login_lockout.step2_seconds' => (int) config('pasax.login_lockout.step2_seconds', 60),
+            'login_lockout.step3_seconds' => (int) config('pasax.login_lockout.step3_seconds', 120),
+            'login_lockout.max_seconds' => (int) config('pasax.login_lockout.max_seconds', 3600),
+            'login_lockout.base_minutes' => (int) config('pasax.login_lockout.base_minutes', 1),
+            'login_lockout.max_minutes' => (int) config('pasax.login_lockout.max_minutes', 30),
+            'login_lockout.decay_minutes' => (int) config('pasax.login_lockout.decay_minutes', 360),
+
+            'log_retention_days' => (int) config('pasax.retention_days', 90),
+            'dashboard.back_url' => (string) config('pasax.dashboard.back_url', '/'),
+        ];
+    }
+
+    /**
+     * Insert missing default settings into the database (idempotent —
+     * existing values are never overwritten). Used by the default settings
+     * seeder, pasax:install, and pasax:upgrade.
+     *
+     * @return array<int, string> keys that were newly created
+     */
+    public function seedDefaultSettings(bool $overwrite = false): array
+    {
+        $created = [];
+
+        try {
+            if (! Schema::hasTable((new PasaxSetting)->getTable())) {
+                return $created;
+            }
+        } catch (Throwable) {
+            return $created;
+        }
+
+        foreach ($this->defaultSettings() as $key => $default) {
+            try {
+                if (! $overwrite && PasaxSetting::query()->where('key', $key)->exists()) {
+                    continue;
+                }
+                $this->setSetting($key, $default);
+                $created[] = $key;
+            } catch (Throwable) {
+                // Skip a single key failure; do not abort the whole seeding.
+            }
+        }
+
+        return $created;
+    }
+
+    /**
+     * Per-threat-level auto-block thresholds (events before that exact
+     * level trips an automatic block), honooring user settings first.
+     *
+     * @return array<string, int>
+     */
+    public function autoBlockLevelThresholds(): array
+    {
+        $stored = $this->getSetting(
+            'auto_block.level_thresholds',
+            config('pasax.auto_block.level_thresholds', ['critical' => 1, 'high' => 2, 'medium' => 3, 'low' => 5])
+        );
+
+        $thresholds = [];
+
+        foreach (array_reverse(PasaxLog::LEVELS) as $level) {
+            $thresholds[$level] = max(1, min(100, (int) ($stored[$level] ?? match ($level) {
+                'critical' => 1,
+                'high' => 2,
+                'medium' => 3,
+                default => 5,
+            })));
+        }
+
+        return $thresholds;
+    }
+
+    /**
+     * Update structured settings (database-backed; see defaultSettings()
+     * for the seeded keys). Env overrides PASAX_* remain supported as a
+     * silent fallback when a setting row does not exist.
+     *
+     * @param  array<string, mixed>  $values
+     * @return array<string, mixed>
+     */
+    public function updateSettings(array $values): array
+    {
+        if (isset($values['auto_block_scope']) && in_array($values['auto_block_scope'], ['device', 'ip', 'auto'], true)) {
+            $this->setSetting('auto_block.scope', (string) $values['auto_block_scope']);
+        }
+
+        if (isset($values['instant_block_scope']) && in_array($values['instant_block_scope'], ['device', 'ip'], true)) {
+            $this->setSetting('instant_block.scope', (string) $values['instant_block_scope']);
+        }
+
+        if (isset($values['auto_block_enabled'])) {
+            $this->setSetting('auto_block.enabled', (bool) $values['auto_block_enabled']);
+        }
+
+        if (isset($values['auto_block_threshold'])) {
+            $this->setSetting('auto_block.threshold', max(1, (int) $values['auto_block_threshold']));
+        }
+
+        if (isset($values['auto_block_window'])) {
+            $this->setSetting('auto_block.window_minutes', max(1, (int) $values['auto_block_window']));
+        }
+
+        if (isset($values['auto_block_duration'])) {
+            $this->setSetting('auto_block.duration_hours', max(0, (int) $values['auto_block_duration']));
+        }
+
+        if (isset($values['auto_block_combined_threshold'])) {
+            $this->setSetting('auto_block.combined_threshold', max(1, (int) $values['auto_block_combined_threshold']));
+        }
+
+        if (isset($values['auto_block_level_thresholds']) && is_array($values['auto_block_level_thresholds'])) {
+            $current = $this->autoBlockLevelThresholds();
+
+            foreach ($values['auto_block_level_thresholds'] as $level => $raw) {
+                if (! in_array((string) $level, PasaxLog::LEVELS, true)) {
+                    continue;
+                }
+
+                $current[$level] = max(1, min(100, (int) $raw));
+            }
+
+            $this->setSetting('auto_block.level_thresholds', $current);
+        }
+
+        if (isset($values['auto_block_levels']) && is_array($values['auto_block_levels'])) {
+            $levels = array_values(array_intersect(
+                array_map('strtolower', array_map('trim', $values['auto_block_levels'])),
+                PasaxLog::LEVELS
+            ));
+
+            if ($levels !== []) {
+                $this->setSetting('auto_block.levels', $levels);
+            }
+        }
+
+        if (isset($values['instant_block_enabled'])) {
+            $this->setSetting('instant_block.enabled', (bool) $values['instant_block_enabled']);
+        }
+
+        if (isset($values['instant_block_duration'])) {
+            $this->setSetting('instant_block.duration_hours', max(0, (int) $values['instant_block_duration']));
+        }
+
+        if (isset($values['block_enforcement'])) {
+            $this->setSetting('block_enforcement', (bool) $values['block_enforcement']);
+        }
+
+        if (isset($values['login_lockout_enabled'])) {
+            $this->setSetting('login_lockout.enabled', (bool) $values['login_lockout_enabled']);
+        }
+
+        if (isset($values['login_lockout_threshold'])) {
+            $this->setSetting('login_lockout.threshold', max(1, (int) $values['login_lockout_threshold']));
+        }
+
+        if (isset($values['login_lockout_step1_seconds'])) {
+            $this->setSetting('login_lockout.step1_seconds', max(1, (int) $values['login_lockout_step1_seconds']));
+        }
+
+        if (isset($values['login_lockout_step2_seconds'])) {
+            $this->setSetting('login_lockout.step2_seconds', max(1, (int) $values['login_lockout_step2_seconds']));
+        }
+
+        if (isset($values['login_lockout_step3_seconds'])) {
+            $this->setSetting('login_lockout.step3_seconds', max(1, (int) $values['login_lockout_step3_seconds']));
+        }
+
+        if (isset($values['login_lockout_max_seconds'])) {
+            $this->setSetting('login_lockout.max_seconds', max(1, (int) $values['login_lockout_max_seconds']));
+        }
+
+        if (isset($values['login_lockout_base_minutes'])) {
+            $this->setSetting('login_lockout.base_minutes', max(1, (int) $values['login_lockout_base_minutes']));
+        }
+
+        if (isset($values['login_lockout_max_minutes'])) {
+            $this->setSetting('login_lockout.max_minutes', max(1, (int) $values['login_lockout_max_minutes']));
+        }
+
+        if (isset($values['login_lockout_decay_minutes'])) {
+            $this->setSetting('login_lockout.decay_minutes', max(1, (int) $values['login_lockout_decay_minutes']));
+        }
+
+        if (isset($values['log_retention_days'])) {
+            $this->setSetting('log_retention_days', max(0, (int) $values['log_retention_days']));
+        }
+
+        if (array_key_exists('back_url', $values)) {
+            $rawBackUrl = trim((string) $values['back_url']);
+            $this->setSetting('dashboard.back_url', $rawBackUrl !== '' ? $rawBackUrl : '/');
+        }
+
+        $fresh = $this->getSettings();
+
+        return $fresh;
+    }
+
+    /**
+     * Sync updated settings to .env file if it exists and is writable.
+     *
+     * Deprecated: settings are database-backed by default now; this helper
+     * is kept only for hosts that still persist a mirrored .env snapshot.
+     *
+     * @param  array<string, mixed>  $settings
+     */
+    public function syncSettingsToEnv(array $settings): void
+    {
+        $envPath = base_path('.env');
+
+        if (! file_exists($envPath) || ! is_writable($envPath)) {
+            return;
+        }
+
+        try {
+            $content = (string) file_get_contents($envPath);
+
+            $mapping = [
+                'PASAX_AUTO_BLOCK_SCOPE' => $settings['auto_block_scope'] ?? 'device',
+                'PASAX_INSTANT_BLOCK_SCOPE' => $settings['instant_block_scope'] ?? 'device',
+                'PASAX_AUTO_BLOCK_ENABLED' => ($settings['auto_block_enabled'] ?? true) ? 'true' : 'false',
+                'PASAX_AUTO_BLOCK_THRESHOLD' => (string) ($settings['auto_block_threshold'] ?? 3),
+                'PASAX_AUTO_BLOCK_WINDOW' => (string) ($settings['auto_block_window'] ?? 10),
+                'PASAX_AUTO_BLOCK_DURATION' => (string) ($settings['auto_block_duration'] ?? 24),
+                'PASAX_AUTO_BLOCK_LEVELS' => implode(',', $settings['auto_block_levels'] ?? ['high', 'critical']),
+                'PASAX_INSTANT_BLOCK_ENABLED' => ($settings['instant_block_enabled'] ?? true) ? 'true' : 'false',
+                'PASAX_INSTANT_BLOCK_DURATION' => (string) ($settings['instant_block_duration'] ?? 720),
+                'PASAX_BLOCK_ENFORCEMENT' => ($settings['block_enforcement'] ?? true) ? 'true' : 'false',
+            ];
+
+            foreach ($mapping as $envKey => $envVal) {
+                if (preg_match("/^{$envKey}=.*/m", $content)) {
+                    $content = preg_replace("/^{$envKey}=.*/m", "{$envKey}={$envVal}", $content);
+                } else {
+                    $content .= "\n{$envKey}={$envVal}";
+                }
+            }
+
+            file_put_contents($envPath, $content);
+        } catch (Throwable) {
+            // Ignore environment file write errors in restricted permission containers
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | IP Matching
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Resolve the client's true public IP address, respecting reverse proxies and CDNs.
+     */
+    /**
+     * Determine whether the incoming request originates from a trusted reverse proxy.
+     */
+    public function isTrustedProxy(Request $request): bool
+    {
+        if ($request->isFromTrustedProxy()) {
+            return true;
+        }
+
+        $remote = (string) ($request->server('REMOTE_ADDR') ?? '');
+        if ($remote === '') {
+            return false;
+        }
+
+        // Loopback and private network ranges (Docker, Nginx, Kubernetes, internal gateway)
+        if (self::isPrivateIp($remote)) {
+            return true;
+        }
+
+        // Cloudflare IP ranges
+        if (self::isCloudflareIp($remote)) {
+            return true;
+        }
+
+        // Explicit trusted proxies in config
+        $trusted = config('pasax.trusted_proxies') ?? config('pasax.server_scan.trusted_proxies');
+        if (is_string($trusted) && $trusted !== '') {
+            foreach (explode(',', $trusted) as $proxy) {
+                if (self::ipMatches($remote, trim($proxy))) {
+                    return true;
+                }
+            }
+        } elseif (is_array($trusted)) {
+            foreach ($trusted as $proxy) {
+                if (self::ipMatches($remote, trim((string) $proxy))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if an IP address belongs to a private / reserved IP range.
+     */
+    public static function isPrivateIp(string $ip): bool
+    {
+        return ! filter_var(
+            $ip,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        );
+    }
+
+    /**
+     * Check if an IP address belongs to official Cloudflare reverse proxy ranges.
+     */
+    public static function isCloudflareIp(string $ip): bool
+    {
+        $cfRanges = [
+            '173.245.48.0/20',
+            '103.21.244.0/22',
+            '103.22.200.0/22',
+            '103.31.4.0/22',
+            '141.101.64.0/18',
+            '108.162.192.0/18',
+            '190.93.240.0/20',
+            '188.114.96.0/20',
+            '197.234.240.0/22',
+            '198.41.128.0/17',
+            '162.158.0.0/15',
+            '104.16.0.0/13',
+            '104.24.0.0/14',
+            '172.64.0.0/13',
+            '131.0.72.0/22',
+            '2400:cb00::/32',
+            '2606:4700::/32',
+            '2803:f800::/32',
+            '2405:b500::/32',
+            '2405:8100::/32',
+            '2a06:98c0::/29',
+            '2c0f:f248::/32',
+        ];
+
+        foreach ($cfRanges as $range) {
+            if (self::ipMatches($ip, $range)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Resolve the authentic client IP address, safely extracting from reverse
+     * proxy headers (Cloudflare, Nginx, Load Balancers) only when the request
+     * originates from a verified trusted proxy.
+     */
+    public function resolveClientIp(Request $request): string
+    {
+        if ($this->isTrustedProxy($request)) {
+            // 1. Cloudflare CDN
+            if ($cfIp = $request->header('CF-Connecting-IP')) {
+                $candidate = trim(explode(',', $cfIp)[0]);
+                if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                    return $candidate;
+                }
+            }
+
+            // 2. Akamai / Cloudflare Enterprise
+            if ($trueIp = $request->header('True-Client-IP')) {
+                $candidate = trim(explode(',', $trueIp)[0]);
+                if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                    return $candidate;
+                }
+            }
+
+            // 3. Reverse Proxies (Nginx, Caddy, Traefik, Apache)
+            if ($realIp = $request->header('X-Real-IP')) {
+                $candidate = trim(explode(',', $realIp)[0]);
+                if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                    return $candidate;
+                }
+            }
+
+            // 4. Standard Forwarded / X-Forwarded-For header
+            if ($forwarded = $request->header('X-Forwarded-For')) {
+                $candidate = trim(explode(',', $forwarded)[0]);
+                if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                    return $candidate;
+                }
+            }
+        }
+
+        return (string) ($request->ip() ?? $request->server('REMOTE_ADDR') ?? '127.0.0.1');
+    }
+
+    /**
+     * Resolve the unique device identifier sent from the client or derive from fingerprint.
+     */
+    public function resolveDeviceId(?Request $request = null, bool $allowFingerprint = true): ?string
+    {
+        $request = $request ?? request();
+
+        if (! $request instanceof Request) {
+            return null;
+        }
+
+        $id = $request->header('X-Device-Id')
+            ?? $request->header('X-Client-Id')
+            ?? $request->header('X-Client-Device-Id')
+            ?? $request->cookie('app_device_id')
+            ?? $request->cookie('sec_device_id')
+            ?? $request->input('device_id');
+
+        if (is_string($id) && trim($id) !== '') {
+            return trim($id);
+        }
+
+        if ($allowFingerprint) {
+            return $this->generateDeviceFingerprint($request);
+        }
+
+        return null;
+    }
+
+    /**
+     * Generate a deterministic device fingerprint based on client request signatures.
+     */
+    public function generateDeviceFingerprint(Request $request): string
+    {
+        $ua = (string) $request->userAgent();
+        $lang = (string) $request->header('Accept-Language');
+        $platform = (string) ($request->header('Sec-Ch-Ua-Platform') ?? $request->header('Sec-Ch-Ua') ?? '');
+        $encoding = (string) $request->header('Accept-Encoding');
+        $accept = (string) $request->header('Accept');
+
+        $raw = $ua.'|'.$lang.'|'.$platform.'|'.$encoding.'|'.$accept;
+
+        if (trim($raw, '|') === '') {
+            $raw = 'raw_client_'.($request->server('HTTP_ACCEPT') ?? '').'_'.($request->server('REMOTE_PORT') ?? '0');
+        }
+
+        return 'dev_'.substr(hash('sha256', $raw), 0, 16);
+    }
+
+    /**
+     * Resolve the local/private LAN IP discovered on the client side via WebRTC.
+     */
+    public function resolveLocalIp(?Request $request = null): ?string
+    {
+        $request = $request ?? request();
+
+        if (! $request instanceof Request) {
+            return null;
+        }
+
+        $ip = $request->header('X-Local-Ip')
+            ?? $request->header('X-Client-Local-Ip')
+            ?? $request->cookie('app_local_ip')
+            ?? $request->input('local_ip');
+
+        return is_string($ip) && $ip !== '' ? trim($ip) : null;
+    }
+
+    /**
+     * Check whether an IP/device is part of the configured whitelist or trusted IP table.
+     */
+    public function isWhitelisted(?string $ip, ?string $deviceId = null, ?string $localIp = null): bool
+    {
+        if (! is_string($ip) || $ip === '') {
+            return false;
+        }
+
+        foreach (config('pasax.whitelist', []) as $pattern) {
+            if (self::ipMatches($ip, (string) $pattern)) {
+                return true;
+            }
+        }
+
+        try {
+            $allowedTable = (new PasaxAllowedIp)->getTable();
+
+            if (Schema::hasTable($allowedTable)) {
+                $entry = PasaxAllowedIp::query()
+                    ->where('is_active', true)
+                    ->where(function ($query) {
+                        $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+                    })
+                    ->orderBy('id')
+                    ->cursor()
+                    ->first(fn ($row) => self::ipMatches($ip, (string) $row->ip_address));
+
+                if ($entry !== null) {
+                    return true;
+                }
+            }
+        } catch (Throwable) {
+            // Silently fallback if table query fails
+        }
+
+        return false;
+    }
+
+    /**
+     * Match an IP against an exact address, a wildcard (192.168.1.*) or CIDR.
+     */
+    public static function ipMatches(string $ip, string $pattern): bool
+    {
+        $pattern = trim($pattern);
+
+        if ($pattern === '') {
+            return false;
+        }
+
+        if ($pattern === '*' || $pattern === $ip) {
+            return true;
+        }
+
+        if (str_contains($pattern, '/')) {
+            return self::ipInCidr($ip, $pattern);
+        }
+
+        if (str_contains($pattern, '*')) {
+            return Str::is($pattern, $ip);
+        }
+
+        return false;
+    }
+
+    protected static function ipInCidr(string $ip, string $cidr): bool
+    {
+        [$subnet, $bits] = array_pad(explode('/', $cidr, 2), 2, null);
+
+        if ($bits === null || ! is_numeric($bits)) {
+            return false;
+        }
+
+        $ipBinary = @inet_pton($ip);
+        $subnetBinary = $subnet === null ? false : @inet_pton($subnet);
+
+        if ($ipBinary === false || $subnetBinary === false || strlen($ipBinary) !== strlen($subnetBinary)) {
+            return false;
+        }
+
+        $bits = (int) $bits;
+        $maxBits = strlen($ipBinary) * 8;
+
+        if ($bits < 0 || $bits > $maxBits) {
+            return false;
+        }
+
+        $wholeBytes = intdiv($bits, 8);
+
+        if ($wholeBytes > 0 && substr($ipBinary, 0, $wholeBytes) !== substr($subnetBinary, 0, $wholeBytes)) {
+            return false;
+        }
+
+        $remainingBits = $bits % 8;
+
+        if ($remainingBits === 0) {
+            return true;
+        }
+
+        $mask = ~((1 << (8 - $remainingBits)) - 1) & 0xFF;
+
+        return (ord($ipBinary[$wholeBytes]) & $mask) === (ord($subnetBinary[$wholeBytes]) & $mask);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Blocked IPs
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Return the active block record for an IP / device, if any.
+     */
+    public function activeBlock(?string $ip, ?string $deviceId = null, ?string $localIp = null): ?PasaxBlockedIp
+    {
+        if (! is_string($ip) || $ip === '') {
+            return null;
+        }
+
+        $cacheKey = $ip.'|'.($deviceId ?? '').'|'.($localIp ?? '');
+
+        if (array_key_exists($cacheKey, $this->blockCache)) {
+            return $this->blockCache[$cacheKey];
+        }
+
+        try {
+            $blocks = PasaxBlockedIp::query()
+                ->active()
+                ->where(function (Builder $query) use ($ip, $deviceId) {
+                    $query->where('ip_address', $ip);
+                    if ($deviceId) {
+                        $query->orWhere('device_id', $deviceId);
+                    }
+                })
+                ->get();
+
+            if ($blocks->isEmpty()) {
+                return $this->blockCache[$cacheKey] = null;
+            }
+
+            foreach ($blocks as $block) {
+                // If block is specifically scoped to device
+                if ($block->block_scope === 'device') {
+                    if (($deviceId && $block->device_id === $deviceId) ||
+                        ($localIp && $block->local_ip === $localIp)) {
+                        return $this->blockCache[$cacheKey] = $block;
+                    }
+
+                    continue;
+                }
+
+                // If block is for the entire IP address
+                if ($block->ip_address === $ip) {
+                    return $this->blockCache[$cacheKey] = $block;
+                }
+            }
+        } catch (Throwable) {
+            return $this->blockCache[$cacheKey] = null;
+        }
+
+        return $this->blockCache[$cacheKey] = null;
+    }
+
+    public function isBlocked(?string $ip, ?string $deviceId = null, ?string $localIp = null): bool
+    {
+        return $this->activeBlock($ip, $deviceId, $localIp) !== null;
+    }
+
+    /**
+     * Block an IP address or specific device (creating or re-activating the record).
+     *
+     * @param  array{reason?: string|null, notes?: string|null, source?: string, blocked_by?: int|null, duration_hours?: int|string|null, expires_at?: mixed, local_ip?: string|null, device_id?: string|null, block_scope?: string}  $attributes
+     */
+    public function block(string $ip, array $attributes = []): PasaxBlockedIp
+    {
+        $deviceId = $attributes['device_id'] ?? null;
+        $localIp = $attributes['local_ip'] ?? null;
+        $blockScope = $attributes['block_scope'] ?? 'ip';
+
+        if ($this->isWhitelisted($ip, $deviceId, $localIp)) {
+            return PasaxBlockedIp::query()->firstOrNew(['ip_address' => $ip, 'is_active' => false]);
+        }
+
+        $duration = $attributes['duration_hours'] ?? null;
+        $expiresAt = $attributes['expires_at'] ?? null;
+
+        if ($expiresAt === null && $duration !== null && (int) $duration > 0) {
+            $expiresAt = now()->addHours((int) $duration);
+        }
+
+        /** @var PasaxBlockedIp $block */
+        $blockQuery = PasaxBlockedIp::query()->where('ip_address', $ip);
+        if ($deviceId) {
+            $blockQuery->where('device_id', $deviceId);
+        }
+        $block = $blockQuery->firstOrNew([
+            'ip_address' => $ip,
+            'device_id' => $deviceId,
+        ]);
+
+        $block->fill([
+            'local_ip' => $localIp ?? $block->local_ip,
+            'block_scope' => $blockScope,
+            'reason' => $attributes['reason'] ?? $block->reason ?? 'Aktivitas mencurigakan terdeteksi',
+            'notes' => $attributes['notes'] ?? $block->notes,
+            'source' => $attributes['source'] ?? $block->source ?? 'manual',
+            'blocked_by' => $attributes['blocked_by'] ?? $block->blocked_by,
+            'blocked_at' => now(),
+            'expires_at' => $expiresAt,
+            'is_active' => true,
+            'hit_count' => $block->exists ? $block->hit_count : 0,
+        ]);
+
+        $block->save();
+
+        $cacheKey = $ip.'|'.($deviceId ?? '').'|'.($localIp ?? '');
+        $this->blockCache[$cacheKey] = $block;
+
+        return $block;
+    }
+
+    /**
+     * Block an IP address with convenient scalar arguments (matching Pasax facade).
+     */
+    public function blockIp(
+        string $ip,
+        ?string $reason = null,
+        ?int $durationHours = null,
+        string $source = 'manual',
+        ?int $userId = null,
+        ?string $deviceId = null,
+        ?string $localIp = null,
+        string $scope = 'ip'
+    ): bool {
+        $block = $this->block($ip, [
+            'reason' => $reason,
+            'duration_hours' => $durationHours,
+            'source' => $source,
+            'blocked_by' => $userId,
+            'device_id' => $deviceId,
+            'local_ip' => $localIp,
+            'block_scope' => $scope,
+        ]);
+
+        if ($block->is_active) {
+            try {
+                app(PasaxSentinelBridge::class)->blockIp(
+                    $ip,
+                    $reason,
+                    $durationHours ? $durationHours * 60 : 1440
+                );
+            } catch (Throwable) {
+            }
+        }
+
+        return (bool) $block->is_active;
+    }
+
+    /**
+     * Lift a block. The record is kept for audit purposes.
+     */
+    public function unblock(PasaxBlockedIp $block): void
+    {
+        $block->forceFill([
+            'is_active' => false,
+        ])->save();
+
+        if ($block->ip_address) {
+            try {
+                app(PasaxSentinelBridge::class)->unblockIp($block->ip_address);
+            } catch (Throwable) {
+            }
+        }
+
+        $this->blockCache = [];
+    }
+
+    /**
+     * Lift any active block for a given IP address or device.
+     */
+    public function unblockIp(?string $ip, ?string $deviceId = null): bool
+    {
+        if ((! is_string($ip) || $ip === '') && ! is_string($deviceId)) {
+            return false;
+        }
+
+        $this->blockCache = [];
+
+        try {
+            $query = PasaxBlockedIp::query()->where('is_active', true);
+
+            if ($deviceId) {
+                $query->where(function (Builder $q) use ($ip, $deviceId) {
+                    $q->where('device_id', $deviceId);
+                    if ($ip) {
+                        $q->orWhere('ip_address', $ip);
+                    }
+                });
+            } else {
+                $query->where('ip_address', $ip);
+            }
+
+            $blocks = $query->get();
+
+            if ($blocks->isEmpty()) {
+                return false;
+            }
+
+            foreach ($blocks as $block) {
+                $block->forceFill(['is_active' => false])->save();
+            }
+
+            if ($ip) {
+                try {
+                    app(PasaxSentinelBridge::class)->unblockIp($ip);
+                } catch (Throwable) {
+                }
+            }
+
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * Count a hit on a blocked IP (and log it, throttled per IP).
+     */
+    public function logBlockedAttempt(PasaxBlockedIp $block, Request $request): void
+    {
+        try {
+            $block->forceFill([
+                'hit_count' => $block->hit_count + 1,
+                'last_hit_at' => now(),
+            ])->save();
+        } catch (Throwable) {
+            // Never let logging break the response.
+        }
+
+        if (! $this->shouldLogBlockedAttempt($block->ip_address)) {
+            return;
+        }
+
+        $this->record($request, [[
+            'rule' => 'blocked_ip',
+            'label' => 'Akses ditolak dari IP yang diblokir',
+            'level' => 'medium',
+            'evidence' => 'IP '.$block->ip_address.' mencoba mengakses '.$request->fullUrl(),
+        ]], 'blocked');
+    }
+
+    protected function shouldLogBlockedAttempt(string $ip): bool
+    {
+        $interval = (int) config('pasax.blocked_log_interval', 10);
+
+        if ($interval <= 0) {
+            return true;
+        }
+
+        try {
+            return (bool) Cache::add("pasax:blocked-log:{$ip}", 1, now()->addSeconds($interval));
+        } catch (Throwable) {
+            return true;
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Detection
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Inspect a request and return every threat that was detected.
+     *
+     * @return array<int, array{rule: string, label: string, level: string, evidence: string, instant: bool}>
+     */
+    public function inspect(Request $request): array
+    {
+        $ip = $this->resolveClientIp($request);
+        $deviceId = $this->resolveDeviceId($request);
+        $localIp = $this->resolveLocalIp($request);
+
+        if (! $this->enabled() || $this->isWhitelisted($ip, $deviceId, $localIp)) {
+            return [];
+        }
+
+        if ($this->isExcludedPath($request->path())) {
+            return [];
+        }
+
+        return $this->inspectHaystacks($this->haystacks($request));
+    }
+
+    /**
+     * Inspect raw request parts instead of a live Request object.
+     *
+     * Dipakai oleh pemindai access log (security:scan-access-log) sehingga pola
+     * deteksi tetap hanya didefinisikan sekali di config/pasax.php.
+     *
+     * @return array<int, array{rule: string, label: string, level: string, evidence: string, instant: bool}>
+     */
+    public function inspectRaw(string $path, string $query = '', string $userAgent = '', string $body = '', string $referer = ''): array
+    {
+        if (! $this->enabled() || $this->isExcludedPath($path)) {
+            return [];
+        }
+
+        return $this->inspectHaystacks(
+            $this->haystacksFromParts($path, $query, $body, $userAgent, $referer)
+        );
+    }
+
+    /**
+     * Run every detection layer against a set of request parts and return the
+     * threats that were found (most severe entry per rule id).
+     *
+     * @param  array<string, string>  $haystacks
+     * @return array<int, array{rule: string, label: string, level: string, evidence: string, instant: bool}>
+     */
+    public function inspectHaystacks(array $haystacks): array
+    {
+        $paths = array_unique(array_filter([
+            (string) ($haystacks['path'] ?? ''),
+            (string) ($haystacks['path-decoded'] ?? ''),
+        ]));
+
+        $pathThreats = [];
+
+        foreach ($paths as $path) {
+            $pathThreats = array_merge(
+                $pathThreats,
+                $this->inspectSensitivePath($path, (string) ($haystacks['query-decoded'] ?? $haystacks['query'] ?? '')),
+            );
+        }
+
+        return $this->deduplicate(array_merge(
+            $pathThreats,
+            $this->inspectScannerAgent((string) ($haystacks['user_agent'] ?? '')),
+            $this->inspectRules($haystacks),
+            $this->inspectSignatures($haystacks),
+        ));
+    }
+
+    /**
+     * Zero tolerance signatures: a single match blocks the source IP at once.
+     *
+     * @param  array<string, string>  $all
+     * @return array<int, array{rule: string, label: string, level: string, evidence: string, instant: bool}>
+     */
+    protected function inspectSignatures(array $all): array
+    {
+        if (! $this->instantBlockEnabled()) {
+            return [];
+        }
+
+        $threats = [];
+
+        foreach (config('pasax.instant_block.signatures', []) as $signature) {
+            $id = (string) ($signature['id'] ?? 'signature');
+            $targets = $this->targetsFor((string) ($signature['target'] ?? 'any'), $all);
+
+            foreach ($signature['patterns'] ?? [] as $pattern) {
+                $pattern = (string) $pattern;
+
+                if (! $this->isValidPattern($pattern)) {
+                    continue;
+                }
+
+                foreach ($targets as $source => $value) {
+                    if (preg_match($pattern, $value, $matches) !== 1) {
+                        continue;
+                    }
+
+                    $threats[] = [
+                        'rule' => $id,
+                        'label' => (string) ($signature['label'] ?? Str::headline($id)),
+                        'level' => 'critical',
+                        'evidence' => $this->buildEvidence((string) $source, $value, (string) $matches[0]),
+                        'instant' => true,
+                    ];
+
+                    continue 3;
+                }
+            }
+        }
+
+        return $threats;
+    }
+
+    /**
+     * Pick the haystacks a signature is allowed to inspect.
+     *
+     * @param  array<string, string>  $all
+     * @return array<string, string>
+     */
+    protected function targetsFor(string $target, array $all): array
+    {
+        $sources = match ($target) {
+            'path' => ['path', 'path-decoded'],
+            'query' => ['query', 'query-decoded'],
+            'body' => ['body', 'file_content'],
+            'filename' => ['filename'],
+            'input' => ['query', 'query-decoded', 'body', 'file_content'],
+            'user_agent' => ['user_agent'],
+            default => array_keys($all),
+        };
+
+        return array_intersect_key($all, array_flip($sources));
+    }
+
+    public function instantBlockEnabled(): bool
+    {
+        return $this->enabled()
+            && (bool) $this->getSetting('instant_block.enabled', config('pasax.instant_block.enabled', false))
+            && config('pasax.instant_block.signatures', []) !== [];
+    }
+
+    /**
+     * Whether the detected threats include a zero tolerance signature.
+     *
+     * @param  array<int, array{instant?: bool}>  $threats
+     */
+    public function shouldInstantBlock(array $threats): bool
+    {
+        foreach ($threats as $threat) {
+            if (($threat['instant'] ?? false) === true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Reason string describing which signature triggered the block.
+     *
+     * @param  array<int, array{label?: string, instant?: bool}>  $threats
+     */
+    public function instantBlockReason(array $threats): ?string
+    {
+        foreach ($threats as $threat) {
+            if (($threat['instant'] ?? false) === true) {
+                return (string) ($threat['label'] ?? 'Pola serangan terdeteksi');
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Block an IP/device straight away because of a zero tolerance signature.
+     *
+     * @param  array<int, array{label?: string, instant?: bool}>  $threats
+     */
+    public function blockImmediately(string $ip, array $threats, ?string $deviceId = null, ?string $localIp = null): ?PasaxBlockedIp
+    {
+        if (! $this->instantBlockEnabled() || $this->isWhitelisted($ip, $deviceId, $localIp)) {
+            return null;
+        }
+
+        $config = config('pasax.instant_block', []);
+        $scope = (string) $this->getSetting('instant_block.scope', $config['scope'] ?? 'device');
+
+        if ($scope === 'device' && empty($deviceId)) {
+            $deviceId = $this->resolveDeviceId();
+        }
+
+        if (empty($localIp)) {
+            $localIp = $this->resolveLocalIp();
+        }
+
+        $reason = $this->instantBlockReason($threats) ?? 'Pola serangan terdeteksi';
+
+        return $this->block($ip, [
+            'device_id' => $deviceId,
+            'local_ip' => $localIp,
+            'block_scope' => $scope,
+            'reason' => 'Diblokir instan: '.$reason,
+            'notes' => 'Terdeteksi otomatis oleh Security Monitor (zero tolerance signature).'.($deviceId ? " (Perangkat: {$deviceId})" : ''),
+            'source' => 'automatic',
+            'duration_hours' => (int) $this->getSetting('instant_block.duration_hours', $config['duration_hours'] ?? 720),
+        ]);
+    }
+
+    protected function isExcludedPath(string $path): bool
+    {
+        $path = trim($path, '/');
+
+        foreach (config('pasax.exclude_paths', []) as $excluded) {
+            if (Str::is(trim((string) $excluded, '/'), $path)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Look for probes against sensitive files or admin panels of other apps.
+     */
+    protected function inspectSensitivePath(string $path, string $query = ''): array
+    {
+        $path = trim($path, '/');
+        $segments = $path === '' ? [] : explode('/', $path);
+
+        $threats = [];
+
+        foreach (['critical', 'high'] as $level) {
+            foreach (config("pasax.sensitive_paths.{$level}", []) as $pattern) {
+                $pattern = (string) $pattern;
+
+                if ($this->matchesAny($pattern, [$path, ...$segments])) {
+                    $threats[] = [
+                        'rule' => 'sensitive_path',
+                        'label' => 'Pemindaian berkas sensitif / panel pihak ketiga',
+                        'level' => $level,
+                        'evidence' => 'path: /'.$path,
+                    ];
+
+                    continue 2;
+                }
+
+                // Credential files are frequently probed through a query string
+                // (e.g. /index.php?file=.env); only the critical list is checked
+                // here to avoid false positives.
+                if ($level === 'critical' && $query !== '' && str_contains($query, $pattern)) {
+                    $threats[] = [
+                        'rule' => 'sensitive_path',
+                        'label' => 'Pemindaian berkas sensitif melalui parameter',
+                        'level' => $level,
+                        'evidence' => 'query: '.Str::limit($query, 120, ''),
+                    ];
+
+                    continue 2;
+                }
+            }
+        }
+
+        return $threats;
+    }
+
+    /**
+     * @param  array<int, string>  $values
+     */
+    protected function matchesAny(string $pattern, array $values): bool
+    {
+        foreach ($values as $value) {
+            if ($value === '') {
+                continue;
+            }
+
+            if (Str::is($pattern, $value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Detect automated vulnerability scanners.
+     */
+    protected function inspectScannerAgent(string $userAgent): array
+    {
+        $agent = Str::lower($userAgent);
+
+        if ($agent === '') {
+            return [];
+        }
+
+        foreach (config('pasax.scanner_agents', []) as $scanner) {
+            $scanner = Str::lower((string) $scanner);
+
+            if ($scanner !== '' && str_contains($agent, $scanner)) {
+                return [[
+                    'rule' => 'scanner',
+                    'label' => 'Perangkat lunak pemindai keamanan terdeteksi',
+                    'level' => 'high',
+                    'evidence' => 'user-agent: '.Str::limit($userAgent, 120, ''),
+                ]];
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * Run every configured regex rule against the request payload.
+     *
+     * @param  array<string, string>  $haystacks
+     */
+    protected function inspectRules(array $haystacks): array
+    {
+        $threats = [];
+
+        foreach (config('pasax.rules', []) as $rule) {
+            $ruleId = (string) ($rule['id'] ?? 'unknown');
+
+            foreach ($rule['patterns'] ?? [] as $pattern) {
+                $pattern = (string) $pattern;
+
+                if (! $this->isValidPattern($pattern)) {
+                    continue;
+                }
+
+                foreach ($haystacks as $source => $value) {
+                    if (preg_match($pattern, $value, $matches) !== 1) {
+                        continue;
+                    }
+
+                    $threats[] = [
+                        'rule' => $ruleId,
+                        'label' => (string) ($rule['label'] ?? Str::headline($ruleId)),
+                        'level' => (string) ($rule['level'] ?? 'medium'),
+                        'evidence' => $this->buildEvidence((string) $source, $value, (string) $matches[0]),
+                    ];
+
+                    continue 3;
+                }
+            }
+        }
+
+        return $threats;
+    }
+
+    /**
+     * Request data that gets scanned, keyed by its origin.
+     *
+     * @return array<string, string>
+     */
+    protected function haystacks(Request $request): array
+    {
+        $limit = max(500, (int) config('pasax.max_inspect_length', 4000));
+
+        $bodyInput = $this->flattenInput($request->all());
+        $rawContent = (string) $request->getContent();
+
+        if ($rawContent !== '' && ! str_contains($bodyInput, substr($rawContent, 0, 100))) {
+            $combinedBody = $bodyInput !== '' ? $bodyInput.' '.$rawContent : $rawContent;
+        } else {
+            $combinedBody = $bodyInput !== '' ? $bodyInput : $rawContent;
+        }
+
+        $haystacks = $this->haystacksFromParts(
+            (string) $request->path(),
+            (string) $request->getQueryString(),
+            $combinedBody,
+            (string) $request->userAgent(),
+            (string) $request->headers->get('referer'),
+        );
+
+        // Nama berkas unggahan hanya ada pada request multipart.
+        $filenames = Str::limit($this->flattenFileNames($request->allFiles()), $limit, '');
+
+        if ($filenames !== '') {
+            $haystacks['filename'] = $filenames;
+        }
+
+        // Pindai konten berkas unggahan untuk mendeteksi Polyglot Webshell (mis. PHP dalam JPEG/PNG).
+        $fileContents = Str::limit($this->extractUploadedFileContents($request->allFiles()), $limit, '');
+
+        if ($fileContents !== '') {
+            $haystacks['file_content'] = $fileContents;
+        }
+
+        return $haystacks;
+    }
+
+    /**
+     * Build the inspectable parts of a request from raw strings.
+     *
+     * @return array<string, string>
+     */
+    protected function haystacksFromParts(string $path, string $query, string $body, string $userAgent, string $referer = ''): array
+    {
+        $limit = max(500, (int) config('pasax.max_inspect_length', 4000));
+
+        // Tail inspection prevents WAF padding evasion (padding with > 4000 bytes to hide attacks)
+        if (strlen($body) > $limit) {
+            $half = (int) ($limit / 2);
+            $inspectedBody = substr($body, 0, $half).' '.substr($body, -$half);
+        } else {
+            $inspectedBody = $body;
+        }
+
+        return array_filter(
+            [
+                'path' => $path,
+                'path-decoded' => rawurldecode($path),
+                'query' => $query,
+                'query-decoded' => rawurldecode($query),
+                'body' => $inspectedBody,
+                'referer' => $referer,
+                'user_agent' => $userAgent,
+            ],
+            fn (string $value) => $value !== ''
+        );
+    }
+
+    /**
+     * Collect the client supplied names of every uploaded file.
+     * Attackers hide the payload here (wne.php%00.jpg) instead of the body.
+     *
+     * @param  array<array-key, mixed>  $files
+     */
+    protected function flattenFileNames(array $files, int $depth = 0): string
+    {
+        if ($depth > 5) {
+            return '';
+        }
+
+        $names = [];
+
+        foreach ($files as $file) {
+            if ($file instanceof UploadedFile) {
+                $names[] = $file->getClientOriginalName();
+
+                continue;
+            }
+
+            if (is_array($file)) {
+                $names[] = $this->flattenFileNames($file, $depth + 1);
+            }
+        }
+
+        return implode(' ', array_filter($names, fn (string $name) => $name !== ''));
+    }
+
+    /**
+     * Inspect uploaded files for embedded malicious scripts (Polyglot Webshells).
+     *
+     * @param  array<array-key, mixed>  $files
+     */
+    protected function extractUploadedFileContents(array $files, int $depth = 0): string
+    {
+        if ($depth > 5) {
+            return '';
+        }
+
+        $snippets = [];
+
+        foreach ($files as $file) {
+            if ($file instanceof UploadedFile && $file->isValid()) {
+                try {
+                    $content = '';
+                    if (method_exists($file, 'get')) {
+                        $content = (string) $file->get();
+                    } elseif ($file->getRealPath() && is_readable($file->getRealPath())) {
+                        $size = (int) $file->getSize();
+                        if ($size <= 262144) {
+                            $content = (string) @file_get_contents($file->getRealPath());
+                        } else {
+                            $head = (string) @file_get_contents($file->getRealPath(), false, null, 0, 131072);
+                            $tail = (string) @file_get_contents($file->getRealPath(), false, null, max(0, $size - 65536), 65536);
+                            $content = $head.' '.$tail;
+                        }
+                    }
+
+                    // Capture snippet if dangerous tokens/tags appear.
+                    if ($content !== '' && preg_match('/(<\?php[\s\r\n\t;\$\/]|<\?=\s*(?:\$[a-zA-Z_\x7f-\xff]|[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\s*\(|`|\b(?:eval|system|passthru|exec|shell_exec|assert)\b)|<\?\s*(?:\$[a-zA-Z_\x7f-\xff]|\b(?:eval|system|passthru|exec|shell_exec|assert)\b)|<script\b|eval\s*\(|base64_decode|system\s*\(|shell_exec|__HALT_COMPILER)/i', $content, $match)) {
+                        $pos = strpos($content, $match[0]);
+                        $start = max(0, (int) $pos - 40);
+                        $snippets[] = substr($content, $start, 300);
+                    }
+                } catch (Throwable) {
+                    // Skip unreadable files safely
+                }
+
+                continue;
+            }
+
+            if (is_array($file)) {
+                $extracted = $this->extractUploadedFileContents($file, $depth + 1);
+                if ($extracted !== '') {
+                    $snippets[] = $extracted;
+                }
+            }
+        }
+
+        return implode(' ', $snippets);
+    }
+
+    /**
+     * Flatten request input (including keys) into a single inspectable string.
+     *
+     * @param  array<array-key, mixed>  $input
+     */
+    protected function flattenInput(array $input, int $depth = 0): string
+    {
+        if ($depth > 5) {
+            return '';
+        }
+
+        $values = [];
+
+        foreach ($input as $key => $value) {
+            if ($value instanceof UploadedFile) {
+                continue;
+            }
+
+            if (is_array($value)) {
+                $values[] = (string) $key;
+                $values[] = $this->flattenInput($value, $depth + 1);
+
+                continue;
+            }
+
+            if (is_scalar($value) || $value === null) {
+                $values[] = (string) $key;
+                $values[] = (string) $value;
+            }
+        }
+
+        return implode(' ', array_filter($values, fn (string $value) => $value !== ''));
+    }
+
+    protected function isValidPattern(string $pattern): bool
+    {
+        if (array_key_exists($pattern, self::$patternCache)) {
+            return self::$patternCache[$pattern];
+        }
+
+        return self::$patternCache[$pattern] = @preg_match($pattern, '') !== false;
+    }
+
+    protected function buildEvidence(string $source, string $haystack, string $match): string
+    {
+        $position = strpos($haystack, $match);
+        $start = $position === false ? 0 : max(0, $position - 40);
+        $snippet = substr($haystack, $start, strlen($match) + 80);
+        $snippet = trim((string) preg_replace('/\s+/', ' ', $snippet));
+
+        return $source.': '.Str::limit($snippet, 200, '…');
+    }
+
+    /**
+     * Keep the most severe entry per rule id.
+     *
+     * @param  array<int, array{rule: string, label: string, level: string, evidence: string, instant?: bool}>  $threats
+     * @return array<int, array{rule: string, label: string, level: string, evidence: string, instant: bool}>
+     */
+    protected function deduplicate(array $threats): array
+    {
+        $deduplicated = [];
+
+        foreach ($threats as $threat) {
+            $threat['instant'] = (bool) ($threat['instant'] ?? false);
+            $current = $deduplicated[$threat['rule']] ?? null;
+
+            if ($current === null || $this->weight($threat['level']) > $this->weight($current['level'])) {
+                $deduplicated[$threat['rule']] = $threat;
+            }
+        }
+
+        return array_values($deduplicated);
+    }
+
+    protected function weight(string $level): int
+    {
+        return PasaxLog::LEVEL_WEIGHTS[$level] ?? 0;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logging
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Persist the detected threats. Returns null when there is nothing to save
+     * or when the write fails (logging must never break a response).
+     *
+     * @param  array<int, array{rule: string, label: string, level: string, evidence: string}>  $threats
+     */
+    public function record(Request $request, array $threats, ?string $action = null): ?PasaxLog
+    {
+        if ($threats === [] || ! $this->enabled()) {
+            return null;
+        }
+
+        $primary = $this->primaryThreat($threats);
+
+        try {
+            return PasaxLog::create([
+                'ip_address' => $this->resolveClientIp($request),
+                'local_ip' => $this->resolveLocalIp($request),
+                'device_id' => $this->resolveDeviceId($request),
+                'user_id' => $this->resolveUserId($request),
+                'event_type' => $primary['rule'],
+                'threat_level' => $primary['level'],
+                'method' => Str::limit($request->method(), 10, ''),
+                'path' => Str::limit('/'.ltrim($request->path(), '/'), 2000, ''),
+                'full_url' => Str::limit($request->fullUrl(), 2000, ''),
+                'rule_label' => $primary['label'],
+                'evidence' => Str::limit($primary['evidence'], 1000, ''),
+                'user_agent' => Str::limit((string) $request->userAgent(), 500, ''),
+                'referer' => Str::limit((string) $request->headers->get('referer'), 500, ''),
+                'was_blocked' => $action === 'blocked',
+                'action_taken' => $action,
+                'meta' => [
+                    'threats' => array_map(fn (array $threat) => [
+                        'rule' => $threat['rule'],
+                        'level' => $threat['level'],
+                    ], $threats),
+                ],
+            ]);
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * @param  array<int, array{rule: string, label: string, level: string, evidence: string}>  $threats
+     * @return array{rule: string, label: string, level: string, evidence: string}
+     */
+    protected function primaryThreat(array $threats): array
+    {
+        usort($threats, fn (array $a, array $b) => $this->weight($b['level']) <=> $this->weight($a['level']));
+
+        return $threats[0];
+    }
+
+    /**
+     * Resolve the authenticated user from the request, auth guards,
+     * active session, or by decrypting the session cookie if session
+     * middleware has not started yet.
+     */
+    public function resolveUser(Request $request): ?Authenticatable
+    {
+        // 1. Direct user on request (if already resolved or set via actingAs)
+        try {
+            if ($user = $request->user()) {
+                if ($user instanceof Authenticatable) {
+                    return $user;
+                }
+            }
+        } catch (Throwable) {
+            // ignore
+        }
+
+        // 2. Auth facade default / web guard
+        try {
+            if ($user = Auth::user()) {
+                if ($user instanceof Authenticatable) {
+                    return $user;
+                }
+            }
+        } catch (Throwable) {
+            // ignore
+        }
+
+        // 3. Active session on request
+        try {
+            if ($request->hasSession()) {
+                $session = $request->session();
+                $guardKey = Auth::getName();
+                if ($session->has($guardKey)) {
+                    $userId = $session->get($guardKey);
+                    if ($userId && ($user = ($this->userModel())::query()->find($userId))) {
+                        $request->setUserResolver(fn () => $user);
+
+                        return $user;
+                    }
+                }
+            }
+        } catch (Throwable) {
+            // ignore
+        }
+
+        // 4. Session cookie when global middleware runs before session starts
+        try {
+            $cookieName = (string) config('session.cookie');
+            $cookie = $request->cookies->get($cookieName);
+
+            if (is_string($cookie) && $cookie !== '') {
+                $encrypter = app('encrypter');
+                $decrypted = $encrypter->decrypt($cookie, false);
+                $sessionId = CookieValuePrefix::validate($cookieName, $decrypted, [$encrypter->getKey()]);
+
+                if (is_string($sessionId) && $sessionId !== '') {
+                    $driver = config('session.driver', 'database');
+                    if ($driver === 'database') {
+                        $table = config('session.table', 'sessions');
+                        $userId = DB::table($table)->where('id', $sessionId)->value('user_id');
+                        if ($userId && ($user = ($this->userModel())::query()->find($userId))) {
+                            $request->setUserResolver(fn () => $user);
+
+                            return $user;
+                        }
+                    } else {
+                        $handler = app('session')->driver()->getHandler();
+                        $payload = $handler->read($sessionId);
+                        if (is_string($payload) && $payload !== '') {
+                            $data = @unserialize($payload);
+                            if (is_array($data)) {
+                                foreach ($data as $k => $v) {
+                                    if (str_starts_with((string) $k, 'login_web_') && is_numeric($v)) {
+                                        if ($user = ($this->userModel())::query()->find($v)) {
+                                            $request->setUserResolver(fn () => $user);
+
+                                            return $user;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Throwable) {
+            // ignore
+        }
+
+        return null;
+    }
+
+    /**
+     * Check whether the request originates from an authenticated administrator.
+     */
+    public function isAdminRequest(Request $request): bool
+    {
+        $user = $this->resolveUser($request);
+        if (! $user) {
+            return false;
+        }
+
+        if (Gate::has('manage-pasax')) {
+            return Gate::forUser($user)->allows('manage-pasax');
+        }
+
+        if (method_exists($user, 'isAdmin')) {
+            return (bool) $user->isAdmin();
+        }
+
+        if (in_array($user->role ?? null, ['admin', 'superadmin'], true)) {
+            return true;
+        }
+
+        return (bool) ($user->is_admin ?? false);
+    }
+
+    protected function userModel(): string
+    {
+        return config('pasax.user_model', "App\Models\User");
+    }
+
+    /**
+     * Resolve the authenticated user ID without depending strictly on the
+     * session middleware having already executed.
+     */
+    protected function resolveUserId(Request $request): ?int
+    {
+        try {
+            return $this->resolveUser($request)?->getKey();
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * Record a single event that is not derived from request inspection
+     * (failed login, manual block, ...).
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    public function log(array $attributes): ?PasaxLog
+    {
+        if (! $this->enabled()) {
+            return null;
+        }
+
+        try {
+            $log = PasaxLog::create($attributes);
+
+            // Laporkan event ancaman ke Pasax Cloud Control Plane hanya jika lisensi dikonfigurasi
+            if ($log && app()->bound(PasaxCloudService::class)) {
+                $cloud = app(PasaxCloudService::class);
+                if ($cloud->isConfigured()) {
+                    try {
+                        $cloud->reportThreat($attributes);
+                    } catch (Throwable) {
+                        // Fail-safe
+                    }
+                }
+            }
+
+            return $log;
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * Block an IP/device once the configured thresholds are crossed.
+     *
+     * Two gates trip an automatic block within the monitoring window:
+     *  1. Any single monitored threat level reaches its own threshold
+     *     (e.g. 1x critical, 2x high, 3x medium, 5x low).
+     *  2. Mixed levels combined total at least the combined threshold
+     *     (e.g. 2x high + 1x medium = 3 mixed events).
+     */
+    public function autoBlockIfNeeded(string $ip, ?string $deviceId = null, ?string $localIp = null): ?PasaxBlockedIp
+    {
+        $config = config('pasax.auto_block', []);
+        $enabled = (bool) $this->getSetting('auto_block.enabled', $config['enabled'] ?? false);
+
+        if (! $enabled || $this->isWhitelisted($ip, $deviceId, $localIp)) {
+            return null;
+        }
+
+        $scope = (string) $this->getSetting('auto_block.scope', $config['scope'] ?? 'device');
+
+        if (in_array($scope, ['device', 'auto'], true) && empty($deviceId)) {
+            $deviceId = $scope === 'auto'
+                // Adaptive hanya menganggap perangkat "terdeteksi" bila identitas
+                // perangkat eksplisit tersedia (header/cookie/device stub), bukan
+                // sintesis fingerprint spekulatif.
+                ? $this->resolveDeviceId(null, false)
+                : $this->resolveDeviceId();
+        }
+
+        if (empty($localIp)) {
+            $localIp = $this->resolveLocalIp();
+        }
+
+        // Adaptive scope: block per device whenever a fingerprint exists;
+        // only fall back to blocking the whole IP when nothing is detectable.
+        if ($scope === 'auto') {
+            $scope = (empty($deviceId) && empty($localIp)) ? 'ip' : 'device';
+        }
+
+        $existing = $this->activeBlock($ip, $deviceId, $localIp);
+
+        if ($existing !== null) {
+            return $existing;
+        }
+
+        try {
+            $window = max(1, (int) $this->getSetting('auto_block.window_minutes', $config['window_minutes'] ?? 10));
+            $levels = $this->autoBlockLevels();
+            $levelThresholds = $this->autoBlockLevelThresholds();
+            $combinedThreshold = max(1, (int) $this->getSetting(
+                'auto_block.combined_threshold',
+                $config['combined_threshold'] ?? 3
+            ));
+
+            $query = PasaxLog::query()
+                ->whereIn('threat_level', $levels)
+                ->whereNotIn('event_type', ['login_failed', 'login_lockout', 'login_throttle'])
+                ->where('created_at', '>=', now()->subMinutes($window));
+
+            if ($scope === 'device' && $deviceId) {
+                $query->where(function (Builder $q) use ($deviceId, $localIp) {
+                    $q->where('device_id', $deviceId);
+                    if ($localIp) {
+                        $q->orWhere('local_ip', $localIp);
+                    }
+                });
+            } else {
+                $query->where('ip_address', $ip);
+            }
+
+            $counts = $query->select('threat_level', DB::raw('COUNT(*) as total'))
+                ->groupBy('threat_level')
+                ->pluck('total', 'threat_level')
+                ->map(fn ($count): int => (int) $count)
+                ->toArray();
+
+            $total = array_sum($counts);
+
+            // Gate 1: exact per-level thresholds.
+            $trippedBy = null;
+
+            foreach ($counts as $level => $count) {
+                if ($count >= $levelThresholds[$level]) {
+                    $trippedBy = ['level' => $level, 'count' => $count];
+                    break;
+                }
+            }
+
+            // Gate 2: mixed-level combined threshold — hanya berlaku bila
+            // beberapa level berbeda bercampur dalam jendela yang sama.
+            if (
+                $trippedBy === null
+                && count($counts) >= 2
+                && $total >= $combinedThreshold
+            ) {
+                $trippedBy = ['level' => null, 'count' => $total];
+            }
+
+            if ($trippedBy === null) {
+                return null;
+            }
+        } catch (Throwable) {
+            return null;
+        }
+
+        return $this->block($ip, [
+            'device_id' => $deviceId,
+            'local_ip' => $localIp,
+            'block_scope' => $scope,
+            'reason' => sprintf(
+                'Diblokir otomatis: %d aktivitas berisiko terdeteksi dalam %d menit terakhir.'.($scope === 'device' ? ' (Hanya isolasi perangkat penyerang)' : ''),
+                $total,
+                $window
+            ),
+            'source' => 'automatic',
+            'duration_hours' => (int) $this->getSetting('auto_block.duration_hours', $config['duration_hours'] ?? 24),
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reporting
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Summary numbers for the admin dashboard.
+     *
+     * @return array<string, int>
+     */
+    public function stats(): array
+    {
+        $startOfDay = now()->startOfDay();
+
+        return [
+            'total_logs' => PasaxLog::query()->count(),
+            'total_critical' => PasaxLog::query()->where('threat_level', 'critical')->count(),
+            'logs_today' => PasaxLog::query()->where('created_at', '>=', $startOfDay)->count(),
+            'critical_today' => PasaxLog::query()
+                ->where('created_at', '>=', $startOfDay)
+                ->where('threat_level', 'critical')
+                ->count(),
+            'blocked_attempts_today' => PasaxLog::query()
+                ->where('created_at', '>=', $startOfDay)
+                ->where('event_type', 'blocked_ip')
+                ->count(),
+            'unique_ips_today' => PasaxLog::query()
+                ->where('created_at', '>=', $startOfDay)
+                ->distinct()
+                ->count('ip_address'),
+            'active_blocks' => PasaxBlockedIp::query()->active()->count(),
+            'total_blocks' => PasaxBlockedIp::query()->count(),
+        ];
+    }
+
+    /**
+     * Most frequent offenders within a time window.
+     *
+     * @return Collection<int, array{ip_address: string, hits: int, level: string, last_seen: string}>
+     */
+    public function topAttackers(int $limit = 5, int $hours = 24)
+    {
+        $weightCase = "case threat_level when 'critical' then 4 when 'high' then 3 when 'medium' then 2 else 1 end";
+
+        return PasaxLog::query()
+            ->selectRaw(
+                "ip_address, COUNT(*) as hits, MAX({$weightCase}) as weight, MAX(created_at) as last_seen"
+            )
+            ->where('created_at', '>=', now()->subHours($hours))
+            ->groupBy('ip_address')
+            ->orderByDesc('hits')
+            ->limit($limit)
+            ->get()
+            ->map(function ($row): array {
+                $levelMap = [4 => 'critical', 3 => 'high', 2 => 'medium', 1 => 'low'];
+                $weight = (int) ($row->weight ?? 1);
+
+                return [
+                    'ip_address' => (string) $row->ip_address,
+                    'hits' => (int) $row->hits,
+                    'level' => $levelMap[$weight] ?? 'low',
+                    'last_seen' => (string) $row->last_seen,
+                ];
+            });
+    }
+
+    /**
+     * Number of logs per severity level within a time window.
+     *
+     * @return array<string, int>
+     */
+    public function levelBreakdown(int $hours = 24): array
+    {
+        $counts = PasaxLog::query()
+            ->selectRaw('threat_level, COUNT(*) as total')
+            ->where('created_at', '>=', now()->subHours($hours))
+            ->groupBy('threat_level')
+            ->pluck('total', 'threat_level');
+
+        $breakdown = [];
+
+        foreach (PasaxLog::LEVELS as $level) {
+            $breakdown[$level] = (int) ($counts[$level] ?? 0);
+        }
+
+        return $breakdown;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Attack Trend (Chart)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Tren percobaan serangan untuk grafik dashboard.
+     *
+     * - `week`  → 7 titik harian terakhir
+     * - `month` → 30 titik harian terakhir
+     * - `year`  → 12 titik bulanan terakhir
+     *
+     * Setiap titik memuat total serangan beserta rinciannya per tingkat
+     * ancaman. Periode tanpa serangan tetap dikembalikan dengan nilai 0 agar
+     * garis grafik tidak berlubang.
+     *
+     * @return array{range: string, granularity: string, total: int, peak: array{label: string, total: int}, points: array<int, array{key: string, label: string, tooltip: string, total: int, levels: array<string, int>}>}
+     */
+    public function attackTrend(string $range = 'week'): array
+    {
+        $range = in_array($range, self::TREND_RANGES, true) ? $range : 'week';
+        $granularity = $range === 'year' ? 'month' : 'day';
+
+        $start = $granularity === 'month'
+            ? now()->startOfMonth()->subMonths(11)
+            : now()->subDays($range === 'month' ? 29 : 6)->startOfDay();
+
+        try {
+            $rows = PasaxLog::query()
+                ->selectRaw('DATE(created_at) as day, threat_level, COUNT(*) as total')
+                ->where('created_at', '>=', $start)
+                ->groupBy('day', 'threat_level')
+                ->get();
+        } catch (Throwable) {
+            $rows = collect();
+        }
+
+        // Kelompokkan per hari terlebih dahulu (portable untuk semua driver),
+        // lalu digulung ke bulanan saat rentangnya setahun.
+        $buckets = [];
+
+        foreach ($rows as $row) {
+            $day = (string) $row->day;
+            $key = $granularity === 'month' ? substr($day, 0, 7) : $day;
+            $level = (string) $row->threat_level;
+            $total = (int) $row->total;
+
+            $buckets[$key]['total'] = ($buckets[$key]['total'] ?? 0) + $total;
+            $buckets[$key]['levels'][$level] = ($buckets[$key]['levels'][$level] ?? 0) + $total;
+        }
+
+        $points = $granularity === 'month'
+            ? $this->monthlyTrendPoints($start, $buckets)
+            : $this->dailyTrendPoints($start, $range === 'month' ? 30 : 7, $buckets);
+
+        $peak = ['label' => '-', 'total' => 0];
+
+        foreach ($points as $point) {
+            if ($point['total'] > $peak['total']) {
+                $peak = ['label' => $point['label'], 'total' => $point['total']];
+            }
+        }
+
+        return [
+            'range' => $range,
+            'granularity' => $granularity,
+            'total' => array_sum(array_column($points, 'total')),
+            'peak' => $peak,
+            'points' => $points,
+        ];
+    }
+
+    /**
+     * @param  array<string, array{total?: int, levels?: array<string, int>}>  $buckets
+     * @return array<int, array{key: string, label: string, tooltip: string, total: int, levels: array<string, int>}>
+     */
+    protected function dailyTrendPoints(CarbonInterface $start, int $days, array $buckets): array
+    {
+        $points = [];
+
+        for ($offset = 0; $offset < $days; $offset++) {
+            $date = $start->copy()->addDays($offset);
+            $key = $date->toDateString();
+
+            $points[] = $this->trendPoint(
+                $key,
+                $date->locale('id')->translatedFormat('d M'),
+                $date->locale('id')->translatedFormat('l, d F Y'),
+                $buckets[$key] ?? [],
+            );
+        }
+
+        return $points;
+    }
+
+    /**
+     * @param  array<string, array{total?: int, levels?: array<string, int>}>  $buckets
+     * @return array<int, array{key: string, label: string, tooltip: string, total: int, levels: array<string, int>}>
+     */
+    protected function monthlyTrendPoints(CarbonInterface $start, array $buckets): array
+    {
+        $points = [];
+
+        for ($offset = 0; $offset < 12; $offset++) {
+            $date = $start->copy()->addMonthsNoOverflow($offset);
+            $key = $date->format('Y-m');
+
+            $points[] = $this->trendPoint(
+                $key,
+                $date->locale('id')->translatedFormat('M Y'),
+                $date->locale('id')->translatedFormat('F Y'),
+                $buckets[$key] ?? [],
+            );
+        }
+
+        return $points;
+    }
+
+    /**
+     * @param  array{total?: int, levels?: array<string, int>}  $bucket
+     * @return array{key: string, label: string, tooltip: string, total: int, levels: array<string, int>}
+     */
+    protected function trendPoint(string $key, string $label, string $tooltip, array $bucket): array
+    {
+        $levels = [];
+
+        foreach (PasaxLog::LEVELS as $level) {
+            $levels[$level] = (int) ($bucket['levels'][$level] ?? 0);
+        }
+
+        return [
+            'key' => $key,
+            'label' => $label,
+            'tooltip' => $tooltip,
+            'total' => (int) ($bucket['total'] ?? 0),
+            'levels' => $levels,
+        ];
+    }
+}

@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Models;
+namespace Pasax\SecureMonitor\Models;
 
 /**
- * @deprecated Use PasakIpUnblockRequest instead.
+ * @deprecated Use PasaxIpUnblockRequest instead.
  *
- * @mixin PasakIpUnblockRequest
+ * @mixin PasaxIpUnblockRequest
  */
 if (! class_exists(IpUnblockRequest::class, false)) {
-    class_alias(PasakIpUnblockRequest::class, IpUnblockRequest::class);
+    class_alias(PasaxIpUnblockRequest::class, IpUnblockRequest::class);
 }

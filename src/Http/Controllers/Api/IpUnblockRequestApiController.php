@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Http\Controllers\Api;
+namespace Pasax\SecureMonitor\Http\Controllers\Api;
 
 /**
- * Legacy alias for PasakIpUnblockRequestApiController.
+ * Legacy alias for PasaxIpUnblockRequestApiController.
  */
-class IpUnblockRequestApiController extends PasakIpUnblockRequestApiController {}
+class IpUnblockRequestApiController extends PasaxIpUnblockRequestApiController {}
 
-if (! class_exists('Pasak\\SecureMonitor\\Http\\Controllers\\Api\\IpUnblockRequestApiController', false)) {
-    class_alias(PasakIpUnblockRequestApiController::class, 'Pasak\\SecureMonitor\\Http\\Controllers\\Api\\IpUnblockRequestApiController');
+if (! class_exists('Pasax\\SecureMonitor\\Http\\Controllers\\Api\\IpUnblockRequestApiController', false)) {
+    class_alias(PasaxIpUnblockRequestApiController::class, 'Pasax\\SecureMonitor\\Http\\Controllers\\Api\\IpUnblockRequestApiController');
 }

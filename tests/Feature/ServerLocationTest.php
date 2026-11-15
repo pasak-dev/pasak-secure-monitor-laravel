@@ -6,24 +6,24 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ViewErrorBag;
-use Pasak\SecureMonitor\Http\Controllers\Dashboard\PasakThreatMapController;
-use Pasak\SecureMonitor\Models\PasakSetting;
-use Pasak\SecureMonitor\PasakServiceProvider;
-use Pasak\SecureMonitor\Services\PasakServerSecurityService;
-use Pasak\SecureMonitor\Services\PasakService;
-use Pasak\SecureMonitor\Support\PasakDashboardView;
-use Pasak\SecureMonitor\Tests\TestUser;
+use Pasax\SecureMonitor\Http\Controllers\Dashboard\PasaxThreatMapController;
+use Pasax\SecureMonitor\Models\PasaxSetting;
+use Pasax\SecureMonitor\PasaxServiceProvider;
+use Pasax\SecureMonitor\Services\PasaxServerSecurityService;
+use Pasax\SecureMonitor\Services\PasaxService;
+use Pasax\SecureMonitor\Support\PasaxDashboardView;
+use Pasax\SecureMonitor\Tests\TestUser;
 
 beforeEach(function () {
     Cache::flush();
-    $target = resource_path('views/pages/pasak');
+    $target = resource_path('views/pages/pasax');
     if (! File::isDirectory($target)) {
         File::copyDirectory(
-            dirname(__DIR__, 2).'/stubs/blade/pages/pasak',
+            dirname(__DIR__, 2).'/stubs/blade/pages/pasax',
             $target
         );
     }
-    PasakSetting::query()
+    PasaxSetting::query()
         ->whereIn('key', [
             'server_location_name',
             'server_latitude',
@@ -32,17 +32,17 @@ beforeEach(function () {
         ])
         ->delete();
 
-    config()->set('pasak.dashboard.enabled', true);
-    config()->set('pasak.dashboard.driver', 'blade');
+    config()->set('pasax.dashboard.enabled', true);
+    config()->set('pasax.dashboard.driver', 'blade');
 
-    if (! Route::has('pasak.dashboard.server.location')) {
-        require __DIR__.'/../../routes/pasak-dashboard-blade.php';
+    if (! Route::has('pasax.dashboard.server.location')) {
+        require __DIR__.'/../../routes/pasax-web-blade.php';
         Route::getRoutes()->refreshNameLookups();
     }
 });
 
 afterEach(function () {
-    PasakSetting::query()
+    PasaxSetting::query()
         ->whereIn('key', [
             'server_location_name',
             'server_latitude',
@@ -71,7 +71,7 @@ test(
         ];
 
         $response = $this->actingAs($admin)->post(
-            route('pasak.dashboard.server.location'),
+            route('pasax.dashboard.server.location'),
             $postData,
         );
 
@@ -81,8 +81,8 @@ test(
             fn ($toast) => $toast['type'] === 'success',
         );
 
-        // Pastikan tersimpan di pasak_settings
-        $location = PasakSetting::getServerLocation();
+        // Pastikan tersimpan di pasax_settings
+        $location = PasaxSetting::getServerLocation();
         expect($location['name'])
             ->toBe('Data Center Kominfo, Jakarta (ID)')
             ->and($location['latitude'])
@@ -96,8 +96,8 @@ test(
             ->and($location['is_custom'])
             ->toBeTrue();
 
-        // Verifikasi PasakDashboardView::timezone() menghasilkan Asia/Jakarta
-        expect(PasakDashboardView::timezone())->toBe('Asia/Jakarta');
+        // Verifikasi PasaxDashboardView::timezone() menghasilkan Asia/Jakarta
+        expect(PasaxDashboardView::timezone())->toBe('Asia/Jakarta');
     },
 );
 
@@ -106,7 +106,7 @@ test(
     function () {
         Http::fake();
 
-        PasakSetting::setServerLocation(
+        PasaxSetting::setServerLocation(
             'Pusat Data Bandung (ID)',
             -6.9175,
             107.6191,
@@ -115,9 +115,9 @@ test(
 
         $this->app['view']->share('errors', new ViewErrorBag);
 
-        $response = app(PasakThreatMapController::class)->index(
-            Request::create('/__pasak_test_threat_loc'),
-            app(PasakService::class),
+        $response = app(PasaxThreatMapController::class)->index(
+            Request::create('/__pasax_test_threat_loc'),
+            app(PasaxService::class),
         );
 
         $payload = $response->getData()['payload'];
@@ -136,13 +136,13 @@ test(
     function () {
         Http::fake();
 
-        PasakSetting::setServerLocation(null, null, null, null);
+        PasaxSetting::setServerLocation(null, null, null, null);
 
         $this->app['view']->share('errors', new ViewErrorBag);
 
-        $response = app(PasakThreatMapController::class)->index(
-            Request::create('/__pasak_test_threat_loc_clear'),
-            app(PasakService::class),
+        $response = app(PasaxThreatMapController::class)->index(
+            Request::create('/__pasax_test_threat_loc_clear'),
+            app(PasaxService::class),
         );
 
         $payload = $response->getData()['payload'];
@@ -166,7 +166,7 @@ test(
 
         // Latitude out of range (> 90)
         $response = $this->actingAs($admin)->post(
-            route('pasak.dashboard.server.location'),
+            route('pasax.dashboard.server.location'),
             [
                 'server_location_name' => 'Invalid North Pole',
                 'server_latitude' => 195.5,
@@ -179,7 +179,7 @@ test(
 
         // Longitude out of range (> 180)
         $response2 = $this->actingAs($admin)->post(
-            route('pasak.dashboard.server.location'),
+            route('pasax.dashboard.server.location'),
             [
                 'server_location_name' => 'Invalid Meridian',
                 'server_latitude' => 45.0,
@@ -192,7 +192,7 @@ test(
 
         // Invalid timezone identifier
         $response3 = $this->actingAs($admin)->post(
-            route('pasak.dashboard.server.location'),
+            route('pasax.dashboard.server.location'),
             [
                 'server_location_name' => 'Mars Colony',
                 'server_latitude' => -10.0,
@@ -214,7 +214,7 @@ test('admin can manage server location and timezone via REST API', function () {
     ]);
 
     $postResponse = $this->actingAs($admin)->postJson(
-        '/api/pasak/server/location',
+        '/api/pasax/server/location',
         [
             'server_location_name' => 'Surabaya Disaster Recovery Center (ID)',
             'server_latitude' => -7.2575,
@@ -236,7 +236,7 @@ test('admin can manage server location and timezone via REST API', function () {
     ]);
 
     $getResponse = $this->actingAs($admin)->getJson(
-        '/api/pasak/server/location',
+        '/api/pasax/server/location',
     );
     $getResponse->assertSuccessful()->assertJson([
         'success' => true,
@@ -253,27 +253,27 @@ test('admin can manage server location and timezone via REST API', function () {
 test(
     'server security service environmentInfo reflects the configured timezone',
     function () {
-        PasakSetting::setServerTimezone('Asia/Jayapura');
+        PasaxSetting::setServerTimezone('Asia/Jayapura');
 
-        $env = app(PasakServerSecurityService::class)->environmentInfo();
+        $env = app(PasaxServerSecurityService::class)->environmentInfo();
 
         expect($env['timezone'])
             ->toBe('Asia/Jayapura')
-            ->and(PasakDashboardView::timezone())
+            ->and(PasaxDashboardView::timezone())
             ->toBe('Asia/Jayapura');
     },
 );
 
 test('upgrade command injects missing server location route into host routes file', function () {
-    $dummyRoute = base_path('routes/pasak.php');
-    $dummyApiRoute = base_path('routes/pasak-api.php');
+    $dummyRoute = base_path('routes/pasax.php');
+    $dummyApiRoute = base_path('routes/pasax-service.php');
 
     File::ensureDirectoryExists(base_path('routes'));
-    File::put($dummyRoute, "<?php\nRoute::post('server/suspicious-files/unverify', [PasakServerController::class, 'unverifySuspiciousFile'])->name('server.suspicious-files.unverify');\n");
-    File::put($dummyApiRoute, "<?php\nRoute::post('server/suspicious-files/unverify', [PasakServerSecurityApiController::class, 'unverifySuspiciousFile'])->name('server.suspicious-files.unverify');\n");
+    File::put($dummyRoute, "<?php\nRoute::post('server/suspicious-files/unverify', [PasaxServerController::class, 'unverifySuspiciousFile'])->name('server.suspicious-files.unverify');\n");
+    File::put($dummyApiRoute, "<?php\nRoute::post('server/suspicious-files/unverify', [PasaxServerSecurityApiController::class, 'unverifySuspiciousFile'])->name('server.suspicious-files.unverify');\n");
 
     try {
-        $this->artisan('pasak:upgrade', ['--force' => true, '--no-composer' => true])
+        $this->artisan('pasax:upgrade', ['--force' => true, '--no-composer' => true])
             ->assertExitCode(0);
 
         expect(File::get($dummyRoute))->toContain("'server.location'")
@@ -290,11 +290,11 @@ test('upgrade command injects missing server location route into host routes fil
 
 test('service provider automatically registers essential fallback routes when host routes lack them', function () {
     // Pastikan fallback route dipanggil
-    $provider = new PasakServiceProvider(app());
+    $provider = new PasaxServiceProvider(app());
     $reflection = new ReflectionClass($provider);
     $method = $reflection->getMethod('ensureEssentialDashboardRoutes');
     $method->setAccessible(true);
     $method->invoke($provider);
 
-    expect(Route::has('pasak.dashboard.server.location'))->toBeTrue();
+    expect(Route::has('pasax.dashboard.server.location'))->toBeTrue();
 });

@@ -2,12 +2,12 @@
 
 use Illuminate\Auth\Events\Login;
 use Illuminate\Http\Request;
-use Pasak\SecureMonitor\Models\PasakTrustedIp;
-use Pasak\SecureMonitor\Models\TrustedIp;
-use Pasak\SecureMonitor\Models\UserLogin;
-use Pasak\SecureMonitor\Services\PasakService;
-use Pasak\SecureMonitor\Services\ServerSecurityService;
-use Pasak\SecureMonitor\Services\UserLoginService;
+use Pasax\SecureMonitor\Models\PasaxTrustedIp;
+use Pasax\SecureMonitor\Models\TrustedIp;
+use Pasax\SecureMonitor\Models\UserLogin;
+use Pasax\SecureMonitor\Services\PasaxService;
+use Pasax\SecureMonitor\Services\ServerSecurityService;
+use Pasax\SecureMonitor\Services\UserLoginService;
 
 test('login event records a user login session', function () {
     $user = $this->createRegularUser();
@@ -81,7 +81,7 @@ test('trustIp handles long user-agent and stores parsed OS and browser safely', 
         ->and($trusted->browser)->toContain('Google Chrome');
 
     // Mutator protection when raw user agent is assigned directly to operating_system attribute
-    $trustedDirect = PasakTrustedIp::query()->create([
+    $trustedDirect = PasaxTrustedIp::query()->create([
         'user_id' => $user->id,
         'ip_address' => '158.140.185.155',
         'operating_system' => $rawUserAgent,
@@ -104,7 +104,7 @@ test('admin login automatically lifts an ip block', function () {
     );
 
     $admin = $this->createAdminUser();
-    $security = app(PasakService::class);
+    $security = app(PasaxService::class);
 
     $security->block('203.0.113.99', [
         'reason' => 'uji regresi',
@@ -128,8 +128,8 @@ test('server scan runs when admin accounts exist', function () {
 });
 
 test('application audit marks a strong public api key and trusted proxies as ok', function () {
-    config()->set('pasak.server_scan.public_api_key', 'long-random-secret-value');
-    config()->set('pasak.server_scan.trusted_proxies', '10.0.0.1');
+    config()->set('pasax.server_scan.public_api_key', 'long-random-secret-value');
+    config()->set('pasax.server_scan.trusted_proxies', '10.0.0.1');
 
     $checks = collect(app(ServerSecurityService::class)->scan(force: true)['categories'])
         ->flatMap(fn (array $category): array => $category['checks'])
@@ -141,8 +141,8 @@ test('application audit marks a strong public api key and trusted proxies as ok'
 });
 
 test('application audit warns when public api key and trusted proxies are empty', function () {
-    config()->set('pasak.server_scan.public_api_key', '');
-    config()->set('pasak.server_scan.trusted_proxies', '');
+    config()->set('pasax.server_scan.public_api_key', '');
+    config()->set('pasax.server_scan.trusted_proxies', '');
 
     $checks = collect(app(ServerSecurityService::class)->scan(force: true)['categories'])
         ->flatMap(fn (array $category): array => $category['checks'])

@@ -1,6 +1,6 @@
 {
-  "name": "pasak-dev/secure-monitor",
-  "description": "Pasak - enterprise-grade headless self-hosted WAF, threat detection engine, zero-tolerance blocking, stepped login lockout, and security auditing toolkit for Laravel.",
+  "name": "pasax-dev/secure-monitor",
+  "description": "Pasax - enterprise-grade headless self-hosted WAF, threat detection engine, zero-tolerance blocking, stepped login lockout, and security auditing toolkit for Laravel.",
   "keywords": [
     "laravel",
     "security",
@@ -14,11 +14,11 @@
     "security-audit",
     "headless"
   ],
-  "homepage": "https://github.com/pasak-dev/pasak-secure-monitor-laravel",
+  "homepage": "https://github.com/pasax-dev/pasax-secure-monitor-laravel",
   "support": {
-    "issues": "https://github.com/pasak-dev/pasak-secure-monitor-laravel/issues",
-    "source": "https://github.com/pasak-dev/pasak-secure-monitor-laravel",
-    "docs": "https://github.com/pasak-dev/pasak-secure-monitor-laravel#readme"
+    "issues": "https://github.com/pasax-dev/pasax-secure-monitor-laravel/issues",
+    "source": "https://github.com/pasax-dev/pasax-secure-monitor-laravel",
+    "docs": "https://github.com/pasax-dev/pasax-secure-monitor-laravel#readme"
   },
   "funding": [
     {
@@ -35,8 +35,8 @@
       "role": "Developer"
     },
     {
-      "name": "pasak-dev",
-      "email": "pasak.dev@gmail.com",
+      "name": "pasax-dev",
+      "email": "pasax.dev@gmail.com",
       "role": "Maintainer"
     }
   ],
@@ -60,7 +60,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Pasak\\SecureMonitor\\": "src/"
+      "Pasax\\SecureMonitor\\": "src/"
     },
     "files": [
       "src/compat.php"
@@ -68,7 +68,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Pasak\\SecureMonitor\\Tests\\": "tests/"
+      "Pasax\\SecureMonitor\\Tests\\": "tests/"
     }
   },
   "scripts": {
@@ -82,11 +82,11 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Pasak\\SecureMonitor\\PasakServiceProvider"
+        "Pasax\\SecureMonitor\\PasaxServiceProvider"
       ],
       "aliases": {
-        "Pasak": "Pasak\\SecureMonitor\\Facades\\Pasak",
-        "SecurityMonitor": "Pasak\\SecureMonitor\\Facades\\Pasak"
+        "Pasax": "Pasax\\SecureMonitor\\Facades\\Pasax",
+        "SecurityMonitor": "Pasax\\SecureMonitor\\Facades\\Pasax"
       }
     }
   },

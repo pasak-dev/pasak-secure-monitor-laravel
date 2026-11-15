@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Console\Commands;
+namespace Pasax\SecureMonitor\Console\Commands;
 
 /**
- * Legacy alias for PasakPruneSecurityLogsCommand.
+ * Legacy alias for PasaxPruneSecurityLogsCommand.
  */
-class PruneSecurityLogs extends PasakPruneSecurityLogsCommand {}
+class PruneSecurityLogs extends PasaxPruneSecurityLogsCommand {}
 
-if (! class_exists('Pasak\\SecureMonitor\\Console\\Commands\\PruneSecurityLogs', false)) {
-    class_alias(PasakPruneSecurityLogsCommand::class, 'Pasak\\SecureMonitor\\Console\\Commands\\PruneSecurityLogs');
+if (! class_exists('Pasax\\SecureMonitor\\Console\\Commands\\PruneSecurityLogs', false)) {
+    class_alias(PasaxPruneSecurityLogsCommand::class, 'Pasax\\SecureMonitor\\Console\\Commands\\PruneSecurityLogs');
 }

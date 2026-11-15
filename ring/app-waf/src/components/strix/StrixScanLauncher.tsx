@@ -119,7 +119,7 @@ export function StrixScanLauncher({
                                     onClick={() => setTarget("http://localhost:8000")}
                                     className="text-[10px] text-muted-foreground hover:text-primary transition-colors underline"
                                 >
-                                    :8000 (Pasak-No)
+                                    :8000 (Pasax-No)
                                 </button>
                                 <span className="text-muted-foreground">•</span>
                                 <button
@@ -127,7 +127,7 @@ export function StrixScanLauncher({
                                     onClick={() => setTarget("http://localhost:8001")}
                                     className="text-[10px] text-muted-foreground hover:text-primary transition-colors underline"
                                 >
-                                    :8001 (Pasak-Yes)
+                                    :8001 (Pasax-Yes)
                                 </button>
                             </div>
                         </div>

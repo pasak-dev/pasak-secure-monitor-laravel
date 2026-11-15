@@ -9,7 +9,7 @@ Dalam pengembangan aplikasi berbasis Laravel modern di lingkungan enterprise dan
 3. **Penyalahgunaan IP Bersama (Shared NAT/Router)**: Ketika seorang penyerang berada di jaringan Wi-Fi publik, kantor, atau kampus yang sama dengan ratusan pengguna sah, pemblokiran berbasis IP publik akan menyebabkan _collateral damage_—seluruh kantor kehilangan akses ke aplikasi.
 4. **Credential Stuffing & DoS Regex (ReDoS)**: Serangan brute-force menggunakan botnet terdistribusi serta pengiriman string panjang berpola untuk memicu kegagalan komputasi CPU akibat regex backtracking berulang (_Catastrophic Backtracking_).
 
-**`pasak-dev/secure-monitor`** (Bulwark) dibangun dari pengalaman lapangan menangani insiden nyata tersebut, dikemas menjadi paket mandiri, modular, dan berperforma tinggi.
+**`pasax-dev/secure-monitor`** (Bulwark) dibangun dari pengalaman lapangan menangani insiden nyata tersebut, dikemas menjadi paket mandiri, modular, dan berperforma tinggi.
 
 ---
 
@@ -19,7 +19,7 @@ Berbeda dengan paket aplikasi yang mengikat pengguna ke antarmuka atau bundler J
 
 > 🌟 **Nol Dependensi NPM / Node.js**: Paket ini adalah **100% Murni PHP untuk Laravel**. Anda **TIDAK PERNAH** memerlukan `npm install`, `node`, `vite build`, atau bundler frontend apa pun untuk menjalankan paket ini.
 
-Setelah paket dipasang melalui `composer require pasak-dev/secure-monitor`, pengembang **bebas menerapkannya di mana saja** di seluruh ekosistem Laravel:
+Setelah paket dipasang melalui `composer require pasax-dev/secure-monitor`, pengembang **bebas menerapkannya di mana saja** di seluruh ekosistem Laravel:
 
 - ✅ **Aplikasi Laravel Blade Murni**: Bekerja langsung dengan view HTML standar dan sesi cookie.
 - ✅ **Aplikasi API Backend Murni (Headless)**: Menyuplai REST API JSON untuk aplikasi mobile (Flutter/React Native) atau SPA frontend terpisah.
@@ -35,15 +35,15 @@ Sama seperti paket Spatie terpopuler, paket ini menyatu secara elegan ke dalam t
 
 ```mermaid
 graph TD
-    Composer[composer require pasak-dev/secure-monitor] --> Discovery[1. Laravel Package Auto-Discovery<br/>PasakServiceProvider + Facade]
+    Composer[composer require pasax-dev/secure-monitor] --> Discovery[1. Laravel Package Auto-Discovery<br/>PasaxServiceProvider + Facade]
 
-    Discovery --> Hook1["2. Core Eloquent: HasPasakSecurityRelations Trait<br/>User::logins(), User::trustedIps()"]
+    Discovery --> Hook1["2. Core Eloquent: HasPasaxSecurityRelations Trait<br/>User::logins(), User::trustedIps()"]
     Discovery --> Hook2[3. Core Auth Events: Event::listen<br/>Failed & Login Events Otomatis Diawasi]
-    Discovery --> Hook3[4. Core HTTP Kernel: Middleware Aliases<br/>pasak.block, pasak.detect, pasak.admin]
-    Discovery --> Hook4["5. Core Authorization: Gate<br/>Gate::define('manage-pasak')"]
-    Discovery --> Hook5[6. Core Artisan CLI: Console Commands<br/>pasak:install, pasak:scan-logs, dll]
+    Discovery --> Hook3[4. Core HTTP Kernel: Middleware Aliases<br/>pasax.block, pasax.detect, pasax.admin]
+    Discovery --> Hook4["5. Core Authorization: Gate<br/>Gate::define('manage-pasax')"]
+    Discovery --> Hook5[6. Core Artisan CLI: Console Commands<br/>pasax:install, pasax:scan-logs, dll]
     Discovery --> Hook6[7. Core Scheduler: Schedule Runner<br/>Prune log harian & liveness heartbeat]
-    Discovery --> Hook7[8. Core Validation: ValidationRule<br/>PasakSafeImageFile, PasakSafeAssetPath]
+    Discovery --> Hook7[8. Core Validation: ValidationRule<br/>PasaxSafeImageFile, PasaxSafeAssetPath]
 ```
 
 ### 1. Package Auto-Discovery
@@ -54,10 +54,10 @@ Di dalam `composer.json`, paket mendeklarasikan ServiceProvider dan Facade bawaa
 "extra": {
     "laravel": {
         "providers": [
-            "Pasak\\SecureMonitor\\PasakServiceProvider"
+            "Pasax\\SecureMonitor\\PasaxServiceProvider"
         ],
         "aliases": {
-            "Pasak": "Pasak\\SecureMonitor\\Facades\\Pasak"
+            "Pasax": "Pasax\\SecureMonitor\\Facades\\Pasax"
         }
     }
 }
@@ -70,21 +70,21 @@ Laravel otomatis memuat provider ini saat proses booting. Pengembang tidak perlu
 Sama seperti menambahkan `use HasRoles;` pada paket Spatie Permission, pengembang cukup menambahkan satu baris ke model `User` miliknya:
 
 ```php
-use Pasak\SecureMonitor\Concerns\HasPasakSecurityRelations;
+use Pasax\SecureMonitor\Concerns\HasPasaxSecurityRelations;
 
 class User extends Authenticatable
 {
-    use HasPasakSecurityRelations;
+    use HasPasaxSecurityRelations;
 }
 ```
 
 > **Catatan Kompatibilitas**: Nama lama `HasSecurityRelations` tetap didukung secara transparan via alias.
 
-Ini langsung membuka relasi `$user->logins()`, `$user->trustedIps()`, `$user->pasakLogs()` (atau `$user->securityLogs()`), dan `$user->blockedIps()`.
+Ini langsung membuka relasi `$user->logins()`, `$user->trustedIps()`, `$user->pasaxLogs()` (atau `$user->securityLogs()`), dan `$user->blockedIps()`.
 
 ### 3. Mengaitkan Event Otentikasi Bawaan Laravel
 
-Tanpa perlu memodifikasi controller login aplikasi Anda, `PasakServiceProvider` secara otomatis mendaftarkan listener ke event inti Laravel:
+Tanpa perlu memodifikasi controller login aplikasi Anda, `PasaxServiceProvider` secara otomatis mendaftarkan listener ke event inti Laravel:
 
 - `\Illuminate\Auth\Events\Failed` ➔ Otomatis mencatat kegagalan dan menghitung stepped lockout.
 - `\Illuminate\Auth\Events\Login` ➔ Otomatis mereset hitungan lockout dan merekam sesi login aktif.
@@ -93,22 +93,22 @@ Tanpa perlu memodifikasi controller login aplikasi Anda, `PasakServiceProvider` 
 
 Paket mendaftarkan 4 alias middleware resmi:
 
-- `'pasak.block'` ➔ `BlockIpAddress`
-- `'pasak.detect'` ➔ `DetectSecurityThreats`
-- `'pasak.admin'` ➔ `EnsureSecurityAdmin`
-- `'pasak.activity'` ➔ `TrackUserActivity`
+- `'pasax.block'` ➔ `BlockIpAddress`
+- `'pasax.detect'` ➔ `DetectSecurityThreats`
+- `'pasax.admin'` ➔ `EnsureSecurityAdmin`
+- `'pasax.activity'` ➔ `TrackUserActivity`
 
 Pengembang dapat memasangnya di mana saja: sebagai middleware global, di grup `web`, grup `api`, atau pada rute individual.
 
 ### 5. Registrasi Gate Otorisasi Bawaan
 
-Paket mendefinisikan gate `'manage-pasak'` yang langsung terhubung ke sistem otorisasi standar Laravel (`@can`, `$user->can()`, `Gate::allows()`).
+Paket mendefinisikan gate `'manage-pasax'` yang langsung terhubung ke sistem otorisasi standar Laravel (`@can`, `$user->can()`, `Gate::allows()`).
 
 ### 6. Artisan Console Commands
 
 Menyediakan 6 perintah CLI bawaan yang otomatis tersedia di `php artisan`:
 
-- `pasak:install`, `pasak:scan-logs`, `pasak:baseline`, `pasak:unblock-ip`, `pasak:prune-logs`, `pasak:purge-injected-data`.
+- `pasax:install`, `pasax:scan-logs`, `pasax:baseline`, `pasax:unblock-ip`, `pasax:prune-logs`, `pasax:purge-injected-data`.
 
 ### 7. Task Scheduler Otomatis
 
@@ -128,7 +128,7 @@ Menyediakan aturan validasi form Laravel murni:
 1. **Headless Only (Pure REST API)**:
    Tidak ada template HTML/CSS bawaan yang dipaksakan. Seluruh respon dikembalikan dalam JSON REST API murni atau fallback view Blade standar jika diinginkan.
 2. **Loose Coupling & Decoupled Models**:
-   Nama tabel dan model `User` 100% dinamis melalui `config/pasak.php`.
+   Nama tabel dan model `User` 100% dinamis melalui `config/pasax.php`.
 3. **Kekebalan Mutlak ReDoS (ReDoS Immunity)**:
    Pola regex linear yang lolos uji beban 100KB+ adversarial string dengan eksekusi sub-milidetik.
 4. **Isolasi Perangkat Granular (Device-Level Quarantine)**:

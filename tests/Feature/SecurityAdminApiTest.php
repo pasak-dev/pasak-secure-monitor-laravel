@@ -1,9 +1,9 @@
 <?php
 
-use Pasak\SecureMonitor\Models\BlockedIp;
-use Pasak\SecureMonitor\Models\IpUnblockRequest;
-use Pasak\SecureMonitor\Models\SecurityLog;
-use Pasak\SecureMonitor\Models\TrustedIp;
+use Pasax\SecureMonitor\Models\BlockedIp;
+use Pasax\SecureMonitor\Models\IpUnblockRequest;
+use Pasax\SecureMonitor\Models\SecurityLog;
+use Pasax\SecureMonitor\Models\TrustedIp;
 
 beforeEach(function () {
     $this->admin = $this->createAdminUser();
@@ -11,13 +11,13 @@ beforeEach(function () {
 });
 
 test('unauthenticated users cannot access admin security api', function () {
-    $response = $this->getJson(route('pasak.logs.index'));
+    $response = $this->getJson(route('pasax.logs.index'));
     $response->assertStatus(401);
 });
 
 test('regular users receive 403 forbidden on admin security api', function () {
     $response = $this->actingAs($this->regularUser)
-        ->getJson(route('pasak.logs.index'));
+        ->getJson(route('pasax.logs.index'));
 
     $response->assertStatus(403);
 });
@@ -33,7 +33,7 @@ test('admin can retrieve paginated security logs with stats', function () {
     ]);
 
     $response = $this->actingAs($this->admin)
-        ->getJson(route('pasak.logs.index'));
+        ->getJson(route('pasax.logs.index'));
 
     $response->assertOk()
         ->assertJsonPath('success', true)
@@ -48,7 +48,7 @@ test('admin can retrieve paginated security logs with stats', function () {
 
 test('admin can manually block an ip address via json api', function () {
     $response = $this->actingAs($this->admin)
-        ->postJson(route('pasak.blocked-ips.store'), [
+        ->postJson(route('pasax.blocked-ips.store'), [
             'ip_address' => '198.51.100.5',
             'reason' => 'Manual blocking test',
             'duration_hours' => 48,
@@ -63,7 +63,7 @@ test('admin can manually block an ip address via json api', function () {
 test('admin cannot block their own ip address', function () {
     $response = $this->actingAs($this->admin)
         ->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
-        ->postJson(route('pasak.blocked-ips.store'), [
+        ->postJson(route('pasax.blocked-ips.store'), [
             'ip_address' => '203.0.113.10',
             'reason' => 'Trying to block own ip',
         ]);
@@ -80,20 +80,20 @@ test('admin can toggle and delete blocked ip', function () {
     ]);
 
     $toggleResponse = $this->actingAs($this->admin)
-        ->patchJson(route('pasak.blocked-ips.toggle', $block->id));
+        ->patchJson(route('pasax.blocked-ips.toggle', $block->id));
 
     $toggleResponse->assertOk();
     expect($block->fresh()->is_active)->toBeFalse();
 
     $deleteResponse = $this->actingAs($this->admin)
-        ->deleteJson(route('pasak.blocked-ips.destroy', $block->id));
+        ->deleteJson(route('pasax.blocked-ips.destroy', $block->id));
 
     $deleteResponse->assertOk();
     expect(BlockedIp::query()->find($block->id))->toBeNull();
 });
 
 test('public client can submit unblock appeal ticket and check status', function () {
-    $submitResponse = $this->postJson(route('pasak.unblock-tickets.submit'), [
+    $submitResponse = $this->postJson(route('pasax.unblock-tickets.submit'), [
         'name' => 'John Doe',
         'email' => 'john@example.com',
         'reason' => 'My IP was accidentally blocked during testing.',
@@ -105,7 +105,7 @@ test('public client can submit unblock appeal ticket and check status', function
     $ticketNumber = $submitResponse->json('ticket_number');
     expect($ticketNumber)->not->toBeEmpty();
 
-    $checkResponse = $this->getJson(route('pasak.unblock-tickets.check', $ticketNumber));
+    $checkResponse = $this->getJson(route('pasax.unblock-tickets.check', $ticketNumber));
     $checkResponse->assertOk()
         ->assertJsonPath('data.status', 'pending');
 });
@@ -127,7 +127,7 @@ test('admin can approve unblock appeal ticket and automatically lift block', fun
     ]);
 
     $response = $this->actingAs($this->admin)
-        ->postJson(route('pasak.unblock-tickets.respond', $ticket->id), [
+        ->postJson(route('pasax.unblock-tickets.respond', $ticket->id), [
             'action' => 'approve',
             'admin_notes' => 'Approved by administrator',
         ]);
@@ -142,7 +142,7 @@ test('admin can approve unblock appeal ticket and automatically lift block', fun
 test('authenticated user can store current ip as trusted ip', function () {
     $response = $this->actingAs($this->regularUser)
         ->withServerVariables(['REMOTE_ADDR' => '203.0.113.55'])
-        ->postJson(route('pasak.trusted-ips.store-my-ip'), [
+        ->postJson(route('pasax.trusted-ips.store-my-ip'), [
             'device_name' => 'Work Laptop',
         ]);
 
@@ -158,7 +158,7 @@ test('authenticated user can store current ip with long user agent without trunc
     $response = $this->actingAs($this->regularUser)
         ->withHeaders(['User-Agent' => $longUserAgent])
         ->withServerVariables(['REMOTE_ADDR' => '158.140.185.154'])
-        ->postJson(route('pasak.trusted-ips.store-my-ip'), [
+        ->postJson(route('pasax.trusted-ips.store-my-ip'), [
             'device_name' => 'Linux Workstation',
         ]);
 

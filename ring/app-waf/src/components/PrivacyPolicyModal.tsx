@@ -50,24 +50,24 @@ export default function PrivacyPolicyModal({
                             </span>
                             <span className="text-muted-foreground">•</span>
                             <a
-                                href="https://pasak.is-a.dev"
+                                href="https://pasax.is-a.dev"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
                             >
                                 <Globe className="size-3.5" />
-                                pasak.is-a.dev
+                                pasax.is-a.dev
                                 <ExternalLink className="size-3 opacity-70" />
                             </a>
                             <span className="text-muted-foreground">•</span>
                             <a
-                                href="https://github.com/pasak-dev/pasak-secure-monitor-laravel"
+                                href="https://github.com/pasax-dev/pasax-secure-monitor-laravel"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
                             >
                                 <ExternalLink className="size-3.5" />
-                                github.com/pasak-dev/pasak-secure-monitor-laravel
+                                github.com/pasax-dev/pasax-secure-monitor-laravel
                             </a>
                         </div>
                     </div>
@@ -79,7 +79,7 @@ export default function PrivacyPolicyModal({
                             1. Kebijakan Pengujian Keamanan (Authorized Testing)
                         </div>
                         <p className="text-xs text-muted-foreground">
-                            Konsol uji WAF ini ditujukan semata-mata untuk verifikasi ketahanan sistem, audit keamanan defensif, simulasi serangan terkontrol, dan pengujian aturan filter WAF Pasak.
+                            Konsol uji WAF ini ditujukan semata-mata untuk verifikasi ketahanan sistem, audit keamanan defensif, simulasi serangan terkontrol, dan pengujian aturan filter WAF Pasax.
                         </p>
                         <ul className="list-disc list-inside text-xs space-y-1 text-muted-foreground pl-1">
                             <li>
@@ -123,7 +123,7 @@ export default function PrivacyPolicyModal({
 
                 <DialogFooter className="pt-2 border-t flex flex-row items-center justify-between sm:justify-between">
                     <span className="text-[11px] text-muted-foreground">
-                        © 2026 Roby Karti S • Pasak Security
+                        © 2026 Roby Karti S • Pasax Security
                     </span>
                     <DialogClose render={<Button type="button" variant="default" size="sm">Tutup</Button>} />
                 </DialogFooter>

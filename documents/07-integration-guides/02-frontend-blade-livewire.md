@@ -1,6 +1,6 @@
 # 02. Integrasi Frontend Blade
 
-Jika aplikasi host Anda menggunakan template berbasis Blade, integrasi dengan **`pasak-dev/secure-monitor`** sangat cepat dan intuitif — dashboard paket adalah Blade murni (100% Pure PHP) sehingga jalan di semua aplikasi Laravel tanpa Livewire/Inertia/Vue.
+Jika aplikasi host Anda menggunakan template berbasis Blade, integrasi dengan **`pasax-dev/secure-monitor`** sangat cepat dan intuitif — dashboard paket adalah Blade murni (100% Pure PHP) sehingga jalan di semua aplikasi Laravel tanpa Livewire/Inertia/Vue.
 
 ---
 
@@ -83,7 +83,7 @@ Jika ada, paket akan me-render view tersebut dengan meneruskan variabel:
 Anda tidak perlu membangun panel monitoring dari nol. Paket menyediakan halaman Blade siap pakai berbasis **Pure Vanilla CSS** yang dapat dipublikasikan dengan satu perintah:
 
 ```bash
-php artisan pasak:install --with-dashboard
+php artisan pasax:install --with-dashboard
 # atau: php artisan vendor:publish --tag=plain-views
 ```
 
@@ -91,29 +91,29 @@ Perintah tersebut menyalin berkas berikut ke aplikasi Anda:
 
 | Berkas yang Dipublikasikan                             | Deskripsi                                                   |
 | :----------------------------------------------------- | :---------------------------------------------------------- |
-| `resources/views/pages/pasak/overview.blade.php`    | Statistik, tren serangan, dan kartu top attacker 24 jam real-time. |
-| `resources/views/pages/pasak/threat-map.blade.php`  | Peta geografis lintasan serangan dari asal penyerang menuju server (live globe). |
-| `resources/views/pages/pasak/logs.blade.php`        | Data table log keamanan dengan filter rentang tanggal, pencarian, dan per-page. |
-| `resources/views/pages/pasak/log-detail.blade.php`  | Detail satu entri log: evidence, konteks request, dan log terkait. |
-| `resources/views/pages/pasak/blocked-ips.blade.php` | Data table karantina IP dengan filter tanggal, toggle status, dan buka blokir. |
-| `resources/views/pages/pasak/blocked-ip-detail.blade.php` | Detail satu blokir: alasan, log pemicu, dan tiket banding terkait. |
-| `resources/views/pages/pasak/allowed-ips.blade.php` | Data table daftar IP yang diizinkan (allowlist) dengan filter tanggal dan per-page. |
-| `resources/views/pages/pasak/server.blade.php`      | Audit integritas, pemindai webshell, baseline SHA-256, dan status sistem. |
-| `resources/views/pages/pasak/sessions.blade.php`    | Data table sesi pengguna aktif, riwayat login, dan IP terpercaya. |
-| `resources/views/pages/pasak/tickets.blade.php`     | Data table review permohonan tiket banding buka blokir. |
-| `resources/views/pages/pasak/ticket-detail.blade.php` | Detail satu tiket: alasan pemohon, blokir terkait, dan formulir respon. |
-| `resources/views/pages/pasak/settings.blade.php`    | Pengaturan WAF: ambang per tingkat, lingkup adaptif, lockout login, dan simulasi live. |
-| `resources/views/pages/pasak/pagination.blade.php`  | Komponen pagination terpadu: ringkasan entri dan tombol navigasi halaman. |
-| `resources/views/pages/pasak/layout.blade.php`      | Sub-layout navigasi, tema (Dark Mode), dan styling custom properties. |
+| `resources/views/pages/pasax/overview.blade.php`    | Statistik, tren serangan, dan kartu top attacker 24 jam real-time. |
+| `resources/views/pages/pasax/threat-map.blade.php`  | Peta geografis lintasan serangan dari asal penyerang menuju server (live globe). |
+| `resources/views/pages/pasax/logs.blade.php`        | Data table log keamanan dengan filter rentang tanggal, pencarian, dan per-page. |
+| `resources/views/pages/pasax/log-detail.blade.php`  | Detail satu entri log: evidence, konteks request, dan log terkait. |
+| `resources/views/pages/pasax/blocked-ips.blade.php` | Data table karantina IP dengan filter tanggal, toggle status, dan buka blokir. |
+| `resources/views/pages/pasax/blocked-ip-detail.blade.php` | Detail satu blokir: alasan, log pemicu, dan tiket banding terkait. |
+| `resources/views/pages/pasax/allowed-ips.blade.php` | Data table daftar IP yang diizinkan (allowlist) dengan filter tanggal dan per-page. |
+| `resources/views/pages/pasax/server.blade.php`      | Audit integritas, pemindai webshell, baseline SHA-256, dan status sistem. |
+| `resources/views/pages/pasax/sessions.blade.php`    | Data table sesi pengguna aktif, riwayat login, dan IP terpercaya. |
+| `resources/views/pages/pasax/tickets.blade.php`     | Data table review permohonan tiket banding buka blokir. |
+| `resources/views/pages/pasax/ticket-detail.blade.php` | Detail satu tiket: alasan pemohon, blokir terkait, dan formulir respon. |
+| `resources/views/pages/pasax/settings.blade.php`    | Pengaturan WAF: ambang per tingkat, lingkup adaptif, lockout login, dan simulasi live. |
+| `resources/views/pages/pasax/pagination.blade.php`  | Komponen pagination terpadu: ringkasan entri dan tombol navigasi halaman. |
+| `resources/views/pages/pasax/layout.blade.php`      | Sub-layout navigasi, tema (Dark Mode), dan styling custom properties. |
 
 Setelah dipublikasikan, aktifkan dashboard melalui `.env`:
 
 ```dotenv
-PASAK_DASHBOARD_ENABLED=true
-PASAK_DASHBOARD_PREFIX=pasak
+PASAX_DASHBOARD_ENABLED=true
+PASAX_DASHBOARD_PREFIX=pasax
 ```
 
-Panel dapat diakses pada `/pasak`. Halaman-halaman tersebut dirender controller bawaan paket sebagai Blade biasa.
+Panel dapat diakses pada `/pasax`. Halaman-halaman tersebut dirender controller bawaan paket sebagai Blade biasa.
 
 ---
 
@@ -129,9 +129,9 @@ Seluruh tabel data utama (`logs`, `blocked-ips`, `allowed-ips`, `sessions`, `tic
 
 #### B. Threat Map — Peta Live Penyerang
 
-Halaman **Threat Map** (`/pasak/threat-map`) menampilkan bola dunia 3D interaktif yang memetakan lintasan serangan dari koordinat asal penyerang menuju server:
+Halaman **Threat Map** (`/pasax/threat-map`) menampilkan bola dunia 3D interaktif yang memetakan lintasan serangan dari koordinat asal penyerang menuju server:
 
-- **Data Nyata & Warna Tingkat Ancaman**: Lintasan panah diambil dari `pasak_logs` 24 jam terakhir dengan warna sesuai tingkat bahaya (`critical` merah, `high` oranye, `medium` kuning, `low` hijau).
+- **Data Nyata & Warna Tingkat Ancaman**: Lintasan panah diambil dari `pasax_logs` 24 jam terakhir dengan warna sesuai tingkat bahaya (`critical` merah, `high` oranye, `medium` kuning, `low` hijau).
 - **Streaming Serangan Baru (`?after=`)**: Polling otomatis tiap 8 detik memanfaatkan kursor id terakhir sehingga hanya serangan baru yang digambar di globe tanpa memuat ulang log arsip lama.
 - **Mode Layar Penuh (Full Screen Mode)**: Tombol `⛶ Full screen` memperluas kanvas peta memenuhi layar secara fluid (`position: fixed; inset: 0`), dan tombol `Escape` mengembalikannya ke tampilan standar.
 - **Tata Letak Responsif Seluler**: Pada layar ponsel/tablet, globe tetap tampil dominan di bagian atas dan metrik serangan ditata rapi dalam grid kartu.
@@ -139,7 +139,7 @@ Halaman **Threat Map** (`/pasak/threat-map`) menampilkan bola dunia 3D interakti
 
 #### C. Pengaturan Dinamis & Simulasi Live
 
-Halaman **Pengaturan** (`/pasak/settings`) memungkinkan pengelola menyetel:
+Halaman **Pengaturan** (`/pasax/settings`) memungkinkan pengelola menyetel:
 - Ambang batas auto-block per tingkat ancaman (`critical`, `high`, `medium`, `low`).
 - Lingkup pemblokiran: `device` (hanya perangkat pelanggar), `ip` (seluruh IP), atau `auto` (adaptif, aman untuk Wi-Fi kantor bersama).
 - Durasi pemblokiran bertingkat (6 jam hingga permanen).
@@ -163,7 +163,7 @@ Stubs Blade dibangun menggunakan **Pure Vanilla CSS**:
 Untuk memunculkan tautan ke panel, tambahkan item berikut pada navigasi sidebar aplikasi Anda:
 
 ```blade
-<flux:sidebar.item icon="shield-check" :href="route('pasak.dashboard.overview')" :current="request()->routeIs('pasak.dashboard.*')" wire:navigate>
+<flux:sidebar.item icon="shield-check" :href="route('pasax.dashboard.overview')" :current="request()->routeIs('pasax.dashboard.*')" wire:navigate>
     {{ __('Security Monitor') }}
 </flux:sidebar.item>
 ```
@@ -171,7 +171,7 @@ Untuk memunculkan tautan ke panel, tambahkan item berikut pada navigasi sidebar 
 Atau jika menggunakan link HTML standar:
 
 ```blade
-<a href="{{ route('pasak.dashboard.overview') }}" wire:navigate class="nav-item">
+<a href="{{ route('pasax.dashboard.overview') }}" wire:navigate class="nav-item">
     Security Monitor
 </a>
 ```

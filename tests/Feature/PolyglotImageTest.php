@@ -2,17 +2,17 @@
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
-use Pasak\SecureMonitor\Models\BlockedIp;
-use Pasak\SecureMonitor\Models\SecurityLog;
-use Pasak\SecureMonitor\Rules\SafeImageFile;
-use Pasak\SecureMonitor\Services\PasakServerSecurityService;
+use Pasax\SecureMonitor\Models\BlockedIp;
+use Pasax\SecureMonitor\Models\SecurityLog;
+use Pasax\SecureMonitor\Rules\SafeImageFile;
+use Pasax\SecureMonitor\Services\PasaxServerSecurityService;
 
 beforeEach(function () {
-    config()->set('pasak.enabled', true);
-    config()->set('pasak.block_enforcement', true);
-    config()->set('pasak.instant_block.enabled', true);
-    config()->set('pasak.instant_block.duration_hours', 720);
-    config()->set('pasak.whitelist', []);
+    config()->set('pasax.enabled', true);
+    config()->set('pasax.block_enforcement', true);
+    config()->set('pasax.instant_block.enabled', true);
+    config()->set('pasax.instant_block.duration_hours', 720);
+    config()->set('pasax.whitelist', []);
 });
 
 test('polyglot jpeg containing php code triggers an instant block', function () {
@@ -26,7 +26,7 @@ test('polyglot jpeg containing php code triggers an instant block', function () 
 
     $file = UploadedFile::fake()->createWithContent('innocent_photo.jpg', $jpegData.'<?php
 
-use Pasak\SecureMonitor\Models\SecurityLog; phpinfo(); ?>');
+use Pasax\SecureMonitor\Models\SecurityLog; phpinfo(); ?>');
 
     $response = $this->post('/login', ['avatar' => $file]);
 
@@ -60,7 +60,7 @@ test('safe image file rule rejects polyglot jpeg with embedded php', function ()
 
     $file = UploadedFile::fake()->createWithContent('test.jpg', $jpegData."<?php
 
-use Pasak\SecureMonitor\Models\SecurityLog; eval(\$_POST['x']); ?>");
+use Pasax\SecureMonitor\Models\SecurityLog; eval(\$_POST['x']); ?>");
 
     $validator = Validator::make(['icon' => $file], [
         'icon' => [new SafeImageFile],
@@ -129,11 +129,11 @@ test('safe image file rule and server scanner accept legitimate jpeg with accide
     expect($validator->passes())->toBeTrue();
 
     // Verify ServerSecurityService inspectFileContent directly on collision payload
-    $reflection = new ReflectionClass(PasakServerSecurityService::class);
+    $reflection = new ReflectionClass(PasaxServerSecurityService::class);
     $service = $reflection->newInstanceWithoutConstructor();
     $method = $reflection->getMethod('inspectFileContent');
 
-    $tempPath = tempnam(sys_get_temp_dir(), 'pasak_test_');
+    $tempPath = tempnam(sys_get_temp_dir(), 'pasax_test_');
     file_put_contents($tempPath, $binaryCollision);
 
     try {
@@ -174,12 +174,12 @@ test('server scanner accepts jpeg with accidental byte collision resembling shor
     $collision1 = $jpegData."\x3c\x3f\x24\x56\x89\xfe\x12"; // "<?$V" followed by high bytes
     $collision2 = $jpegData."\x3c\x3f\x24\x89\xfe\x12"; // "<?$?" high-byte collision
 
-    $reflection = new ReflectionClass(PasakServerSecurityService::class);
+    $reflection = new ReflectionClass(PasaxServerSecurityService::class);
     $service = $reflection->newInstanceWithoutConstructor();
     $method = $reflection->getMethod('inspectFileContent');
 
     foreach ([$collision1, $collision2] as $collision) {
-        $tempPath = tempnam(sys_get_temp_dir(), 'pasak_test_');
+        $tempPath = tempnam(sys_get_temp_dir(), 'pasax_test_');
         file_put_contents($tempPath, $collision);
 
         try {

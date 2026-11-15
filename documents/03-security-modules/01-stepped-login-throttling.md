@@ -10,7 +10,7 @@ Paket ini menyediakan mesin proteksi login bertingkat (**Stepped Login Lockout**
 
 Setiap kali terjadi kegagalan otentikasi (ditangkap secara otomatis oleh listener `LogFailedLoginAttempt` dari event Laravel `\Illuminate\Auth\Events\Failed`), sistem mencatat kegagalan pada tabel `login_attempts` untuk kombinasi `email` dan `ip_address`.
 
-Ketika jumlah kegagalan mencapai ambang batas (`PASAK_LOGIN_LOCKOUT_THRESHOLD` atau pengaturan dashboard, default: 3 kali), durasi penguncian akan meningkat secara eksponensial sesuai level penalti:
+Ketika jumlah kegagalan mencapai ambang batas (`PASAX_LOGIN_LOCKOUT_THRESHOLD` atau pengaturan dashboard, default: 3 kali), durasi penguncian akan meningkat secara eksponensial sesuai level penalti:
 
 | Tingkat (Level) | Durasi Penguncian | Skenario |
 | :---: | :--- | :--- |
@@ -22,7 +22,7 @@ Ketika jumlah kegagalan mencapai ambang batas (`PASAK_LOGIN_LOCKOUT_THRESHOLD` a
 | **Level 6+** | **1440 Menit (24 Jam)** | Karantina penuh akun/IP dari otentikasi. |
 
 ### Jendela Peluruhan (Decay Window)
-Jika seorang pengguna sah berhasil login atau tidak melakukan percobaan apa pun selama durasi `PASAK_LOGIN_LOCKOUT_DECAY_MINUTES` (default: 60 menit), level penalti akan meluruh dan direset kembali ke level nol.
+Jika seorang pengguna sah berhasil login atau tidak melakukan percobaan apa pun selama durasi `PASAX_LOGIN_LOCKOUT_DECAY_MINUTES` (default: 60 menit), level penalti akan meluruh dan direset kembali ke level nol.
 
 ---
 
@@ -33,7 +33,7 @@ Paket secara otomatis mendaftarkan listener pada event otentikasi Laravel:
 1. **`LogFailedLoginAttempt`** (mendengarkan `\Illuminate\Auth\Events\Failed`):
    - Memanggil `LoginThrottleService::registerFailure($email, $ip)`.
    - Mengakumulasikan hitungan kegagalan dan memperbarui `locked_until` jika mencapai batas tier.
-   - Mencatat log audit ke tabel `pasak_logs`.
+   - Mencatat log audit ke tabel `pasax_logs`.
 2. **`ResetLoginAttempts`** (mendengarkan `\Illuminate\Auth\Events\Login`):
    - Ketika pengguna berhasil login, listener ini langsung memanggil `LoginThrottleService::registerSuccess($email, $ip)`.
    - Menghapus riwayat kegagalan dan mereset status penguncian untuk email & IP tersebut.
@@ -45,7 +45,7 @@ Paket secara otomatis mendaftarkan listener pada event otentikasi Laravel:
 Jika Anda membangun form login kustom atau API login headless, Anda dapat memeriksa status lockout sebelum memvalidasi kredensial:
 
 ```php
-use Pasak\SecureMonitor\Services\LoginThrottleService;
+use Pasax\SecureMonitor\Services\LoginThrottleService;
 
 class AuthController extends Controller
 {

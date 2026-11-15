@@ -1,26 +1,26 @@
 <?php
 
 use Illuminate\Http\UploadedFile;
-use Pasak\SecureMonitor\Models\BlockedIp;
-use Pasak\SecureMonitor\Models\SecurityLog;
-use Pasak\SecureMonitor\Rules\SafeAssetPath;
-use Pasak\SecureMonitor\Services\PasakService;
-use Pasak\SecureMonitor\Tests\TestUser;
+use Pasax\SecureMonitor\Models\BlockedIp;
+use Pasax\SecureMonitor\Models\SecurityLog;
+use Pasax\SecureMonitor\Rules\SafeAssetPath;
+use Pasax\SecureMonitor\Services\PasaxService;
+use Pasax\SecureMonitor\Tests\TestUser;
 
 beforeEach(function () {
-    config()->set('pasak.enabled', true);
-    config()->set('pasak.block_enforcement', true);
-    config()->set('pasak.instant_block.enabled', true);
-    config()->set('pasak.instant_block.duration_hours', 720);
-    config()->set('pasak.whitelist', []);
+    config()->set('pasax.enabled', true);
+    config()->set('pasax.block_enforcement', true);
+    config()->set('pasax.instant_block.enabled', true);
+    config()->set('pasax.instant_block.duration_hours', 720);
+    config()->set('pasax.whitelist', []);
 });
 
 test('default installation is monitoring-only: no automatic blocks without opt-in', function () {
     // Kembalikan ke bawaan paket (monitoring saja).
-    config()->set('pasak.instant_block.enabled', false);
-    config()->set('pasak.auto_block.enabled', false);
+    config()->set('pasax.instant_block.enabled', false);
+    config()->set('pasax.auto_block.enabled', false);
 
-    $service = app(PasakService::class);
+    $service = app(PasaxService::class);
 
     expect($service->instantBlockEnabled())->toBeFalse();
 
@@ -185,7 +185,7 @@ test('the unblock command lifts a block', function () {
         'is_active' => true,
     ]);
 
-    $this->artisan('pasak:unblock-ip 198.51.100.61')->assertSuccessful();
+    $this->artisan('pasax:unblock-ip 198.51.100.61')->assertSuccessful();
 
     expect($block->fresh()->is_active)->toBeFalse();
 });

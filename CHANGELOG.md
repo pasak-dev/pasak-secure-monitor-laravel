@@ -1,37 +1,37 @@
 # Changelog
 
-All notable changes to `pasak-dev/secure-monitor` will be documented in this file.
+All notable changes to `pasax-dev/secure-monitor` will be documented in this file.
 
 ## [1.2.1] - 2026-11-15
 
 ### Fixed
 
-- **Penyelarasan Constraint Versi Wildcard `*` di `composer.json` Host** (`src/Console/Commands/PasakInstallCommand.php`, `src/Console/Commands/PasakUpgradeCommand.php`):
-  - Memperbaiki logika `syncComposerConstraint` agar constraint versi wildcard (`*`) yang dihasilkan oleh instalasi awal Composer otomatis diselaraskan ke versi SemVer rilis lengkap terbaru (misal: `"pasak-dev/secure-monitor": "^1.2.1"`).
-  - Menambahkan dukungan nama paket resmi `pasak-dev/secure-monitor` pada perintah `pasak:upgrade` selain alias lama `robyajo/pasak`.
-  - Memperbaiki pesan feedback terminal agar menampilkan nama paket `pasak-dev/secure-monitor` secara konsisten.
+- **Penyelarasan Constraint Versi Wildcard `*` di `composer.json` Host** (`src/Console/Commands/PasaxInstallCommand.php`, `src/Console/Commands/PasaxUpgradeCommand.php`):
+  - Memperbaiki logika `syncComposerConstraint` agar constraint versi wildcard (`*`) yang dihasilkan oleh instalasi awal Composer otomatis diselaraskan ke versi SemVer rilis lengkap terbaru (misal: `"pasax-dev/secure-monitor": "^1.2.1"`).
+  - Menambahkan dukungan nama paket resmi `pasax-dev/secure-monitor` pada perintah `pasax:upgrade` selain alias lama `robyajo/pasax`.
+  - Memperbaiki pesan feedback terminal agar menampilkan nama paket `pasax-dev/secure-monitor` secara konsisten.
   - Menambahkan pengujian otomatis Pest untuk memastikan constraint wildcard `*` dikonversi sempurna ke SemVer lengkap saat instalasi.
 
 ## [1.2.0] - 2026-11-15
 
 ### Added
 
-- **Generator Laporan Audit Pentest Server (.md) & Rekapitulasi Rentang Tanggal** (`src/Services/PasakServerSecurityService.php`, `src/Http/Controllers/Dashboard/PasakServerController.php`, `src/Http/Controllers/Api/PasakServerSecurityApiController.php`):
+- **Generator Laporan Audit Pentest Server (.md) & Rekapitulasi Rentang Tanggal** (`src/Services/PasaxServerSecurityService.php`, `src/Http/Controllers/Dashboard/PasaxServerController.php`, `src/Http/Controllers/Api/PasaxServerSecurityApiController.php`):
   - Generator laporan audit keamanan dan pentest berstandar industri dalam format Markdown (`.md`) yang mengevaluasi 42 parameter hardening 6 kategori, baseline kriptografi SHA-256, pemindai webshell, dan pemetaan OWASP Top 10.
   - Mendukung agregasi telemetri ancaman lintas rentang tanggal fleksibel (`start_date` s/d `end_date`) dilengkapi tabel distribusi insiden harian (*Daily Threat Timeline*).
   - Modal ekspor cepat di panel Server Audit dengan tombol preset (Hari Ini, Kemarin, 7 Hari, 30 Hari, Bulan Ini) dan tautan ke halaman laporan penuh.
-- **Halaman Khusus Laporan Audit (`/pasak/reports`)** (`routes/pasak.php`, `stubs/blade/pages/pasak/reports.blade.php`, `stubs/blade/pages/pasak/layout.blade.php`):
+- **Halaman Khusus Laporan Audit (`/pasax/reports`)** (`routes/pasax.php`, `stubs/blade/pages/pasax/reports.blade.php`, `stubs/blade/pages/pasax/layout.blade.php`):
   - Panel terdedikasi di navigasi bilah sisi (*Audit Reports*) dengan pemilih rentang tanggal kustom, tombol preset instan, serta pratinjau ganda (*Dual Preview: Live Rendered HTML* dan *Raw Markdown Editor/Viewer*).
   - Dilengkapi fitur unduh langsung berkas `.md` serta salin seluruh teks Markdown ke clipboard dengan notifikasi visual instan.
-- **Integrasi Pasak Sentinel Host Security Daemon via IPC Unix Domain Socket** (`src/Services/PasakSentinelBridge.php`, `src/Console/Commands/PasakSentinelCommand.php`):
-  - Mendukung komunikasi non-blocking berlatensi rendah (<0.2ms) antara Laravel WAF dan kernel daemon Sentinel via socket `/run/pasak/agent.sock` dengan fallback otomatis ke `/tmp/pasak/agent.sock`.
+- **Integrasi Pasax Sentinel Host Security Daemon via IPC Unix Domain Socket** (`src/Services/PasaxSentinelBridge.php`, `src/Console/Commands/PasaxSentinelCommand.php`):
+  - Mendukung komunikasi non-blocking berlatensi rendah (<0.2ms) antara Laravel WAF dan kernel daemon Sentinel via socket `/run/pasax/agent.sock` dengan fallback otomatis ke `/tmp/pasax/agent.sock`.
   - Penurunan paket penyerang instan langsung di lapisan kernel Linux via `nftables` / `iptables` saat WAF mendeteksi ancaman berbahaya.
-  - Perintah diagnostik Artisan `php artisan pasak:sentinel --ping` dan `php artisan pasak:sentinel --block=<ip>`.
+  - Perintah diagnostik Artisan `php artisan pasax:sentinel --ping` dan `php artisan pasax:sentinel --block=<ip>`.
 
 ### Changed
 
-- **Standardisasi Penamaan Produk ke `pasak-secure-monitor`**:
-  - Menyelaraskan seluruh tautan dokumentasi resmi, rute portal, dan metadata rilis ke `pasak-secure-monitor` (selaras dengan repositori resmi organisasi `pasak-dev`).
+- **Standardisasi Penamaan Produk ke `pasax-secure-monitor`**:
+  - Menyelaraskan seluruh tautan dokumentasi resmi, rute portal, dan metadata rilis ke `pasax-secure-monitor` (selaras dengan repositori resmi organisasi `pasax-dev`).
 
 ## [1.1.1] - 2026-11-13
 
@@ -40,46 +40,46 @@ All notable changes to `pasak-dev/secure-monitor` will be documented in this fil
 - **Kestabilan Matriks CI GitHub Actions**:
   - Mengisolasi dependensi developer `larastan/larastan` dan `laravel/pint` dari `require-dev` agar matriks pengujian Pest PHP 8.2 dan Laravel 10 berjalan mulus tanpa konflik resolusi dependensi.
   - Memperbaiki kompatibilitas konfigurasi PHPStan 2.x (`checkOctaneCompatibility` dan `checkModelProperties`) serta meregenerasi baseline analisis statis.
-  - Menghilangkan *timing race condition* (flake) pada pengujian cooldown login bertingkat (`PasakSteppedLoginCooldownTest`) dengan pembekuan waktu Carbon terisolasi dan toleransi batas pengujian beban tinggi.
+  - Menghilangkan *timing race condition* (flake) pada pengujian cooldown login bertingkat (`PasaxSteppedLoginCooldownTest`) dengan pembekuan waktu Carbon terisolasi dan toleransi batas pengujian beban tinggi.
 
 ## [1.1.0] - 2026-11-13
 
 ### Changed
 
-- **Refactoring Namespace Resmi ke `Pasak\SecureMonitor\`**:
-  - Mengubah seluruh namespace inti dan impor dari `Internal\Pasak\` menjadi `Pasak\SecureMonitor\` (selaras dengan nama paket `pasak-dev/secure-monitor`).
-  - Memperbarui `composer.json` dengan namespace PSR-4 `"Pasak\\SecureMonitor\\": "src/"` dan dev `"Pasak\\SecureMonitor\\Tests\\": "tests/"`.
-  - Service Provider didaftarkan ke `Pasak\SecureMonitor\PasakServiceProvider`, dan Facade ke `Pasak\SecureMonitor\Facades\Pasak`.
-  - Mengimplementasikan backward-compatibility aliases dan fallback dynamic autoloader di `src/compat.php` untuk `Internal\Pasak\*` dan `Internal\SecurityMonitor\*` agar aplikasi host lama tetap berfungsi 100% tanpa breaking changes.
-  - Memperbarui seluruh pengujian unit/fitur, stubs, konfigurasi, migrasi, dan dokumentasi ke `Pasak\SecureMonitor`.
-  - Seluruh 280 test case Pest PHP (`tests/`) dan 42 test case aplikasi contoh (`ring/pasak-yes`) lulus dengan status hijau (100% Passed).
+- **Refactoring Namespace Resmi ke `Pasax\SecureMonitor\`**:
+  - Mengubah seluruh namespace inti dan impor dari `Internal\Pasax\` menjadi `Pasax\SecureMonitor\` (selaras dengan nama paket `pasax-dev/secure-monitor`).
+  - Memperbarui `composer.json` dengan namespace PSR-4 `"Pasax\\SecureMonitor\\": "src/"` dan dev `"Pasax\\SecureMonitor\\Tests\\": "tests/"`.
+  - Service Provider didaftarkan ke `Pasax\SecureMonitor\PasaxServiceProvider`, dan Facade ke `Pasax\SecureMonitor\Facades\Pasax`.
+  - Mengimplementasikan backward-compatibility aliases dan fallback dynamic autoloader di `src/compat.php` untuk `Internal\Pasax\*` dan `Internal\SecurityMonitor\*` agar aplikasi host lama tetap berfungsi 100% tanpa breaking changes.
+  - Memperbarui seluruh pengujian unit/fitur, stubs, konfigurasi, migrasi, dan dokumentasi ke `Pasax\SecureMonitor`.
+  - Seluruh 280 test case Pest PHP (`tests/`) dan 42 test case aplikasi contoh (`ring/pasax-yes`) lulus dengan status hijau (100% Passed).
 
 ## [1.7.15] - 2026-11-12
 
 ### Added
 
-- **Konfigurasi Lokasi Fisik GPS & Target Radar Live Threat Map** (`src/Models/PasakSetting.php`, `src/Http/Controllers/Dashboard/PasakServerController.php`, `src/Http/Controllers/Dashboard/PasakThreatMapController.php`, `stubs/blade/pages/pasak/server.blade.php`, `stubs/blade/pages/pasak/threat-map.blade.php`):
+- **Konfigurasi Lokasi Fisik GPS & Target Radar Live Threat Map** (`src/Models/PasaxSetting.php`, `src/Http/Controllers/Dashboard/PasaxServerController.php`, `src/Http/Controllers/Dashboard/PasaxThreatMapController.php`, `stubs/blade/pages/pasax/server.blade.php`, `stubs/blade/pages/pasax/threat-map.blade.php`):
   - Memungkinkan administrator mengonfigurasi label lokasi, latitude, dan longitude fisik server secara langsung dari panel Server Audit.
   - Target node Live Threat Map secara otomatis mengarahkan radar fokus ke titik koordinat GPS server yang dikonfigurasi.
   - Menyediakan fitur deteksi otomatis koordinat GPS melalui peramban serta tombol reset kembali ke deteksi otomatis bawaan.
-- **Standardisasi Zona Waktu Server Terpadu (Unified Timezone Engine)** (`src/Models/PasakSetting.php`, `src/Support/PasakDashboardView.php`, `src/Services/PasakServerSecurityService.php`):
-  - Menghadirkan pengaturan zona waktu operasional resmi server (WIB, WITA, WIT, zona waktu global populer, atau deteksi peramban otomatis) yang disimpan secara persisten di tabel `pasak_settings`.
-  - `PasakDashboardView::timezone()` dan `PasakDashboardView::now()` menjadikan zona waktu server yang dikonfigurasi sebagai acuan waktu tunggal untuk seluruh pencatatan log insiden, laporan audit berkas, jam server di header dasbor, dan stempel waktu telemetri.
-- **Ketahanan Pembaruan Sistem & Rute Cadangan Otomatis (Zero-Friction Updates & Auto-Fallback)** (`src/PasakServiceProvider.php`, `src/Console/Commands/PasakUpgradeCommand.php`, `routes/pasak-dashboard-blade.php`, `stubs/routes/pasak.php.stub`, `stubs/routes/pasak-api.php.stub`):
-  - `PasakServiceProvider::ensureEssentialDashboardRoutes()` dan `ensureEssentialApiRoutes()` menjamin rute-rute baru (seperti konfigurasi lokasi server) tetap langsung aktif di memori meskipun aplikasi host menggunakan berkas rute lokal dari versi lama.
+- **Standardisasi Zona Waktu Server Terpadu (Unified Timezone Engine)** (`src/Models/PasaxSetting.php`, `src/Support/PasaxDashboardView.php`, `src/Services/PasaxServerSecurityService.php`):
+  - Menghadirkan pengaturan zona waktu operasional resmi server (WIB, WITA, WIT, zona waktu global populer, atau deteksi peramban otomatis) yang disimpan secara persisten di tabel `pasax_settings`.
+  - `PasaxDashboardView::timezone()` dan `PasaxDashboardView::now()` menjadikan zona waktu server yang dikonfigurasi sebagai acuan waktu tunggal untuk seluruh pencatatan log insiden, laporan audit berkas, jam server di header dasbor, dan stempel waktu telemetri.
+- **Ketahanan Pembaruan Sistem & Rute Cadangan Otomatis (Zero-Friction Updates & Auto-Fallback)** (`src/PasaxServiceProvider.php`, `src/Console/Commands/PasaxUpgradeCommand.php`, `routes/pasax-web-blade.php`, `stubs/routes/pasax.php.stub`, `stubs/routes/pasax-service.php.stub`):
+  - `PasaxServiceProvider::ensureEssentialDashboardRoutes()` dan `ensureEssentialApiRoutes()` menjamin rute-rute baru (seperti konfigurasi lokasi server) tetap langsung aktif di memori meskipun aplikasi host menggunakan berkas rute lokal dari versi lama.
   - Menambahkan dukungan penanganan method `POST /server` sebagai fallback dinamis guna mengeliminasi galat `MethodNotAllowedHttpException` saat menyimpan konfigurasi.
-  - `PasakUpgradeCommand` secara cerdas menyematkan rute baru yang hilang ke berkas rute host dengan pencadangan otomatis bertanggal (`.backup-*`).
+  - `PasaxUpgradeCommand` secara cerdas menyematkan rute baru yang hilang ke berkas rute host dengan pencadangan otomatis bertanggal (`.backup-*`).
   - Menambahkan deteksi berkas tampilan lama `server.blade.php` yang belum memuat form konfigurasi lokasi dan memberikan panduan `--sync-views`.
 
 ## [1.7.14] - 2026-11-12
 
 ### Fixed & Maintenance
 
-- **Penyempurnaan Kompatibilitas CI & Pemeriksaan Statis PHPStan** (`phpstan.neon.dist`, `src/Support/PasakDashboardSecret.php`, `src/Console/Commands/PasakCloudCommand.php`):
+- **Penyempurnaan Kompatibilitas CI & Pemeriksaan Statis PHPStan** (`phpstan.neon.dist`, `src/Support/PasaxDashboardSecret.php`, `src/Console/Commands/PasaxCloudCommand.php`):
   - Memperluas ignore pattern pemeriksaan `Factory::exists` untuk semua subdirektori di bawah `src/` guna mencegah kegagalan analisis statis pada lingkungan CI.
   - Memperbaiki penanganan `env()` di luar berkas konfigurasi dengan memindahkan pembacaan ke helper `config()` serta menerapkan pemformatan Laravel Pint secara menyeluruh.
-  - Menghilangkan kondisi redundan pada pemeriksaan rahasia dasbor di `PasakDashboardSecret`.
-- **Penanganan Dependensi Doctrine DBAL pada Migrasi Alter Table** (`database/migrations/2026_11_12_000001_expand_pasak_device_columns.php`):
+  - Menghilangkan kondisi redundan pada pemeriksaan rahasia dasbor di `PasaxDashboardSecret`.
+- **Penanganan Dependensi Doctrine DBAL pada Migrasi Alter Table** (`database/migrations/2026_11_12_000001_expand_pasax_device_columns.php`):
   - Mengimplementasikan fallback otomatis ke kueri SQL native (`ALTER TABLE ... MODIFY/ALTER COLUMN`) apabila paket `doctrine/dbal` belum terpasang di aplikasi host, menjamin migrasi selalu berjalan sukses di semua versi Laravel.
   - Menambahkan pengaman `file_exists` sebelum memuat berkas rute publikasi.
 
@@ -87,8 +87,8 @@ All notable changes to `pasak-dev/secure-monitor` will be documented in this fil
 
 ### Added
 
-- **Klasifikasi Intelijen & Profil Penyerang Otomatis (Attacker Profiling: Scanners, Bots, Crawlers)** (`src/Support/PasakDashboardView.php`, `stubs/blade/pages/pasak/logs.blade.php`, `src/Http/Controllers/Dashboard/PasakLogController.php`):
-  - Menambahkan kapabilitas `PasakDashboardView::attackerInfo()` untuk mengidentifikasi dan mengelompokkan pengunjung maupun penyerang secara otomatis berdasarkan User-Agent dan karakteristik request:
+- **Klasifikasi Intelijen & Profil Penyerang Otomatis (Attacker Profiling: Scanners, Bots, Crawlers)** (`src/Support/PasaxDashboardView.php`, `stubs/blade/pages/pasax/logs.blade.php`, `src/Http/Controllers/Dashboard/PasaxLogController.php`):
+  - Menambahkan kapabilitas `PasaxDashboardView::attackerInfo()` untuk mengidentifikasi dan mengelompokkan pengunjung maupun penyerang secara otomatis berdasarkan User-Agent dan karakteristik request:
     - 🚨 **Scanner Eksploitasi**: `sqlmap`, `nikto`, `acunetix`, `nmap`, `masscan`, `wpscan`, `dirbuster`, dll.
     - 🤖 **Automated Script / Bot**: `curl`, `python-requests`, `postman`, `go-http-client`, `wget`, dll.
     - 🕷️ **Web Crawler / Search Engine**: `Googlebot`, `Bingbot`, `YandexBot`, `DuckDuckBot`, dll.
@@ -102,7 +102,7 @@ All notable changes to `pasak-dev/secure-monitor` will be documented in this fil
 
 ### Fixed
 
-- **Pencegahan Pemotongan Data (Data Truncation) pada Perangkat & IP Terpercaya** (`database/migrations/2026_11_12_000001_expand_pasak_device_columns.php`, `src/Models/PasakTrustedIp.php`, `src/Models/PasakUserLogin.php`, `src/Services/PasakUserLoginService.php`):
+- **Pencegahan Pemotongan Data (Data Truncation) pada Perangkat & IP Terpercaya** (`database/migrations/2026_11_12_000001_expand_pasax_device_columns.php`, `src/Models/PasaxTrustedIp.php`, `src/Models/PasaxUserLogin.php`, `src/Services/PasaxUserLoginService.php`):
   - Memperluas kapasitas kolom `operating_system`, `browser`, `device_id`, dan `user_agent` menjadi 255 karakter / teks panjang.
   - Mencegah galat SQL data truncation saat memproses signature peramban modern yang panjang ketika mendaftarkan IP atau perangkat terpercaya.
 
@@ -110,41 +110,41 @@ All notable changes to `pasak-dev/secure-monitor` will be documented in this fil
 
 ### Added
 
-- **Integrasi Pasak Cloud Service & Perintah CLI `pasak:cloud`** (`src/Services/PasakCloudService.php`, `src/Console/Commands/PasakCloudCommand.php`):
+- **Integrasi Pasax Cloud Service & Perintah CLI `pasax:cloud`** (`src/Services/PasaxCloudService.php`, `src/Console/Commands/PasaxCloudCommand.php`):
   - Layanan telemetri WAF mandiri yang secara otomatis mengekstrak metadata identitas aplikasi host dari `APP_NAME` dan `APP_URL`.
   - Menyediakan perintah Artisan interaktif:
-    - `php artisan pasak:cloud --test` : Uji konektivitas dan autentikasi lisensi ke server Pasak Cloud.
-    - `php artisan pasak:cloud --info` : Tampilkan status konfigurasi cloud, token, dan metadata aplikasi.
-    - `php artisan pasak:cloud --register` : Kirim pendaftaran awal dan heartbeat telemetri aplikasi.
-- **Dukungan Lisensi Universal Multi-Aplikasi (`PASAK_CLOUD_KEY`)**:
+    - `php artisan pasax:cloud --test` : Uji konektivitas dan autentikasi lisensi ke server Pasax Cloud.
+    - `php artisan pasax:cloud --info` : Tampilkan status konfigurasi cloud, token, dan metadata aplikasi.
+    - `php artisan pasax:cloud --register` : Kirim pendaftaran awal dan heartbeat telemetri aplikasi.
+- **Dukungan Lisensi Universal Multi-Aplikasi (`PASAX_CLOUD_KEY`)**:
   - Satu token lisensi (`psk_live_...`) dapat digunakan secara bersamaan pada berbagai aplikasi Laravel dan server VPS yang menjalankan daemon Sentinel.
-  - Operasi cloud bersifat opsional: jika `PASAK_CLOUD_KEY` tidak diisi, WAF beroperasi 100% lokal tanpa dependensi jaringan eksternal.
-- **Isolasi Namespace Total Antarmuka Cooldown Login (HTTP 429)** (`stubs/pasak-login-throttle.blade.php`, `src/Services/PasakLoginThrottleService.php`):
-  - Membakukan seluruh styling CSS, custom properties, dan ID DOM menggunakan prefix `pasak-` untuk menjamin tampilan hitung mundur responsif tanpa risiko konflik CSS host.
+  - Operasi cloud bersifat opsional: jika `PASAX_CLOUD_KEY` tidak diisi, WAF beroperasi 100% lokal tanpa dependensi jaringan eksternal.
+- **Isolasi Namespace Total Antarmuka Cooldown Login (HTTP 429)** (`stubs/pasax-login-throttle.blade.php`, `src/Services/PasaxLoginThrottleService.php`):
+  - Membakukan seluruh styling CSS, custom properties, dan ID DOM menggunakan prefix `pasax-` untuk menjamin tampilan hitung mundur responsif tanpa risiko konflik CSS host.
   - Deteksi otomatis header `Accept: application/json` dan rute `/api/*` untuk merespons status HTTP 429 dengan payload JSON terstruktur dan header `Retry-After`.
 - **Pembersihan Berkas Stub Usang**:
-  - Menghapus stub usang (`login-throttle.blade.php`, `429.blade.php`, `pasak-429.blade.php`) dan membakukan penggunaan stub `pasak-login-throttle.blade.php`.
+  - Menghapus stub usang (`login-throttle.blade.php`, `429.blade.php`, `pasax-429.blade.php`) dan membakukan penggunaan stub `pasax-login-throttle.blade.php`.
 
 ## [1.7.10] - 2026-11-11
 
 ### Added
 
-- **Branding Resmi Dwitema pada Gateway Login Dashboard** (`stubs/blade/pages/pasak/login.blade.php`, `src/Services/PasakService.php`):
-  - Menampilkan logo resmi horizontal PASAK pada formulir autentikasi login dasbor dengan adaptasi otomatis untuk mode terang (Light Mode) dan gelap (Dark Mode).
-  - Penyelarasan pengujian unit pengalihan autentikasi dasbor berputar (`pasak.dashboard.login`).
+- **Branding Resmi Dwitema pada Gateway Login Dashboard** (`stubs/blade/pages/pasax/login.blade.php`, `src/Services/PasaxService.php`):
+  - Menampilkan logo resmi horizontal PASAX pada formulir autentikasi login dasbor dengan adaptasi otomatis untuk mode terang (Light Mode) dan gelap (Dark Mode).
+  - Penyelarasan pengujian unit pengalihan autentikasi dasbor berputar (`pasax.dashboard.login`).
 
 ## [1.7.9] - 2026-11-11
 
 ### Added
 
-- **Gerbang Autentikasi Mandiri Dashboard Pasak & Kredensial Bawaan** (`src/Http/Controllers/Dashboard/PasakAuthController.php`, `src/Http/Middleware/PasakDashboardAuthenticate.php`, `stubs/blade/pages/pasak/login.blade.php`):
-  - Dashboard Pasak kini dilindungi oleh form login mandiri (`/pasak-{token}/login`) yang terpisah dari sistem autentikasi aplikasi host.
-  - Kredensial bawaan dikonfigurasi melalui `.env`: `PASAK_DASHBOARD_USERNAME=admin` dan `PASAK_DASHBOARD_PASSWORD=Admin`.
-  - Hash password disimpan di database tabel `pasak_settings` menggunakan HMAC SHA-256 berbasis `PASAK_DASHBOARD_SECRET`.
+- **Gerbang Autentikasi Mandiri Dashboard Pasax & Kredensial Bawaan** (`src/Http/Controllers/Dashboard/PasaxAuthController.php`, `src/Http/Middleware/PasaxDashboardAuthenticate.php`, `stubs/blade/pages/pasax/login.blade.php`):
+  - Dashboard Pasax kini dilindungi oleh form login mandiri (`/pasax-{token}/login`) yang terpisah dari sistem autentikasi aplikasi host.
+  - Kredensial bawaan dikonfigurasi melalui `.env`: `PASAX_DASHBOARD_USERNAME=admin` dan `PASAX_DASHBOARD_PASSWORD=Admin`.
+  - Hash password disimpan di database tabel `pasax_settings` menggunakan HMAC SHA-256 berbasis `PASAX_DASHBOARD_SECRET`.
   - Banner peringatan siaga dan pop-up modal wajib ganti password muncul otomatis saat administrator masih menggunakan kredensial bawaan (`Admin`).
 
-- **Mode Pemulihan Darurat (Emergency Recovery via `PASAK_DASHBOARD_SECRET`)**:
-  - Apabila administrator lupa password yang telah disetel, nilai `PASAK_DASHBOARD_SECRET` dari berkas `.env` dapat langsung digunakan sebagai password darurat pada form login.
+- **Mode Pemulihan Darurat (Emergency Recovery via `PASAX_DASHBOARD_SECRET`)**:
+  - Apabila administrator lupa password yang telah disetel, nilai `PASAX_DASHBOARD_SECRET` dari berkas `.env` dapat langsung digunakan sebagai password darurat pada form login.
   - Sistem mendeteksi kecocokan darurat dan mengizinkan login ke **Mode Pemulihan Darurat** (`is_emergency = true`), menampilkan banner peringatan siaga merah dan langsung memunculkan modal ganti password baru tanpa perlu menyentuh database.
 
 - **Modal Pembaruan Password & Formulir Pengaturan**:
@@ -175,19 +175,19 @@ All notable changes to `pasak-dev/secure-monitor` will be documented in this fil
 
 ### Security
 
-- **Pencegahan IP Spoofing pada `resolveClientIp`** (`src/Services/PasakService.php`):
+- **Pencegahan IP Spoofing pada `resolveClientIp`** (`src/Services/PasaxService.php`):
   - Request publik tidak dapat lagi mem-bypass atau memalsukan identitas IP via header `CF-Connecting-IP`, `True-Client-IP`, `X-Real-IP`, atau `X-Forwarded-For`.
   - Header reverse proxy kini hanya dipercaya dan diekstrak bila koneksi klien terbukti berasal dari upstream / proxy terpercaya (`isTrustedProxy()`, subnet privat/internal Docker/Nginx/Kube, atau rentang subnet resmi Cloudflare).
-- **Penghapusan Auto-Whitelist Pengguna Biasa pada `isWhitelisted`** (`src/Services/PasakService.php`):
-  - Login pengguna reguler tidak lagi memberikan izin bypass bebas WAF ke IP pengunjung. Whitelist hanya diberikan kepada IP tepercaya eksplisit (`PasakTrustedIp` / config).
-- **Inspeksi Raw Body & Mitigasi Padding Evasion** (`src/Services/PasakService.php`):
+- **Penghapusan Auto-Whitelist Pengguna Biasa pada `isWhitelisted`** (`src/Services/PasaxService.php`):
+  - Login pengguna reguler tidak lagi memberikan izin bypass bebas WAF ke IP pengunjung. Whitelist hanya diberikan kepada IP tepercaya eksplisit (`PasaxTrustedIp` / config).
+- **Inspeksi Raw Body & Mitigasi Padding Evasion** (`src/Services/PasaxService.php`):
   - Konten mentah request (`$request->getContent()`) kini otomatis diikutsertakan pada inspeksi body (menjamin request JSON/XML mentah tetap terpindai).
   - Menerapkan inspeksi awal dan akhir (*head + tail inspection*) jika panjang isi request melampaui `max_inspect_length`, sehingga teknik *padding evasion* (> 4000 byte karakter dummy untuk menyembunyikan serangan di ekor payload) berhasil dicegah.
 
 ### Fixed
 
 - **Isolasi File Konfigurasi Testbench pada Suite Pengujian** (`tests/TestCase.php`):
-  - Membersihkan residu file `config/pasak.php` pada skeleton Testbench di `TestCase::setUp()` dan `tearDown()` agar tes fitur tidak saling menimpa konfigurasi paket (Fixes #3, PR #4).
+  - Membersihkan residu file `config/pasax.php` pada skeleton Testbench di `TestCase::setUp()` dan `tearDown()` agar tes fitur tidak saling menimpa konfigurasi paket (Fixes #3, PR #4).
 
 ## [1.7.6] - 2026-11-11
 
@@ -199,37 +199,37 @@ All notable changes to `pasak-dev/secure-monitor` will be documented in this fil
 
 ### Added
 
-- **Favicon Resmi Pasak untuk Dashboard & Halaman Error Terblokir** (`stubs/blade/pages/pasak/layout.blade.php`, `stubs/blocked.blade.php`):
-  - Mengintegrasikan favicon default resolusi tinggi menggunakan logo/ikon resmi Pasak (berbasis SVG/PNG base64 yang selaras dengan ikon aplikasi di bagian bawah sidebar navigasi).
+- **Favicon Resmi Pasax untuk Dashboard & Halaman Error Terblokir** (`stubs/blade/pages/pasax/layout.blade.php`, `stubs/blocked.blade.php`):
+  - Mengintegrasikan favicon default resolusi tinggi menggunakan logo/ikon resmi Pasax (berbasis SVG/PNG base64 yang selaras dengan ikon aplikasi di bagian bawah sidebar navigasi).
   - Melengkapi tag `<link rel="icon">`, `<link rel="shortcut icon">`, dan `<link rel="apple-touch-icon">` untuk memastikan favicon tampil konsisten di semua peramban desktop maupun mobile.
-  - Tetap mendukung kustomisasi penuh melalui konfigurasi `config('pasak.dashboard.favicon')` atau penimpaan langsung via Blade `@section('favicon')`.
+  - Tetap mendukung kustomisasi penuh melalui konfigurasi `config('pasax.dashboard.favicon')` atau penimpaan langsung via Blade `@section('favicon')`.
 
-- **Konfigurasi URL Kembali Dashboard Dinamis (`pasak.dashboard.back_url`)** (`config/pasak.php`, `stubs/blade/pages/pasak/settings.blade.php`, `PasakSettingController.php`, `PasakSecuritySettingApiController.php`):
+- **Konfigurasi URL Kembali Dashboard Dinamis (`pasax.dashboard.back_url`)** (`config/pasax.php`, `stubs/blade/pages/pasax/settings.blade.php`, `PasaxSettingController.php`, `PasaxSecuritySettingApiController.php`):
   - Memungkinkan admin mengonfigurasi tautan tombol "Kembali ke Aplikasi Utama" di sidebar dashboard secara fleksibel melalui antarmuka Pengaturan Keamanan maupun file konfigurasi.
 
 ## [1.7.3] - 2026-11-10
 
 ### Added
 
-- **Pembersihan Cache & Optimasi Sistem Sekali Klik (`php artisan optimize:clear`) via Tombol Refresh Header** (`stubs/blade/pages/pasak/layout.blade.php`, `PasakServerController.php`, `PasakServerSecurityApiController.php`):
-  - Tombol Refresh di sudut kanan atas header dashboard kini memicu endpoint `POST {pasakSlug}/optimize-clear` dan API `POST api/pasak/server/optimize-clear`.
+- **Pembersihan Cache & Optimasi Sistem Sekali Klik (`php artisan optimize:clear`) via Tombol Refresh Header** (`stubs/blade/pages/pasax/layout.blade.php`, `PasaxServerController.php`, `PasaxServerSecurityApiController.php`):
+  - Tombol Refresh di sudut kanan atas header dashboard kini memicu endpoint `POST {pasaxSlug}/optimize-clear` dan API `POST api/pasax/server/optimize-clear`.
   - Secara otomatis mengeksekusi `Artisan::call('optimize:clear')` yang membersihkan seluruh cache aplikasi, compiled views, konfigurasi, rute, dan event cache.
   - Dilengkapi animasi putar halus (_spinning icon_), pengiriman pesan aman via session flash, serta penayangan notifikasi floating toast hijau (_5 detik_) saat halaman termuat ulang dalam kondisi segar.
 
-- **Branding Resmi Pasak Adaptif pada Header & Sidebar Dashboard** (`stubs/blade/pages/pasak/layout.blade.php`):
-  - Menghadirkan logo resmi horizontal **PASAK** pada sisi kiri header (`.sec-header-brand`) lengkap dengan pemisah vertikal elegan dan tautan cepat ke Ringkasan Dashboard.
+- **Branding Resmi Pasax Adaptif pada Header & Sidebar Dashboard** (`stubs/blade/pages/pasax/layout.blade.php`):
+  - Menghadirkan logo resmi horizontal **PASAX** pada sisi kiri header (`.sec-header-brand`) lengkap dengan pemisah vertikal elegan dan tautan cepat ke Ringkasan Dashboard.
   - Varian logo dwitema adaptif otomatis: varian warna navy untuk Mode Terang (_Light Mode_) dan varian warna putih tajam (_crisp white_) untuk Mode Gelap (_Dark Mode_).
-  - Menggantikan ikon perisai generik lama pada footer sidebar versi dengan ikon resmi Pasak (_squircle biru P berlatar jaringan node dan pasak oranye_) beresolusi tinggi (Retina-ready) tanpa dependensi aset eksternal.
+  - Menggantikan ikon perisai generik lama pada footer sidebar versi dengan ikon resmi Pasax (_squircle biru P berlatar jaringan node dan pasax oranye_) beresolusi tinggi (Retina-ready) tanpa dependensi aset eksternal.
 
-- **Lencana Informasi & Fitur Salin Cepat Alamat IP Pengakses di Header** (`stubs/blade/pages/pasak/layout.blade.php`):
+- **Lencana Informasi & Fitur Salin Cepat Alamat IP Pengakses di Header** (`stubs/blade/pages/pasax/layout.blade.php`):
   - Menambahkan informasi alamat IP publik/lokal yang sedang mengakses dashboard secara langsung di samping tombol Refresh (`.sec-client-ip-badge`).
   - Dilengkapi indikator status aktif (_live green beacon_), label teks responsif, serta fitur interaktif satu klik (_click-to-copy_) ke clipboard dengan feedback notifikasi toast.
 
 ### Fixed
 
-- **Pencegahan Alert Dialog Ganda pada Hapus Berkas Server Audit** (`stubs/blade/pages/pasak/server.blade.php`):
-  - Menghilangkan konflik konfirmasi ganda bawaan peramban (`onsubmit="return confirm(...)"`) sehingga aksi hapus berkas mencurigakan konsisten hanya memicu 1 modal konfirmasi alert-dialog terpadu Pasak.
-- **Perbaikan Kebocoran Teks Skrip pada Visualisasi Threat Map** (`stubs/blade/pages/pasak/threat-map.blade.php`):
+- **Pencegahan Alert Dialog Ganda pada Hapus Berkas Server Audit** (`stubs/blade/pages/pasax/server.blade.php`):
+  - Menghilangkan konflik konfirmasi ganda bawaan peramban (`onsubmit="return confirm(...)"`) sehingga aksi hapus berkas mencurigakan konsisten hanya memicu 1 modal konfirmasi alert-dialog terpadu Pasax.
+- **Perbaikan Kebocoran Teks Skrip pada Visualisasi Threat Map** (`stubs/blade/pages/pasax/threat-map.blade.php`):
   - Mengubah payload simulasi XSS menjadi format URL-encoded (`%3Cscript%3Ealert(1)%3C%2Fscript%3E`) guna mencegah penutupan prematur blok `<script>` oleh parser HTML browser yang sebelumnya menyebabkan teks kode tumpah ke bagian bawah layar.
 - **Pencegahan Toast Duplikat & Konsistensi Aliran Radar Serangan**:
   - Menambahkan _deduplication guard_ pada sistem notifikasi toast untuk memblokir penayangan pesan identik secara simultan.
@@ -239,31 +239,31 @@ All notable changes to `pasak-dev/secure-monitor` will be documented in this fil
 
 ### Added
 
-- **Peta Intelijen Siber Interaktif & Dual-Engine Fallback pada Threat Map** (`stubs/blade/pages/pasak/threat-map.blade.php`):
+- **Peta Intelijen Siber Interaktif & Dual-Engine Fallback pada Threat Map** (`stubs/blade/pages/pasax/threat-map.blade.php`):
   - Visualisasi intelijen serangan siber real-time dengan HUD status taktis (ThreatsEye SOC Style), koordinat node yang dilindungi, dan status firewall WAF (Blocking / Monitoring).
   - Pilihan proyeksi peta fleksibel: **3D Globe** (rotasi interaktif) dan **2D Tactical Flat Map** (Mercator / Equirectangular).
   - **Dual-Engine & Offline Resilience**: Mendukung failover multi-CDN (`jsdelivr` & `cdnjs`), data benua offline bawaan (`FALLBACK_WORLD_GEOJSON`), dan engine **Radar Cyber 2D Mandiri (Pure Canvas Standalone Engine)** yang berjalan 100% tanpa dependensi eksternal bila CDN diblokir atau offline.
   - Perbaikan styling modal toast offline (`.threat-map-offline[hidden] { display: none !important; }`) sehingga mudah ditutup tanpa menghalangi visualisasi radar.
 
-- **Pembaruan Menyeluruh & Pembersihan Berkas Usang via `php artisan pasak:upgrade --force` (dan Alias `pasak:upgrae`)**:
-  - Menambahkan alias resmi `pasak:upgrae` pada perintah konsol sehingga salah ketik tetap berjalan mulus.
+- **Pembaruan Menyeluruh & Pembersihan Berkas Usang via `php artisan pasax:upgrade --force` (dan Alias `pasax:upgrae`)**:
+  - Menambahkan alias resmi `pasax:upgrae` pada perintah konsol sehingga salah ketik tetap berjalan mulus.
   - Opsi `--force` kini memperbarui dan menyinkronkan seluruh aset dari instalasi lama ke standar versi terbaru:
     - **Deteksi & Laporan Migrasi Database**: Menampilkan deteksi jumlah migrasi baru yang belum diterapkan (`⚠ Terdeteksi X migrasi database baru...`) dan laporan status pembaruan struktur database yang informatif.
-    - **Pembaruan Konfigurasi (`config/pasak.php`)**: Otomatis menyisipkan konfigurasi baru yang hilang (`sentinel` IPC socket daemon, `threat_map` globe visualizer, URL rotasi dinamis, dan migrasi nama tabel ke prefix `pasak_`) tanpa menimpa nilai kustomisasi pengguna.
-    - **Sinkronisasi Tampilan (`resources/views/pages/pasak`) & Rute**: Secara otomatis menyinkronkan tampilan Blade dashboard dan rute ke versi terbaru, dengan opsi `--clean-backups` dan `--no-backup`.
+    - **Pembaruan Konfigurasi (`config/pasax.php`)**: Otomatis menyisipkan konfigurasi baru yang hilang (`sentinel` IPC socket daemon, `threat_map` globe visualizer, URL rotasi dinamis, dan migrasi nama tabel ke prefix `pasax_`) tanpa menimpa nilai kustomisasi pengguna.
+    - **Sinkronisasi Tampilan (`resources/views/pages/pasax`) & Rute**: Secara otomatis menyinkronkan tampilan Blade dashboard dan rute ke versi terbaru, dengan opsi `--clean-backups` dan `--no-backup`.
     - **Pembersihan Berkas & Direktori Usang**: Otomatis mendeteksi dan menghapus berkas serta direktori peninggalan versi lama yang sudah tidak digunakan (`routes/security.php`, `routes/security-api.php`, `config/security.php`, `resources/views/pages/security`, `resources/js/pages/security`, `resources/js/components/security`, `web-docs/`, `finis.sh`, `install-dash.sh`), serta memangkas arsip cadangan berlebih (`.backup-*`) dengan mempertahankan 2 cadangan paling mutakhir.
 
-- **Aksi Unduh Berkas & Modal Konfirmasi Verifikasi Berkas Aman pada Server Audit** (`stubs/blade/pages/pasak/server.blade.php`, `PasakServerSecurityService.php`, `PasakServerController.php`):
+- **Aksi Unduh Berkas & Modal Konfirmasi Verifikasi Berkas Aman pada Server Audit** (`stubs/blade/pages/pasax/server.blade.php`, `PasaxServerSecurityService.php`, `PasaxServerController.php`):
   - Menambahkan tombol unduh aman (`⬇️ Unduh`) pada tabel berkas mencurigakan & modal detail inspeksi yang memungkinkan admin mengunduh berkas berbahaya/mencurigakan secara aman dengan header `application/octet-stream` dan `X-Content-Type-Options: nosniff` untuk analisis offline.
   - Menambahkan aksi `🛡️ Verifikasi` dan modal konfirmasi `🛡️ Verifikasi Berkas Aman` yang memungkinkan admin menandai false positive sebagai berkas aman/terverifikasi disertai catatan investigasi opsional.
   - Berkas terverifikasi dicatat secara permanen di storage (`app/security/verified_files.json`) lengkap dengan hash SHA-256, ukuran, identitas verifikator, dan waktu verifikasi, serta otomatis dikecualikan dari pemindaian mencurigakan masa depan selama hash berkas tidak dimanipulasi.
-- **Tombol Aksi Cepat & Modal Dialog Karantina IP Interaktif pada Log Keamanan** (`stubs/blade/pages/pasak/logs.blade.php`, `PasakBlockedIpController.php`):
+- **Tombol Aksi Cepat & Modal Dialog Karantina IP Interaktif pada Log Keamanan** (`stubs/blade/pages/pasax/logs.blade.php`, `PasaxBlockedIpController.php`):
   - Menambahkan tombol aksi cepat `🚫` di sebelah alamat IP dan tombol `🚫 Blokir` pada setiap baris riwayat log keamanan.
   - Menghadirkan modal dialog karantina terpadu `🚫 Blokir Alamat IP` yang memungkinkan admin memblokir penyerang secara instan langsung dari halaman log.
   - Mendukung pemilihan cakupan pemblokiran berbasis kartu responsif: **Hanya Perangkat** (`device` - isolasi fingerprint peramban tanpa mengorbankan pengguna lain di jaringan NAT/Wi-Fi yang sama) dan **Seluruh IP Router** (`ip` - blokir penuh seluruh lalu lintas dari IP publik tersebut).
   - Pilihan durasi fleksibel (1 jam, 6 jam, 12 jam, 24 jam, 3 hari, 7 hari, 30 hari, atau Permanen) dengan auto-fill alasan ancaman dan catatan investigasi internal opsional.
-  - Terintegrasi langsung dengan `PasakSentinelBridge` untuk langsung meneruskan pemblokiran router IP ke kernel firewall Linux (`nftables`/`iptables`).
-- **Chart Visual Tren Serangan (Line Chart) pada Halaman Security Logs** (`stubs/blade/pages/pasak/logs.blade.php`, `PasakLogController.php`):
+  - Terintegrasi langsung dengan `PasaxSentinelBridge` untuk langsung meneruskan pemblokiran router IP ke kernel firewall Linux (`nftables`/`iptables`).
+- **Chart Visual Tren Serangan (Line Chart) pada Halaman Security Logs** (`stubs/blade/pages/pasax/logs.blade.php`, `PasaxLogController.php`):
   - Menambahkan kartu visualisasi grafik garis (_line chart_) interaktif berbasis vektor SVG murni (zero-dependency) pada halaman audit log keamanan.
   - Mendukung pergantian rentang waktu dinamis dengan tombol filter **Minggu** (7 hari), **Bulan** (30 hari), dan **Tahun** (12 bulan) dengan tetap mempertahankan filter pencarian, event, level keparahan, rentang tanggal, dan jumlah paginasi tabel.
   - Dilengkapi ringkasan telemetri eksekutif (total ancaman pada periode, tanggal & volume serangan puncak, rata-rata harian/bulanan), titik data interaktif (_nodes_) dengan tooltip rincian keparahan (Critical, High, Medium, Low), garis grid horizontal berlabel sumbu Y, serta gradien area visual (_smooth area fill_).
@@ -274,24 +274,24 @@ All notable changes to `pasak-dev/secure-monitor` will be documented in this fil
 
 - **Pembersihan Direktori Dokumentasi Standalone Lama (`web-docs/` & `finis.sh`)**:
   - Menghapus folder `web-docs/` (Astro Starlight) seutuhnya (~462 MB) dan berkas pembungkus `finis.sh`.
-  - Seluruh 29 modul dokumentasi teknis `pasak-secure-monitor` telah dialihkan permanen ke **Pasak Cloud SOC** (`https://pasak.is-a.dev/docs`) bertenaga **Neon Serverless PostgreSQL Database**.
+  - Seluruh 29 modul dokumentasi teknis `pasax-secure-monitor` telah dialihkan permanen ke **Pasax Cloud SOC** (`https://pasax.is-a.dev/docs`) bertenaga **Neon Serverless PostgreSQL Database**.
   - Membersihkan referensi `web-docs` dan `finis.sh` dari `composer.json`, `.gitattributes`, `push.sh`, dan `AGENTS.md`.
 
 ## [1.7.0] - 2026-11-09
 
 ### Added
 
-- **Jembatan IPC Unix Domain Socket ke Pasak Sentinel Host Daemon (`PasakSentinelBridge`)** — menambahkan jembatan komunikasi performa tinggi (< 0.2ms) antara aplikasi Laravel dan daemon `pasak-sentinel` melalui socket Unix (`/run/pasak/agent.sock` atau `/tmp/pasak/agent.sock`).
-- **Delegasi Pemblokiran IP Otomatis ke Kernel Firewall Linux (`nftables` / `iptables`)** — setiap pemblokiran IP yang dipicu oleh honeypot, tripwire, atau deteksi anomali di `PasakService::blockIp()` kini otomatis diteruskan ke kernel firewall host melalui Sentinel untuk melakukan drop koneksi seketika sebelum paket menyentuh PHP-FPM atau thread web server.
-- **Sinkronisasi Pembukaan Blokir Kernel Firewall** — `PasakService::unblock()` dan `PasakService::unblockIp()` secara otomatis menginstruksikan daemon Sentinel untuk mencabut aturan drop IP dari kernel firewall saat blokir dicabut oleh admin.
-- **Perintah Diagnostik CLI `php artisan pasak:sentinel`** — menyediakan perintah artisan terpadu dengan opsi `--ping`, `--status`, `--block=IP`, dan `--unblock=IP` untuk menguji dan memverifikasi koneksi socket Unix dengan daemon Sentinel secara langsung dari terminal.
-- **Konfigurasi Lingkungan Terpusat (`config/pasak.php`)** — penambahan blok konfigurasi `sentinel` dengan opsi `enabled`, `socket`, dan `timeout` yang dapat disesuaikan lewat environment variable `PASAK_SENTINEL_SOCKET`.
+- **Jembatan IPC Unix Domain Socket ke Pasax Sentinel Host Daemon (`PasaxSentinelBridge`)** — menambahkan jembatan komunikasi performa tinggi (< 0.2ms) antara aplikasi Laravel dan daemon `pasax-sentinel` melalui socket Unix (`/run/pasax/agent.sock` atau `/tmp/pasax/agent.sock`).
+- **Delegasi Pemblokiran IP Otomatis ke Kernel Firewall Linux (`nftables` / `iptables`)** — setiap pemblokiran IP yang dipicu oleh honeypot, tripwire, atau deteksi anomali di `PasaxService::blockIp()` kini otomatis diteruskan ke kernel firewall host melalui Sentinel untuk melakukan drop koneksi seketika sebelum paket menyentuh PHP-FPM atau thread web server.
+- **Sinkronisasi Pembukaan Blokir Kernel Firewall** — `PasaxService::unblock()` dan `PasaxService::unblockIp()` secara otomatis menginstruksikan daemon Sentinel untuk mencabut aturan drop IP dari kernel firewall saat blokir dicabut oleh admin.
+- **Perintah Diagnostik CLI `php artisan pasax:sentinel`** — menyediakan perintah artisan terpadu dengan opsi `--ping`, `--status`, `--block=IP`, dan `--unblock=IP` untuk menguji dan memverifikasi koneksi socket Unix dengan daemon Sentinel secara langsung dari terminal.
+- **Konfigurasi Lingkungan Terpusat (`config/pasax.php`)** — penambahan blok konfigurasi `sentinel` dengan opsi `enabled`, `socket`, dan `timeout` yang dapat disesuaikan lewat environment variable `PASAX_SENTINEL_SOCKET`.
 
 ## [1.6.9] - 2026-11-07
 
 ### Added
 
-- **Modal Dialog Detail & Bukti Cuplikan Kode untuk Berkas Mencurigakan** (`stubs/blade/pages/pasak/server.blade.php`) — menambahkan tombol `🔍 Detail` dan tautan interaktif pada setiap baris temuan di tabel _Suspicious files & webshells_. Modal menyajikan nama berkas, jalur lengkap, kategori ancaman, ukuran, waktu modifikasi presisi, alasan lengkap, serta blok bukti cuplikan kode (`$file['snippet']`) yang terdeteksi dengan tombol hapus langsung dari dalam modal.
+- **Modal Dialog Detail & Bukti Cuplikan Kode untuk Berkas Mencurigakan** (`stubs/blade/pages/pasax/server.blade.php`) — menambahkan tombol `🔍 Detail` dan tautan interaktif pada setiap baris temuan di tabel _Suspicious files & webshells_. Modal menyajikan nama berkas, jalur lengkap, kategori ancaman, ukuran, waktu modifikasi presisi, alasan lengkap, serta blok bukti cuplikan kode (`$file['snippet']`) yang terdeteksi dengan tombol hapus langsung dari dalam modal.
 - **Kolom Tanggal Modifikasi Presisi pada Tabel Audit Server** — menyajikan tanggal & jam berkas hingga satuan detik (`d M Y, H:i:s`) dengan timestamp relatif (`diffForHumans`) dan tooltip ISO 8601.
 
 ### Fixed

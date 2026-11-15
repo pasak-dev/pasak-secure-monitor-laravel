@@ -2,12 +2,12 @@
     "date": "2026-10-17",
     "type": "important",
     "title": {
-        "id": "Pasak hadir di katalog paket PHP publik",
-        "en": "Pasak is now listed in the public PHP package catalog"
+        "id": "Pasax hadir di katalog paket PHP publik",
+        "en": "Pasax is now listed in the public PHP package catalog"
     },
     "body": {
-        "id": "Paket keamanan aplikasi Pasak kini resmi terdaftar di katalog paket PHP publik: satu perangkat perlindungan menyeluruh untuk aplikasi web — menolak serangan di gerbang, mengisolasi pelaku, menjaga integritas server, dan menyajikan laporan pemantauan — yang bisa dipasang pengembang mana pun dengan satu perintah, lengkap dengan 25 bab dokumentasi, alat audit baris perintah, dan halaman paket siap baca.",
-        "en": "The Pasak application security package is now officially registered in the public PHP package catalog: one all-around protection suite for web applications — stopping attacks at the gate, isolating offenders, guarding server integrity, and serving monitoring reports — installable by any developer with a single command, complete with a 25-chapter documentation suite, command-line audit tools, and a ready-to-read package page."
+        "id": "Paket keamanan aplikasi Pasax kini resmi terdaftar di katalog paket PHP publik: satu perangkat perlindungan menyeluruh untuk aplikasi web — menolak serangan di gerbang, mengisolasi pelaku, menjaga integritas server, dan menyajikan laporan pemantauan — yang bisa dipasang pengembang mana pun dengan satu perintah, lengkap dengan 25 bab dokumentasi, alat audit baris perintah, dan halaman paket siap baca.",
+        "en": "The Pasax application security package is now officially registered in the public PHP package catalog: one all-around protection suite for web applications — stopping attacks at the gate, isolating offenders, guarding server integrity, and serving monitoring reports — installable by any developer with a single command, complete with a 25-chapter documentation suite, command-line audit tools, and a ready-to-read package page."
     },
     "items": [
         {

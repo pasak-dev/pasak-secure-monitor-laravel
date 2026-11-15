@@ -1,12 +1,12 @@
 <?php
 
-namespace Pasak\SecureMonitor\Support;
+namespace Pasax\SecureMonitor\Support;
 
 /**
- * Legacy alias for PasakDashboardView.
+ * Legacy alias for PasaxDashboardView.
  */
-class DashboardView extends PasakDashboardView {}
+class DashboardView extends PasaxDashboardView {}
 
-if (! class_exists('Pasak\SecureMonitor\Support\DashboardView', false)) {
-    class_alias(PasakDashboardView::class, 'Pasak\SecureMonitor\Support\DashboardView');
+if (! class_exists('Pasax\SecureMonitor\Support\DashboardView', false)) {
+    class_alias(PasaxDashboardView::class, 'Pasax\SecureMonitor\Support\DashboardView');
 }
