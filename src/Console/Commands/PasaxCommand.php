@@ -39,7 +39,7 @@ class PasaxCommand extends Command
         $this->output->writeln('  <fg=yellow;options=bold>██╔═══╝ ██╔══██║╚════██║██╔══██║ ██╔██╗ </>');
         $this->output->writeln('  <fg=yellow;options=bold>██║     ██║  ██║███████║██║  ██║██╔╝ ██╗</>');
         $this->output->writeln('  <fg=yellow;options=bold>╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝</>');
-        $this->output->writeln('  <fg=cyan;options=bold>PASAX DEFENSE SUITE — HEADLESS WAF & SECURITY MONITOR (v1.0.0)</>');
+        $this->output->writeln('  <fg=cyan;options=bold>PASAX DEFENSE SUITE — HEADLESS WAF & SECURITY MONITOR (v'.\Pasax\SecureMonitor\Services\PasaxService::VERSION.')</>');
         $this->output->writeln('');
 
         $enabled = config('pasax.enabled', true);
