@@ -207,7 +207,7 @@ class PasaxVersionCheckService
 
         $output->writeln([
             '',
-            '  <bg=blue;fg=white;options=bold> BULWARK SECURITY </> <options=bold;fg=yellow>Pembaruan Tersedia!</> Versi terbaru <options=bold;fg=green>v'.$latest.'</> telah dirilis (versi saat ini: <fg=red>v'.$current.'</>).',
+            '  <bg=blue;fg=white;options=bold> PASAX SECURITY </> <options=bold;fg=yellow>Pembaruan Tersedia!</> Versi terbaru <options=bold;fg=green>v'.$latest.'</> telah dirilis (versi saat ini: <fg=red>v'.$current.'</>).',
             '  <fg=gray>Jalankan perintah berikut untuk memperbarui package dan menyinkronkan seluruh komponen:</>',
             '  <options=bold;fg=cyan>php artisan pasax:upgrade</>',
             '',

@@ -44,7 +44,7 @@ class PasaxDeployCommand extends Command
     public function handle(): int
     {
         $this->newLine();
-        $this->line('  <bg=blue;fg=white;options=bold> BULWARK / PASAX DEPLOY (VPS / PRODUCTION) </>');
+        $this->line('  <bg=blue;fg=white;options=bold> PASAX DEPLOY (VPS / PRODUCTION) </>');
         $this->newLine();
 
         $force = (bool) $this->option('force');

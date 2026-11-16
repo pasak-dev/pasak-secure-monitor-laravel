@@ -32,13 +32,13 @@ class PasaxUpgradeCommand extends Command
                             {--sync-routes : Paksa sinkronkan ulang berkas routes/pasax.php dan routes/pasax-api.php}
                             {--sync-views : Paksa sinkronkan ulang berkas tampilan dashboard Blade}';
 
-    protected $description = 'Periksa dan perbarui package Pasax (Bulwark) ke versi terbaru serta sinkronkan migrasi, rute, dan tampilan dashboard';
+    protected $description = 'Periksa dan perbarui package Pasax ke versi terbaru serta sinkronkan migrasi, rute, dan tampilan dashboard';
 
     public function handle(PasaxVersionCheckService $versionChecker): int
     {
         $this->newLine();
         $this->line(
-            '  <bg=blue;fg=white;options=bold> BULWARK SECURITY UPGRADE </>',
+            '  <bg=blue;fg=white;options=bold> PASAX SECURITY UPGRADE </>',
         );
         $this->newLine();
 
@@ -96,6 +96,9 @@ class PasaxUpgradeCommand extends Command
 
         $this->info('Memulai proses pembaruan dan sinkronisasi...');
         $this->newLine();
+
+        // Selaraskan composer.json (migrasi nama lama robyajo/pasax -> pasax/secure-monitor)
+        $this->syncComposerConstraint(PasaxService::VERSION);
 
         // 1. Composer Update
         if (! $this->option('no-composer')) {
@@ -987,18 +990,14 @@ MARKDOWN;
         }
 
         $content = File::get($composerPath);
-        $pattern = '/("(?:robyajo\/pasax|pasax-dev\/secure-monitor|pasax\/secure-monitor)"\s*:\s*")([^"]+)(")/';
+        $target = "^{$version}";
+        $pattern = '/"(?:robyajo\/pasax|pasax-dev\/secure-monitor|pasax-dev\/pasax-secure-monitor-laravel|pasax\/secure-monitor)"\s*:\s*"[^"]+"/i';
 
-        if (preg_match($pattern, $content, $matches)) {
-            $current = $matches[2];
-            $target = "^{$version}";
-
-            if ($current !== $target && ! in_array($current, ['@dev', 'dev-main'], true)) {
-                $newContent = preg_replace($pattern, '${1}'.$target.'${3}', $content, 1);
-                if ($newContent !== null && $newContent !== $content) {
-                    File::put($composerPath, $newContent);
-                    $this->info("  ✓ Versi pasax/secure-monitor di composer.json diselaraskan ke \"{$target}\".");
-                }
+        if (preg_match($pattern, $content)) {
+            $newContent = preg_replace($pattern, '"pasax/secure-monitor": "'.$target.'"', $content, 1);
+            if ($newContent !== null && $newContent !== $content) {
+                File::put($composerPath, $newContent);
+                $this->info('  ✓ Paket pasax/secure-monitor di composer.json diselaraskan ke "'.$target.'".');
             }
         }
     }
@@ -1290,20 +1289,6 @@ PHP;
 
     protected function detectInstalledPackageName(): string
     {
-        $composerPath = base_path('composer.json');
-        if (File::exists($composerPath)) {
-            $c = File::get($composerPath);
-            if (str_contains($c, 'pasax/secure-monitor')) {
-                return 'pasax/secure-monitor';
-            }
-            if (str_contains($c, 'pasax-dev/pasax-secure-monitor-laravel')) {
-                return 'pasax-dev/pasax-secure-monitor-laravel';
-            }
-            if (str_contains($c, 'robyajo/pasax')) {
-                return 'robyajo/pasax';
-            }
-        }
-
         return 'pasax/secure-monitor';
     }
 }
