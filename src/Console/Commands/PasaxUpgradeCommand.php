@@ -565,31 +565,29 @@ class PasaxUpgradeCommand extends Command
             '  ✓ Kunci config baru dicakup bawaan paket (tidak ada kustomisasi yang ditimpa).',
         );
 
-        // 3. Sidecar .htaccess.pasax untuk standar baru (tidak menyentuh milik user).
+        // 3. Sidecar .htaccess.pasax untuk standar baru (hanya jika public/.htaccess belum memiliki aturan hardening).
         $sidecar = public_path('.htaccess.pasax');
+        $htaccessPath = public_path('.htaccess');
+        $stubHtaccess = __DIR__.'/../../../stubs/htaccess.stub';
 
-        if (! File::exists($sidecar)) {
-            foreach (
-                [
-                    __DIR__.'/../../../stubs/htaccess.stub',
-                    __DIR__.'/../../../stubs/htaccess.stub',
-                ] as $stubPath
-            ) {
-                if (File::exists($stubPath)) {
-                    try {
-                        File::ensureDirectoryExists(dirname($sidecar));
-                        File::copy($stubPath, $sidecar);
-                        $this->info(
-                            '  ✓ Berkas tinjauan public/.htaccess.pasax dibuat (milik Anda tidak diubah).',
-                        );
-                    } catch (Throwable $e) {
-                        $this->warn(
-                            '  ⚠ Gagal membuat public/.htaccess.pasax: '.
-                                $e->getMessage(),
-                        );
-                    }
-                    break;
-                }
+        $isAlreadyHardened = false;
+        if (File::exists($htaccessPath) && File::exists($stubHtaccess)) {
+            $isAlreadyHardened = (md5_file($htaccessPath) === md5_file($stubHtaccess))
+                || str_contains((string) File::get($htaccessPath), 'PASAX')
+                || str_contains((string) File::get($htaccessPath), 'BULWARK');
+        }
+
+        if (! File::exists($sidecar) && ! $isAlreadyHardened && File::exists($stubHtaccess)) {
+            try {
+                File::ensureDirectoryExists(dirname($sidecar));
+                File::copy($stubHtaccess, $sidecar);
+                $this->info(
+                    '  ✓ Berkas tinjauan public/.htaccess.pasax dibuat (milik Anda tidak diubah).',
+                );
+            } catch (Throwable $e) {
+                $this->warn(
+                    '  ⚠ Gagal membuat public/.htaccess.pasax: '.$e->getMessage(),
+                );
             }
         }
 
@@ -867,6 +865,12 @@ class PasaxUpgradeCommand extends Command
                 continue;
             }
 
+            $stub = $this->resolveStubForHostPath($path);
+            if ($stub !== null && ! $this->targetDiffersFromSource($path, $stub)) {
+                // Konten identik dengan template bawaan; jangan buat berkas sampah cadangan.
+                continue;
+            }
+
             $backup = $path.'.backup-'.date('Ymd_His');
 
             try {
@@ -875,13 +879,95 @@ class PasaxUpgradeCommand extends Command
                 } else {
                     File::copy($path, $backup);
                 }
-                $this->line("  ℹ Cadangan kustomisasi disimpan di: {$backup}");
+                $rel = $this->relativeHostPath($path);
+                $this->line("  ℹ Perubahan terdeteksi pada {$rel}. Cadangan kustomisasi disimpan di: {$backup}");
             } catch (Throwable $e) {
                 $this->warn(
                     '  ⚠ Gagal mencadangkan '.$path.': '.$e->getMessage(),
                 );
             }
         }
+    }
+
+    protected function resolveStubForHostPath(string $hostPath): ?string
+    {
+        $stubBase = dirname(__DIR__, 3).'/stubs';
+        $normalized = str_replace('\\', '/', $hostPath);
+
+        if (str_ends_with($normalized, 'routes/pasax.php')) {
+            return $stubBase.'/routes/pasax.php.stub';
+        }
+        if (str_ends_with($normalized, 'routes/pasax-api.php') || str_ends_with($normalized, 'routes/pasax-service.php')) {
+            return $stubBase.'/routes/pasax-api.php.stub';
+        }
+        if (str_ends_with($normalized, 'views/pages/pasax')) {
+            return $stubBase.'/blade/pages/pasax';
+        }
+        if (str_ends_with($normalized, 'views/errors/blocked.blade.php')) {
+            return $stubBase.'/blocked.blade.php';
+        }
+        if (str_ends_with($normalized, 'views/errors/pasax-login-throttle.blade.php')) {
+            return $stubBase.'/pasax-login-throttle.blade.php';
+        }
+        if (str_ends_with($normalized, 'public/.htaccess')) {
+            return $stubBase.'/htaccess.stub';
+        }
+
+        return null;
+    }
+
+    protected function targetDiffersFromSource(string $hostPath, string $sourcePath): bool
+    {
+        if (! File::exists($hostPath) || ! File::exists($sourcePath)) {
+            return false;
+        }
+
+        if (File::isFile($hostPath)) {
+            if (! File::isFile($sourcePath)) {
+                return true;
+            }
+
+            return md5_file($hostPath) !== md5_file($sourcePath);
+        }
+
+        if (File::isDirectory($hostPath)) {
+            if (! File::isDirectory($sourcePath)) {
+                return true;
+            }
+
+            $sourceFiles = File::allFiles($sourcePath);
+            $hostFiles = File::allFiles($hostPath);
+
+            $sourceRelMap = [];
+            foreach ($sourceFiles as $sf) {
+                $sourceRelMap[$sf->getRelativePathname()] = $sf->getRealPath();
+            }
+
+            $hostRelMap = [];
+            foreach ($hostFiles as $hf) {
+                if (str_contains($hf->getFilename(), 'backup')) {
+                    continue;
+                }
+                $hostRelMap[$hf->getRelativePathname()] = $hf->getRealPath();
+            }
+
+            ksort($sourceRelMap);
+            ksort($hostRelMap);
+
+            if (array_keys($sourceRelMap) !== array_keys($hostRelMap)) {
+                return true;
+            }
+
+            foreach ($sourceRelMap as $rel => $sourceRealPath) {
+                if (md5_file($sourceRealPath) !== md5_file($hostRelMap[$rel])) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return false;
     }
 
     /**
@@ -1120,6 +1206,7 @@ MARKDOWN;
             resource_path('views/errors'),
             base_path('routes'),
             config_path(),
+            public_path(),
         ];
 
         $deleteAll = (bool) $this->option('clean-backups');

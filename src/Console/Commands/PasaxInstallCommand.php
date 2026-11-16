@@ -675,11 +675,22 @@ class PasaxInstallCommand extends Command
             return;
         }
 
+        $isIdentical = File::get($htaccessPath) === $stubContent;
+        $hasPasaxRules = str_contains((string) File::get($htaccessPath), 'PASAX') || str_contains((string) File::get($htaccessPath), 'BULWARK');
+
         if ($force) {
-            // Eksplisit (--force / --with-htaccess): cadangkan lalu aktifkan.
+            if ($isIdentical) {
+                $this->info(
+                    '  ✓ Berkas public/.htaccess sudah menggunakan aturan hardening mutakhir (tidak perlu dicadangkan/diubah).',
+                );
+
+                return;
+            }
+
+            // Eksplisit (--force / --with-htaccess): cadangkan HANYA jika isinya berbeda
             $backupPath = public_path('.htaccess.backup-'.date('Ymd_His'));
             File::copy($htaccessPath, $backupPath);
-            $this->line("  ℹ Cadangan dibuat di: <fg=gray>{$backupPath}</>");
+            $this->line("  ℹ Perubahan terdeteksi. Cadangan dibuat di: <fg=gray>{$backupPath}</>");
             File::put($htaccessPath, $stubContent);
             $this->info(
                 '  ✓ Berkas public/.htaccess berhasil diperbarui dengan aturan hardening lengkap.',
@@ -688,8 +699,14 @@ class PasaxInstallCommand extends Command
             return;
         }
 
-        // Bawaan: JANGAN sentuh .htaccess milik user. Tulis berkas BARU
-        // berdampingan agar dapat ditinjau sebelum diaktifkan manual.
+        // Bawaan: jika .htaccess sudah identik atau sudah memiliki aturan hardening, jangan buat file sampah .htaccess.pasax
+        if ($isIdentical || $hasPasaxRules) {
+            $this->info('  ✓ Berkas public/.htaccess sudah terpasang aturan hardening lengkap.');
+
+            return;
+        }
+
+        // Tulis berkas BARU berdampingan agar dapat ditinjau sebelum diaktifkan manual.
         File::put($pasaxHtaccessPath, $stubContent);
         $this->info('  ✓ Berkas public/.htaccess milik Anda TIDAK diubah.');
         $this->line(
