@@ -33,7 +33,7 @@ class PasaxService
     /**
      * Versi paket Pasax (Bulwark).
      */
-    public const VERSION = '1.0.2';
+    public const VERSION = '1.0.3';
 
     /**
      * Rentang waktu yang didukung grafik tren serangan.
