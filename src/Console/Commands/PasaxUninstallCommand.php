@@ -732,11 +732,12 @@ class PasaxUninstallCommand extends Command
      */
     protected function removeComposerPackage(): void
     {
+        $pkgName = $this->detectInstalledPackageName();
         $composer = $this->findComposerBinary();
 
         if ($composer === null) {
             $this->line(
-                '  - Composer tidak ditemukan di PATH; jalankan manual: <fg=yellow>composer remove robyajo/pasax</>',
+                '  - Composer tidak ditemukan di PATH; jalankan manual: <fg=yellow>composer remove '.$pkgName.'</>',
             );
 
             return;
@@ -748,16 +749,35 @@ class PasaxUninstallCommand extends Command
         $code = 0;
         $cmd =
             escapeshellcmd($composer).
-            ' remove robyajo/pasax --no-interaction --no-audit 2>&1';
+            ' remove '.$pkgName.' --no-interaction --no-audit 2>&1';
         exec($cmd, $output, $code);
 
         if ($code === 0) {
-            $this->info('  ✓ Paket robyajo/pasax dilepas dari composer.json.');
+            $this->info('  ✓ Paket '.$pkgName.' dilepas dari composer.json.');
         } else {
             $this->warn(
-                '  ⚠ composer remove gagal; jalankan manual: composer remove robyajo/pasax',
+                '  ⚠ composer remove gagal; jalankan manual: composer remove '.$pkgName,
             );
         }
+    }
+
+    protected function detectInstalledPackageName(): string
+    {
+        $composerPath = base_path('composer.json');
+        if (File::exists($composerPath)) {
+            $c = File::get($composerPath);
+            if (str_contains($c, 'pasax/secure-monitor')) {
+                return 'pasax/secure-monitor';
+            }
+            if (str_contains($c, 'pasax-dev/pasax-secure-monitor-laravel')) {
+                return 'pasax-dev/pasax-secure-monitor-laravel';
+            }
+            if (str_contains($c, 'robyajo/pasax')) {
+                return 'robyajo/pasax';
+            }
+        }
+
+        return 'pasax/secure-monitor';
     }
 
     protected function findComposerBinary(): ?string

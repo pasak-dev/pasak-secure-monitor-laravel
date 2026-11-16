@@ -100,10 +100,11 @@ class PasaxUpgradeCommand extends Command
         // 1. Composer Update
         if (! $this->option('no-composer')) {
             $this->comment('1/6. Memperbarui package via Composer...');
+            $pkgName = $this->detectInstalledPackageName();
             $composer = $this->findComposer();
             $cmd = array_merge($composer, [
                 'update',
-                'robyajo/pasax',
+                $pkgName,
                 '--with-all-dependencies',
             ]);
 
@@ -130,7 +131,7 @@ class PasaxUpgradeCommand extends Command
                             $e->getMessage(),
                     );
                     $this->line(
-                        '  Silakan jalankan <info>composer update robyajo/pasax</info> secara manual jika diperlukan.',
+                        '  Silakan jalankan <info>composer update '.$pkgName.'</info> secara manual jika diperlukan.',
                     );
                 }
             } else {
@@ -986,7 +987,7 @@ MARKDOWN;
         }
 
         $content = File::get($composerPath);
-        $pattern = '/("(?:robyajo\/pasax|pasax-dev\/secure-monitor)"\s*:\s*")([^"]+)(")/';
+        $pattern = '/("(?:robyajo\/pasax|pasax-dev\/secure-monitor|pasax\/secure-monitor)"\s*:\s*")([^"]+)(")/';
 
         if (preg_match($pattern, $content, $matches)) {
             $current = $matches[2];
