@@ -217,7 +217,7 @@ class SecurityVersionCheckTest extends TestCase
             '--no-composer' => true,
             '--no-migrate' => true,
         ])
-            ->expectsOutputToContain('BULWARK SECURITY UPGRADE')
+            ->expectsOutputToContain('PASAX SECURITY UPGRADE')
             ->expectsOutputToContain('Membersihkan berkas dan direktori usang dari versi lama')
             ->assertExitCode(0);
     }

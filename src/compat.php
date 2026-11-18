@@ -4,7 +4,7 @@
 // published under Internal\Pasax and Internal\SecurityMonitor. Old host applications
 // referencing those class names keep working via these aliases.
 
-if (!function_exists("pasax_safe_class_alias")) {
+if (! function_exists('pasax_safe_class_alias')) {
     /**
      * Safely define a class/trait/interface alias without crashing if the alias
      * was already declared in host application or an older cached package.
@@ -12,9 +12,9 @@ if (!function_exists("pasax_safe_class_alias")) {
     function pasax_safe_class_alias(string $target, string $alias): void
     {
         if (
-            !class_exists($alias, false) &&
-            !interface_exists($alias, false) &&
-            !trait_exists($alias, false)
+            ! class_exists($alias, false) &&
+            ! interface_exists($alias, false) &&
+            ! trait_exists($alias, false)
         ) {
             try {
                 if (
@@ -24,7 +24,7 @@ if (!function_exists("pasax_safe_class_alias")) {
                 ) {
                     @class_alias($target, $alias);
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 // Silently ignore if already declared, aliased, or conflicting
             }
         }
@@ -341,16 +341,16 @@ foreach ($aliases as [$target, $alias]) {
 // Fallback autoloader for any remaining Internal\Pasax\* references
 // Fallback autoloader for any remaining Pasak\* or Internal\Pasak\* references
 spl_autoload_register(function ($class) {
-    if (str_starts_with($class, "Pasak\\SecureMonitor\\")) {
+    if (str_starts_with($class, 'Pasak\\SecureMonitor\\')) {
         $target =
-            "Pasax\\SecureMonitor\\" .
-            substr($class, strlen("Pasak\\SecureMonitor\\"));
+            'Pasax\\SecureMonitor\\'.
+            substr($class, strlen('Pasak\\SecureMonitor\\'));
         pasax_safe_class_alias($target, $class);
     }
-    if (str_starts_with($class, "Internal\\Pasak\\")) {
+    if (str_starts_with($class, 'Internal\\Pasak\\')) {
         $target =
-            "Pasax\\SecureMonitor\\" .
-            substr($class, strlen("Internal\\Pasak\\"));
+            'Pasax\\SecureMonitor\\'.
+            substr($class, strlen('Internal\\Pasak\\'));
         pasax_safe_class_alias($target, $class);
     }
 });
